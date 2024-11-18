@@ -1,0 +1,90 @@
+'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up (queryInterface, Sequelize) {
+    await queryInterface.createTable('tab_aluno', {
+      cod_aluno: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.DataTypes.INTEGER
+      },
+      nome_aluno: {
+        allowNull: false,
+        type: Sequelize.DataTypes.STRING,
+      },
+      cpf_aluno: {
+        type: Sequelize.DataTypes.STRING,
+        unique: true,
+      },
+      rg_aluno: {
+        type: Sequelize.DataTypes.STRING,
+        unique: true,
+      },
+      telefone_aluno: {
+        type: Sequelize.DataTypes.STRING,
+        unique: true,
+      },
+      email_aluno: {
+        allowNull: false,
+        type: Sequelize.DataTypes.STRING,
+        unique: true,
+      },
+      data_nascimento_aluno: {
+        type: Sequelize.DataTypes.DATEONLY,
+      },
+      sexo_aluno: {
+        type: Sequelize.DataTypes.ENUM('M', 'F'),
+      },
+      cep_aluno: {
+        type: Sequelize.DataTypes.STRING,
+      },
+      endereco_aluno: {
+        type: Sequelize.DataTypes.STRING,
+      },
+      numero_aluno: {
+        type: Sequelize.DataTypes.STRING,
+      },
+      complemento_aluno: {
+        type: Sequelize.DataTypes.STRING,
+      },
+      bairro_aluno: {
+        type: Sequelize.DataTypes.STRING,
+      },
+      estado_aluno: {
+        type: Sequelize.DataTypes.STRING,
+      },
+      cidade_aluno: {
+        type: Sequelize.DataTypes.STRING,
+      },
+      observacao_aluno: {
+        type: Sequelize.DataTypes.TEXT,
+      },
+      senha_aluno: {
+        allowNull: false,
+        type: Sequelize.DataTypes.STRING,
+      },
+      cod_usuario: {
+        allowNull: false,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_usuario',
+          key: 'cod_usuario'
+        }
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DataTypes.DATE,
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DataTypes.DATE,
+      },
+    })
+  },
+
+  async down (queryInterface, Sequelize) {
+    queryInterface.dropTable('tab_aluno')
+  }
+};
