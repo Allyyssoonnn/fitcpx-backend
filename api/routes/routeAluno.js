@@ -1,7 +1,8 @@
 const router = require('express').Router();
 
-const { getAlunos } = require('../controllers/ctrlAluno');
+const { getAlunos, setAluno } = require('../controllers/ctrlAluno');
 
 router.post('/getAlunos', getAlunos);
+router.post('/setAluno', setAluno);
 
 module.exports = router;

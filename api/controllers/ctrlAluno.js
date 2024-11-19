@@ -6,6 +6,23 @@ async function getAlunos(req, res) {
     res.send({ status: true, alunos });
 }
 
+async function setAluno(req, res) {    
+    const { aluno } = req.body;
+    var alunoAtt;
+
+    if (aluno.cod_aluno) alunoAtt = await tab_aluno.findOne({ where: { cod_aluno: aluno.cod_aluno } });
+
+    if (alunoAtt) {
+        await tab_aluno.update(aluno, { where: { cod_aluno: aluno.cod_aluno } });
+    } else {
+        const novoAluno = await tab_aluno.create(aluno);
+        alunoAtt = novoAluno;
+    }
+
+    res.send({ status: true, aluno: alunoAtt });
+}
+
 module.exports = {
-    getAlunos
+    getAlunos,
+    setAluno
 }

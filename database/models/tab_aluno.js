@@ -20,6 +20,13 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         freezeTableName: true,
     });
+
+    tab_aluno.associate = (models) => {
+        tab_aluno.belongsTo(models.tab_usuario, { 
+            foreignKey: 'cod_usuario', 
+            as: 'usuario',
+        });
+    };
   
     return tab_aluno;
 }

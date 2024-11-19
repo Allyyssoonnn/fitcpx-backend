@@ -17,7 +17,7 @@ async function login(req, res) {
     }
 
     const token = jwt.sign({ email }, process.env.SECRET);
-    res.send({ status: true, token, nome_usuario: usuario.nome_usuario });
+    res.send({ status: true, token, nome_usuario: usuario.nome_usuario, cod_usuario: usuario.cod_usuario });
 }
 
 async function register(req, res) {

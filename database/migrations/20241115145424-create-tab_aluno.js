@@ -24,7 +24,6 @@ module.exports = {
       },
       telefone_aluno: {
         type: Sequelize.DataTypes.STRING,
-        unique: true,
       },
       email_aluno: {
         allowNull: false,
