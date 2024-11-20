@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
         nome_usuario: DataTypes.STRING,
         email_usuario: DataTypes.STRING,
         senha_usuario: DataTypes.STRING,
+        refreshToken: DataTypes.STRING,
     }, {
         freezeTableName: true,
     });

@@ -6,6 +6,12 @@ async function getAlunos(req, res) {
     res.send({ status: true, alunos });
 }
 
+async function getAluno(req, res) {    
+    const { cod_aluno } = req.body;
+    const aluno = await tab_aluno.findOne({ where: { cod_aluno: cod_aluno } });
+    res.send({ status: true, aluno });
+}
+
 async function setAluno(req, res) {    
     const { aluno } = req.body;
     var alunoAtt;
@@ -24,5 +30,6 @@ async function setAluno(req, res) {
 
 module.exports = {
     getAlunos,
+    getAluno,
     setAluno
 }

@@ -1,8 +1,10 @@
 const router = require('express').Router();
 
-const { getAlunos, setAluno } = require('../controllers/ctrlAluno');
+const verifyToken = require('../authMiddleware');
+const { getAlunos, setAluno, getAluno } = require('../controllers/ctrlAluno');
 
-router.post('/getAlunos', getAlunos);
-router.post('/setAluno', setAluno);
+router.post('/getAlunos', verifyToken, getAlunos);
+router.post('/getAluno', verifyToken, getAluno);
+router.post('/setAluno', verifyToken, setAluno);
 
 module.exports = router;

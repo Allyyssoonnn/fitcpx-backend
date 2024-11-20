@@ -1,5 +1,6 @@
 const { tab_usuario } = require('../../database/models');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 async function login(req, res) {    
     const { email, senha } = req.body;
@@ -16,8 +17,11 @@ async function login(req, res) {
         return;
     }
 
-    const token = jwt.sign({ email }, process.env.SECRET);
-    res.send({ status: true, token, nome_usuario: usuario.nome_usuario, cod_usuario: usuario.cod_usuario });
+    const token = jwt.sign({ email }, process.env.SECRET, { expiresIn: '7h' });
+    const refreshToken = crypto.randomBytes(64).toString('hex');
+    usuario.refreshToken = refreshToken;
+    usuario.save();
+    res.send({ status: true, token, refreshToken, nome_usuario: usuario.nome_usuario, cod_usuario: usuario.cod_usuario });
 }
 
 async function register(req, res) {
@@ -41,7 +45,23 @@ async function register(req, res) {
     res.send({ status: true, token, usuario: novoUsuario });
 }
 
+async function refreshToken(req, res) {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) return res.status(403).send({ status: false, msg: 'Token de atualização não fornecido!' });
+
+    // const usuario = await tab_usuario.findOne({ where: { refreshToken } });
+
+    // if (!usuario) {
+    //     return res.status(403).send({ status: false, msg: 'Token inválido!' });
+    // }
+
+    const newToken = jwt.sign({ email: usuario.email_usuario }, process.env.SECRET, { expiresIn: '7h' });
+    res.send({ status: true, token: newToken });
+}
+
 module.exports = {
     login,
-    register
+    register,
+    refreshToken
 }

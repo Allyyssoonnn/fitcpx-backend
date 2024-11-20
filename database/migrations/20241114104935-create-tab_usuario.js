@@ -23,6 +23,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
+      refreshToken: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,
