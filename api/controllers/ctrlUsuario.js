@@ -50,11 +50,11 @@ async function refreshToken(req, res) {
 
     if (!refreshToken) return res.status(403).send({ status: false, msg: 'Token de atualização não fornecido!' });
 
-    // const usuario = await tab_usuario.findOne({ where: { refreshToken } });
+    const usuario = await tab_usuario.findOne({ where: { refreshToken } });
 
-    // if (!usuario) {
-    //     return res.status(403).send({ status: false, msg: 'Token inválido!' });
-    // }
+    if (!usuario) {
+        return res.status(403).send({ status: false, msg: 'Token inválido!' });
+    }
 
     const newToken = jwt.sign({ email: usuario.email_usuario }, process.env.SECRET, { expiresIn: '7h' });
     res.send({ status: true, token: newToken });
