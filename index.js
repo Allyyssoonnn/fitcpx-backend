@@ -24,7 +24,7 @@ serverHttp.listen(PORT, () => console.log(`Backend do app está rodando na porta
 
 const serverApp = express();
 const PORTApp = 3070;
-serverApp.use(express.static(path.join(__dirname, '/dist')));
-serverApp.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/dist/index.html'))));
+serverApp.use(express.static(path.join(__dirname, '/app')));
+serverApp.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/app/index.html'))));
 const appHttp = http.createServer(serverApp);
 appHttp.listen(PORTApp, () => console.log(`Frontend do app está rodando na porta: ${PORTApp}`));
