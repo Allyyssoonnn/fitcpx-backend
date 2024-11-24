@@ -17,6 +17,7 @@ server.use(bodyParser.json({ limit: '50mb' }));
 server.get('/test', async (req, res) => res.send({status: true}));
 server.use('/usuario', require('./api/routes/routeUsuario'));
 server.use('/aluno', require('./api/routes/routeAluno'));
+server.use('/agenda', require('./api/routes/routeAgenda'));
 
 const serverHttp = http.createServer(server);
 serverHttp.listen(PORT, () => console.log(`Backend do app está rodando na porta: ${PORT}`));
