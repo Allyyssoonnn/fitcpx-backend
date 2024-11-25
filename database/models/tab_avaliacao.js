@@ -25,6 +25,34 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      triciptal: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      peitoral: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      subescapular: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      axilar_media: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      abdominal: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      coxa: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      supra_iliaca: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
       pescoco: {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: true,

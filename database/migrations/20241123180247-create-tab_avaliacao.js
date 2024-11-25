@@ -39,6 +39,36 @@ module.exports = {
         allowNull: true,
       },
 
+      // Campos de Dobras
+      triciptal: {
+        type: Sequelize.DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      peitoral: {
+        type: Sequelize.DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      subescapular: {
+        type: Sequelize.DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      axilar_media: {
+        type: Sequelize.DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      abdominal: {
+        type: Sequelize.DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      coxa: {
+        type: Sequelize.DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      supra_iliaca: {
+        type: Sequelize.DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+
       // Campos de Perímetros
       pescoco: {
         type: Sequelize.DataTypes.DECIMAL(5, 2),
