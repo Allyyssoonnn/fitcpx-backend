@@ -68,6 +68,18 @@ module.exports = {
         type: Sequelize.DataTypes.DECIMAL(5, 2),
         allowNull: true,
       },
+      supra_espinhal: {
+        type: Sequelize.DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      biciptal: {
+        type: Sequelize.DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      panturrilha: {
+        type: Sequelize.DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
 
       // Campos de Perímetros
       pescoco: {

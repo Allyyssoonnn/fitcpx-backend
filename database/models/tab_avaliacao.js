@@ -53,6 +53,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: true,
       },
+      supra_espinhal: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      biciptal: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      panturrilha: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
       pescoco: {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: true,
