@@ -17,9 +17,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: false,
       },
-      protocolo_dobras: {
-        type: DataTypes.STRING,
-        allowNull: true,
+      metabolismo_basal: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      gordura_viceral: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      cod_protocolo: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
       },
       metodo_dobras: {
         type: DataTypes.STRING,
@@ -159,6 +167,10 @@ module.exports = (sequelize, DataTypes) => {
           foreignKey: 'cod_aluno', 
           as: 'aluno',
       });
+      tab_avaliacao.belongsTo(models.tab_protocolo, { 
+        foreignKey: 'cod_protocolo', 
+        as: 'protocolo',
+    });
     };
   
     return tab_avaliacao;

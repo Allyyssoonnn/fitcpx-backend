@@ -1,4 +1,5 @@
 const { tab_usuario } = require('../../database/models');
+const { tab_protocolo } = require('../../database/models');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
@@ -60,8 +61,23 @@ async function refreshToken(req, res) {
     res.send({ status: true, token: newToken });
 }
 
+async function getProtocolos(req, res) {    
+    const { cod_usuario } = req.body;
+    const protocolos = await tab_protocolo.findAll();
+    const groupedProtocolos = protocolos.reduce((acc, protocolo) => {
+        if (!acc[protocolo.categoria_protocolo]) {
+            acc[protocolo.categoria_protocolo] = [];
+        }
+        acc[protocolo.categoria_protocolo].push(protocolo);
+        return acc;
+    }, {});
+    res.send({ status: true, protocolos: groupedProtocolos });
+}
+
+
 module.exports = {
     login,
     register,
-    refreshToken
+    refreshToken,
+    getProtocolos
 }

@@ -30,9 +30,21 @@ module.exports = {
         type: Sequelize.DataTypes.DECIMAL(5, 2),
         allowNull: false,
       },
-      protocolo_dobras: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: true,
+      metabolismo_basal: {
+        type: Sequelize.DataTypes.INTEGER,
+        allowNull: false,
+      },
+      gordura_viceral: {
+        type: Sequelize.DataTypes.INTEGER,
+        allowNull: false,
+      },
+      cod_protocolo: {
+        allowNull: false,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_protocolo',
+          key: 'cod_protocolo'
+        }
       },
       metodo_dobras: {
         type: Sequelize.DataTypes.STRING,

@@ -36,6 +36,9 @@ module.exports = {
       sexo_aluno: {
         type: Sequelize.DataTypes.ENUM('M', 'F'),
       },
+      etnia_aluno: {
+        type: Sequelize.DataTypes.STRING,
+      },
       cep_aluno: {
         type: Sequelize.DataTypes.STRING,
       },
