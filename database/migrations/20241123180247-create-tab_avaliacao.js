@@ -22,6 +22,11 @@ module.exports = {
         type: Sequelize.DataTypes.DATEONLY,
         allowNull: false,
       },
+      tipo_avaliacao: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'simples'
+      },
       peso: {
         type: Sequelize.DataTypes.DECIMAL(5, 2),
         allowNull: false,

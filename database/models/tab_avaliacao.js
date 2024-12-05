@@ -9,6 +9,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATEONLY,
         allowNull: false,
       },
+      tipo_avaliacao: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'simples',
+      },
       peso: {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: false,
