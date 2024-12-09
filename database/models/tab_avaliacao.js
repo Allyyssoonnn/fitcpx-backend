@@ -34,10 +34,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      metodo_dobras: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
       triciptal: {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: true,

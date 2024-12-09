@@ -1,6 +1,6 @@
 const { tab_aluno } = require('../../database/models');
 const { tab_avaliacao } = require('../../database/models');
-const { removeStringVazia } = require('../../utils');
+const { removeStringVazia, uploadAlunoIMG } = require('../../utils');
 
 async function getAlunos(req, res) {    
     const { cod_usuario } = req.body;
@@ -51,7 +51,7 @@ async function setAvaliacao(req, res) {
     if (avaliacao.cod_avaliacao) avaliacaoAtt = await tab_avaliacao.findOne({ where: { cod_aluno: avaliacao.cod_aluno } });
 
     if (avaliacaoAtt) {
-        await tab_avaliacao.update(avaliacao, { where: { cod_aluno: avaliacao.cod_aluno } });
+        await tab_avaliacao.update(avaliacao, { where: { cod_avaliacao: avaliacao.cod_avaliacao } });
     } else {
         const novoAluno = await tab_avaliacao.create(avaliacao);
         avaliacaoAtt = novoAluno;
@@ -60,10 +60,21 @@ async function setAvaliacao(req, res) {
     res.send({ status: true, avaliacao: avaliacaoAtt });
 }
 
+async function changeAlunoIMG(req, res) {
+    const cod_aluno = req.headers['cod_aluno'];
+    const fileId = await uploadAlunoIMG(req.file.path, req.file.mimetype);
+    const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
+    aluno.imagem_aluno = fileId;
+    aluno.save();
+
+    res.send({ status: true, id: fileId });
+}
+
 module.exports = {
     getAlunos,
     getAluno,
     setAluno,
     getAvaliacao,
     setAvaliacao,
+    changeAlunoIMG,
 }

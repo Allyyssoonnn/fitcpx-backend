@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         cidade_aluno: DataTypes.STRING,
         observacao_aluno: DataTypes.TEXT,
         senha_aluno: DataTypes.STRING,
+        imagem_aluno: DataTypes.STRING,
     }, {
         freezeTableName: true,
     });

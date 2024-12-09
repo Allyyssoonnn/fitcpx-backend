@@ -51,10 +51,6 @@ module.exports = {
           key: 'cod_protocolo'
         }
       },
-      metodo_dobras: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: true,
-      },
 
       // Campos de Dobras
       triciptal: {
