@@ -1,6 +1,6 @@
 const { tab_aluno } = require('../../database/models');
 const { tab_avaliacao } = require('../../database/models');
-const { removeStringVazia, uploadAlunoIMG } = require('../../utils');
+const { removeStringVazia, uploadAlunoIMGAWS } = require('../../utils');
 
 async function getAlunos(req, res) {    
     const { cod_usuario } = req.body;
@@ -26,13 +26,17 @@ async function setAluno(req, res) {
 
     if (aluno.cod_aluno) alunoAtt = await tab_aluno.findOne({ where: { cod_aluno: aluno.cod_aluno } });
 
+    if (await tab_aluno.findOne({ where: { email_aluno: aluno.email_aluno } })) {
+        res.send({ status: false, msg: 'E-mail já cadastrado!' });
+        return;
+    }
+
     if (alunoAtt) {
         await tab_aluno.update(aluno, { where: { cod_aluno: aluno.cod_aluno } });
     } else {
         const novoAluno = await tab_aluno.create(aluno);
         alunoAtt = novoAluno;
     }
-
     res.send({ status: true, aluno: alunoAtt });
 }
 
@@ -62,7 +66,7 @@ async function setAvaliacao(req, res) {
 
 async function changeAlunoIMG(req, res) {
     const cod_aluno = req.headers['cod_aluno'];
-    const fileId = await uploadAlunoIMG(req.file.path, req.file.mimetype);
+    const fileId = await uploadAlunoIMGAWS(req.file.path, req.file.mimetype);
     const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
     aluno.imagem_aluno = fileId;
     aluno.save();

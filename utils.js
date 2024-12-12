@@ -1,4 +1,5 @@
 const { google } = require('googleapis');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const path = require('path');
 const fs = require('fs');
 
@@ -8,11 +9,21 @@ function removeStringVazia(data) {
     );
 }
 
+const region = 'us-east-2';
+
+// Configuração do cliente S3
+const s3Client = new S3Client({
+    region: region, // Substitua pela região do seu bucket, como 'us-east-1'
+    credentials: {
+        accessKeyId: '[REDACTED_CREDENTIAL]', // Substitua pela sua Access Key
+        secretAccessKey: '[REDACTED_CREDENTIAL]', // Substitua pela sua Secret Key
+    },
+});
+
 const auth = new google.auth.GoogleAuth({
     keyFile: path.join('./utils/aplicativo-444120-7fbf0ebd9269.json'),
     scopes: ['https://www.googleapis.com/auth/drive.file'],
 });
-
 const drive = google.drive({ version: 'v3', auth });
 
 async function uploadAlunoIMG(filePath, mimeType) {
@@ -43,7 +54,39 @@ async function uploadAlunoIMG(filePath, mimeType) {
     return response.data.id;
 }
 
+async function uploadAlunoIMGAWS(filePath, mimeType) {
+    const fileName = path.basename(filePath);
+
+    // Leia o arquivo do disco
+    const fileStream = fs.createReadStream(filePath);
+
+    // Configuração dos parâmetros de upload
+    const params = {
+        Bucket: 'apppersonalfit', // Substitua pelo nome do seu bucket
+        Key: `aluno/perfil/${fileName}`, // O nome do arquivo no bucket
+        Body: fileStream,
+        ContentType: mimeType, // MimeType do arquivo
+        ACL: 'public-read', // Define permissões de leitura pública
+    };
+
+    try {
+        // Envia o arquivo para o S3
+        const command = new PutObjectCommand(params);
+        await s3Client.send(command);
+
+        // Construir a URL pública do arquivo
+        const publicUrl = `https://${params.Bucket}.s3.${region}.amazonaws.com/${params.Key}`;
+        console.log('Arquivo enviado com sucesso:', publicUrl);
+
+        return publicUrl;
+    } catch (error) {
+        console.error('Erro ao enviar arquivo para o S3:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     removeStringVazia,
-    uploadAlunoIMG
+    uploadAlunoIMG,
+    uploadAlunoIMGAWS
 }
