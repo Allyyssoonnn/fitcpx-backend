@@ -23,6 +23,56 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
+      telefone_usuario: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      celular_usuario: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      cep_usuario: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      endereco_usuario: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      numero_usuario: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      complemento_usuario: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      bairro_usuario: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      estado_usuario: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      cidade_usuario: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      imagem_usuario: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
       refreshToken: {
         type: Sequelize.DataTypes.STRING,
         allowNull: true,

@@ -2,6 +2,7 @@ const { tab_usuario } = require('../../database/models');
 const { tab_protocolo } = require('../../database/models');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { uploadUsuarioIMGAWS } = require('../../utils');
 
 async function login(req, res) {    
     const { email, senha } = req.body;
@@ -22,7 +23,24 @@ async function login(req, res) {
     const refreshToken = crypto.randomBytes(64).toString('hex');
     usuario.refreshToken = refreshToken;
     usuario.save();
-    res.send({ status: true, token, refreshToken, nome_usuario: usuario.nome_usuario, cod_usuario: usuario.cod_usuario });
+    res.send({
+        status: true,
+        token,
+        refreshToken,
+        imagem_usuario: usuario.imagem_usuario,
+        cod_usuario: usuario.cod_usuario,
+        nome_usuario: usuario.nome_usuario,
+        email_usuario: usuario.email_usuario,
+        telefone_usuario: usuario.telefone_usuario,
+        celular_usuario: usuario.celular_usuario,
+        cep_usuario: usuario.cep_usuario,
+        endereco_usuario: usuario.endereco_usuario,
+        numero_usuario: usuario.numero_usuario,
+        complemento_usuario: usuario.complemento_usuario,
+        bairro_usuario: usuario.bairro_usuario,
+        estado_usuario: usuario.estado_usuario,
+        cidade_usuario: usuario.cidade_usuario,
+    });
 }
 
 async function register(req, res) {
@@ -74,10 +92,27 @@ async function getProtocolos(req, res) {
     res.send({ status: true, protocolos: groupedProtocolos });
 }
 
+async function changeUsuarioIMG(req, res) {
+    const cod_usuario = req.headers['cod_usuario'];
+    const fileId = await uploadUsuarioIMGAWS(req.file.path, req.file.mimetype);
+    const usuario = await tab_usuario.findOne({ where: { cod_usuario } });
+    usuario.imagem_usuario = fileId;
+    usuario.save();
+
+    res.send({ status: true, id: fileId });
+}
+
+async function setUsuario(req, res) {    
+    const { usuario } = req.body;
+    await tab_usuario.update(usuario, { where: { cod_usuario: usuario.cod_usuario } });
+    res.send({ status: true, usuario });
+}
 
 module.exports = {
     login,
     register,
     refreshToken,
-    getProtocolos
+    getProtocolos,
+    changeUsuarioIMG,
+    setUsuario,
 }

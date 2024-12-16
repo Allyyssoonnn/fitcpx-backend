@@ -1,5 +1,5 @@
 const { google } = require('googleapis');
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const path = require('path');
 const fs = require('fs');
 
@@ -85,8 +85,59 @@ async function uploadAlunoIMGAWS(filePath, mimeType) {
     }
 }
 
+async function uploadUsuarioIMGAWS(filePath, mimeType) {
+    const fileName = path.basename(filePath);
+
+    // Leia o arquivo do disco
+    const fileStream = fs.createReadStream(filePath);
+
+    // Configuração dos parâmetros de upload
+    const params = {
+        Bucket: 'apppersonalfit', // Substitua pelo nome do seu bucket
+        Key: `usuario/perfil/${fileName}`, // O nome do arquivo no bucket
+        Body: fileStream,
+        ContentType: mimeType, // MimeType do arquivo
+        ACL: 'public-read', // Define permissões de leitura pública
+    };
+
+    try {
+        // Envia o arquivo para o S3
+        const command = new PutObjectCommand(params);
+        await s3Client.send(command);
+
+        // Construir a URL pública do arquivo
+        const publicUrl = `https://${params.Bucket}.s3.${region}.amazonaws.com/${params.Key}`;
+        console.log('Arquivo enviado com sucesso:', publicUrl);
+
+        return publicUrl;
+    } catch (error) {
+        console.error('Erro ao enviar arquivo para o S3:', error);
+        throw error;
+    }
+}
+
+async function deleteIMGAWS(id) {
+    try {
+        const params = {
+            Bucket: 'apppersonalfit',
+            Key: `aluno/perfil/${id}`
+        };
+    
+        const command = new DeleteObjectCommand(params);
+        await s3Client.send(command);
+    
+        console.log(`Imagem com ID ${id} excluída com sucesso.`);
+        return true;
+    } catch (error) {
+        console.error(`Erro ao excluir a imagem com ID ${id}:`, error);
+        return false;
+    }
+}
+
 module.exports = {
     removeStringVazia,
     uploadAlunoIMG,
-    uploadAlunoIMGAWS
+    uploadAlunoIMGAWS,
+    deleteIMGAWS,
+    uploadUsuarioIMGAWS,
 }

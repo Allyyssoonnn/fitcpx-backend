@@ -68,8 +68,9 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
       },
       imagem_aluno: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DataTypes.STRING,
+        defaultValue: null
       },
       cod_usuario: {
         allowNull: false,

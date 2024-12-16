@@ -1,6 +1,5 @@
-const { tab_aluno } = require('../../database/models');
-const { tab_avaliacao } = require('../../database/models');
-const { removeStringVazia, uploadAlunoIMGAWS } = require('../../utils');
+const { tab_aluno, tab_avaliacao, tab_avaliacao_imagem } = require('../../database/models');
+const { removeStringVazia, uploadAlunoIMGAWS, deleteIMGAWS } = require('../../utils');
 
 async function getAlunos(req, res) {    
     const { cod_usuario } = req.body;
@@ -15,8 +14,19 @@ async function getAluno(req, res) {
     const { cod_aluno } = req.body;
     const aluno = await tab_aluno.findOne({
         where: { cod_aluno: cod_aluno },
-        include: [{ model: tab_avaliacao, as: 'avaliacao' }]
-    });
+        include: [
+            {
+                model: tab_avaliacao,
+                as: 'avaliacao',
+                include: [
+                    {
+                        model: tab_avaliacao_imagem,
+                        as: 'imagem',
+                    }
+                ]
+            }
+        ]
+    });    
     res.send({ status: true, aluno });
 }
 
@@ -74,6 +84,29 @@ async function changeAlunoIMG(req, res) {
     res.send({ status: true, id: fileId });
 }
 
+async function sendAvaliacaoIMG(req, res) {
+    const cod_avaliacao = req.headers['cod_avaliacao'];
+    const deletedimages = JSON.parse(req.headers['deletedimages']);
+
+    Object.entries(deletedimages).forEach(async ([key, imageData]) => {
+        const id = imageData.substring(imageData.indexOf('perfil/') + 7, imageData.length);
+        const removida = await deleteIMGAWS(id);
+        if (removida) tab_avaliacao_imagem.update({ deletedAt: new Date() }, { where: { url_imagem: imageData } });
+    });
+
+    for (const file of req.files) {
+        const url = await uploadAlunoIMGAWS(file.path, file.mimetype);
+        const descricao = file.originalname.substring(0, file.originalname.indexOf('_'));
+        await tab_avaliacao_imagem.create({
+            cod_avaliacao,
+            descricao_imagem: descricao,
+            url_imagem: url
+        });
+    }
+
+    res.send({ status: true });
+}
+
 module.exports = {
     getAlunos,
     getAluno,
@@ -81,4 +114,5 @@ module.exports = {
     getAvaliacao,
     setAvaliacao,
     changeAlunoIMG,
+    sendAvaliacaoIMG,
 }

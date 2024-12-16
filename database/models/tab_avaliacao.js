@@ -159,6 +159,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
     }, {
+      paranoid: true,
       freezeTableName: true,
       timestamps: true,  // Adicionado para garantir que o Sequelize use createdAt e updatedAt
     });
@@ -171,7 +172,11 @@ module.exports = (sequelize, DataTypes) => {
       tab_avaliacao.belongsTo(models.tab_protocolo, { 
         foreignKey: 'cod_protocolo', 
         as: 'protocolo',
-    });
+      });
+      tab_avaliacao.hasMany(models.tab_avaliacao_imagem, {
+        foreignKey: 'cod_avaliacao',
+        as: 'imagem',
+      })
     };
   
     return tab_avaliacao;
