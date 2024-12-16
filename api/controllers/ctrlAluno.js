@@ -36,7 +36,7 @@ async function setAluno(req, res) {
 
     if (aluno.cod_aluno) alunoAtt = await tab_aluno.findOne({ where: { cod_aluno: aluno.cod_aluno } });
 
-    if (await tab_aluno.findOne({ where: { email_aluno: aluno.email_aluno } })) {
+    if (await tab_aluno.findOne({ where: { email_aluno: aluno.email_aluno } }) && !aluno.cod_aluno) {
         res.send({ status: false, msg: 'E-mail já cadastrado!' });
         return;
     }
