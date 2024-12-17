@@ -2,7 +2,7 @@ const { tab_usuario } = require('../../database/models');
 const { tab_protocolo } = require('../../database/models');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { uploadUsuarioIMGAWS } = require('../../utils');
+const { uploadUsuarioIMGAWS, deleteIMGAWS } = require('../../utils');
 
 async function login(req, res) {    
     const { email, senha } = req.body;
@@ -96,6 +96,7 @@ async function changeUsuarioIMG(req, res) {
     const cod_usuario = req.headers['cod_usuario'];
     const fileId = await uploadUsuarioIMGAWS(req.file.path, req.file.mimetype);
     const usuario = await tab_usuario.findOne({ where: { cod_usuario } });
+    if (usuario.imagem_usuario) deleteIMGAWS(usuario.imagem_usuario.substring(usuario.imagem_usuario.indexOf('perfil/') + 7, usuario.imagem_usuario.length));
     usuario.imagem_usuario = fileId;
     usuario.save();
 
