@@ -1,0 +1,246 @@
+const { Sequelize } = require('sequelize');
+const { tab_treino, tab_grupo_exercicio, tab_exercicio, tab_usuario, tab_sessao, tab_equipamento, tab_articulacao, tab_tipo_exercicio, tab_exercicio_resistencia, tab_indicacao, tab_padrao_movimento } = require('../../database/models');
+
+async function getTreinos(req, res) {
+    const { cod_empresa, cod_aluno } = req.body;
+    var where;
+    if (cod_empresa) where = { cod_empresa: cod_empresa };
+    if (cod_aluno) where = { cod_aluno: cod_aluno };
+    const treinos = await tab_treino.findAll({
+        where: where,
+        include: [
+            {
+                model: tab_usuario,
+                as: 'usuario',
+            },
+            {
+                model: tab_sessao,
+                as: 'sessoes',
+            },
+        ]
+    });
+    res.send({ status: true, treinos });
+}
+
+async function setTreino(req, res) {
+    const { treino } = req.body;
+    var treinoAtt;
+
+    if (treino.cod_treino) treinoAtt = await tab_treino.findOne({ where: { cod_treino: treino.cod_treino } });
+
+    if (treinoAtt) {
+        await tab_treino.update(treino, { where: { cod_treino: treino.cod_treino } });
+    } else {
+        const novoTreino = await tab_treino.create(treino);
+        treinoAtt = novoTreino;
+    }
+
+    res.send({ status: true, treino: treinoAtt });
+}
+
+async function getGrupoExercicios(req, res) {
+    const { cod_empresa, deleted } = req.body;
+    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    const grupos = await tab_grupo_exercicio.findAll({ where: {
+        [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+        ...where
+    }, paranoid: !deleted });
+    res.send({ status: true, grupos });
+}
+
+async function setGrupoExercicio(req, res) {
+    const { grupo } = req.body;
+    var grupoAtt;
+
+    if (grupo.cod_grupo_exercicio) grupoAtt = await tab_grupo_exercicio.findOne({ where: { cod_grupo_exercicio: grupo.cod_grupo_exercicio } });
+
+    if (grupoAtt) {
+        await tab_grupo_exercicio.update(grupo, { where: { cod_grupo_exercicio: grupo.cod_grupo_exercicio } });
+    } else {
+        const novoGrupo = await tab_grupo_exercicio.create(grupo);
+        grupoAtt = novoGrupo;
+    }
+
+    res.send({ status: true });
+}
+
+async function deleteGrupoExercicio(req, res) {
+    const { cod_grupo_exercicio } = req.body;
+    await tab_grupo_exercicio.update({ deletedAt: new Date() }, { where: { cod_grupo_exercicio: cod_grupo_exercicio } });
+    res.send({ status: true });
+}
+
+async function recoveryGrupoExercicio(req, res) {
+    const { cod_grupo_exercicio } = req.body;
+    await tab_grupo_exercicio.update({ deletedAt: null }, { where: { cod_grupo_exercicio: cod_grupo_exercicio }, paranoid: false });
+    res.send({ status: true });
+}
+
+async function getExercicios(req, res) {
+    const { cod_empresa, deleted } = req.body;
+    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    const exercicios = await tab_exercicio.findAll({
+        where: {
+            [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+            ...where
+        },
+        paranoid: !deleted,
+        include: [
+            {
+                model: tab_usuario,
+                as: 'usuario',
+            }
+        ]
+    });
+    res.send({ status: true, exercicios });
+}
+
+async function setExercicio(req, res) {
+    const { exercicio } = req.body;
+    var exercicioAtt;
+
+    if (exercicio.cod_exercicio) exercicioAtt = await tab_exercicio.findOne({ where: { cod_exercicio: exercicio.cod_exercicio } });
+
+    if (exercicioAtt) {
+        await tab_exercicio.update(exercicio, { where: { cod_exercicio: exercicio.cod_exercicio } });
+    } else {
+        const novoExercicio = await tab_exercicio.create(exercicio);
+        exercicioAtt = novoExercicio;
+    }
+
+    res.send({ status: true });
+}
+
+async function deleteExercicio(req, res) {
+    const { cod_exercicio } = req.body;
+    await tab_exercicio.update({ deletedAt: new Date() }, { where: { cod_exercicio: cod_exercicio } });
+    res.send({ status: true });
+}
+
+async function recoveryExercicio(req, res) {
+    const { cod_exercicio } = req.body;
+    await tab_exercicio.update({ deletedAt: null }, { where: { cod_exercicio: cod_exercicio }, paranoid: false });
+    res.send({ status: true });
+}
+
+// async function getSessoes(req, res) {
+//     const { cod_empresa, deleted } = req.body;
+//     const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+//     const sessoes = await tab_sessao.findAll({
+//         where: { cod_empresa: cod_empresa, ...where, cod_treino: null },
+//         paranoid: !deleted
+//     });
+//     res.send({ status: true, sessoes });
+// }
+
+async function setSessoes(req, res) {
+    const { sessoes, cod_treino, cod_empresa, cod_usuario } = req.body;
+    var sessoesAtt = [];
+
+    for (const sessao of sessoes) {
+        if (sessao.cod_sessao) {
+            await tab_sessao.update(sessao, { where: { cod_sessao: sessao.cod_sessao } });
+            sessoesAtt.push(sessao);
+        } else {
+            const resp = await tab_sessao.create({ ...sessao, cod_treino, cod_empresa, cod_usuario });
+            sessoesAtt.push(resp);
+        }
+    }
+
+    res.send({ status: true, sessoes: sessoesAtt });
+}
+
+async function deleteSessao(req, res) {
+    const { cod_sessao } = req.body;
+    await tab_sessao.update({ deletedAt: new Date() }, { where: { cod_sessao: cod_sessao } });
+    res.send({ status: true });
+}
+
+async function recoverySessao(req, res) {
+    const { cod_sessao } = req.body;
+    await tab_sessao.update({ deletedAt: null }, { where: { cod_sessao: cod_sessao }, paranoid: false });
+    res.send({ status: true });
+}
+
+async function getEquipamentos(req, res) {
+    const { cod_empresa, deleted } = req.body;
+    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    const equipamentos = await tab_equipamento.findAll({ where: {
+        // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+        // ...where
+    }, paranoid: !deleted });
+    res.send({ status: true, equipamentos });
+}
+
+async function getArticulacoes(req, res) {
+    const { cod_empresa, deleted } = req.body;
+    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    const articulacoes = await tab_articulacao.findAll({ where: {
+        // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+        // ...where
+    }, paranoid: !deleted });
+    res.send({ status: true, articulacoes });
+}
+
+async function getTipoExercicios(req, res) {
+    const { cod_empresa, deleted } = req.body;
+    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    const tipo_exercicios = await tab_tipo_exercicio.findAll({ where: {
+        // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+        // ...where
+    }, paranoid: !deleted });
+    res.send({ status: true, tipo_exercicios });
+}
+
+async function getExerciciosResistencias(req, res) {
+    const { cod_empresa, deleted } = req.body;
+    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    const exercicios_resistencias = await tab_exercicio_resistencia.findAll({ where: {
+        // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+        // ...where
+    }, paranoid: !deleted });
+    res.send({ status: true, exercicios_resistencias });
+}
+
+async function getIndicacoes(req, res) {
+    const { cod_empresa, deleted } = req.body;
+    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    const indicacoes = await tab_indicacao.findAll({ where: {
+        // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+        // ...where
+    }, paranoid: !deleted });
+    res.send({ status: true, indicacoes });
+}
+
+async function getPadraoesMovimentos(req, res) {
+    const { cod_empresa, deleted } = req.body;
+    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    const padraoes_movimentos = await tab_padrao_movimento.findAll({ where: {
+        // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+        // ...where
+    }, paranoid: !deleted });
+    res.send({ status: true, padraoes_movimentos });
+}
+
+module.exports = {
+    getTreinos,
+    setTreino,
+    getGrupoExercicios,
+    setGrupoExercicio,
+    deleteGrupoExercicio,
+    recoveryGrupoExercicio,
+    getExercicios,
+    setExercicio,
+    deleteExercicio,
+    recoveryExercicio,
+    // getSessoes,
+    setSessoes,
+    deleteSessao,
+    recoverySessao,
+    getEquipamentos,
+    getArticulacoes,
+    getTipoExercicios,
+    getExerciciosResistencias,
+    getIndicacoes,
+    getPadraoesMovimentos,
+}

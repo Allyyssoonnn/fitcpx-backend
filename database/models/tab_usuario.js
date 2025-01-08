@@ -1,6 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
     const tab_usuario = sequelize.define('tab_usuario', {
         cod_usuario: { type: DataTypes.INTEGER, primaryKey: true },
+        cod_empresa: DataTypes.INTEGER,
         nome_usuario: DataTypes.STRING,
         email_usuario: DataTypes.STRING,
         senha_usuario: DataTypes.STRING,
@@ -18,6 +19,13 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         freezeTableName: true,
     });
+
+    tab_usuario.associate = (models) => {
+        tab_usuario.hasOne(models.tab_empresa, {
+            foreignKey: 'cod_empresa',
+            as: 'empresa',
+        })
+    };
   
     return tab_usuario;
 }

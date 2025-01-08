@@ -1,5 +1,4 @@
-const { tab_usuario } = require('../../database/models');
-const { tab_protocolo } = require('../../database/models');
+const { tab_usuario, tab_empresa, tab_protocolo } = require('../../database/models');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { uploadUsuarioIMGAWS, deleteIMGAWS } = require('../../utils');
@@ -7,7 +6,15 @@ const { uploadUsuarioIMGAWS, deleteIMGAWS } = require('../../utils');
 async function login(req, res) {    
     const { email, senha } = req.body;
 
-    const usuario = await tab_usuario.findOne({ where: { email_usuario: email.trim() } });
+    const usuario = await tab_usuario.findOne({
+        where: { email_usuario: email.trim() },
+        include: [
+            {
+                model: tab_empresa,
+                as: 'empresa',
+            }
+        ]
+    });
     
     if (!usuario) {
         res.send({ status: false, msg: 'E-mail não cadastrado!' });
@@ -29,6 +36,7 @@ async function login(req, res) {
         refreshToken,
         imagem_usuario: usuario.imagem_usuario,
         cod_usuario: usuario.cod_usuario,
+        cod_empresa: usuario.cod_empresa,
         nome_usuario: usuario.nome_usuario,
         email_usuario: usuario.email_usuario,
         telefone_usuario: usuario.telefone_usuario,
@@ -44,7 +52,7 @@ async function login(req, res) {
 }
 
 async function register(req, res) {
-    const { email_usuario, senha_usuario, senha_confirma } = req.body;
+    const { nome_usuario, email_usuario, senha_usuario, senha_confirma } = req.body;
 
     const usuario = await tab_usuario.findOne({ where: { email_usuario: email_usuario.trim() } });
     
@@ -58,7 +66,11 @@ async function register(req, res) {
         return;
     }
     
-    const novoUsuario = tab_usuario.create(req.body);
+    const novaEmpresa = await tab_empresa.create({
+        nome_empresa: nome_usuario,
+        email_empresa: email_usuario,
+    });
+    const novoUsuario = await tab_usuario.create({ ...req.body, cod_empresa: novaEmpresa.cod_empresa });
 
     const token = jwt.sign({ email_usuario }, process.env.SECRET);
     res.send({ status: true, token, usuario: novoUsuario });
@@ -94,8 +106,12 @@ async function getProtocolos(req, res) {
 
 async function changeUsuarioIMG(req, res) {
     const cod_usuario = req.headers['cod_usuario'];
-    const fileId = await uploadUsuarioIMGAWS(req.file.path, req.file.mimetype);
     const usuario = await tab_usuario.findOne({ where: { cod_usuario } });
+    if (usuario.imagem_usuario.includes('amazonaws.com')) {
+        const id = usuario.imagem_usuario.substring(usuario.imagem_usuario.indexOf('perfil/') + 7, usuario.imagem_usuario.length);
+        const removida = await deleteIMGAWS(id);
+    }
+    const fileId = await uploadUsuarioIMGAWS(req.file.path, req.file.mimetype);
     if (usuario.imagem_usuario) deleteIMGAWS(usuario.imagem_usuario.substring(usuario.imagem_usuario.indexOf('perfil/') + 7, usuario.imagem_usuario.length));
     usuario.imagem_usuario = fileId;
     usuario.save();
