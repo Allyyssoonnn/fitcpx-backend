@@ -26,13 +26,25 @@ module.exports = {
           key: 'cod_exercicio'
         }
       },
-      serie_treino_exercicio: {
+      sequencia_sessao_exercicio: {
         allowNull: false,
         type: Sequelize.DataTypes.INTEGER,
       },
-      repeticao_treino_exercicio: {
+      serie_sessao_exercicio: {
         allowNull: false,
-        type: Sequelize.DataTypes.INTEGER,
+        type: Sequelize.DataTypes.STRING,
+      },
+      repeticao_sessao_exercicio: {
+        allowNull: false,
+        type: Sequelize.DataTypes.STRING,
+      },
+      carga_sessao_exercicio: {
+        allowNull: false,
+        type: Sequelize.DataTypes.STRING,
+      },
+      intervalo_sessao_exercicio: {
+        allowNull: false,
+        type: Sequelize.DataTypes.STRING,
       },
       createdAt: {
         allowNull: false,

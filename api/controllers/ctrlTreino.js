@@ -1,10 +1,10 @@
 const { Sequelize } = require('sequelize');
-const { tab_treino, tab_grupo_exercicio, tab_exercicio, tab_usuario, tab_sessao, tab_equipamento, tab_articulacao, tab_tipo_exercicio, tab_exercicio_resistencia, tab_indicacao, tab_padrao_movimento } = require('../../database/models');
+const { tab_treino, tab_grupo_exercicio, tab_exercicio, tab_usuario, tab_sessao, tab_equipamento, tab_articulacao, tab_tipo_exercicio, tab_exercicio_resistencia, tab_indicacao, tab_padrao_movimento, tab_sessao_exercicio } = require('../../database/models');
 
 async function getTreinos(req, res) {
     const { cod_empresa, cod_aluno } = req.body;
     var where;
-    if (cod_empresa) where = { cod_empresa: cod_empresa };
+    if (cod_empresa) where = { cod_empresa: cod_empresa, cod_aluno: null };
     if (cod_aluno) where = { cod_aluno: cod_aluno };
     const treinos = await tab_treino.findAll({
         where: where,
@@ -16,10 +16,68 @@ async function getTreinos(req, res) {
             {
                 model: tab_sessao,
                 as: 'sessoes',
+                include: [
+                    {
+                        model: tab_sessao_exercicio,
+                        as: 'exercicios',
+                        include: [
+                            {
+                                model: tab_exercicio,
+                                as: 'exercicio',
+                            }
+                        ],
+                        order: [['sequencia_sessao_exercicio', 'ASC']]
+                    }
+                ]
             },
         ]
     });
-    res.send({ status: true, treinos });
+    //Junta a informação dos exercicios junto ao objeto exercicio para que não exista um objeto exercicio dentro de outro
+    const treinosReorganizados = treinos.map((treino) => {
+        const treinoLimpo = treino.toJSON();
+
+        return ({
+            ...treinoLimpo,
+            sessoes: treinoLimpo.sessoes.map((sessao) => {
+                // Ordena os exercícios por `sequencia_sessao_exercicios`
+                const exerciciosOrdenados = [...sessao.exercicios].sort(
+                    (a, b) => a.sequencia_sessao_exercicios - b.sequencia_sessao_exercicios
+                );
+
+                const agrupados = {};
+
+                // Agrupa os exercícios por `sequencia_sessao_exercicios`
+                exerciciosOrdenados.forEach((exercicio) => {
+                    const sequencia = exercicio.sequencia_sessao_exercicio ;
+                    
+                    if (!agrupados[sequencia]) {
+                        agrupados[sequencia] = {
+                            ...exercicio,
+                            ...exercicio.exercicio,
+                            sets: [], // Inicializa o array `sets`
+                        };
+                    } else {
+                        agrupados[sequencia].sets.push({ ...exercicio, ...exercicio.exercicio });
+                    }
+                });
+
+                return ({
+                    ...sessao,
+                    exercicios: Object.values(agrupados).map((exercicio) => ({
+                        ...exercicio,
+                        ...exercicio.exercicio,
+                        sets: exercicio.sets || [], // Garante que o campo exista
+                    })),
+                    // exercicios: sessao.exercicios.map((exercicio) => ({
+                    //     ...exercicio,
+                    //     ...exercicio.exercicio,
+                    //     sets: exercicio.sets || []
+                    // }))
+                })
+            })
+        })
+    })
+    res.send({ status: true, treinos: treinosReorganizados });
 }
 
 async function setTreino(req, res) {
@@ -134,17 +192,41 @@ async function recoveryExercicio(req, res) {
 // }
 
 async function setSessoes(req, res) {
-    const { sessoes, cod_treino, cod_empresa, cod_usuario } = req.body;
+    const { sessoes, cod_treino, cod_empresa, cod_usuario, removidos } = req.body;
     var sessoesAtt = [];
+
+    async function setSessaoExercicios(sessao, exercicios) {
+        for (const exercicio of exercicios) {
+            if (exercicio.cod_sessao_exercicio) {
+                await tab_sessao_exercicio.update({ ...exercicio, cod_sessao: sessao.cod_sessao }, { where: { cod_sessao_exercicio: exercicio.cod_sessao_exercicio } });
+            } else {
+                await tab_sessao_exercicio.create({ ...exercicio, cod_sessao: sessao.cod_sessao });
+            }
+            
+            for (const set of exercicio?.sets) {
+                if (set.cod_sessao_exercicio) {
+                    await tab_sessao_exercicio.update({ ...set, cod_sessao: sessao.cod_sessao }, { where: { cod_sessao_exercicio: set.cod_sessao_exercicio } });
+                } else {
+                    await tab_sessao_exercicio.create({ ...set, cod_sessao: sessao.cod_sessao });
+                }
+            }
+        }
+    }
 
     for (const sessao of sessoes) {
         if (sessao.cod_sessao) {
             await tab_sessao.update(sessao, { where: { cod_sessao: sessao.cod_sessao } });
+            await setSessaoExercicios(sessao, sessao.exercicios);
             sessoesAtt.push(sessao);
         } else {
             const resp = await tab_sessao.create({ ...sessao, cod_treino, cod_empresa, cod_usuario });
+            await setSessaoExercicios(sessao, sessao.exercicios);
             sessoesAtt.push(resp);
         }
+    }
+
+    for (const removido of removidos) {
+        tab_sessao.update({ deletedAt: new Date() }, { where: { cod_sessao: removido.cod_sessao } });
     }
 
     res.send({ status: true, sessoes: sessoesAtt });

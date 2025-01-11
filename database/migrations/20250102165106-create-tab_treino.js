@@ -15,6 +15,11 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
+      desenvolvimento_treino: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
       frequencia_treino: {
         allowNull: true,
         type: Sequelize.DataTypes.INTEGER,

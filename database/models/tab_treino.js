@@ -11,6 +11,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: null,
         },
+        desenvolvimento_treino: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null,
+        },
         frequencia_treino: {
             type: DataTypes.INTEGER,
             allowNull: true,
