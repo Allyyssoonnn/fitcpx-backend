@@ -220,7 +220,7 @@ async function setSessoes(req, res) {
             sessoesAtt.push(sessao);
         } else {
             const resp = await tab_sessao.create({ ...sessao, cod_treino, cod_empresa, cod_usuario });
-            await setSessaoExercicios(sessao, sessao.exercicios);
+            await setSessaoExercicios(resp, sessao.exercicios);
             sessoesAtt.push(resp);
         }
     }
