@@ -1,4 +1,4 @@
-const { tab_aluno, tab_avaliacao, tab_avaliacao_imagem } = require('../../database/models');
+const { tab_aluno, tab_avaliacao, tab_avaliacao_imagem, tab_usuario } = require('../../database/models');
 const { removeStringVazia, uploadAlunoIMGAWS, deleteIMGAWS } = require('../../utils');
 
 async function getAlunos(req, res) {    
@@ -94,11 +94,11 @@ async function sendAvaliacaoIMG(req, res) {
     const cod_avaliacao = req.headers['cod_avaliacao'];
     const deletedimages = JSON.parse(req.headers['deletedimages']);
 
-    Object.entries(deletedimages).forEach(async ([key, imageData]) => {
+    for (const imageData of deletedimages) {
         const id = imageData.substring(imageData.indexOf('perfil/') + 7, imageData.length);
         const removida = await deleteIMGAWS(id);
         if (removida) tab_avaliacao_imagem.update({ deletedAt: new Date() }, { where: { url_imagem: imageData } });
-    });
+    }
 
     for (const file of req.files) {
         const url = await uploadAlunoIMGAWS(file.path, file.mimetype);

@@ -107,9 +107,11 @@ async function getProtocolos(req, res) {
 async function changeUsuarioIMG(req, res) {
     const cod_usuario = req.headers['cod_usuario'];
     const usuario = await tab_usuario.findOne({ where: { cod_usuario } });
-    if (usuario.imagem_usuario.includes('amazonaws.com')) {
-        const id = usuario.imagem_usuario.substring(usuario.imagem_usuario.indexOf('perfil/') + 7, usuario.imagem_usuario.length);
-        const removida = await deleteIMGAWS(id);
+    if (usuario?.imagem_usuario) {
+        if (usuario?.imagem_usuario?.includes('amazonaws.com')) {
+            const id = usuario.imagem_usuario.substring(usuario.imagem_aluno.indexOf('perfil/') + 7, usuario.imagem_usuario.length);
+            const removida = await deleteIMGAWS(id);
+        }
     }
     const fileId = await uploadUsuarioIMGAWS(req.file.path, req.file.mimetype);
     if (usuario.imagem_usuario) deleteIMGAWS(usuario.imagem_usuario.substring(usuario.imagem_usuario.indexOf('perfil/') + 7, usuario.imagem_usuario.length));
