@@ -77,12 +77,12 @@ async function setAvaliacao(req, res) {
 async function changeAlunoIMG(req, res) {
     const cod_aluno = req.headers['cod_aluno'];
     const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
-    if (aluno?.imagem_aluno) {
-        if (aluno?.imagem_aluno?.includes('amazonaws.com')) {
-            const id = aluno.imagem_aluno.substring(aluno.imagem_aluno.indexOf('perfil/') + 7, aluno.imagem_aluno.length);
-            const removida = await deleteIMGAWS(id);
-        }
-    }
+    // if (aluno?.imagem_aluno) {
+    //     if (aluno?.imagem_aluno?.includes('amazonaws.com')) {
+    //         const id = aluno.imagem_aluno.substring(aluno.imagem_aluno.indexOf('perfil/') + 7, aluno.imagem_aluno.length);
+    //         const removida = await deleteIMGAWS(id);
+    //     }
+    // }
     const fileId = await uploadAlunoIMGAWS(req.file.path, req.file.mimetype);
     aluno.imagem_aluno = fileId;
     aluno.save();
