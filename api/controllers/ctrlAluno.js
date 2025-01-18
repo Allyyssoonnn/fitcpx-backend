@@ -41,6 +41,11 @@ async function setAluno(req, res) {
         return;
     }
 
+    if (await tab_aluno.findOne({ where: { cpf_aluno: aluno.cpf_aluno } }) && !aluno.cod_aluno) {
+        res.send({ status: false, msg: 'CPF já cadastrado!' });
+        return;
+    }
+
     if (alunoAtt) {
         await tab_aluno.update(aluno, { where: { cod_aluno: aluno.cod_aluno } });
     } else {
@@ -83,7 +88,7 @@ async function changeAlunoIMG(req, res) {
     //         const removida = await deleteIMGAWS(id);
     //     }
     // }
-    const fileId = await uploadAlunoIMGAWS(req.file.path, req.file.mimetype);
+    const fileId = await uploadAlunoIMGAWS(req.file.path, req.file.mimetype, 'perfil');
     aluno.imagem_aluno = fileId;
     aluno.save();
 
@@ -95,13 +100,13 @@ async function sendAvaliacaoIMG(req, res) {
     const deletedimages = JSON.parse(req.headers['deletedimages']);
 
     for (const imageData of deletedimages) {
-        const id = imageData.substring(imageData.indexOf('perfil/') + 7, imageData.length);
+        const id = imageData.substring(imageData.indexOf('avaliacao/') + 7, imageData.length);
         const removida = await deleteIMGAWS(id);
         if (removida) tab_avaliacao_imagem.update({ deletedAt: new Date() }, { where: { url_imagem: imageData } });
     }
 
     for (const file of req.files) {
-        const url = await uploadAlunoIMGAWS(file.path, file.mimetype);
+        const url = await uploadAlunoIMGAWS(file.path, file.mimetype, 'avaliacao');
         const descricao = file.originalname.substring(0, file.originalname.indexOf('_'));
         await tab_avaliacao_imagem.create({
             cod_avaliacao,

@@ -54,7 +54,7 @@ async function uploadAlunoIMG(filePath, mimeType) {
     return response.data.id;
 }
 
-async function uploadAlunoIMGAWS(filePath, mimeType) {
+async function uploadAlunoIMGAWS(filePath, mimeType, folder) {
     const fileName = path.basename(filePath);
 
     // Leia o arquivo do disco
@@ -63,7 +63,7 @@ async function uploadAlunoIMGAWS(filePath, mimeType) {
     // Configuração dos parâmetros de upload
     const params = {
         Bucket: 'apppersonalfit', // Substitua pelo nome do seu bucket
-        Key: `aluno/perfil/${fileName}`, // O nome do arquivo no bucket
+        Key: `aluno/${folder}/${fileName}`, // O nome do arquivo no bucket
         Body: fileStream,
         ContentType: mimeType, // MimeType do arquivo
         ACL: 'public-read', // Define permissões de leitura pública
