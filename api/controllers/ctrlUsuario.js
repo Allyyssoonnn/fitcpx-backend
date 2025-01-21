@@ -2,6 +2,7 @@ const { tab_usuario, tab_empresa, tab_protocolo } = require('../../database/mode
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { uploadUsuarioIMGAWS, deleteIMGAWS } = require('../../utils');
+const { Sequelize } = require('sequelize');
 
 async function login(req, res) {    
     const { email, senha } = req.body;
@@ -48,6 +49,7 @@ async function login(req, res) {
         bairro_usuario: usuario.bairro_usuario,
         estado_usuario: usuario.estado_usuario,
         cidade_usuario: usuario.cidade_usuario,
+        admin_usuario: usuario.admin_usuario,
     });
 }
 
@@ -73,7 +75,8 @@ async function register(req, res) {
     const novoUsuario = await tab_usuario.create({ ...req.body, cod_empresa: novaEmpresa.cod_empresa });
 
     const token = jwt.sign({ email_usuario }, process.env.SECRET);
-    res.send({ status: true, token, usuario: novoUsuario });
+    const refreshToken = crypto.randomBytes(64).toString('hex');
+    res.send({ status: true, token, refreshToken, usuario: novoUsuario });
 }
 
 async function refreshToken(req, res) {
@@ -121,10 +124,30 @@ async function changeUsuarioIMG(req, res) {
     res.send({ status: true, id: fileId });
 }
 
+async function getUsuarios(req, res) {
+    const { cod_empresa, deleted } = req.body;
+    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    const usuarios = await tab_usuario.findAll({
+        where: { cod_empresa: cod_empresa, ...where },
+        paranoid: !deleted,
+    });
+    res.send({ status: true, usuarios });
+}
+
 async function setUsuario(req, res) {    
     const { usuario } = req.body;
-    await tab_usuario.update(usuario, { where: { cod_usuario: usuario.cod_usuario } });
-    res.send({ status: true, usuario });
+    var usuarioAtt;
+
+    if (usuario?.cod_usuario) usuarioAtt = await tab_usuario.findOne({ where: { cod_usuario: usuario.cod_usuario } });
+
+    if (usuarioAtt) {
+        await tab_usuario.update(usuario, { where: { cod_usuario: usuario.cod_usuario } });
+    } else {
+        const novoUsuario = await tab_usuario.create(usuario);
+        usuarioAtt = novoUsuario;
+    }
+
+    res.send({ status: true, usuario: usuarioAtt });
 }
 
 module.exports = {
@@ -133,5 +156,6 @@ module.exports = {
     refreshToken,
     getProtocolos,
     changeUsuarioIMG,
+    getUsuarios,
     setUsuario,
 }

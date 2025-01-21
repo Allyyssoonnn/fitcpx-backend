@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
         observacao_aluno: DataTypes.TEXT,
         senha_aluno: DataTypes.STRING,
         imagem_aluno: DataTypes.STRING,
+        deletedAt: {
+            type: DataTypes.DATE,
+            allowNull: true,
+            defaultValue: null,
+        },
     }, {
         freezeTableName: true,
     });

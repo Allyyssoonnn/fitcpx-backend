@@ -1,11 +1,17 @@
+const { Sequelize } = require('sequelize');
 const { tab_aluno, tab_avaliacao, tab_avaliacao_imagem, tab_usuario } = require('../../database/models');
 const { removeStringVazia, uploadAlunoIMGAWS, deleteIMGAWS } = require('../../utils');
 
 async function getAlunos(req, res) {    
-    const { cod_usuario } = req.body;
+    const { cod_usuario, cod_empresa, deleted } = req.body;
+    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
     const alunos = await tab_aluno.findAll({
-        where: { cod_usuario: cod_usuario },
-        include: [{ model: tab_avaliacao, as: 'avaliacao' }]
+        where: { ...where },
+        paranoid: !deleted,
+        include: [
+            { model: tab_avaliacao, as: 'avaliacao' },
+            { model: tab_usuario, as: 'usuario', where: { cod_empresa } },
+        ]
     });
     res.send({ status: true, alunos });
 }
@@ -34,7 +40,7 @@ async function setAluno(req, res) {
     const { aluno } = req.body;
     var alunoAtt;
 
-    if (aluno.cod_aluno) alunoAtt = await tab_aluno.findOne({ where: { cod_aluno: aluno.cod_aluno } });
+    if (aluno?.cod_aluno) alunoAtt = await tab_aluno.findOne({ where: { cod_aluno: aluno.cod_aluno } });
 
     if (await tab_aluno.findOne({ where: { email_aluno: aluno.email_aluno } }) && !aluno.cod_aluno) {
         res.send({ status: false, msg: 'E-mail já cadastrado!' });

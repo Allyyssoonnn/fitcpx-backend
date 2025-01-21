@@ -16,6 +16,12 @@ module.exports = (sequelize, DataTypes) => {
         cidade_usuario: DataTypes.STRING,
         imagem_usuario: DataTypes.STRING,
         refreshToken: DataTypes.STRING,
+        admin_usuario: DataTypes.ENUM('S', 'N'),
+        deletedAt: {
+            type: DataTypes.DATE,
+            allowNull: true,
+            defaultValue: null,
+        },
     }, {
         freezeTableName: true,
     });

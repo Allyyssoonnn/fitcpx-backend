@@ -4,7 +4,7 @@ const { tab_treino, tab_grupo_exercicio, tab_exercicio, tab_usuario, tab_sessao,
 async function getTreinos(req, res) {
     const { cod_empresa, cod_aluno, deleted } = req.body;
     var where;
-    if (cod_empresa) where = { cod_empresa: cod_empresa, cod_aluno: null };
+    if (cod_empresa) where = { [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ], cod_aluno: null };
     if (cod_aluno) where = { cod_aluno: cod_aluno };
     if (deleted) where = { ...where, deletedAt: { [Sequelize.Op.ne]: null } };
     const treinos = await tab_treino.findAll({
@@ -183,6 +183,18 @@ async function recoveryExercicio(req, res) {
     res.send({ status: true });
 }
 
+async function deleteTreino(req, res) {
+    const { cod_treino } = req.body;
+    await tab_treino.update({ deletedAt: new Date() }, { where: { cod_treino: cod_treino } });
+    res.send({ status: true });
+}
+
+async function recoveryTreino(req, res) {
+    const { cod_treino } = req.body;
+    await tab_treino.update({ deletedAt: null }, { where: { cod_treino: cod_treino }, paranoid: false });
+    res.send({ status: true });
+}
+
 // async function getSessoes(req, res) {
 //     const { cod_empresa, deleted } = req.body;
 //     const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
@@ -327,4 +339,6 @@ module.exports = {
     getExerciciosResistencias,
     getIndicacoes,
     getPadraoesMovimentos,
+    deleteTreino,
+    recoveryTreino,
 }
