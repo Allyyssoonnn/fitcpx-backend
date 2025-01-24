@@ -46,6 +46,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
+      observacao_sessao_exercicio: {
+        allowNull: false,
+        type: Sequelize.DataTypes.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,
