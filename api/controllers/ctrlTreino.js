@@ -98,6 +98,12 @@ async function setTreino(req, res) {
     res.send({ status: true, treino: treinoAtt });
 }
 
+async function deleteTreino(req, res) {
+    const { cod_treino } = req.body;
+    await tab_treino.update({ deletedAt: new Date() }, { where: { cod_treino: cod_treino } });
+    res.send({ status: true });
+}
+
 async function getGrupoExercicios(req, res) {
     const { cod_empresa, deleted } = req.body;
     const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
@@ -180,18 +186,6 @@ async function deleteExercicio(req, res) {
 async function recoveryExercicio(req, res) {
     const { cod_exercicio } = req.body;
     await tab_exercicio.update({ deletedAt: null }, { where: { cod_exercicio: cod_exercicio }, paranoid: false });
-    res.send({ status: true });
-}
-
-async function deleteTreino(req, res) {
-    const { cod_treino } = req.body;
-    await tab_treino.update({ deletedAt: new Date() }, { where: { cod_treino: cod_treino } });
-    res.send({ status: true });
-}
-
-async function recoveryTreino(req, res) {
-    const { cod_treino } = req.body;
-    await tab_treino.update({ deletedAt: null }, { where: { cod_treino: cod_treino }, paranoid: false });
     res.send({ status: true });
 }
 
@@ -321,6 +315,7 @@ async function getPadraoesMovimentos(req, res) {
 module.exports = {
     getTreinos,
     setTreino,
+    deleteTreino,
     getGrupoExercicios,
     setGrupoExercicio,
     deleteGrupoExercicio,
@@ -339,6 +334,4 @@ module.exports = {
     getExerciciosResistencias,
     getIndicacoes,
     getPadraoesMovimentos,
-    deleteTreino,
-    recoveryTreino,
 }

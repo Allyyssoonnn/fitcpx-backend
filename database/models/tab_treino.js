@@ -47,6 +47,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: null,
         },
+        status_treino: {
+            type: DataTypes.ENUM('A', 'I'),
+            allowNull: false,
+            defaultValue: 'A',
+        },
         createdAt: {
             type: DataTypes.DATE,
             allowNull: false,

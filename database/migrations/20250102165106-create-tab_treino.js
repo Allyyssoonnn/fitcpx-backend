@@ -62,8 +62,8 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
-      base_treino: {
-        type: Sequelize.DataTypes.ENUM('S', 'N'),
+      status_treino: {
+        type: Sequelize.DataTypes.ENUM('A', 'I'),
       },
       createdAt: {
         allowNull: false,

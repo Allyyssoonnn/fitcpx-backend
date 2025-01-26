@@ -1,11 +1,10 @@
 const router = require('express').Router();
 const verifyToken = require('../authMiddleware');
-const { getTreinos, getGrupoExercicios, setGrupoExercicio, deleteGrupoExercicio, recoveryGrupoExercicio, getExercicios, setExercicio, deleteExercicio, recoveryExercicio, deleteSessao, recoverySessao, setSessoes, setTreino, getEquipamentos, getArticulacoes, getTipoExercicios, getExerciciosResistencias, getIndicacoes, getPadraoesMovimentos, deleteTreino, recoveryTreino } = require('../controllers/ctrlTreino');
+const { getTreinos, getGrupoExercicios, setGrupoExercicio, deleteGrupoExercicio, recoveryGrupoExercicio, getExercicios, setExercicio, deleteExercicio, recoveryExercicio, deleteSessao, recoverySessao, setSessoes, setTreino, getEquipamentos, getArticulacoes, getTipoExercicios, getExerciciosResistencias, getIndicacoes, getPadraoesMovimentos, deleteTreino } = require('../controllers/ctrlTreino');
 
 router.post('/getTreinos', verifyToken, getTreinos);
 router.post('/setTreino', verifyToken, setTreino);
 router.post('/deleteTreino', verifyToken, deleteTreino);
-router.post('/recoveryTreino', verifyToken, recoveryTreino);
 
 router.post('/getGrupoExercicios', verifyToken, getGrupoExercicios);
 router.post('/setGrupoExercicio', verifyToken, setGrupoExercicio);
