@@ -22,10 +22,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: false,
       },
-      metabolismo_basal: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
       gordura_viceral: {
         type: DataTypes.INTEGER,
         allowNull: false,

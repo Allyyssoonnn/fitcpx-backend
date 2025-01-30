@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         observacao_sessao_exercicio: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         createdAt: {
             type: DataTypes.DATE,

@@ -4,14 +4,15 @@ const { removeStringVazia, uploadAlunoIMGAWS, deleteIMGAWS } = require('../../ut
 
 async function getAlunos(req, res) {    
     const { cod_usuario, cod_empresa, deleted } = req.body;
-    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : { deletedAt: null };
     const alunos = await tab_aluno.findAll({
-        where: { ...where },
+        where: where,
         paranoid: !deleted,
         include: [
             { model: tab_avaliacao, as: 'avaliacao' },
             { model: tab_usuario, as: 'usuario', where: { cod_empresa } },
-        ]
+        ],
+        order: [['nome_aluno', 'ASC']]
     });
     res.send({ status: true, alunos });
 }
@@ -59,6 +60,18 @@ async function setAluno(req, res) {
         alunoAtt = novoAluno;
     }
     res.send({ status: true, aluno: alunoAtt });
+}
+
+async function deleteAluno(req, res) {
+    const { cod_aluno } = req.body;
+    await tab_aluno.update({ deletedAt: new Date() }, { where: { cod_aluno: cod_aluno } });
+    res.send({ status: true });
+}
+
+async function recoveryAluno(req, res) {
+    const { cod_aluno } = req.body;
+    await tab_aluno.update({ deletedAt: null }, { where: { cod_aluno: cod_aluno }, paranoid: false });
+    res.send({ status: true });
 }
 
 async function getAvaliacao(req, res) {    
@@ -128,6 +141,8 @@ module.exports = {
     getAlunos,
     getAluno,
     setAluno,
+    deleteAluno,
+    recoveryAluno,
     getAvaliacao,
     setAvaliacao,
     changeAlunoIMG,
