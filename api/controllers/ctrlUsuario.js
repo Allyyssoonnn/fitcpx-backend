@@ -2,7 +2,7 @@ const { tab_usuario, tab_empresa, tab_protocolo } = require('../../database/mode
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { uploadUsuarioIMGAWS, deleteIMGAWS } = require('../../utils');
-const { Sequelize } = require('sequelize');
+const { Sequelize, where } = require('sequelize');
 
 async function login(req, res) {    
     const { email, senha } = req.body;
@@ -27,30 +27,13 @@ async function login(req, res) {
         return;
     }
 
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa: usuario.cod_empresa } });
+
     const token = jwt.sign({ email }, process.env.SECRET, { expiresIn: '7h' });
     const refreshToken = crypto.randomBytes(64).toString('hex');
     usuario.refreshToken = refreshToken;
     usuario.save();
-    res.send({
-        status: true,
-        token,
-        refreshToken,
-        imagem_usuario: usuario.imagem_usuario,
-        cod_usuario: usuario.cod_usuario,
-        cod_empresa: usuario.cod_empresa,
-        nome_usuario: usuario.nome_usuario,
-        email_usuario: usuario.email_usuario,
-        telefone_usuario: usuario.telefone_usuario,
-        celular_usuario: usuario.celular_usuario,
-        cep_usuario: usuario.cep_usuario,
-        endereco_usuario: usuario.endereco_usuario,
-        numero_usuario: usuario.numero_usuario,
-        complemento_usuario: usuario.complemento_usuario,
-        bairro_usuario: usuario.bairro_usuario,
-        estado_usuario: usuario.estado_usuario,
-        cidade_usuario: usuario.cidade_usuario,
-        admin_usuario: usuario.admin_usuario,
-    });
+    res.send({ status: true, token, refreshToken, usuario, empresa });
 }
 
 async function register(req, res) {
