@@ -1,5 +1,6 @@
 const { google } = require('googleapis');
 const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const { SESClient, SendEmailCommand } = require("@aws-sdk/client-ses");
 const path = require('path');
 const fs = require('fs');
 
@@ -20,39 +21,48 @@ const s3Client = new S3Client({
     },
 });
 
-const auth = new google.auth.GoogleAuth({
-    keyFile: path.join('./utils/aplicativo-444120-7fbf0ebd9269.json'),
-    scopes: ['https://www.googleapis.com/auth/drive.file'],
+// Configurar o cliente SES
+const sesClient = new SESClient({
+    region: "us-east-2",
+    credentials: {
+        accessKeyId: '[REDACTED_CREDENTIAL]', // Substitua pela sua Access Key
+        secretAccessKey: '[REDACTED_CREDENTIAL]', // Substitua pela sua Secret Key
+    },
 });
-const drive = google.drive({ version: 'v3', auth });
 
-async function uploadAlunoIMG(filePath, mimeType) {
-    const fileMetadata = {
-        name: path.basename(filePath),
-        // parents: ['18T4-bcQh4XXY0-eq89cdWfVErMXcGaIq'],
-    };
+// const auth = new google.auth.GoogleAuth({
+//     keyFile: path.join('./utils/aplicativo-444120-7fbf0ebd9269.json'),
+//     scopes: ['https://www.googleapis.com/auth/drive.file'],
+// });
+// const drive = google.drive({ version: 'v3', auth });
+
+// async function uploadAlunoIMG(filePath, mimeType) {
+//     const fileMetadata = {
+//         name: path.basename(filePath),
+//         // parents: ['18T4-bcQh4XXY0-eq89cdWfVErMXcGaIq'],
+//     };
       
-    const media = {
-        mimeType,
-        body: fs.createReadStream(filePath),
-    };
+//     const media = {
+//         mimeType,
+//         body: fs.createReadStream(filePath),
+//     };
   
-    const response = await drive.files.create({
-        resource: fileMetadata,
-        media: media,
-        fields: 'id',
-    });
+//     const response = await drive.files.create({
+//         resource: fileMetadata,
+//         media: media,
+//         fields: 'id',
+//     });
 
-    await drive.permissions.create({
-        fileId: response.data.id,
-        requestBody: {
-          role: 'reader',
-          type: 'anyone',
-        },
-    });
+//     await drive.permissions.create({
+//         fileId: response.data.id,
+//         requestBody: {
+//           role: 'reader',
+//           type: 'anyone',
+//         },
+//     });
     
-    return response.data.id;
-}
+//     return response.data.id;
+// }
 
 async function uploadAlunoIMGAWS(filePath, mimeType, folder) {
     const fileName = path.basename(filePath);
@@ -134,10 +144,35 @@ async function deleteIMGAWS(id) {
     }
 }
 
+// ================================= E-mail
+
+async function sendEmail(email, msg, header) {
+    const params = {
+        Source: "alyson.personalstudio@gmail.com", // Precisa estar verificado no AWS SES
+        Destination: {
+            ToAddresses: ['alysonone123@gmail.com'], // Destinatário do e-mail
+        },
+        Message: {
+            Subject: { Data: header },
+            Body: {
+                Text: { Data: msg },
+            },
+        },
+    };
+  
+    try {
+      const command = new SendEmailCommand(params);
+      const response = await sesClient.send(command);
+      console.log("E-mail enviado!", response);
+    } catch (error) {
+      console.error("Erro ao enviar e-mail:", error);
+    }
+}
+
 module.exports = {
     removeStringVazia,
-    uploadAlunoIMG,
     uploadAlunoIMGAWS,
     deleteIMGAWS,
     uploadUsuarioIMGAWS,
+    sendEmail,
 }

@@ -1,7 +1,7 @@
 const { tab_usuario, tab_empresa, tab_protocolo } = require('../../database/models');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { uploadUsuarioIMGAWS, deleteIMGAWS } = require('../../utils');
+const { uploadUsuarioIMGAWS, deleteIMGAWS, sendEmail } = require('../../utils');
 const { Sequelize, where } = require('sequelize');
 
 async function login(req, res) {    
@@ -133,6 +133,30 @@ async function setUsuario(req, res) {
     res.send({ status: true, usuario: usuarioAtt });
 }
 
+async function verifyEmail(req, res) {
+    const { cod_empresa } = req.body;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa: cod_empresa } });
+
+    const msg =
+`
+Olá, ${empresa.nome_empresa}
+
+Seu código de verificação é: **123456**  
+
+Digite este código no aplicativo para continuar.  
+
+Se você não solicitou este código, ignore este e-mail.  
+
+Atenciosamente,
+Fit Complex
+`
+
+    sendEmail(empresa.email_empresa, msg, 'FitCpx - E-mail de verificação');
+
+    res.send({ status: true });
+}
+
 module.exports = {
     login,
     register,
@@ -141,4 +165,5 @@ module.exports = {
     changeUsuarioIMG,
     getUsuarios,
     setUsuario,
+    verifyEmail,
 }

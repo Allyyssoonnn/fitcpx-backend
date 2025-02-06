@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
         nome_empresa: DataTypes.STRING,
         doc_empresa: DataTypes.STRING,
         email_empresa: DataTypes.STRING,
+        email_confirmado: DataTypes.ENUM("S", "N"),
         telefone_empresa: DataTypes.STRING,
         cep_empresa: DataTypes.STRING,
         endereco_empresa: DataTypes.STRING,

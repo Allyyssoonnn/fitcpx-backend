@@ -4,7 +4,7 @@ const upload = multer({ dest: 'uploads/' });
 
 const verifyToken = require('../authMiddleware');
 
-const { login, register, refreshToken, getProtocolos, changeUsuarioIMG, setUsuario, getUsuarios } = require('../controllers/ctrlUsuario');
+const { login, register, refreshToken, getProtocolos, changeUsuarioIMG, setUsuario, getUsuarios, verifyEmail } = require('../controllers/ctrlUsuario');
 
 router.post('/login', login);
 router.post('/register', register);
@@ -14,5 +14,6 @@ router.post('/getUsuarios', verifyToken, getUsuarios);
 router.post('/setUsuario', verifyToken, setUsuario);
 
 router.post('/changeUsuarioIMG', upload.single('image'), changeUsuarioIMG);
+router.post('/verifyEmail', verifyEmail, setUsuario);
 
 module.exports = router;

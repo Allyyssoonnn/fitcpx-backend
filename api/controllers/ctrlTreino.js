@@ -2,9 +2,10 @@ const { Sequelize } = require('sequelize');
 const { tab_treino, tab_grupo_exercicio, tab_exercicio, tab_usuario, tab_sessao, tab_equipamento, tab_articulacao, tab_tipo_exercicio, tab_exercicio_resistencia, tab_indicacao, tab_padrao_movimento, tab_sessao_exercicio } = require('../../database/models');
 
 async function getTreinos(req, res) {
-    const { cod_empresa, cod_aluno, deleted } = req.body;
+    const { cod_empresa, cod_aluno, deleted, findAll } = req.body;
     var where;
-    if (cod_empresa) where = { [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ], cod_aluno: null };
+    if (cod_empresa && !findAll) where = { [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ], cod_aluno: null };
+    if (cod_empresa && findAll) where = { [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ] };
     if (cod_aluno) where = { cod_aluno: cod_aluno };
     if (deleted) where = { ...where, deletedAt: { [Sequelize.Op.ne]: null } };
     const treinos = await tab_treino.findAll({

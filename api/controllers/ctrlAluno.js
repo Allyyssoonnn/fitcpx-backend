@@ -1,5 +1,5 @@
 const { Sequelize } = require('sequelize');
-const { tab_aluno, tab_avaliacao, tab_avaliacao_imagem, tab_usuario } = require('../../database/models');
+const { tab_aluno, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa } = require('../../database/models');
 const { removeStringVazia, uploadAlunoIMGAWS, deleteIMGAWS } = require('../../utils');
 
 async function getAlunos(req, res) {    
@@ -74,6 +74,32 @@ async function recoveryAluno(req, res) {
     res.send({ status: true });
 }
 
+async function getAvaliacoes(req, res) {    
+    const { cod_empresa } = req.body;
+    const avaliacoes = await tab_avaliacao.findAll({
+        include: [
+            {
+                model: tab_aluno,
+                as: 'aluno',
+                include: [
+                    {
+                        model: tab_usuario,
+                        as: 'usuario',
+                        include: [
+                            {
+                                model: tab_empresa,
+                                as: 'empresa',
+                                where: { cod_empresa: cod_empresa },
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+    });
+    res.send({ status: true, avaliacoes });
+}
+
 async function getAvaliacao(req, res) {    
     const { cod_avaliacao } = req.body;
     const avaliacao = await tab_avaliacao.findOne({ where: { cod_avaliacao: cod_avaliacao } });
@@ -143,6 +169,7 @@ module.exports = {
     setAluno,
     deleteAluno,
     recoveryAluno,
+    getAvaliacoes,
     getAvaliacao,
     setAvaliacao,
     changeAlunoIMG,
