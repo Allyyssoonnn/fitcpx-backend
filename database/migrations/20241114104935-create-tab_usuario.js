@@ -10,6 +10,14 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.DataTypes.INTEGER
       },
+      cod_empresa: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'tab_empresa',
+          key: 'cod_empresa'
+        },
+        allowNull: false
+      },
       nome_usuario: {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
@@ -77,6 +85,11 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         allowNull: true,
         defaultValue: null
+      },
+      admin_usuario: {
+        type: Sequelize.ENUM('S', 'N'),
+        allowNull: false,
+        defaultValue: 'N'
       },
       createdAt: {
         allowNull: false,

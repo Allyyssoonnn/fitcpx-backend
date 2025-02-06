@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     tab_usuario.associate = (models) => {
-        tab_usuario.hasOne(models.tab_empresa, {
+        tab_usuario.belongsTo(models.tab_empresa, {
             foreignKey: 'cod_empresa',
             as: 'empresa',
         })

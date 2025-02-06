@@ -3,6 +3,7 @@ const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/cl
 const { SESClient, SendEmailCommand } = require("@aws-sdk/client-ses");
 const path = require('path');
 const fs = require('fs');
+const { tab_email_envio } = require('./database/models');
 
 function removeStringVazia(data) {
     return Object.fromEntries(
@@ -148,9 +149,9 @@ async function deleteIMGAWS(id) {
 
 async function sendEmail(email, msg, header) {
     const params = {
-        Source: "alyson.personalstudio@gmail.com", // Precisa estar verificado no AWS SES
+        Source: "noreply@fitcpx.com", // Precisa estar verificado no AWS SES
         Destination: {
-            ToAddresses: ['alysonone123@gmail.com'], // Destinatário do e-mail
+            ToAddresses: [email], // Destinatário do e-mail
         },
         Message: {
             Subject: { Data: header },
@@ -161,11 +162,16 @@ async function sendEmail(email, msg, header) {
     };
   
     try {
-      const command = new SendEmailCommand(params);
-      const response = await sesClient.send(command);
-      console.log("E-mail enviado!", response);
+        const command = new SendEmailCommand(params);
+        const response = await sesClient.send(command);
+        tab_email_envio.create({
+            email_header: header,
+            email_body: msg,
+            email_destino: email,
+        });
+        console.log("E-mail enviado!", response);
     } catch (error) {
-      console.error("Erro ao enviar e-mail:", error);
+        console.error("Erro ao enviar e-mail:", error);
     }
 }
 

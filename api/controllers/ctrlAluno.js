@@ -81,14 +81,17 @@ async function getAvaliacoes(req, res) {
             {
                 model: tab_aluno,
                 as: 'aluno',
+                required: true,
                 include: [
                     {
                         model: tab_usuario,
                         as: 'usuario',
+                        required: true,
                         include: [
                             {
                                 model: tab_empresa,
                                 as: 'empresa',
+                                required: true,
                                 where: { cod_empresa: cod_empresa },
                             }
                         ]
@@ -122,6 +125,12 @@ async function setAvaliacao(req, res) {
     }
 
     res.send({ status: true, avaliacao: avaliacaoAtt });
+}
+
+async function deleteAvaliacao(req, res) {
+    const { cod_avaliacao } = req.body;
+    await tab_avaliacao.update({ deletedAt: new Date() }, { where: { cod_avaliacao: cod_avaliacao } });
+    res.send({ status: true });
 }
 
 async function changeAlunoIMG(req, res) {
@@ -172,6 +181,7 @@ module.exports = {
     getAvaliacoes,
     getAvaliacao,
     setAvaliacao,
+    deleteAvaliacao,
     changeAlunoIMG,
     sendAvaliacaoIMG,
 }

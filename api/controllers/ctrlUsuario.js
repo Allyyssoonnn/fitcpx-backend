@@ -50,16 +50,52 @@ async function register(req, res) {
         res.send({ status: false, msg: 'Senhas não correspondem!' });
         return;
     }
-    
+    const email_codigo = [...crypto.randomFillSync(Buffer.alloc(4))].map(n => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[n % 36]).join('');
+
     const novaEmpresa = await tab_empresa.create({
         nome_empresa: nome_usuario,
         email_empresa: email_usuario,
+        email_codigo: email_codigo,
     });
     const novoUsuario = await tab_usuario.create({ ...req.body, cod_empresa: novaEmpresa.cod_empresa });
+    
+    //Envia E-mail com código de confirmação
+    verifyEmail(null, null, novaEmpresa.cod_empresa);
 
     const token = jwt.sign({ email_usuario }, process.env.SECRET);
     const refreshToken = crypto.randomBytes(64).toString('hex');
     res.send({ status: true, token, refreshToken, usuario: novoUsuario });
+}
+
+async function recovery(req, res) {
+    const { email } = req.body;
+
+    const usuario = await tab_usuario.findOne({ where: { email_usuario: email.trim() } });
+
+    if (!usuario) {
+        res.send({ status: false, msg: 'E-mail não cadastrado!' });
+        return;
+    }
+
+    const msg =
+`
+Olá, ${usuario.email_usuario}
+
+Seu link de recuperação é:
+
+//
+
+Acesse o link para informar sua nova senha.
+
+Se você não solicitou este link, ignore este e-mail.
+
+Atenciosamente,
+Fit Complex
+`
+
+    sendEmail(email, msg, 'FitCpx - E-mail de recuperação');
+
+    res.send({ status: true });
 }
 
 async function refreshToken(req, res) {
@@ -133,16 +169,16 @@ async function setUsuario(req, res) {
     res.send({ status: true, usuario: usuarioAtt });
 }
 
-async function verifyEmail(req, res) {
+async function verifyEmail(req, res, codEmpresa) {
     const { cod_empresa } = req.body;
 
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa: cod_empresa } });
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa: cod_empresa || codEmpresa } });
 
     const msg =
 `
 Olá, ${empresa.nome_empresa}
 
-Seu código de verificação é: **123456**  
+Seu código de verificação é: **${empresa.email_codigo}**  
 
 Digite este código no aplicativo para continuar.  
 
@@ -154,12 +190,13 @@ Fit Complex
 
     sendEmail(empresa.email_empresa, msg, 'FitCpx - E-mail de verificação');
 
-    res.send({ status: true });
+    if (res) res.send({ status: true });
 }
 
 module.exports = {
     login,
     register,
+    recovery,
     refreshToken,
     getProtocolos,
     changeUsuarioIMG,

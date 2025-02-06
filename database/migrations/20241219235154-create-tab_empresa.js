@@ -30,6 +30,11 @@ module.exports = {
         type: Sequelize.DataTypes.ENUM("S", "N"),
         defaultValue: "N"
       },
+      email_codigo: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
       telefone_empresa: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
