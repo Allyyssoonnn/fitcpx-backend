@@ -93,7 +93,7 @@ Atenciosamente,
 Fit Complex
 `
 
-    sendEmail(email, msg, 'FitCpx - E-mail de recuperação');
+    await sendEmail(email, msg, 'FitCpx - E-mail de recuperação');
 
     res.send({ status: true });
 }
@@ -148,6 +148,7 @@ async function getUsuarios(req, res) {
     const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
     const usuarios = await tab_usuario.findAll({
         where: { cod_empresa: cod_empresa, ...where },
+        attributes: { exclude: ['refreshToken'] },
         paranoid: !deleted,
     });
     res.send({ status: true, usuarios });

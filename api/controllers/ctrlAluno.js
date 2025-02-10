@@ -12,6 +12,7 @@ async function getAlunos(req, res) {
             { model: tab_avaliacao, as: 'avaliacao' },
             { model: tab_usuario, as: 'usuario', where: { cod_empresa } },
         ],
+        attributes: { exclude: ['senha_aluno'] },
         order: [['nome_aluno', 'ASC']]
     });
     res.send({ status: true, alunos });
@@ -77,6 +78,8 @@ async function recoveryAluno(req, res) {
 async function getAvaliacoes(req, res) {    
     const { cod_empresa } = req.body;
     const avaliacoes = await tab_avaliacao.findAll({
+        raw: true,
+        nest: true,
         include: [
             {
                 model: tab_aluno,
@@ -100,7 +103,13 @@ async function getAvaliacoes(req, res) {
             }
         ],
     });
-    res.send({ status: true, avaliacoes });
+    // for (const av of avaliacoes) av.nome_aluno = av.aluno.nome_aluno;
+    // Reorganizando os dados para que nome_aluno seja o primeiro atributo
+    const avaliacoesFormatadas = avaliacoes.map(av => ({
+        nome_aluno: av.aluno?.nome_aluno, // Primeiro atributo
+        ...av, // Outros atributos
+    }));
+    res.send({ status: true, avaliacoes: avaliacoesFormatadas });
 }
 
 async function getAvaliacao(req, res) {    

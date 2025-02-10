@@ -24,7 +24,7 @@ const s3Client = new S3Client({
 
 // Configurar o cliente SES
 const sesClient = new SESClient({
-    region: "us-east-2",
+    region: "sa-east-1",
     credentials: {
         accessKeyId: '[REDACTED_CREDENTIAL]', // Substitua pela sua Access Key
         secretAccessKey: '[REDACTED_CREDENTIAL]', // Substitua pela sua Secret Key
