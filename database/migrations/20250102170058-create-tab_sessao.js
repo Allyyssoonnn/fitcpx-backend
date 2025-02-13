@@ -39,6 +39,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
+      sequencia_sessao: {
+        allowNull: false,
+        type: Sequelize.DataTypes.INTEGER,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,

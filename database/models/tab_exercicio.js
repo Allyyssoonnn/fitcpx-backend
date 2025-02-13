@@ -56,6 +56,18 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: true,
         },
+        cod_grupo_exercicio_8: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
+        cod_grupo_exercicio_9: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
+        cod_grupo_exercicio_10: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
         cod_equipamento_1: {
             type: DataTypes.INTEGER,
             allowNull: true,

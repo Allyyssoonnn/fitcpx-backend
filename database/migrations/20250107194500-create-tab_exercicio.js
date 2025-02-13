@@ -96,6 +96,30 @@ module.exports = {
           key: 'cod_grupo_exercicio'
         }
       },
+      cod_grupo_exercicio_8: {
+        allowNull: true,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_grupo_exercicio',
+          key: 'cod_grupo_exercicio'
+        }
+      },
+      cod_grupo_exercicio_9: {
+        allowNull: true,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_grupo_exercicio',
+          key: 'cod_grupo_exercicio'
+        }
+      },
+      cod_grupo_exercicio_10: {
+        allowNull: true,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_grupo_exercicio',
+          key: 'cod_grupo_exercicio'
+        }
+      },
       cod_equipamento_1: {
         allowNull: true,
         type: Sequelize.DataTypes.INTEGER,

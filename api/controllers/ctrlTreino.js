@@ -30,7 +30,8 @@ async function getTreinos(req, res) {
                         ],
                         order: [['sequencia_sessao_exercicio', 'ASC']]
                     }
-                ]
+                ],
+                order: [['sequencia_sessao', 'ASC']]
             },
         ],
         paranoid: !deleted
@@ -39,9 +40,13 @@ async function getTreinos(req, res) {
     const treinosReorganizados = treinos.map((treino) => {
         const treinoLimpo = treino.toJSON();
 
+        const sessoesOrdenadas = [...treinoLimpo.sessoes].sort(
+            (a, b) => a.sequencia_sessao - b.sequencia_sessao
+        );
+
         return ({
             ...treinoLimpo,
-            sessoes: treinoLimpo.sessoes.map((sessao) => {
+            sessoes: sessoesOrdenadas.map((sessao) => {
                 // Ordena os exercícios por `sequencia_sessao_exercicios`
                 const exerciciosOrdenados = [...sessao.exercicios].sort(
                     (a, b) => a.sequencia_sessao_exercicios - b.sequencia_sessao_exercicios
@@ -157,7 +162,8 @@ async function getExercicios(req, res) {
                 model: tab_usuario,
                 as: 'usuario',
             }
-        ]
+        ],
+        order: [['nome_exercicio', 'ASC']]
     });
     res.send({ status: true, exercicios });
 }
