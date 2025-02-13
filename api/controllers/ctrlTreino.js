@@ -56,31 +56,32 @@ async function getTreinos(req, res) {
 
                 // Agrupa os exercícios por `sequencia_sessao_exercicios`
                 exerciciosOrdenados.forEach((exercicio) => {
-                    const sequencia = exercicio.sequencia_sessao_exercicio ;
+                    const sequencia = exercicio.sequencia_sessao_exercicio;
                     
                     if (!agrupados[sequencia]) {
                         agrupados[sequencia] = {
-                            ...exercicio,
+                            //Sequencia importante para preservar as informações do createdAt, deletedAt, updatedAt
                             ...exercicio.exercicio,
+                            ...exercicio,
                             sets: [], // Inicializa o array `sets`
                         };
                     } else {
-                        agrupados[sequencia].sets.push({ ...exercicio, ...exercicio.exercicio });
+                        agrupados[sequencia].sets.push({
+                            //Sequencia importante para preservar as informações do createdAt, deletedAt, updatedAt
+                            ...exercicio.exercicio,
+                            ...exercicio,
+                        });
                     }
                 });
 
                 return ({
                     ...sessao,
                     exercicios: Object.values(agrupados).map((exercicio) => ({
-                        ...exercicio,
+                        //Sequencia importante para preservar as informações do createdAt, deletedAt, updatedAt
                         ...exercicio.exercicio,
+                        ...exercicio,
                         sets: exercicio.sets || [], // Garante que o campo exista
                     })),
-                    // exercicios: sessao.exercicios.map((exercicio) => ({
-                    //     ...exercicio,
-                    //     ...exercicio.exercicio,
-                    //     sets: exercicio.sets || []
-                    // }))
                 })
             })
         })
