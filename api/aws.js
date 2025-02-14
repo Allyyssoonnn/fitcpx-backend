@@ -1,0 +1,138 @@
+const multer = require("multer");
+const multerS3 = require("multer-s3");
+const { getS3Client } = require("../utils");
+const { tab_avaliacao_imagem, tab_usuario, tab_aluno } = require('../database/models');
+const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
+
+// Configuração do Multer com armazenamento no S3
+function uploadDinamico(folder) {
+    return multer({
+        storage: multerS3({
+            s3: getS3Client(),
+            bucket: 'apppersonalfit',
+            acl: "public-read",
+            contentType: multerS3.AUTO_CONTENT_TYPE, // Mantém o tipo correto
+            key: function (req, file, cb) {
+                const fileName = `${Date.now()}_${file.originalname}`;
+                cb(null, `${folder}/${fileName}`);
+            },
+        }),
+        // limits: { fileSize: 10 * 1024 * 1024 }, // Limite de 10MB
+    });
+}
+
+async function uploadIMGAvaliacao(req, res) {
+    const deletedimages = JSON.parse(req.headers['deletedimages']);
+
+    for (const imageData of deletedimages) {
+        const id = imageData.split('/')[imageData.split('/').length - 1];
+        const removida = await deleteIMG('aluno/avaliacao' ,id);
+        if (removida) tab_avaliacao_imagem.update({ deletedAt: new Date() }, { where: { url_imagem: imageData } });
+    }
+
+    const upload = uploadDinamico('aluno/avaliacao').array('image', 15);
+
+    upload(req, res, async (err) => {
+        if (err) return res.status(400).json({ error: err.message });
+
+        // Criar array de URLs públicas dos arquivos
+        const imagensSalvas = req.files.map((file, index) => ({
+            url_imagem: file.location,  // 📌 file.location já tem a publicUrl do S3
+            descricao_imagem: (file.originalname.split('[')[1]).split(']')[0],
+            tamanho_imagem: (file.originalname.split('(')[1]).split(')')[0],
+            cod_avaliacao: req.headers["cod_avaliacao"] // Pegando código da avaliação do header
+        }));
+
+        // Salvar URLs no banco de dados
+        try {
+            await tab_avaliacao_imagem.bulkCreate(imagensSalvas);
+            res.send({ status: true, imagens: imagensSalvas });
+        } catch (dbError) {
+            console.error("Erro ao salvar no banco:", dbError);
+            res.send({ error: "Erro ao salvar no banco de dados" });
+        }
+    })
+}
+
+async function uploadIMGUsuario(req, res) {
+    const cod_usuario = req.headers['cod_usuario'];
+    const usuario = await tab_usuario.findOne({ where: { cod_usuario } });
+
+    if (usuario?.imagem_usuario) {
+        if (usuario?.imagem_usuario?.includes('amazonaws.com')) {
+            const id = usuario.imagem_usuario.split('/')[usuario.imagem_usuario.split('/').length - 1];
+            const removida = await deleteIMG(id);
+        }
+    }
+
+    const upload = uploadDinamico('usuario/perfil').array('image', 15);
+
+    upload(req, res, async (err) => {
+        if (err) return res.status(400).json({ error: err.message });
+
+        try {
+            usuario.imagem_usuario = req.files[0].location;
+            usuario.save();
+
+            res.send({ status: true, id: req.files[0].location });
+        } catch (dbError) {
+            console.error("Erro ao salvar no banco:", dbError);
+            res.send({ error: "Erro ao salvar no banco de dados" });
+        }
+    })
+}
+
+async function uploadIMGAluno(req, res) {
+    const cod_aluno = req.headers['cod_aluno'];
+    const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
+
+    if (aluno?.imagem_aluno) {
+        if (aluno?.imagem_aluno?.includes('amazonaws.com')) {
+            const id = aluno.imagem_aluno.split('/')[aluno.imagem_aluno.split('/').length - 1];
+            const removida = await deleteIMG(id);
+        }
+    }
+
+    const upload = uploadDinamico('aluno/perfil').array('image', 15);
+
+    upload(req, res, async (err) => {
+        if (err) return res.status(400).json({ error: err.message });
+
+        try {
+            aluno.imagem_aluno = req.files[0].location;
+            aluno.save();
+
+            res.send({ status: true, id: req.files[0].location });
+        } catch (dbError) {
+            console.error("Erro ao salvar no banco:", dbError);
+            res.send({ error: "Erro ao salvar no banco de dados" });
+        }
+    })
+}
+
+async function deleteIMG(folder, id) {
+    try {
+        const params = {
+            Bucket: 'apppersonalfit',
+            Key: `${folder}/${id}`
+        };
+
+        const s3Client = getS3Client();
+    
+        const command = new DeleteObjectCommand(params);
+        await s3Client.send(command);
+    
+        console.log(`Imagem com ID ${id} excluída com sucesso.`);
+
+        return true;
+    } catch (error) {
+        console.error(`Erro ao excluir a imagem com ID ${id}:`, error);
+        return false;
+    }
+}
+
+module.exports = {
+    uploadIMGAvaliacao,
+    uploadIMGUsuario,
+    uploadIMGAluno,
+};

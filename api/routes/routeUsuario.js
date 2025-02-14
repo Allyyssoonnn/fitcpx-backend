@@ -1,10 +1,9 @@
 const router = require('express').Router();
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
 
 const verifyToken = require('../authMiddleware');
 
 const { login, register, refreshToken, getProtocolos, changeUsuarioIMG, setUsuario, getUsuarios, verifyEmail, recovery } = require('../controllers/ctrlUsuario');
+const { uploadIMGUsuario } = require('../aws');
 
 router.post('/login', login);
 router.post('/register', register);
@@ -14,7 +13,7 @@ router.post('/getProtocolos', getProtocolos);
 router.post('/getUsuarios', verifyToken, getUsuarios);
 router.post('/setUsuario', verifyToken, setUsuario);
 
-router.post('/changeUsuarioIMG', upload.single('image'), changeUsuarioIMG);
+router.post('/changeUsuarioIMG', uploadIMGUsuario);
 router.post('/verifyEmail', verifyEmail, setUsuario);
 
 module.exports = router;

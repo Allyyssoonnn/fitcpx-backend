@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      tamanho_imagem: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       deletedAt: {
         type: DataTypes.DATE,
         allowNull: true,

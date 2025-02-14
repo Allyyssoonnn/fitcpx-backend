@@ -1,7 +1,7 @@
 const { tab_usuario, tab_empresa, tab_protocolo } = require('../../database/models');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { uploadUsuarioIMGAWS, deleteIMGAWS, sendEmail } = require('../../utils');
+const { sendEmail } = require('../../utils');
 const { Sequelize, where } = require('sequelize');
 
 async function login(req, res) {    
@@ -126,23 +126,6 @@ async function getProtocolos(req, res) {
     res.send({ status: true, protocolos: groupedProtocolos });
 }
 
-async function changeUsuarioIMG(req, res) {
-    const cod_usuario = req.headers['cod_usuario'];
-    const usuario = await tab_usuario.findOne({ where: { cod_usuario } });
-    if (usuario?.imagem_usuario) {
-        if (usuario?.imagem_usuario?.includes('amazonaws.com')) {
-            const id = usuario.imagem_usuario.substring(usuario.imagem_aluno.indexOf('perfil/') + 7, usuario.imagem_usuario.length);
-            const removida = await deleteIMGAWS(id);
-        }
-    }
-    const fileId = await uploadUsuarioIMGAWS(req.file.path, req.file.mimetype);
-    if (usuario.imagem_usuario) deleteIMGAWS(usuario.imagem_usuario.substring(usuario.imagem_usuario.indexOf('perfil/') + 7, usuario.imagem_usuario.length));
-    usuario.imagem_usuario = fileId;
-    usuario.save();
-
-    res.send({ status: true, id: fileId });
-}
-
 async function getUsuarios(req, res) {
     const { cod_empresa, deleted } = req.body;
     const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
@@ -200,7 +183,6 @@ module.exports = {
     recovery,
     refreshToken,
     getProtocolos,
-    changeUsuarioIMG,
     getUsuarios,
     setUsuario,
     verifyEmail,

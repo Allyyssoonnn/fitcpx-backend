@@ -26,6 +26,10 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         allowNull: false,
       },
+      tamanho_imagem: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: true,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,

@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
 const { tab_aluno, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa } = require('../../database/models');
-const { removeStringVazia, uploadAlunoIMGAWS, deleteIMGAWS } = require('../../utils');
+const { removeStringVazia } = require('../../utils');
 
 async function getAlunos(req, res) {    
     const { cod_usuario, cod_empresa, deleted } = req.body;
@@ -142,45 +142,6 @@ async function deleteAvaliacao(req, res) {
     res.send({ status: true });
 }
 
-async function changeAlunoIMG(req, res) {
-    const cod_aluno = req.headers['cod_aluno'];
-    const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
-    // if (aluno?.imagem_aluno) {
-    //     if (aluno?.imagem_aluno?.includes('amazonaws.com')) {
-    //         const id = aluno.imagem_aluno.substring(aluno.imagem_aluno.indexOf('perfil/') + 7, aluno.imagem_aluno.length);
-    //         const removida = await deleteIMGAWS(id);
-    //     }
-    // }
-    const fileId = await uploadAlunoIMGAWS(req.file.path, req.file.mimetype, 'perfil');
-    aluno.imagem_aluno = fileId;
-    aluno.save();
-
-    res.send({ status: true, id: fileId });
-}
-
-async function sendAvaliacaoIMG(req, res) {
-    const cod_avaliacao = req.headers['cod_avaliacao'];
-    const deletedimages = JSON.parse(req.headers['deletedimages']);
-
-    for (const imageData of deletedimages) {
-        const id = imageData.substring(imageData.indexOf('avaliacao/') + 7, imageData.length);
-        const removida = await deleteIMGAWS(id);
-        if (removida) tab_avaliacao_imagem.update({ deletedAt: new Date() }, { where: { url_imagem: imageData } });
-    }
-
-    for (const file of req.files) {
-        const url = await uploadAlunoIMGAWS(file.path, file.mimetype, 'avaliacao');
-        const descricao = file.originalname.substring(0, file.originalname.indexOf('_'));
-        await tab_avaliacao_imagem.create({
-            cod_avaliacao,
-            descricao_imagem: descricao,
-            url_imagem: url
-        });
-    }
-
-    res.send({ status: true });
-}
-
 module.exports = {
     getAlunos,
     getAluno,
@@ -191,6 +152,4 @@ module.exports = {
     getAvaliacao,
     setAvaliacao,
     deleteAvaliacao,
-    changeAlunoIMG,
-    sendAvaliacaoIMG,
 }
