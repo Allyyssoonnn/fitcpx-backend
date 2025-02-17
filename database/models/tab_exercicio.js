@@ -26,7 +26,8 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: null,
         },
         base_exercicio: {
-            type: DataTypes.STRING,
+            type: DataTypes.ENUM('S', 'N'),
+            defaultValue: 'N'
         },
         cod_grupo_exercicio_1: {
             type: DataTypes.INTEGER,

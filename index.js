@@ -23,6 +23,7 @@ server.use('/usuario', require('./api/routes/routeUsuario'));
 server.use('/aluno', require('./api/routes/routeAluno'));
 server.use('/agenda', require('./api/routes/routeAgenda'));
 server.use('/treino', require('./api/routes/routeTreino'));
+server.use('/cardapio', require('./api/routes/routeCardapio'));
 
 const serverHttp = http.createServer(server);
 serverHttp.listen(PORT, () => console.log(`Backend do app está rodando na porta: ${PORT}`));

@@ -15,7 +15,6 @@ router.post('/setAvaliacao', verifyToken, setAvaliacao);
 router.post('/deleteAvaliacao', verifyToken, deleteAvaliacao);
 
 router.post('/changeAlunoIMG', uploadIMGAluno);
-
 router.post('/sendAvaliacaoIMG', uploadIMGAvaliacao);
 
 module.exports = router;

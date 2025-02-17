@@ -39,6 +39,7 @@ module.exports = {
       },
       base_exercicio: {
         type: Sequelize.DataTypes.ENUM('S', 'N'),
+        defaultValue: 'N'
       },
       cod_grupo_exercicio_1: {
         allowNull: true,

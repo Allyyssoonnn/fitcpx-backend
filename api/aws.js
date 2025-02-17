@@ -1,7 +1,7 @@
-const multer = require("multer");
 const multerS3 = require("multer-s3");
 const { getS3Client } = require("../utils");
-const { tab_avaliacao_imagem, tab_usuario, tab_aluno } = require('../database/models');
+const multer = require("multer");
+const { tab_avaliacao_imagem, tab_usuario, tab_aluno, tab_alimento } = require('../database/models');
 const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
 // Configuração do Multer com armazenamento no S3
@@ -110,6 +110,34 @@ async function uploadIMGAluno(req, res) {
     })
 }
 
+async function uploadIMGAlimento(req, res) {
+    const cod_alimento = req.headers['cod_alimento'];
+    const alimento = await tab_alimento.findOne({ where: { cod_alimento } });
+
+    if (alimento?.imagem_alimento) {
+        if (alimento?.imagem_alimento?.includes('amazonaws.com')) {
+            const id = alimento.imagem_alimento.split('/')[alimento.imagem_alimento.split('/').length - 1];
+            const removida = await deleteIMG(id);
+        }
+    }
+
+    const upload = uploadDinamico('alimento').array('image', 15);
+
+    upload(req, res, async (err) => {
+        if (err) return res.status(400).json({ error: err.message });
+
+        try {
+            alimento.imagem_alimento = req.files[0].location;
+            alimento.save();
+
+            res.send({ status: true, id: req.files[0].location });
+        } catch (dbError) {
+            console.error("Erro ao salvar no banco:", dbError);
+            res.send({ error: "Erro ao salvar no banco de dados" });
+        }
+    })
+}
+
 async function deleteIMG(folder, id) {
     try {
         const params = {
@@ -135,4 +163,5 @@ module.exports = {
     uploadIMGAvaliacao,
     uploadIMGUsuario,
     uploadIMGAluno,
+    uploadIMGAlimento,
 };

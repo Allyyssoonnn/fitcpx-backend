@@ -112,7 +112,7 @@ async function getAvaliacoes(req, res) {
     res.send({ status: true, avaliacoes: avaliacoesFormatadas });
 }
 
-async function getAvaliacao(req, res) {    
+async function getAvaliacao(req, res) {
     const { cod_avaliacao } = req.body;
     const avaliacao = await tab_avaliacao.findOne({ where: { cod_avaliacao: cod_avaliacao } });
     res.send({ status: true, avaliacao });
