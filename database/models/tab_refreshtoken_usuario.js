@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         key: 'cod_usuario'
       }
     },
-    refreshtoken_aluno: {
+    refreshtoken_usuario: {
       type: DataTypes.STRING,
       allowNull: false
     },

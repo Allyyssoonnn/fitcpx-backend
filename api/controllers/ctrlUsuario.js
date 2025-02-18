@@ -117,7 +117,7 @@ async function refreshToken(req, res) {
     const refreshTokenValido = await tab_refreshtoken_usuario.findOne({
         where: {
             refreshtoken_usuario: refreshToken,
-            expires_at: {
+            expiresAt: {
                 [Op.gte]: new Date()
             }
         }
@@ -126,7 +126,7 @@ async function refreshToken(req, res) {
     const refreshTokenExpirado = await tab_refreshtoken_usuario.findOne({
         where: {
             refreshtoken_usuario: refreshToken,
-            expires_at: {
+            expiresAt: {
                 [Op.lt]: new Date() // Verifica se a data de expiração é menor que a data atual
             }
         }

@@ -10,12 +10,12 @@ async function login(req, res) {
     });
     
     if (!aluno) {
-        res.send({ status: false, msg: 'E-mail não cadastrado!' });
+        res.send({ status: true, msg: 'E-mail não cadastrado!' });
         return;
     }
 
     if (aluno.senha_aluno !== senha) {
-        res.send({ status: false, msg: 'Senha incorreta!' });
+        res.send({ status: true, msg: 'Senha incorreta!' });
         return;
     }
 
