@@ -1,8 +1,8 @@
-const { tab_usuario, tab_empresa, tab_protocolo } = require('../../database/models');
+const { tab_usuario, tab_empresa, tab_protocolo, tab_refreshtoken_usuario } = require('../../database/models');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { sendEmail } = require('../../utils');
-const { Sequelize, where } = require('sequelize');
+const { Sequelize, where, Op } = require('sequelize');
 
 async function login(req, res) {    
     const { email, senha } = req.body;
@@ -29,10 +29,21 @@ async function login(req, res) {
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa: usuario.cod_empresa } });
 
+    const userAgent = req.headers['user-agent'];
+    const ipAddress = req.ip || req.connection.remoteAddress;
+
+    const expirationTime = 7 * 24 * 60 * 60 * 1000; // Exemplo: 7 dias em milissegundos
+    const expiresAt = new Date(Date.now() + expirationTime);
+
     const token = jwt.sign({ email }, process.env.SECRET, { expiresIn: '7h' });
     const refreshToken = crypto.randomBytes(64).toString('hex');
-    usuario.refreshToken = refreshToken;
-    usuario.save();
+    tab_refreshtoken_usuario.create({
+        cod_usuario: usuario.cod_usuario,
+        refreshtoken_usuario: refreshToken,
+        useragent_usuario: userAgent,
+        ip_usuario: ipAddress,
+        expiresAt: expiresAt,
+    });
     res.send({ status: true, token, refreshToken, usuario, empresa });
 }
 
@@ -103,12 +114,31 @@ async function refreshToken(req, res) {
 
     if (!refreshToken) return res.status(403).send({ status: false, msg: 'Token de atualização não fornecido!' });
 
-    const usuario = await tab_usuario.findOne({ where: { refreshToken } });
+    const refreshTokenValido = await tab_refreshtoken_usuario.findOne({
+        where: {
+            refreshtoken_usuario: refreshToken,
+            expires_at: {
+                [Op.gte]: new Date()
+            }
+        }
+    });
 
-    if (!usuario) {
+    const refreshTokenExpirado = await tab_refreshtoken_usuario.findOne({
+        where: {
+            refreshtoken_usuario: refreshToken,
+            expires_at: {
+                [Op.lt]: new Date() // Verifica se a data de expiração é menor que a data atual
+            }
+        }
+    });
+    if (refreshTokenExpirado) await tab_refreshtoken_usuario.update({ deletedAt: new Date() }, { where: { cod_refreshtoken_usuario: refreshTokenExpirado.cod_refreshtoken_usuario } });
+
+    if (!refreshTokenValido) {
         return res.status(403).send({ status: false, msg: 'Token inválido!' });
     }
 
+    const usuario = await tab_usuario.findOne({ where: { cod_usuario: refreshTokenValido.cod_usuario } });
+    
     const newToken = jwt.sign({ email: usuario.email_usuario }, process.env.SECRET, { expiresIn: '7h' });
     res.send({ status: true, token: newToken });
 }

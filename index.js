@@ -7,11 +7,13 @@ const path = require('path');
 require('dotenv').config();
 
 const server = express();
-const serverWeb = express();
+const serverSite = express();
 const serverApp = express();
+const serverAppAluno = express();
 const PORT = 8070;
-const PORTWEB = 8090;
+const PORTSITE = 8090;
 const PORTApp = 3070;
+const PORTAppAluno = 3075;
 
 //cors precisa ser declarado antes das rotas para não ocorrer erro no client
 server.use(cors());
@@ -24,18 +26,33 @@ server.use('/aluno', require('./api/routes/routeAluno'));
 server.use('/agenda', require('./api/routes/routeAgenda'));
 server.use('/treino', require('./api/routes/routeTreino'));
 server.use('/cardapio', require('./api/routes/routeCardapio'));
+server.use('/appaluno', require('./api/routes/routeAppAluno'));
+
+// ================ Servidor
 
 const serverHttp = http.createServer(server);
 serverHttp.listen(PORT, () => console.log(`Backend do app está rodando na porta: ${PORT}`));
 
-serverWeb.use(express.static(path.join(__dirname, '/site')));
-serverWeb.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/site/index.html'))));
+// =================== Site
 
-const serverWebHttp = http.createServer(serverWeb);
-serverWebHttp.listen(PORTWEB, () => console.log(`WebSite do app está rodando na porta: ${PORTWEB}`));
+serverSite.use(express.static(path.join(__dirname, '/site')));
+serverSite.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/site/index.html'))));
 
-serverApp.use(express.static(path.join(__dirname, '/dist')));
-serverApp.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/dist/index.html'))));
+const serverWebHttp = http.createServer(serverSite);
+serverWebHttp.listen(PORTSITE, () => console.log(`WebSite do app está rodando na porta: ${PORTSITE}`));
+
+// ================ Usuário
+
+serverApp.use(express.static(path.join(__dirname, '/dist-usuario')));
+serverApp.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/dist-usuario/index.html'))));
 
 const appHttp = http.createServer(serverApp);
 appHttp.listen(PORTApp, () => console.log(`Frontend do app está rodando na porta: ${PORTApp}`));
+
+// ================ Aluno
+
+serverAppAluno.use(express.static(path.join(__dirname, '/dist-aluno')));
+serverAppAluno.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/dist-aluno/index.html'))));
+
+const appAlunoHttp = http.createServer(serverAppAluno);
+appAlunoHttp.listen(PORTAppAluno, () => console.log(`Frontend do app está rodando na porta: ${PORTAppAluno}`));

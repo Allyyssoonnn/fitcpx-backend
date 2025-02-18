@@ -76,7 +76,10 @@ async function recoveryAluno(req, res) {
 }
 
 async function getAvaliacoes(req, res) {    
-    const { cod_empresa } = req.body;
+    const { cod_empresa, cod_aluno } = req.body;
+    var where = {};
+    if (cod_empresa) where = { cod_empresa: cod_empresa };
+    if (cod_aluno) where = { cod_aluno: cod_aluno };
     const avaliacoes = await tab_avaliacao.findAll({
         raw: true,
         nest: true,
@@ -95,11 +98,12 @@ async function getAvaliacoes(req, res) {
                                 model: tab_empresa,
                                 as: 'empresa',
                                 required: true,
-                                where: { cod_empresa: cod_empresa },
+                                where: cod_empresa ? where : {},
                             }
                         ]
                     }
-                ]
+                ],
+                where: cod_aluno ? where : {},
             }
         ],
     });
