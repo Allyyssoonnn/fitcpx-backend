@@ -35,7 +35,7 @@ async function login(req, res) {
     const expirationTime = 7 * 24 * 60 * 60 * 1000; // Exemplo: 7 dias em milissegundos
     const expiresAt = new Date(Date.now() + expirationTime);
 
-    const token = jwt.sign({ email }, process.env.SECRET, { expiresIn: '7h' });
+    const token = jwt.sign({ cod_usuario: usuario.cod_usuario }, process.env.SECRET, { expiresIn: '7h' });
     const refreshToken = crypto.randomBytes(64).toString('hex');
     tab_refreshtoken_usuario.create({
         cod_usuario: usuario.cod_usuario,
