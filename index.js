@@ -10,10 +10,12 @@ const server = express();
 const serverSite = express();
 const serverApp = express();
 const serverAppAluno = express();
+const serverAppAdmin = express();
 const PORT = 8070;
 const PORTSITE = 8090;
 const PORTApp = 3070;
 const PORTAppAluno = 3075;
+const PORTAppAdmin = 3080;
 
 //cors precisa ser declarado antes das rotas para não ocorrer erro no client
 server.use(cors());
@@ -57,3 +59,11 @@ serverAppAluno.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/dist
 
 const appAlunoHttp = http.createServer(serverAppAluno);
 appAlunoHttp.listen(PORTAppAluno, () => console.log(`Frontend do app está rodando na porta: ${PORTAppAluno}`));
+
+// ================ Admin
+
+serverAppAdmin.use(express.static(path.join(__dirname, '/dist-admin')));
+serverAppAdmin.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/dist-admin/index.html'))));
+
+const appAdminHttp = http.createServer(serverAppAdmin);
+appAdminHttp.listen(PORTAppAdmin, () => console.log(`Frontend do app está rodando na porta: ${PORTAppAdmin}`));
