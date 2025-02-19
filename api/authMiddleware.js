@@ -21,7 +21,7 @@ function verifyToken(req, res, next) {
         const decoded = jwt.verify(token, process.env.SECRET);
 
         // Adiciona os dados do token à requisição para uso posterior
-        // 17/02/2025 - Não sei se usa então não vou remover
+        // 17/02/2025 - Não sei se usa então não vou remover        
         req.usuario = decoded;
         req.aluno = decoded;
 

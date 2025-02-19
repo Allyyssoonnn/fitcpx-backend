@@ -113,11 +113,9 @@ async function deleteTreino(req, res) {
 
 async function getGrupoExercicios(req, res) {
     const { cod_empresa, deleted } = req.body;
-    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
-    const grupos = await tab_grupo_exercicio.findAll({ where: {
-        [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
-        ...where
-    }, paranoid: !deleted });
+    var where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    if (cod_empresa) where = { ...where, [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ] };
+    const grupos = await tab_grupo_exercicio.findAll({ where: where, paranoid: !deleted });
     res.send({ status: true, grupos });
 }
 
@@ -151,13 +149,13 @@ async function recoveryGrupoExercicio(req, res) {
 
 async function getExercicios(req, res) {
     const { cod_empresa, deleted } = req.body;
-    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    var where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    if (cod_empresa) where = { ...where, cod_empresa: cod_empresa }
+    // Se não houver cod_empresa, inclui os exercícios mesmo que tenham deletedAt preenchido
+    if (!cod_empresa) where = { ...where, deletedAt: { [Sequelize.Op.or]: [null, { [Sequelize.Op.ne]: null }] } };
     const exercicios = await tab_exercicio.findAll({
-        where: {
-            [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
-            ...where
-        },
-        paranoid: !deleted,
+        where: where,
+        paranoid: cod_empresa ? !deleted : false,
         include: [
             {
                 model: tab_usuario,
