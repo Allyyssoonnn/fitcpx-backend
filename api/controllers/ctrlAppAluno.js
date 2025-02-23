@@ -1,16 +1,22 @@
-const { tab_aluno, tab_refreshtoken_aluno } = require('../../database/models');
+const { tab_aluno, tab_refreshtoken_aluno, tab_treino_execucao, tab_treino_exercicio_execucao } = require('../../database/models');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { Op } = require('sequelize');
 
 async function login(req, res) {    
-    const { email, senha } = req.body;
+    const { login, senha } = req.body;
 
     const aluno = await tab_aluno.findOne({
-        where: { email_aluno: email.trim() }
+        where: {
+            [Op.or]: [
+                { email_aluno: login.trim() },
+                { cpf_aluno: login.trim() }
+            ]
+        }
     });
-    
+
     if (!aluno) {
-        res.send({ status: true, msg: 'E-mail não cadastrado!' });
+        res.send({ status: true, msg: 'CPF ou E-mail não cadastrado!' });
         return;
     }
 
@@ -25,7 +31,7 @@ async function login(req, res) {
     const expirationTime = 7 * 24 * 60 * 60 * 1000; // Exemplo: 7 dias em milissegundos
     const expiresAt = new Date(Date.now() + expirationTime);
 
-    const token = jwt.sign({ email }, process.env.SECRET, { expiresIn: '7h' });
+    const token = jwt.sign({ cod_aluno: aluno.cod_aluno }, process.env.SECRET, { expiresIn: '7h' });
     const refreshToken = crypto.randomBytes(64).toString('hex');
     tab_refreshtoken_aluno.create({
         cod_aluno: aluno.cod_aluno,
@@ -45,7 +51,7 @@ async function refreshToken(req, res) {
     const refreshTokenValido = await tab_refreshtoken_aluno.findOne({
         where: {
             refreshtoken_aluno: refreshToken,
-            expires_at: {
+            expiresAt: {
                 [Op.gte]: new Date()
             }
         }
@@ -54,7 +60,7 @@ async function refreshToken(req, res) {
     const refreshTokenExpirado = await tab_refreshtoken_aluno.findOne({
         where: {
             refreshtoken_aluno: refreshToken,
-            expires_at: {
+            expiresAt: {
                 [Op.lt]: new Date() // Verifica se a data de expiração é menor que a data atual
             }
         }
@@ -65,13 +71,61 @@ async function refreshToken(req, res) {
         return res.status(403).send({ status: false, msg: 'Token inválido!' });
     }
 
-    const usuario = await tab_usuario.findOne({ where: { cod_usuario: refreshTokenValido.cod_usuario } });
+    const usuario = await tab_aluno.findOne({ where: { cod_aluno: refreshTokenValido.cod_aluno } });
     
     const newToken = jwt.sign({ email: usuario.email_usuario }, process.env.SECRET, { expiresIn: '7h' });
     res.send({ status: true, token: newToken });
 }
 
+async function finishTreino(req, res) {    
+    const { sessao, tempo } = req.body;
+
+    const treino_execucao = await tab_treino_execucao.create({
+        cod_treino: sessao.cod_treino,
+        cod_sessao: sessao.cod_sessao,
+        cod_aluno: sessao.cod_aluno,
+        duracao_treino_execucao: tempo,
+        data_treino_execucao: new Date(),
+    });
+
+    for (const exercicio of sessao.exercicios) {
+        await tab_treino_exercicio_execucao.create({
+            cod_treino_execucao: treino_execucao.cod_treino_execucao,
+            cod_exercicio: exercicio?.cod_exercicio,
+            treino_exercicio_executado: exercicio.feito ? 'S' : 'N',
+            sequencia_treino_exercicio_execucao: exercicio?.sequencia_sessao_exercicio,
+            serie_treino_exercicio_execucao: exercicio?.serie_sessao_exercicio,
+            repeticao_treino_exercicio_execucao: exercicio?.repeticao_sessao_exercicio,
+            carga_treino_exercicio_execucao: exercicio?.carga_sessao_exercicio,
+            intervalo_treino_exercicio_execucao: exercicio?.intervalo_sessao_exercicio,
+            observacao_treino_exercicio_execucao: exercicio?.observacao_sessao_exercicio,
+        });
+    }
+
+    res.send({ status: true });
+}
+
+async function getTreinosRealizados(req, res) {    
+    const { cod_aluno } = req.body;
+
+    if (cod_aluno) where = { cod_aluno: cod_aluno };
+
+    const treinos = await tab_treino_execucao.findAll({
+        where: where,
+        include: [
+            {
+                model: tab_treino_exercicio_execucao,
+                as: 'exercicios',
+            },
+        ],
+    })
+
+    res.send({ status: true, treinos });
+}
+
 module.exports = {
     login,
     refreshToken,
+    finishTreino,
+    getTreinosRealizados,
 }

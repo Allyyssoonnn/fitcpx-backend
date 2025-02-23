@@ -26,7 +26,13 @@ async function getTreinos(req, res) {
                             {
                                 model: tab_exercicio,
                                 as: 'exercicio',
-                            }
+                                include: [
+                                    {
+                                        model: tab_grupo_exercicio,
+                                        as: 'grupo_exercicio_1',
+                                    }
+                                ]
+                            },
                         ],
                         order: [['sequencia_sessao_exercicio', 'ASC']]
                     }

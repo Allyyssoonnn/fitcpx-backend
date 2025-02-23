@@ -141,10 +141,10 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'cod_usuario',
             as: 'usuario',
         });
-        // tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
-        //     foreignKey: 'cod_grupo_exercicio_1',
-        //     as: 'grupo_exercicio_1',
-        // });
+        tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
+            foreignKey: 'cod_grupo_exercicio_1',
+            as: 'grupo_exercicio_1',
+        });
         // tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
         //     foreignKey: 'cod_grupo_exercicio_2',
         //     as: 'grupo_exercicio_2',
