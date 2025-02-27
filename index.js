@@ -39,6 +39,7 @@ serverHttp.listen(PORT, () => console.log(`Backend do app está rodando na porta
 // =================== Site
 
 serverSite.use(express.static(path.join(__dirname, '/site')));
+serverSite.get('/politica-privacidade', ((req, res) => res.sendFile(path.join(__dirname, '/site/politica-privacidade.html'))));
 serverSite.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/site/index.html'))));
 
 const serverWebHttp = http.createServer(serverSite);
