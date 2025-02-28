@@ -28,16 +28,22 @@ async function getURL(rotaCallback) {
         urlRedirect,
     );
 
+    var scope = [];
+
+    if (rotaCallback == 'agenda') scope = [ ...scope,
+        "https://www.googleapis.com/auth/calendar.events" // Permite criar, editar e excluir eventos
+    ];
+    if (rotaCallback == 'entrar') scope = [ ...scope,
+        "https://www.googleapis.com/auth/userinfo.email", // Para acessar o email
+        "https://www.googleapis.com/auth/userinfo.profile", // Para acessar o nome e foto do usuário (opcional)
+    ];
+
     const url = oauth2Client.generateAuthUrl({
         access_type: "offline",
         // prompt: "consent",
-        scope: [
-            "https://www.googleapis.com/auth/calendar.events", // Permite criar, editar e excluir eventos
-            "https://www.googleapis.com/auth/userinfo.email", // Para acessar o email
-            "https://www.googleapis.com/auth/userinfo.profile" // Para acessar o nome e foto do usuário (opcional)
-        ],
+        scope: scope,
     });
-
+    
     return url;
 }
 

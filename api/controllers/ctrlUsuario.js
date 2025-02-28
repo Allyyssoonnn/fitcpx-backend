@@ -245,15 +245,7 @@ async function loggedGoogle(req, res) {
             imagem_usuario: data?.picture,
             cod_empresa: empresa.cod_empresa
         });
-
-        tab_google_token.create({
-            email_google: data.email,
-            google_token: data.token,
-            google_refresh_token: data.refresh_token,
-            cod_empresa: empresa.cod_empresa,
-            expiresAt: data.expiresAt,
-        });
-
+        
         const token = jwt.sign({ email_usuario: data.email.trim() }, process.env.SECRET);
         const refreshToken = crypto.randomBytes(64).toString('hex');
         tab_refreshtoken_usuario.create({
