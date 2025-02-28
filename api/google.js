@@ -4,11 +4,12 @@ const { tab_google_token } = require('../database/models');
 const env = process.env.NODE_ENV || 'development';
 const urlCallback = env == 'development' ? 'http://localhost:5173/' : 'https://app.fitcpx.com/';
 
-function createOauthClient(client) {
+function createOauthClient(client, rotaCallback) {
+    const urlRedirect = `${urlCallback}${rotaCallback}`;
     const oauth2Client = new google.auth.OAuth2(
         '129544337181-7rr6i6ban2p64sjuub2jd6jpcr6cucnt.apps.googleusercontent.com',
         '[REDACTED_CREDENTIAL]',
-        urlCallback,
+        urlRedirect,
     )
     oauth2Client.setCredentials({
         access_token: client.google_token,
@@ -20,10 +21,11 @@ function createOauthClient(client) {
 }
 
 async function getURL(rotaCallback) {
+    const urlRedirect = `${urlCallback}${rotaCallback}`;
     const oauth2Client = new google.auth.OAuth2(
         '129544337181-7rr6i6ban2p64sjuub2jd6jpcr6cucnt.apps.googleusercontent.com',
         '[REDACTED_CREDENTIAL]',
-        `${urlCallback}${rotaCallback}`,
+        urlRedirect,
     );
 
     const url = oauth2Client.generateAuthUrl({
@@ -40,10 +42,11 @@ async function getURL(rotaCallback) {
 }
 
 async function connected(code, rotaCallback) {
+    const urlRedirect = `${urlCallback}${rotaCallback}`;
     const oauth2Client = new google.auth.OAuth2(
         '129544337181-7rr6i6ban2p64sjuub2jd6jpcr6cucnt.apps.googleusercontent.com',
         '[REDACTED_CREDENTIAL]',
-        `${urlCallback}${rotaCallback}`,
+        urlRedirect,
     );
     const { tokens } = await oauth2Client.getToken(code);
     const access_token = tokens.access_token;
@@ -69,7 +72,7 @@ async function refreshAccessToken(refreshToken) {
 }
 
 async function syncEvents(client) {
-    const oauth2Client = createOauthClient(client?.dataValues);
+    const oauth2Client = createOauthClient(client?.dataValues, 'agenda');
 
     function isTokenExpired(expiryDate) {
         const bufferTime = 5 * 60 * 1000; // 5 minutos
