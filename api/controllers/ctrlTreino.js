@@ -95,6 +95,98 @@ async function getTreinos(req, res) {
     res.send({ status: true, treinos: treinosReorganizados });
 }
 
+async function getTreino(req, res) {
+    const { cod_treino, deleted } = req.body;
+    var where;
+    if (cod_treino) where = { cod_treino: cod_treino };
+    where = { ...where, deletedAt: { [Sequelize.Op.ne]: null } };
+    const treino = await tab_treino.findOne({
+        where: where,
+        include: [
+            {
+                model: tab_usuario,
+                as: 'usuario',
+            },
+            {
+                model: tab_sessao,
+                as: 'sessoes',
+                include: [
+                    {
+                        model: tab_sessao_exercicio,
+                        as: 'exercicios',
+                        include: [
+                            {
+                                model: tab_exercicio,
+                                as: 'exercicio',
+                                include: [
+                                    {
+                                        model: tab_grupo_exercicio,
+                                        as: 'grupo_exercicio_1',
+                                    }
+                                ]
+                            },
+                        ],
+                        order: [['sequencia_sessao_exercicio', 'ASC']]
+                    }
+                ],
+                order: [['sequencia_sessao', 'ASC']]
+            },
+        ],
+        paranoid: !deleted
+    });
+    //Junta a informação dos exercicios junto ao objeto exercicio para que não exista um objeto exercicio dentro de outro
+    
+    const treinoLimpo = treino.toJSON();
+
+    const sessoesOrdenadas = [...treinoLimpo.sessoes].sort(
+        (a, b) => a.sequencia_sessao - b.sequencia_sessao
+    );
+
+    const treinoOrganizado = {
+        ...treinoLimpo,
+        sessoes: sessoesOrdenadas.map((sessao) => {
+            // Ordena os exercícios por `sequencia_sessao_exercicios`
+            const exerciciosOrdenados = [...sessao.exercicios].sort(
+                (a, b) => a.sequencia_sessao_exercicios - b.sequencia_sessao_exercicios
+            );
+
+            const agrupados = {};
+
+            // Agrupa os exercícios por `sequencia_sessao_exercicios`
+            exerciciosOrdenados.forEach((exercicio) => {
+                const sequencia = exercicio.sequencia_sessao_exercicio;
+                
+                if (!agrupados[sequencia]) {
+                    agrupados[sequencia] = {
+                        //Sequencia importante para preservar as informações do createdAt, deletedAt, updatedAt
+                        ...exercicio.exercicio,
+                        ...exercicio,
+                        sets: [], // Inicializa o array `sets`
+                    };
+                } else {
+                    agrupados[sequencia].sets.push({
+                        //Sequencia importante para preservar as informações do createdAt, deletedAt, updatedAt
+                        ...exercicio.exercicio,
+                        ...exercicio,
+                    });
+                }
+            });
+
+            return ({
+                ...sessao,
+                exercicios: Object.values(agrupados).map((exercicio) => ({
+                    //Sequencia importante para preservar as informações do createdAt, deletedAt, updatedAt
+                    ...exercicio.exercicio,
+                    ...exercicio,
+                    sets: exercicio.sets || [], // Garante que o campo exista
+                })),
+            })
+        })
+    }
+
+    res.send({ status: true, treino: treinoOrganizado });
+}
+
 async function setTreino(req, res) {
     const { treino } = req.body;
     var treinoAtt;
@@ -326,6 +418,7 @@ async function getPadraoesMovimentos(req, res) {
 
 module.exports = {
     getTreinos,
+    getTreino,
     setTreino,
     deleteTreino,
     getGrupoExercicios,

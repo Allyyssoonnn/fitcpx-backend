@@ -1,8 +1,9 @@
-const { tab_usuario, tab_empresa, tab_protocolo, tab_refreshtoken_usuario } = require('../../database/models');
+const { tab_usuario, tab_empresa, tab_protocolo, tab_refreshtoken_usuario, tab_google_token } = require('../../database/models');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { sendEmail } = require('../../utils');
 const { Sequelize, where, Op } = require('sequelize');
+const { getURL, connected } = require('../google');
 
 async function login(req, res) {    
     const { email, senha } = req.body;
@@ -207,6 +208,79 @@ Fit Complex
     if (res) res.send({ status: true });
 }
 
+async function loginGoogle(req, res) {
+    const url = await getURL('entrar');
+    res.send({ status: true, url });
+}
+
+async function loggedGoogle(req, res) {
+    const { code, scope, cod_empresa } = req.body;
+    const data = await connected(code, 'entrar');
+
+    if (!data?.email) {
+        res.send({ status: false, msg: 'Falha na autenticação!' });
+        return;
+    }
+
+    const userAgent = req.headers['user-agent'];
+    const ipAddress = req.ip || req.connection.remoteAddress;
+
+    const expirationTime = 7 * 24 * 60 * 60 * 1000; // Exemplo: 7 dias em milissegundos
+    const expiresAt = new Date(Date.now() + expirationTime);
+
+    const usuario = await tab_usuario.findOne({ where: { email_usuario: data.email.trim() } });
+
+    if (!usuario) {
+        //Cria novo usuário com o google
+        const empresa = await tab_empresa.create({
+            nome_empresa: data?.name,
+            email_empresa: data.email.trim(),
+            //Id do E-mail do google
+            email_codigo: data?.id,
+        });
+        const novoUsuario = await tab_usuario.create({
+            nome_usuario: data?.name,
+            email_usuario: data.email.trim(),
+            senha_usuario: [...crypto.randomFillSync(Buffer.alloc(8))].map(n => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[n % 36]).join(''),
+            imagem_usuario: data?.picture,
+            cod_empresa: empresa.cod_empresa
+        });
+
+        tab_google_token.create({
+            email_google: data.email,
+            google_token: data.token,
+            google_refresh_token: data.refresh_token,
+            cod_empresa: empresa.cod_empresa,
+            expiresAt: data.expiresAt,
+        });
+
+        const token = jwt.sign({ email_usuario: data.email.trim() }, process.env.SECRET);
+        const refreshToken = crypto.randomBytes(64).toString('hex');
+        tab_refreshtoken_usuario.create({
+            cod_usuario: usuario.cod_usuario,
+            refreshtoken_usuario: refreshToken,
+            useragent_usuario: userAgent,
+            ip_usuario: ipAddress,
+            expiresAt: expiresAt,
+        });
+
+        res.send({ status: true, token, refreshToken, usuario: novoUsuario });
+    } else {
+        //Faz login do usuário com o google
+        const empresa = await tab_empresa.findOne({ where: { cod_empresa: usuario.cod_empresa } });
+        const token = jwt.sign({ cod_usuario: usuario.cod_usuario }, process.env.SECRET, { expiresIn: '7h' });
+        const refreshToken = crypto.randomBytes(64).toString('hex');
+        tab_refreshtoken_usuario.create({
+            cod_usuario: usuario.cod_usuario,
+            refreshtoken_usuario: refreshToken,
+            useragent_usuario: userAgent,
+            ip_usuario: ipAddress,
+            expiresAt: expiresAt,
+        });
+        res.send({ status: true, token, refreshToken, usuario, empresa });
+    }
+}
+
 module.exports = {
     login,
     register,
@@ -216,4 +290,6 @@ module.exports = {
     getUsuarios,
     setUsuario,
     verifyEmail,
+    loginGoogle,
+    loggedGoogle,
 }
