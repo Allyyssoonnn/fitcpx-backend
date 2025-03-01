@@ -249,7 +249,7 @@ async function loggedGoogle(req, res) {
         const token = jwt.sign({ email_usuario: data.email.trim() }, process.env.SECRET);
         const refreshToken = crypto.randomBytes(64).toString('hex');
         tab_refreshtoken_usuario.create({
-            cod_usuario: usuario.cod_usuario,
+            cod_usuario: novoUsuario.cod_usuario,
             refreshtoken_usuario: refreshToken,
             useragent_usuario: userAgent,
             ip_usuario: ipAddress,

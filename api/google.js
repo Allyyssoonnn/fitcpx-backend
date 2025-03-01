@@ -38,11 +38,17 @@ async function getURL(rotaCallback) {
         "https://www.googleapis.com/auth/userinfo.profile", // Para acessar o nome e foto do usuário (opcional)
     ];
 
-    const url = oauth2Client.generateAuthUrl({
+    const authOptions = {
         access_type: "offline",
-        // prompt: "consent",
         scope: scope,
-    });
+    };
+    
+    // Adiciona o prompt apenas se for "agenda"
+    if (rotaCallback == "agenda") {
+        authOptions.prompt = "consent";
+    }
+
+    const url = oauth2Client.generateAuthUrl(authOptions);
     
     return url;
 }
