@@ -95,7 +95,7 @@ async function webhookPagamento(req, res) {
         if (type === "payment") {
             const paymentId = data.id;
             const response = await paymentClient.get({ id: paymentId });
-            const payment = response.body;
+            const payment = response;
             await tab_mercadopago_webhook.update(
                 { json2_mercadopago_webhook: JSON.stringify(response) },
                 { where: { cod_mercadopago_webhook: bd.cod_mercadopago_webhook } }
@@ -104,7 +104,7 @@ async function webhookPagamento(req, res) {
                 { status_pagamento_usuario: payment.status },
                 { where: { paymentid_pagamento_usuario: paymentId } },
             )
-            
+
             console.log("🛒 Pagamento recebido:", payment);
 
             // Processando diferentes status de pagamento
