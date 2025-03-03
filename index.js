@@ -31,6 +31,7 @@ server.use('/cardapio', require('./api/routes/routeCardapio'));
 server.use('/appaluno', require('./api/routes/routeAppAluno'));
 server.use('/appadmin', require('./api/routes/routeAppAdmin'));
 server.use('/plano', require('./api/routes/routePlano'));
+server.use('/pagamento', require('./api/routes/routePagamento'));
 
 // ================ Servidor
 

@@ -1,58 +1,131 @@
 const mercadopago = require('mercadopago');
 
-mercadopago.configure({
-    access_token: '[REDACTED_CREDENTIAL]'
+const accessToken = '[REDACTED_CREDENTIAL]';
+const mercadoPagoConfig = new mercadopago.MercadoPagoConfig({
+    accessToken: accessToken
 });
 
-export async function processPayment() {
+const paymentClient = new mercadopago.Payment(mercadoPagoConfig);
+const preferenceClient = new mercadopago.Preference(mercadoPagoConfig);
+const preapprovalClient = new mercadopago.PreApproval(mercadoPagoConfig);
+
+const valor = 40.00;
+
+const env = process.env.NODE_ENV || 'development';
+const urlCallback = env == 'development' ? 'http://localhost:5173/licenca' : 'https://app.fitcpx.com/licenca';
+
+async function getPagamentoId(name, email, recorrente) {
     try {
-        const { formData } = req.body;
+        if (recorrente) {
+            // Pagamento Recorrente (Preapproval)
+            const preapproval = {
+                back_url: 'https://app.fitcpx.com/licenca',
+                reason: "Fit Complex",
+                auto_recurring: {
+                    frequency: 1,
+                    frequency_type: "months",
+                    transaction_amount: valor,
+                    currency_id: "BRL"
+                },
+                payer_email: email,
+            };
+
+            const response = await preapprovalClient.create({ body: preapproval });
+
+            return { preferenceId: response.id, amount: valor, status: response.status };
+        } else {
+            // Pagamento Único (Preference)
+            const preference = {
+                items: [
+                    {
+                        title: 'Fit Complex',
+                        unit_price: valor,
+                        quantity: 1,
+                        picture_url: 'https://fitcpx.com/assets/imagens/logo/logo.png' // Substitua pela URL da sua imagem
+                    }
+                ],
+                payer: {
+                    name: name,
+                    email: email,
+                },
+                payment_methods: {
+                    installments: 1,
+                    excluded_payment_types: [
+                        {
+                            id: "ticket"
+                        }
+                    ],
+                },
+            }
+
+            const response = await preferenceClient.create({ body: preference });
     
-        // Criando a preferência para o pagamento
-        const preference = {
-          items: formData.items.map(item => ({
-            title: item.title,
-            unit_price: item.price,
-            quantity: item.quantity,
-          })),
-          payer: {
-            name: formData.payer.firstName + ' ' + formData.payer.lastName,
-            email: formData.payer.email,
-          },
-          payment_methods: {
-            installments: formData.installments,
-            default_payment_method: formData.selectedPaymentMethod,
-          },
-        };
-    
-        const response = await mercadopago.preferences.create(preference);
-    
-        res.status(200).json({ preferenceId: response.body.id });
+            return { preferenceId: response.id, amount: valor, status: response.status };
+        }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Erro ao processar o pagamento' });
+        return;
     }
 }
 
-export async function resultPayment() {
+async function webhookPagamento(req, res) {
+    const secretSing = '[REDACTED_CREDENTIAL]';
+    
     try {
-        const { paymentId } = req.body;
-    
-        const paymentResponse = await mercadopago.payment.get(paymentId);
-    
-        // Exemplo de resposta do MercadoPago
-        const paymentResult = {
-            status: paymentResponse.body.status,
-            date_created: paymentResponse.body.date_created,
-            transaction_amount: paymentResponse.body.transaction_amount,
-            payer: paymentResponse.body.payer,
-            payment_method: paymentResponse.body.payment_method,
-            merchant_order_id: paymentResponse.body.merchant_order.id,
-        };
-    
-        res.status(200).json(paymentResult);
+        const { action, type, data } = req.body;
+
+        console.log("📩 Notificação recebida:", req.body);
+
+        // Se a notificação for de um pagamento
+        if (type === "payment") {
+            const paymentId = data.id;
+            const response = await paymentClient.get({ id: paymentId });
+            const payment = response.body;
+
+            console.log("🛒 Pagamento recebido:", payment);
+
+            // Processando diferentes status de pagamento
+            if (payment.status === "approved") {
+                console.log("✅ Pagamento aprovado!");
+                // Aqui você pode atualizar o status do pedido no banco de dados
+            } else if (payment.status === "pending") {
+                console.log("⏳ Pagamento pendente.");
+            } else if (payment.status === "rejected") {
+                console.log("❌ Pagamento recusado.");
+            }
+
+            return res.sendStatus(200);
+        }
+
+        // Se a notificação for de um pedido (merchant_order)
+        if (type === "merchant_order") {
+            const orderId = data.id;
+            console.log("📦 Atualização de pedido recebida:", orderId);
+            return res.sendStatus(200);
+        }
+
+        // Se a notificação for de uma assinatura (subscription)
+        if (type === "subscription") {
+            console.log("🔄 Atualização de assinatura:", data);
+            return res.sendStatus(200);
+        }
+
+        // Se a notificação for de uma fatura (invoice)
+        if (type === "invoice") {
+            console.log("📄 Atualização de fatura:", data);
+            return res.sendStatus(200);
+        }
+
+        console.log("⚠️ Tipo de notificação não tratado:", req.body);
+        return res.sendStatus(400); // Responde com erro se não reconhecer o evento
+
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Erro ao obter o resultado do pagamento' });
+        console.error("🚨 Erro no Webhook:", error);
+        return res.sendStatus(500);
     }
+}
+
+module.exports = {
+    getPagamentoId,
+    webhookPagamento,
 }

@@ -1,9 +1,9 @@
 const { tab_usuario, tab_empresa, tab_protocolo, tab_refreshtoken_usuario, tab_google_token } = require('../../database/models');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { sendEmail } = require('../../utils');
 const { Sequelize, where, Op } = require('sequelize');
 const { getURL, connected } = require('../google');
+const { sendEmail } = require('../postmark');
 
 async function login(req, res) {    
     const { email, senha } = req.body;
@@ -69,7 +69,7 @@ async function register(req, res) {
         email_empresa: email_usuario,
         email_codigo: email_codigo,
     });
-    const novoUsuario = await tab_usuario.create({ ...req.body, cod_empresa: novaEmpresa.cod_empresa });
+    const novoUsuario = await tab_usuario.create({ ...req.body, cod_empresa: novaEmpresa.cod_empresa, admin_usuario: 'S' });
     
     //Envia E-mail com código de confirmação
     verifyEmail(null, null, novaEmpresa.cod_empresa);
@@ -139,9 +139,10 @@ async function refreshToken(req, res) {
     }
 
     const usuario = await tab_usuario.findOne({ where: { cod_usuario: refreshTokenValido.cod_usuario } });
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa: usuario.cod_empresa } });
     
     const newToken = jwt.sign({ email: usuario.email_usuario }, process.env.SECRET, { expiresIn: '7h' });
-    res.send({ status: true, token: newToken });
+    res.send({ status: true, token: newToken, usuario, empresa });
 }
 
 async function getProtocolos(req, res) {    
@@ -243,7 +244,8 @@ async function loggedGoogle(req, res) {
             email_usuario: data.email.trim(),
             senha_usuario: [...crypto.randomFillSync(Buffer.alloc(8))].map(n => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[n % 36]).join(''),
             imagem_usuario: data?.picture,
-            cod_empresa: empresa.cod_empresa
+            cod_empresa: empresa.cod_empresa,
+            admin_usuario: 'S',
         });
         
         const token = jwt.sign({ email_usuario: data.email.trim() }, process.env.SECRET);
