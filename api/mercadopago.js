@@ -86,7 +86,7 @@ async function webhookPagamento(req, res) {
         const { action, type, data } = req.body;
         const bd = await tab_mercadopago_webhook.create({
             data_mercadopago_webhook: new Date(),
-            json_mercadopago_webhook: JSON.stringify(data),
+            json_mercadopago_webhook: JSON.stringify({ ...data, type, action }),
         });
 
         console.log("📩 Notificação recebida:", req.body);
@@ -95,6 +95,7 @@ async function webhookPagamento(req, res) {
         if (type === "payment") {
             const paymentId = data.id;
             const response = await paymentClient.get({ id: paymentId });
+            const payment = response.body;
             await tab_mercadopago_webhook.update(
                 { json2_mercadopago_webhook: JSON.stringify(response) },
                 { where: { cod_mercadopago_webhook: bd.cod_mercadopago_webhook } }
@@ -103,8 +104,7 @@ async function webhookPagamento(req, res) {
                 { status_pagamento_usuario: payment.status },
                 { where: { paymentid_pagamento_usuario: paymentId } },
             )
-            const payment = response.body;
-
+            
             console.log("🛒 Pagamento recebido:", payment);
 
             // Processando diferentes status de pagamento
