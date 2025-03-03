@@ -1,4 +1,4 @@
-const { getPagamentoId } = require("../mercadopago");
+const { getPreferenceId, processPagamento } = require("../mercadopago");
 const { tab_empresa, tab_pagamento_usuario } = require('../../database/models');
 
 async function getPagamento(req, res) {
@@ -6,7 +6,7 @@ async function getPagamento(req, res) {
     
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
 
-    const pagamento = await getPagamentoId(empresa.nome_empresa, empresa.email_empresa, recorrente);
+    const pagamento = await getPreferenceId(empresa.nome_empresa, empresa.email_empresa, recorrente);
 
     if (pagamento) {
         // console.log(pagamento);
@@ -21,7 +21,8 @@ async function getPagamento(req, res) {
 
 async function donePagamento(req, res) {
     const { data, cod_empresa, cod_usuario, recorrente } = req.body;
-    console.log(data);
+
+    const pagamento = await processPagamento(data?.formData);
 
     tab_pagamento_usuario.create({
         cod_empresa,
@@ -33,6 +34,9 @@ async function donePagamento(req, res) {
         parcela_pagamento_usuario: data.formData?.installments,
         tipo_pagamento_usuario: recorrente ? 'Recorrência' : 'Pagamento único',
         ambiente_pagamento_usuario: process.env.NODE_ENV,
+        paymentid_pagamento_usuario: pagamento?.id,
+        status_pagamento_usuario: pagamento?.status,
+        json_pagamento_usuario: JSON.stringify(pagamento),
     });
 
     res.send({ status: true });

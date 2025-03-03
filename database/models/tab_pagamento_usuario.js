@@ -50,7 +50,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: null,
         },
-        id_pagamento_usuario: {
+        paymentid_pagamento_usuario: {
             type: DataTypes.STRING,
             allowNull: true,
             defaultValue: null,
@@ -62,6 +62,16 @@ module.exports = (sequelize, DataTypes) => {
         },
         tipo_pagamento_usuario: {
             type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null,
+        },
+        json_pagamento_usuario: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+            defaultValue: null,
+        },
+        jsonwebhook_pagamento_usuario: {
+            type: DataTypes.TEXT,
             allowNull: true,
             defaultValue: null,
         },

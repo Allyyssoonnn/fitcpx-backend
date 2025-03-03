@@ -1,3 +1,4 @@
+const { tab_mercadopago_webhook, tab_pagamento_usuario } = require('../database/models');
 const mercadopago = require('mercadopago');
 
 const accessToken = '[REDACTED_CREDENTIAL]';
@@ -14,7 +15,7 @@ const valor = 40.00;
 const env = process.env.NODE_ENV || 'development';
 const urlCallback = env == 'development' ? 'http://localhost:5173/licenca' : 'https://app.fitcpx.com/licenca';
 
-async function getPagamentoId(name, email, recorrente) {
+async function getPreferenceId(name, email, recorrente) {
     try {
         if (recorrente) {
             // Pagamento Recorrente (Preapproval)
@@ -68,11 +69,25 @@ async function getPagamentoId(name, email, recorrente) {
     }
 }
 
+async function processPagamento(formData) {
+    try {
+        const response = await paymentClient.create({ body: formData });
+        return response;
+    } catch (error) {
+        console.error(error);
+        return;
+    }
+}
+
 async function webhookPagamento(req, res) {
     const secretSing = '[REDACTED_CREDENTIAL]';
     
     try {
         const { action, type, data } = req.body;
+        const bd = await tab_mercadopago_webhook.create({
+            data_mercadopago_webhook: new Date(),
+            json_mercadopago_webhook: JSON.stringify(data),
+        });
 
         console.log("📩 Notificação recebida:", req.body);
 
@@ -80,6 +95,14 @@ async function webhookPagamento(req, res) {
         if (type === "payment") {
             const paymentId = data.id;
             const response = await paymentClient.get({ id: paymentId });
+            await tab_mercadopago_webhook.update(
+                { json2_mercadopago_webhook: JSON.stringify(response) },
+                { where: { cod_mercadopago_webhook: bd.cod_mercadopago_webhook } }
+            );
+            await tab_pagamento_usuario.update(
+                { status_pagamento_usuario: payment.status },
+                { where: { paymentid_pagamento_usuario: paymentId } },
+            )
             const payment = response.body;
 
             console.log("🛒 Pagamento recebido:", payment);
@@ -105,7 +128,7 @@ async function webhookPagamento(req, res) {
         }
 
         // Se a notificação for de uma assinatura (subscription)
-        if (type === "subscription") {
+        if (type === "subscription_preapproval'") {
             console.log("🔄 Atualização de assinatura:", data);
             return res.sendStatus(200);
         }
@@ -126,6 +149,7 @@ async function webhookPagamento(req, res) {
 }
 
 module.exports = {
-    getPagamentoId,
+    getPreferenceId,
+    processPagamento,
     webhookPagamento,
 }
