@@ -6,6 +6,6 @@ const { webhookPagamento } = require('../mercadopago');
 router.post('/getPagamento', verifyToken, getPagamento);
 
 router.post('/donePagamento', verifyToken, donePagamento);
-router.post('/webhookPagamento', verifyToken, webhookPagamento);
+router.post('/webhookPagamento', webhookPagamento);
 
 module.exports = router;
