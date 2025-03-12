@@ -4,7 +4,6 @@ const express = require('express');
 const http = require("http");
 const cors = require('cors');
 const path = require('path');
-const env = process.env.NODE_ENV || 'development';
 require('dotenv').config();
 
 const server = express();
@@ -24,7 +23,7 @@ server.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 server.use(bodyParser.json({ limit: '50mb' }));
 
 server.get('/test', async (req, res) => res.send({status: true}));
-server.use('/error', require('./api/error'));
+
 server.use('/usuario', require('./api/routes/routeUsuario'));
 server.use('/aluno', require('./api/routes/routeAluno'));
 server.use('/agenda', require('./api/routes/routeAgenda'));
