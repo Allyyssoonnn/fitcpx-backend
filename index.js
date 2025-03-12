@@ -4,7 +4,8 @@ const express = require('express');
 const http = require("http");
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+const env = process.env.NODE_ENV || 'development';
+if (env === 'development') require('dotenv').config();
 
 const server = express();
 const serverSite = express();
