@@ -1,0 +1,89 @@
+<VirtualHost *:80>
+
+        ServerName www.admin.fitcpx.com
+        ServerAlias admin.fitcpx.com
+
+        ProxyPass / http://localhost:3080/
+        ProxyPassReverse / http://localhost:3080/
+
+</VirtualHost>
+
+<VirtualHost *:80>
+
+        ServerName www.admin.fitcpx.com.br
+        ServerAlias admin.fitcpx.com.br
+
+        ProxyPass / http://localhost:3080/
+        ProxyPassReverse / http://localhost:3080/
+
+</VirtualHost>
+
+<VirtualHost *:80>
+
+        ServerName www.aluno.fitcpx.com
+        ServerAlias aluno.fitcpx.com
+
+        ProxyPass / http://localhost:3075/
+        ProxyPassReverse / http://localhost:3075/
+
+</VirtualHost>
+
+<VirtualHost *:80>
+
+        ServerName www.aluno.fitcpx.com.br
+        ServerAlias aluno.fitcpx.com.br
+
+        ProxyPass / http://localhost:3075/
+        ProxyPassReverse / http://localhost:3075/
+
+</VirtualHost>
+
+<VirtualHost *:80>
+
+        ServerName www.app.fitcpx.com
+        ServerAlias app.fitcpx.com
+
+        ProxyPass / http://localhost:3070/
+        ProxyPassReverse / http://localhost:3070/
+
+</VirtualHost>
+
+<VirtualHost *:80>
+
+        ServerName www.app.fitcpx.com.br
+        ServerAlias app.fitcpx.com.br
+
+        ProxyPass / http://localhost:3070/
+        ProxyPassReverse / http://localhost:3070/
+
+</VirtualHost>
+
+<VirtualHost *:80>
+
+        ServerName www.fitcpx.com
+        ServerAlias fitcpx.com
+
+        ProxyPass / http://localhost:8090/
+        ProxyPassReverse / http://localhost:8090/
+
+</VirtualHost>
+
+<VirtualHost *:80>
+
+        ServerName www.fitcpx.com.br
+        ServerAlias fitcpx.com.br
+
+        ProxyPass / http://localhost:8090/
+        ProxyPassReverse / http://localhost:8090/
+
+</VirtualHost>
+
+<VirtualHost *:80>
+
+        ServerName www.api.fitcpx.com
+        ServerAlias api.fitcpx.com
+
+        ProxyPass / http://localhost:8070/
+        ProxyPassReverse / http://localhost:8070/
+
+</VirtualHost>

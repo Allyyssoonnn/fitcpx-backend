@@ -1,0 +1,83 @@
+Como configurar servidor Debian 12 para hospedar o app
+
+1. Instalar Node Js
+
+- wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+- Reiniciar terminal
+- nvm install v18.15.0
+
+2. Instalar GIT
+Token
+- [REDACTED_CREDENTIAL]
+
+- sudo apt-get update
+- sudo apt-get install git-all
+
+3. Instalar Apache2
+
+- sudo apt-get update
+- sudo apt-get install apache2
+
+4. Alterar Fuso horário
+
+- sudo timedatectl set-timezone America/Sao_Paulo
+- timedatectl
+
+5. Baixar os projetos do Git
+
+- mkdir Git
+- cd Git
+- * Realizar git clone *
+
+6. Configurar apache2
+
+- sudo a2enmod proxy
+- sudo a2enmod proxy_http
+- sudo nano /etc/apache2/sites-enabled/000-default.conf
+- * Configuração no hostsApache2.txt *
+- sudo systemctl restart apache2
+
+========================== DOCKER =====================
+
+7. Instalar Docker
+
+- sudo apt update
+- sudo apt upgrade -y
+
+- sudo apt install apt-transport-https ca-certificates curl gnupg lsb-release -y
+
+8. Adicionando chave GPG do Docker
+
+- sudo mkdir -p /etc/apt/keyrings
+- curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+9. Configurando o repositório do Docker
+
+- echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+9. Instalar Docker Engine
+
+- sudo apt update
+- sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
+
+10. Verificar se o Docker foi instalado corretamente
+
+- sudo docker run hello-world
+
+Comandos Docker
+
+sudo systemctl start docker : inicia o serviço Docker.
+sudo systemctl stop docker : para o serviço Docker.
+sudo systemctl restart docker : reinicia o serviço Docker.
+sudo systemctl enable docker : inicia o serviço Docker automaticamente na inicialização do sistema.
+sudo systemctl status docker : verifica o status do serviço Docker.
+
+==============================================================
+
+INICIAR APLICAÇÃO
+
+1. cd Git/servereducapp
+
+2 docker build -t fitcpx .
+
+3. docker run --env-file .env -p 8070:8070 -p 8090:8090 -p 3070:3070 -p 3075:3075 -p 3080:3080 fitcpx
