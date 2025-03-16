@@ -1,8 +1,24 @@
 const multerS3 = require("multer-s3");
-const { getS3Client } = require("../utils");
 const multer = require("multer");
-const { tab_avaliacao_imagem, tab_usuario, tab_aluno, tab_alimento } = require('../database/models');
-const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const { tab_avaliacao_imagem, tab_usuario, tab_aluno, tab_alimento, tab_empresa } = require('../database/models');
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const { Upload } = require("@aws-sdk/lib-storage");
+
+function getS3Client() {
+    // Configuração do cliente S3
+    const s3Client = new S3Client({
+        region: 'us-east-2', // Substitua pela região do seu bucket, como 'us-east-1'
+        credentials: {
+            accessKeyId: '[REDACTED_CREDENTIAL]', // Substitua pela sua Access Key
+            secretAccessKey: '[REDACTED_CREDENTIAL]', // Substitua pela sua Secret Key
+        },
+        requestHandler: {
+            metadata: { timeout: 300000 } // 5 minutos
+        }
+    });
+    
+    return s3Client;
+}
 
 // Configuração do Multer com armazenamento no S3
 function uploadDinamico(folder) {
@@ -138,6 +154,34 @@ async function uploadIMGAlimento(req, res) {
     })
 }
 
+async function uploadIMGEmpresa(req, res) {
+    const cod_empresa = req.headers['cod_empresa'];
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+
+    if (empresa?.imagem_empresa) {
+        if (empresa?.imagem_empresa?.includes('amazonaws.com')) {
+            const id = empresa.imagem_empresa.split('/')[empresa.imagem_empresa.split('/').length - 1];
+            const removida = await deleteIMG(id);
+        }
+    }
+
+    const upload = uploadDinamico('empresa').array('image', 15);
+
+    upload(req, res, async (err) => {
+        if (err) return res.status(400).json({ error: err.message });
+
+        try {
+            empresa.imagem_empresa = req.files[0].location;
+            empresa.save();
+
+            res.send({ status: true, id: req.files[0].location });
+        } catch (dbError) {
+            console.error("Erro ao salvar no banco:", dbError);
+            res.send({ error: "Erro ao salvar no banco de dados" });
+        }
+    })
+}
+
 async function deleteIMG(folder, id) {
     try {
         const params = {
@@ -164,4 +208,5 @@ module.exports = {
     uploadIMGUsuario,
     uploadIMGAluno,
     uploadIMGAlimento,
+    uploadIMGEmpresa,
 };

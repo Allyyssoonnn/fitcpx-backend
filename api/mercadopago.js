@@ -1,4 +1,4 @@
-const { tab_mercadopago_webhook, tab_pagamento_usuario } = require('../database/models');
+const { tab_mercadopago_webhook, tab_pagamento_usuario, tab_mercadopago_plano } = require('../database/models');
 const mercadopago = require('mercadopago');
 
 const accessToken = '[REDACTED_CREDENTIAL]';
@@ -9,6 +9,9 @@ const mercadoPagoConfig = new mercadopago.MercadoPagoConfig({
 const paymentClient = new mercadopago.Payment(mercadoPagoConfig);
 const preferenceClient = new mercadopago.Preference(mercadoPagoConfig);
 const preapprovalClient = new mercadopago.PreApproval(mercadoPagoConfig);
+const cardtokenClient = new mercadopago.CardToken(mercadoPagoConfig);
+const customerClient = new mercadopago.Customer(mercadoPagoConfig);
+const customercardClient = new mercadopago.CustomerCard(mercadoPagoConfig);
 
 const valor = 40.00;
 
@@ -69,14 +72,109 @@ async function getPreferenceId(name, email, recorrente) {
     }
 }
 
-async function processPagamento(formData) {
+async function getPlans() {
     try {
-        const response = await paymentClient.create({ body: formData });
-        return response;
+        const response = await fetch('https://api.mercadopago.com/preapproval_plan/search', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }
+        });
+  
+        if (!response.ok) {
+            throw new Error(`Erro na requisição: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Erro ao buscar planos:', error);
+        return null; // ou lance o erro novamente, dependendo do seu tratamento de erros
+    }
+}
+
+async function processPagamento(formData, recorrente, empresa) {
+    try {
+        var cliente;
+        // const response = await paymentClient.create({ body: formData });
+        // cliente = (await customerClient.search({ options: { email: empresa.email_empresa } })).results[0];
+        // if (!cliente) {
+        //     cliente = await customerClient.create({ body: {
+        //         email: empresa.email_empresa,
+        //         description: `cod_empresa: ${empresa.cod_empresa}`,
+        //         address: empresa.endereco_empresa,
+        //         phone: empresa.telefone_empresa,
+        //         first_name: empresa.nome_empresa,
+        //     } });
+        // }
+
+        if (recorrente) {
+            // const planos = (await getPlans()).results;
+            const plano = await tab_mercadopago_plano.findOne();
+            const card_token_id = await getCardTokenId(formData);
+
+            const resp = await createPreApproval(plano, card_token_id);
+            console.log(resp);
+        }
     } catch (error) {
         console.error(error);
         return;
     }
+}
+
+async function createPreApproval(plano, card_token_id) {
+    try {
+        const response = await fetch("https://api.mercadopago.com/preapproval", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({
+                preapproval_plan_id: plano.id_mercadopago_plano,
+                // reason: "Yoga classes",
+                // external_reference: "YG-1234",
+                payer_email: "test_user@testuser.com",
+                card_token_id: card_token_id,
+                auto_recurring: {
+                    frequency: 1,
+                    frequency_type: "months",
+                    start_date: "2020-06-02T13:07:14.260Z",
+                    end_date: "2022-07-20T15:59:52.581Z",
+                    transaction_amount: 10,
+                    currency_id: "ARS",
+                },
+                back_url: "https://www.mercadopago.com.ar",
+                status: "authorized",
+            }),
+        });
+    
+        const data = await response.json();
+        console.log("Preapproval Response:", data);
+    } catch (error) {
+        console.error("Erro ao criar preapproval:", error);
+    }
+}
+
+async function getCardTokenId(data) {
+    const cardData = {
+        card_number: data.cardNumber,
+        card_expiration_month: data.cardMonth,
+        card_expiration_year: data.cardYear,
+        security_code: data.cardCvv,
+        cardholder_name: data.cardName,
+        identification_type: "CPF",
+        identification_number: "12345678909",
+    }
+    const response = await fetch("https://api.mercadopago.com/v1/card_tokens", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`, // Substitua pela sua chave pública
+        },
+        body: JSON.stringify(cardData),
+    });
+
+    const resp = await response.json();
+    return resp?.id;
 }
 
 async function webhookPagamento(req, res) {
@@ -96,26 +194,31 @@ async function webhookPagamento(req, res) {
             const paymentId = data.id;
             const response = await paymentClient.get({ id: paymentId });
             const payment = response;
+
             await tab_mercadopago_webhook.update(
                 { json2_mercadopago_webhook: JSON.stringify(response) },
                 { where: { cod_mercadopago_webhook: bd.cod_mercadopago_webhook } }
             );
-            await tab_pagamento_usuario.update(
-                { status_pagamento_usuario: payment.status },
-                { where: { paymentid_pagamento_usuario: paymentId } },
-            )
 
-            console.log("🛒 Pagamento recebido:", payment);
-
-            // Processando diferentes status de pagamento
-            if (payment.status === "approved") {
-                console.log("✅ Pagamento aprovado!");
-                // Aqui você pode atualizar o status do pedido no banco de dados
-            } else if (payment.status === "pending") {
-                console.log("⏳ Pagamento pendente.");
-            } else if (payment.status === "rejected") {
-                console.log("❌ Pagamento recusado.");
+            if (action === 'payment.updated') {
+                //Atualiza o status do pagamento
+                await tab_pagamento_usuario.update(
+                    { status_pagamento_usuario: payment.status },
+                    { where: { paymentid_pagamento_usuario: paymentId } },
+                )
             }
+
+            // console.log("🛒 Pagamento recebido:", payment);
+
+            // // Processando diferentes status de pagamento
+            // if (payment.status === "approved") {
+            //     console.log("✅ Pagamento aprovado!");
+            //     // Aqui você pode atualizar o status do pedido no banco de dados
+            // } else if (payment.status === "pending") {
+            //     console.log("⏳ Pagamento pendente.");
+            // } else if (payment.status === "rejected") {
+            //     console.log("❌ Pagamento recusado.");
+            // }
 
             return res.sendStatus(200);
         }

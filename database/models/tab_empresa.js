@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
         cod_empresa: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
         nome_empresa: DataTypes.STRING,
         doc_empresa: DataTypes.STRING,
+        pix_empresa: DataTypes.STRING,
         email_empresa: DataTypes.STRING,
         email_confirmado: DataTypes.ENUM("S", "N"),
         email_codigo: DataTypes.STRING,
@@ -15,6 +16,8 @@ module.exports = (sequelize, DataTypes) => {
         estado_empresa: DataTypes.STRING,
         cidade_empresa: DataTypes.STRING,
         imagem_empresa: DataTypes.STRING,
+        apikey_empresa: DataTypes.STRING,
+        walletid_empresa: DataTypes.STRING,
     }, {
         freezeTableName: true,
     });

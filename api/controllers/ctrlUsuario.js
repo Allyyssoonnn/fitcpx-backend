@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { Sequelize, where, Op } = require('sequelize');
 const { getURL, connected } = require('../google');
-const { sendEmail } = require('../postmark');
+const { sendEmail, getMsgEmailRecovery } = require('../sendgrid');
 
 async function login(req, res) {    
     const { email, senha } = req.body;
@@ -89,25 +89,44 @@ async function recovery(req, res) {
         return;
     }
 
-    const msg =
-`
-Olá, ${usuario.email_usuario}
+    const token = jwt.sign({ cod_usuario: usuario.cod_usuario }, process.env.SECRET, { expiresIn: '1h' });
+    
+    const msgHtml = await getMsgEmailRecovery(usuario, token);
 
-Seu link de recuperação é:
-
-//
-
-Acesse o link para informar sua nova senha.
-
-Se você não solicitou este link, ignore este e-mail.
-
-Atenciosamente,
-Fit Complex
-`
-
-    await sendEmail(email, msg, 'FitCpx - E-mail de recuperação');
+    await sendEmail(email, msgHtml, 'FitCpx - E-mail de recuperação');
 
     res.send({ status: true });
+}
+
+async function verifyTokenRecovery(req, res) {
+    const { token } = req.body;
+
+    try {
+        const decoded = jwt.verify(token, process.env.SECRET);
+        const usuario = await tab_usuario.findOne({ where: { cod_usuario: decoded.cod_usuario } });
+
+        if (!usuario) {
+            res.send({ status: false, msg: 'Usuário não encontrado!' });
+            return;
+        }
+        
+        res.send({ status: true, email_usuario: usuario.email_usuario });
+    } catch (error) {
+        res.send({ status: true, msg: 'Token expirado!' });
+    }
+}
+
+async function changePassword(req, res) {
+    const { token, senha } = req.body;
+
+    try {
+        const decoded = jwt.verify(token, process.env.SECRET);
+        tab_usuario.update({ senha_usuario: senha }, { where: { cod_usuario: decoded.cod_usuario } });
+        
+        res.send({ status: true });
+    } catch (error) {
+        res.send({ status: true, msg: 'Token expirado!' });
+    }
 }
 
 async function refreshToken(req, res) {
@@ -185,26 +204,30 @@ async function setUsuario(req, res) {
     res.send({ status: true, usuario: usuarioAtt });
 }
 
+async function setEmpresa(req, res) {    
+    const { empresa } = req.body;
+    var empresaAtt;
+
+    if (empresa?.cod_empresa) empresaAtt = await tab_empresa.findOne({ where: { cod_empresa: empresa.cod_empresa } });
+
+    if (empresaAtt) {
+        await tab_empresa.update(empresa, { where: { cod_empresa: empresa.cod_empresa } });
+    } else {
+        const novaEmpresa = await tab_empresa.create(empresa);
+        empresaAtt = novaEmpresa;
+    }
+
+    res.send({ status: true, empresa: empresaAtt });
+}
+
 async function verifyEmail(req, res, codEmpresa) {
     const { cod_empresa } = req.body;
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa: cod_empresa || codEmpresa } });
 
-    const msg =
-`
-Olá, ${empresa.nome_empresa}
+    const msgHtml = await getMsgEmailRecovery(empresa);
 
-Seu código de verificação é: **${empresa.email_codigo}**  
-
-Digite este código no aplicativo para continuar.  
-
-Se você não solicitou este código, ignore este e-mail.  
-
-Atenciosamente,
-Fit Complex
-`
-
-    sendEmail(empresa.email_empresa, msg, 'FitCpx - E-mail de verificação');
+    sendEmail(empresa.email_empresa, msgHtml, 'FitCpx - E-mail de verificação');
 
     if (res) res.send({ status: true });
 }
@@ -279,10 +302,13 @@ module.exports = {
     login,
     register,
     recovery,
+    verifyTokenRecovery,
+    changePassword,
     refreshToken,
     getProtocolos,
     getUsuarios,
     setUsuario,
+    setEmpresa,
     verifyEmail,
     loginGoogle,
     loggedGoogle,

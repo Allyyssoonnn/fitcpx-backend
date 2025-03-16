@@ -20,6 +20,11 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
+      pix_empresa: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
       email_empresa: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
@@ -76,6 +81,16 @@ module.exports = {
         defaultValue: null
       },
       imagem_empresa: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      apikey_empresa: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      walletid_empresa: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null

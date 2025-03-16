@@ -19,18 +19,27 @@ module.exports = {
         }
       },
       cod_usuario: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DataTypes.INTEGER,
         references: {
           model: 'tab_usuario',
           key: 'cod_usuario'
-        }
+        },
+        defaultValue: null
       },
       data_pagamento_usuario: {
         allowNull: false,
         type: Sequelize.DataTypes.DATEONLY,
       },
+      expiracao_pagamento_usuario: {
+        allowNull: false,
+        type: Sequelize.DataTypes.DATEONLY,
+      },
       valor_pagamento_usuario: {
+        allowNull: false,
+        type: Sequelize.DataTypes.FLOAT(22, 2),
+      },
+      liquido_pagamento_usuario: {
         allowNull: false,
         type: Sequelize.DataTypes.FLOAT(22, 2),
       },
@@ -47,12 +56,7 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null,
       },
-      documento_pagamento_usuario: {
-        allowNull: true,
-        type: Sequelize.DataTypes.STRING,
-        defaultValue: null,
-      },
-      paymentid_pagamento_usuario: {
+      id_pagamento_usuario: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null,

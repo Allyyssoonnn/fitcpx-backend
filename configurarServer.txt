@@ -1,5 +1,8 @@
 Como configurar servidor Debian 12 para hospedar o app
 
+Observações
+* Não precisa instalar o node js no servidor caso use o docker
+
 1. Instalar Node Js
 
 - wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
@@ -9,6 +12,14 @@ Como configurar servidor Debian 12 para hospedar o app
 2. Instalar GIT
 Token
 - [REDACTED_CREDENTIAL]
+
+Salvar credencial
+- git config --global credential.helper store
+
+Remover credencial
+- git config --list
+- git config --global [var]
+- git config --global --unset [var]
 
 - sudo apt-get update
 - sudo apt-get install git-all
@@ -78,6 +89,8 @@ INICIAR APLICAÇÃO
 
 1. cd Git/servereducapp
 
-2 docker build -t fitcpx .
+2. docker build -t fitcpx .
 
 3. docker run --env-file .env -p 8070:8070 -p 8090:8090 -p 3070:3070 -p 3075:3075 -p 3080:3080 fitcpx
+
+* NÃO COLOCAR ASPAS NO ARQUIVO .env PARA QUE IMPORTE CORRETAMENTE NO DOCKER *
