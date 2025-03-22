@@ -94,3 +94,37 @@ INICIAR APLICAÇÃO
 3. docker run --env-file .env -p 8070:8070 -p 8090:8090 -p 3070:3070 -p 3075:3075 -p 3080:3080 fitcpx
 
 * NÃO COLOCAR ASPAS NO ARQUIVO .env PARA QUE IMPORTE CORRETAMENTE NO DOCKER *
+
+=================================================================
+
+INSTALAR MYSQL CASO ESTEJA NO MESMO SERVIDOR DA APLICAÇÃO
+
+1. Instalar wget
+
+- apt update
+
+- apt install wget -y
+
+2. Baixar MYSQL
+
+- wget https://repo.mysql.com//mysql-apt-config_0.8.29-1_all.deb
+
+- apt install ./mysql-apt-config_0.8.29-1_all.deb -y
+
+- apt update
+
+3. Instalar MYSQL
+
+- apt update
+
+- apt install mysql-server -y
+
+4. Alterar permissões
+
+- mysql -p
+
+- UPDATE mysql.user SET host='%' WHERE user='root';
+
+- exit
+
+- sudo systemctl restart mysql
