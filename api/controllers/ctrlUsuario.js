@@ -204,11 +204,23 @@ async function setUsuario(req, res) {
     res.send({ status: true, usuario: usuarioAtt });
 }
 
+async function getEmpresa(req, res) {
+    const { cod_empresa } = req.body;
+    const empresa = await tab_empresa.findAll({
+        where: { cod_empresa: cod_empresa },
+        attributes: { exclude: ['apikey_empresa', 'walletid_empresa'] },
+    });
+    res.send({ status: true, empresa });
+}
+
 async function setEmpresa(req, res) {    
     const { empresa } = req.body;
     var empresaAtt;
 
-    if (empresa?.cod_empresa) empresaAtt = await tab_empresa.findOne({ where: { cod_empresa: empresa.cod_empresa } });
+    if (empresa?.cod_empresa) empresaAtt = await tab_empresa.findOne({
+        where: { cod_empresa: empresa.cod_empresa },
+        attributes: { exclude: ['apikey_empresa', 'walletid_empresa'] }
+    });
 
     if (empresaAtt) {
         await tab_empresa.update(empresa, { where: { cod_empresa: empresa.cod_empresa } });
@@ -308,6 +320,7 @@ module.exports = {
     getProtocolos,
     getUsuarios,
     setUsuario,
+    getEmpresa,
     setEmpresa,
     verifyEmail,
     loginGoogle,
