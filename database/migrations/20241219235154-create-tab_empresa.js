@@ -95,6 +95,11 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
+      presets_treino_inteligente: {
+        allowNull: true,
+        type: Sequelize.DataTypes.TEXT,
+        defaultValue: null
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,

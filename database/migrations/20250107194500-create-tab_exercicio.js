@@ -209,6 +209,14 @@ module.exports = {
           key: 'cod_indicacao'
         }
       },
+      segundos_execucao: {
+        allowNull: true,
+        type: Sequelize.DataTypes.INTEGER,
+      },
+      nivel_exercicio: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,

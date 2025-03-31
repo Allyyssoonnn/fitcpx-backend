@@ -1,6 +1,9 @@
 const router = require('express').Router();
 const verifyToken = require('../authMiddleware');
 const { getTreinos, getGrupoExercicios, setGrupoExercicio, deleteGrupoExercicio, recoveryGrupoExercicio, getExercicios, setExercicio, deleteExercicio, recoveryExercicio, deleteSessao, recoverySessao, setSessoes, setTreino, getEquipamentos, getArticulacoes, getTipoExercicios, getExerciciosResistencias, getIndicacoes, getPadraoesMovimentos, deleteTreino, getTreino } = require('../controllers/ctrlTreino');
+const { generateTreino } = require('../features/treinoInteligente');
+
+router.post('/generateTreino', verifyToken, generateTreino);
 
 router.post('/getTreinos', verifyToken, getTreinos);
 router.post('/getTreino', verifyToken, getTreino);

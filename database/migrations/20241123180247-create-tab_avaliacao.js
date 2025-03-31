@@ -182,6 +182,20 @@ module.exports = {
         allowNull: true,
       },
 
+      // Campos Biompedancia
+      bioimpedancia_gordura: {
+        type: Sequelize.DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      bioimpedancia_muscular: {
+        type: Sequelize.DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      bioimpedancia_idade: {
+        type: Sequelize.DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,

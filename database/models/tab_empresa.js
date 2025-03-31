@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         imagem_empresa: DataTypes.STRING,
         apikey_empresa: DataTypes.STRING,
         walletid_empresa: DataTypes.STRING,
+        presets_treino_inteligente: DataTypes.TEXT,
     }, {
         freezeTableName: true,
     });

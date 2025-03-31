@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize, Op } = require('sequelize');
 const { tab_treino, tab_grupo_exercicio, tab_exercicio, tab_usuario, tab_sessao, tab_equipamento, tab_articulacao, tab_tipo_exercicio, tab_exercicio_resistencia, tab_indicacao, tab_padrao_movimento, tab_sessao_exercicio } = require('../../database/models');
 
 async function getTreinos(req, res) {
@@ -255,10 +255,15 @@ async function getExercicios(req, res) {
         where: where,
         paranoid: cod_empresa ? !deleted : false,
         include: [
-            {
-                model: tab_usuario,
-                as: 'usuario',
-            }
+            { model: tab_usuario, as: 'usuario', },
+            { model: tab_grupo_exercicio, as: 'grupo_exercicio_1', attributes: ['nome_grupo_exercicio'] },
+            { model: tab_grupo_exercicio, as: 'grupo_exercicio_2', attributes: ['nome_grupo_exercicio'] },
+            { model: tab_grupo_exercicio, as: 'grupo_exercicio_3', attributes: ['nome_grupo_exercicio'] },
+            { model: tab_grupo_exercicio, as: 'grupo_exercicio_4', attributes: ['nome_grupo_exercicio'] },
+            { model: tab_grupo_exercicio, as: 'grupo_exercicio_5', attributes: ['nome_grupo_exercicio'] },
+            { model: tab_grupo_exercicio, as: 'grupo_exercicio_6', attributes: ['nome_grupo_exercicio'] },
+            { model: tab_grupo_exercicio, as: 'grupo_exercicio_7', attributes: ['nome_grupo_exercicio'] },
+            { model: tab_grupo_exercicio, as: 'grupo_exercicio_8', attributes: ['nome_grupo_exercicio'] },
         ],
         order: [['nome_exercicio', 'ASC']]
     });

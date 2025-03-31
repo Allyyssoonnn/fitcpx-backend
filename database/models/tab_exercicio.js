@@ -113,6 +113,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: true,
         },
+        segundos_execucao: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
+        nivel_exercicio: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
         createdAt: {
             type: DataTypes.DATE,
             allowNull: false,
@@ -145,30 +153,34 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'cod_grupo_exercicio_1',
             as: 'grupo_exercicio_1',
         });
-        // tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
-        //     foreignKey: 'cod_grupo_exercicio_2',
-        //     as: 'grupo_exercicio_2',
-        // });
-        // tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
-        //     foreignKey: 'cod_grupo_exercicio_3',
-        //     as: 'grupo_exercicio_3',
-        // });
-        // tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
-        //     foreignKey: 'cod_grupo_exercicio_4',
-        //     as: 'grupo_exercicio_4',
-        // });
-        // tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
-        //     foreignKey: 'cod_grupo_exercicio_5',
-        //     as: 'grupo_exercicio_5',
-        // });
-        // tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
-        //     foreignKey: 'cod_grupo_exercicio_6',
-        //     as: 'grupo_exercicio_6',
-        // });
-        // tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
-        //     foreignKey: 'cod_grupo_exercicio_7',
-        //     as: 'grupo_exercicio_7',
-        // });
+        tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
+            foreignKey: 'cod_grupo_exercicio_2',
+            as: 'grupo_exercicio_2',
+        });
+        tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
+            foreignKey: 'cod_grupo_exercicio_3',
+            as: 'grupo_exercicio_3',
+        });
+        tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
+            foreignKey: 'cod_grupo_exercicio_4',
+            as: 'grupo_exercicio_4',
+        });
+        tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
+            foreignKey: 'cod_grupo_exercicio_5',
+            as: 'grupo_exercicio_5',
+        });
+        tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
+            foreignKey: 'cod_grupo_exercicio_6',
+            as: 'grupo_exercicio_6',
+        });
+        tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
+            foreignKey: 'cod_grupo_exercicio_7',
+            as: 'grupo_exercicio_7',
+        });
+        tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
+            foreignKey: 'cod_grupo_exercicio_8',
+            as: 'grupo_exercicio_8',
+        });
         // tab_exercicio.belongsTo(models.tab_equipamento, {
         //     foreignKey: 'cod_equipamento_1',
         //     as: 'equipamento_1',

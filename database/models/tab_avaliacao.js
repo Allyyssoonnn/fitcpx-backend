@@ -154,6 +154,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: true,
       },
+      bioimpedancia_gordura: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      bioimpedancia_muscular: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
+      bioimpedancia_idade: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: true,
+      },
     }, {
       paranoid: true,
       freezeTableName: true,
