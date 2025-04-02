@@ -2,16 +2,47 @@ const { Sequelize } = require('sequelize');
 const { tab_plano, tab_modalidade, tab_plano_modalidade } = require('../../database/models');
 
 async function setPlano(req, res) {    
-    const { plano } = req.body;
+    const { plano, modalidades } = req.body;
     var planoAtt;
 
     if (plano.cod_plano) planoAtt = await tab_plano.findOne({ where: { cod_plano: plano.cod_plano } });
 
     if (planoAtt) {
         await tab_plano.update(plano, { where: { cod_plano: plano.cod_plano } });
+        //Se já existir registro vai comparar as modalidades para remover ou adicionar se necessário
+        const modalidadesBD = await tab_plano_modalidade.findAll({ where: { cod_plano: plano.cod_plano } });
+        
+        const modalidadesBDIds = modalidadesBD.map(m => m.cod_modalidade);
+        const modalidadesReqIds = modalidades.map(m => m.cod_modalidade);
+
+        // Modalidades a serem removidas
+        const modalidadesParaRemover = modalidadesBDIds.filter(id => !modalidadesReqIds.includes(id));
+        if (modalidadesParaRemover.length) {
+            await tab_plano_modalidade.destroy({
+                where: { cod_plano: plano.cod_plano, cod_modalidade: modalidadesParaRemover }
+            });
+        }
+
+        // Modalidades a serem adicionadas
+        const modalidadesParaAdicionar = modalidadesReqIds.filter(id => !modalidadesBDIds.includes(id));
+        if (modalidadesParaAdicionar.length) {
+            const novasModalidades = modalidadesParaAdicionar.map(id => ({
+                cod_plano: plano.cod_plano,
+                cod_modalidade: id
+            }));
+            await tab_plano_modalidade.bulkCreate(novasModalidades);
+        }
     } else {
-        const novoGrupo = await tab_plano.create(plano);
-        planoAtt = novoGrupo;
+        const novoPlano = await tab_plano.create(plano);
+        planoAtt = novoPlano;
+
+        if (modalidades.length) {
+            const novasModalidades = modalidades.map(m => ({
+                cod_plano: planoAtt.cod_plano,
+                cod_modalidade: m.cod_modalidade
+            }));
+            await tab_plano_modalidade.bulkCreate(novasModalidades);
+        }
     }
 
     res.send({ status: true });
@@ -37,7 +68,13 @@ async function getPlanos(req, res) {
         ],
         paranoid: !deleted
     });
-    res.send({ status: true, planos });
+
+    const planosLimpo = planos.map((plano) => plano.toJSON());
+    for (const plano of planosLimpo) {
+        plano.modalidades = plano.modalidades.map((modalidade) => ({ ...modalidade, ...modalidade.modalidade }));
+    }
+
+    res.send({ status: true, planos: planosLimpo });
 }
 
 async function deletePlano(req, res) {

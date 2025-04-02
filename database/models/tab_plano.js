@@ -38,6 +38,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: null,
         },
+        contrato_plano: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+            defaultValue: null,
+        },
         deletedAt: {
             type: DataTypes.DATE,
             allowNull: true,

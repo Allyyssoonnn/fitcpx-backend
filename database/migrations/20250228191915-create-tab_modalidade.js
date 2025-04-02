@@ -22,6 +22,16 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
+      descricao_modalidade: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
+      },
+      valor_modalidade: {
+        type: Sequelize.DataTypes.DOUBLE(22, 2),
+        allowNull: true,
+        defaultValue: 0
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,

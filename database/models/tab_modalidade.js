@@ -20,6 +20,16 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        descricao_modalidade: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null,
+        },
+        valor_modalidade: {
+            type: DataTypes.DOUBLE(22,2),
+            allowNull: true,
+            defaultValue: 0,
+        },
         deletedAt: {
             type: DataTypes.DATE,
             allowNull: true,

@@ -40,6 +40,11 @@ module.exports = {
         type: Sequelize.DataTypes.DOUBLE(22,2),
         defaultValue: null
       },
+      contrato_plano: {
+        allowNull: true,
+        type: Sequelize.DataTypes.TEXT,
+        defaultValue: null
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,
