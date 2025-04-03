@@ -77,17 +77,16 @@ async function recoveryAluno(req, res) {
 
 async function getAvaliacoes(req, res) {    
     const { cod_empresa, cod_aluno } = req.body;
-    var where = {};
-    if (cod_empresa) where = { cod_empresa: cod_empresa };
-    if (cod_aluno) where = { cod_aluno: cod_aluno };
+    const whereEmpresa = cod_empresa ? { cod_empresa } : null;
+    const whereAluno = cod_aluno ? { cod_aluno } : null;
+
     const avaliacoes = await tab_avaliacao.findAll({
-        raw: true,
-        nest: true,
         include: [
             {
                 model: tab_aluno,
                 as: 'aluno',
                 required: true,
+                where: whereAluno,
                 include: [
                     {
                         model: tab_usuario,
@@ -98,18 +97,22 @@ async function getAvaliacoes(req, res) {
                                 model: tab_empresa,
                                 as: 'empresa',
                                 required: true,
-                                where: cod_empresa ? where : {},
+                                where: whereEmpresa,
                             }
                         ]
                     }
                 ],
-                where: cod_aluno ? where : {},
+            },
+            {
+                model: tab_avaliacao_imagem,
+                as: 'imagem',
             }
         ],
     });
+    const avaliacoesLimpa = avaliacoes.map(avaliacao => avaliacao.toJSON());
     // for (const av of avaliacoes) av.nome_aluno = av.aluno.nome_aluno;
     // Reorganizando os dados para que nome_aluno seja o primeiro atributo
-    const avaliacoesFormatadas = avaliacoes.map(av => ({
+    const avaliacoesFormatadas = avaliacoesLimpa.map(av => ({
         nome_aluno: av.aluno?.nome_aluno, // Primeiro atributo
         ...av, // Outros atributos
     }));
