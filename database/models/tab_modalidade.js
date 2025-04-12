@@ -30,6 +30,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: 0,
         },
+        variaveis_modalidade: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+            defaultValue: null,
+        },
         deletedAt: {
             type: DataTypes.DATE,
             allowNull: true,

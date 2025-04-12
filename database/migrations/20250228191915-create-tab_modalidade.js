@@ -32,6 +32,11 @@ module.exports = {
         allowNull: true,
         defaultValue: 0
       },
+      variaveis_modalidade: {
+        allowNull: true,
+        type: Sequelize.DataTypes.TEXT,
+        defaultValue: null,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,
