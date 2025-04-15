@@ -1,5 +1,5 @@
 const moment = require("moment-timezone");
-const { tab_pagamento_usuario } = require('../database/models');
+const { tab_usuario_pagamento } = require('../database/models');
 const env = process.env.NODE_ENV || 'development';
 
 const urlBase = env === 'development'
@@ -261,7 +261,7 @@ async function webhookAsaas(req, res) {
 
     if (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') {
         if (payment.id) {
-            tab_pagamento_usuario.update({ status_pagamento_usuario: payment.status }, { where: { id_pagamento_usuario: payment.id } });
+            tab_usuario_pagamento.update({ status_usuario_pagamento: payment.status }, { where: { id_usuario_pagamento: payment.id } });
         }
     }
 
@@ -270,20 +270,20 @@ async function webhookAsaas(req, res) {
         if (!payment?.subscription) return;
         const cliente = await buscarClienteUsuario(payment.customerId);
         const empresa = await tab_empresa.findOne({ where: { cod_empresa: cliente.externalReference } });
-        tab_pagamento_usuario.create({
+        tab_usuario_pagamento.create({
             cod_empresa: empresa.cod_empresa,
-            id_pagamento_usuario: payment.id,
-            assinatura_pagamento_usuario: payment.subscription,
-            json_pagamento_usuario: JSON.stringify(payment),
-            status_pagamento_usuario: payment.status,
-            valor_pagamento_usuario: payment.value,
-            liquido_pagamento_usuario: payment?.netValue || payment.value,
-            forma_pagamento_usuario: payment.billingType,
-            data_pagamento_usuario: payment.dateCreated,
-            expiracao_pagamento_usuario: moment(payment.dateCreated).add(30, 'days').format('YYYY-MM-DD'),
-            parcela_pagamento_usuario: 1,
-            tipo_pagamento_usuario: payment.subscription ? 'Recorrência' : 'Único',
-            ambiente_pagamento_usuario: process.env.NODE_ENV,
+            id_usuario_pagamento: payment.id,
+            assinatura_usuario_pagamento: payment.subscription,
+            json_usuario_pagamento: JSON.stringify(payment),
+            status_usuario_pagamento: payment.status,
+            valor_usuario_pagamento: payment.value,
+            liquido_usuario_pagamento: payment?.netValue || payment.value,
+            forma_usuario_pagamento: payment.billingType,
+            data_usuario_pagamento: payment.dateCreated,
+            expiracao_usuario_pagamento: moment(payment.dateCreated).add(30, 'days').format('YYYY-MM-DD'),
+            parcela_usuario_pagamento: 1,
+            tipo_usuario_pagamento: payment.subscription ? 'Recorrência' : 'Único',
+            ambiente_usuario_pagamento: process.env.NODE_ENV,
         });
     }
     

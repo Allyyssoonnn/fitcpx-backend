@@ -22,6 +22,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
+      recorrencia_plano: {
+        allowNull: false,
+        type: Sequelize.DataTypes.ENUM('S', 'N'),
+        defaultValue: 'N',
+      },
       duracao_plano: {
         allowNull: false,
         type: Sequelize.DataTypes.INTEGER,
@@ -38,11 +43,6 @@ module.exports = {
       valor_adesao: {
         allowNull: true,
         type: Sequelize.DataTypes.DOUBLE(22,2),
-        defaultValue: null
-      },
-      contrato_plano: {
-        allowNull: true,
-        type: Sequelize.DataTypes.TEXT,
         defaultValue: null
       },
       createdAt: {

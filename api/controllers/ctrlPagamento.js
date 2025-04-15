@@ -1,5 +1,5 @@
 const moment = require("moment-timezone");
-const { tab_empresa, tab_pagamento_usuario, tab_empresa_cartao } = require('../../database/models');
+const { tab_empresa, tab_usuario_pagamento, tab_empresa_cartao } = require('../../database/models');
 const { buscarClienteIdUsuario, criarClienteUsuario, criarCobranca, cancelarCobranca, getPix, getTokenCard, criarCobrancaCartao, criarAssinatura } = require('../asaas');
 
 async function processPagamento(req, res) {
@@ -52,31 +52,31 @@ async function processPagamento(req, res) {
         cobranca = await criarAssinatura(clienteId, tokenCartao);
     }
 
-    const pagamento = await tab_pagamento_usuario.create({
+    const pagamento = await tab_usuario_pagamento.create({
         cod_usuario,
         cod_empresa,
-        id_pagamento_usuario: cobranca.id,
-        assinatura_pagamento_usuario: recorrente ? cobranca.id : null,
-        json_pagamento_usuario: JSON.stringify(cobranca),
-        status_pagamento_usuario: cobranca.status,
-        valor_pagamento_usuario: cobranca.value,
-        liquido_pagamento_usuario: cobranca?.netValue || cobranca.value,
-        forma_pagamento_usuario: formaPagamento,
-        data_pagamento_usuario: cobranca.dateCreated,
-        expiracao_pagamento_usuario: moment(cobranca.dateCreated).add(30, 'days').format('YYYY-MM-DD'),
-        parcela_pagamento_usuario: 1,
-        tipo_pagamento_usuario: recorrente ? 'Recorrência' : 'Único',
-        ambiente_pagamento_usuario: process.env.NODE_ENV,
+        id_usuario_pagamento: cobranca.id,
+        assinatura_usuario_pagamento: recorrente ? cobranca.id : null,
+        json_usuario_pagamento: JSON.stringify(cobranca),
+        status_usuario_pagamento: cobranca.status,
+        valor_usuario_pagamento: cobranca.value,
+        liquido_usuario_pagamento: cobranca?.netValue || cobranca.value,
+        forma_usuario_pagamento: formaPagamento,
+        data_usuario_pagamento: cobranca.dateCreated,
+        expiracao_usuario_pagamento: moment(cobranca.dateCreated).add(30, 'days').format('YYYY-MM-DD'),
+        parcela_usuario_pagamento: 1,
+        tipo_usuario_pagamento: recorrente ? 'Recorrência' : 'Único',
+        ambiente_usuario_pagamento: process.env.NODE_ENV,
     });
 
     res.send({ status: true, pagamento });
 }
 
 async function getPIXPagamento(req, res) {
-    const { cod_pagamento_usuario } = req.body;
+    const { cod_usuario_pagamento } = req.body;
 
-    const pagamento = await tab_pagamento_usuario.findOne({ where: { cod_pagamento_usuario } });
-    const pix = await getPix(pagamento.id_pagamento_usuario);
+    const pagamento = await tab_usuario_pagamento.findOne({ where: { cod_usuario_pagamento } });
+    const pix = await getPix(pagamento.id_usuario_pagamento);
     
     res.send({ status: true, pix });
 }
@@ -84,23 +84,23 @@ async function getPIXPagamento(req, res) {
 async function getPagamentos(req, res) {
     const { cod_empresa } = req.body;
 
-    const pagamentos = await tab_pagamento_usuario.findAll({
+    const pagamentos = await tab_usuario_pagamento.findAll({
         where: { cod_empresa },
-        order: [['cod_pagamento_usuario', 'DESC']]
+        order: [['cod_usuario_pagamento', 'DESC']]
     });
 
     res.send({ status: true, pagamentos });
 }
 
 async function deletePagamento(req, res) {
-    const { cod_pagamento_usuario } = req.body;
+    const { cod_usuario_pagamento } = req.body;
 
-    const pagamento = await tab_pagamento_usuario.findOne({ where: { cod_pagamento_usuario } });
+    const pagamento = await tab_usuario_pagamento.findOne({ where: { cod_usuario_pagamento } });
 
     var deleted = false;
-    if (pagamento?.id_pagamento_usuario) {
-        deleted = await cancelarCobranca(pagamento.id_pagamento_usuario);
-        if (deleted) await tab_pagamento_usuario.update({ status_pagamento_usuario: 'DELETED' }, { where: { cod_pagamento_usuario } });
+    if (pagamento?.id_usuario_pagamento) {
+        deleted = await cancelarCobranca(pagamento.id_usuario_pagamento);
+        if (deleted) await tab_usuario_pagamento.update({ status_usuario_pagamento: 'DELETED' }, { where: { cod_usuario_pagamento } });
     }
 
     res.send({ status: deleted });

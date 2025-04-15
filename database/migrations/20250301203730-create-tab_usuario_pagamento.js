@@ -3,8 +3,8 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('tab_pagamento_usuario', {
-      cod_pagamento_usuario: {
+    await queryInterface.createTable('tab_usuario_pagamento', {
+      cod_usuario_pagamento: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -27,56 +27,56 @@ module.exports = {
         },
         defaultValue: null
       },
-      data_pagamento_usuario: {
+      data_usuario_pagamento: {
         allowNull: false,
         type: Sequelize.DataTypes.DATEONLY,
       },
-      expiracao_pagamento_usuario: {
+      expiracao_usuario_pagamento: {
         allowNull: false,
         type: Sequelize.DataTypes.DATEONLY,
       },
-      valor_pagamento_usuario: {
+      valor_usuario_pagamento: {
         allowNull: false,
         type: Sequelize.DataTypes.FLOAT(22, 2),
       },
-      liquido_pagamento_usuario: {
+      liquido_usuario_pagamento: {
         allowNull: false,
         type: Sequelize.DataTypes.FLOAT(22, 2),
       },
-      forma_pagamento_usuario: {
+      forma_usuario_pagamento: {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
-      parcela_pagamento_usuario: {
+      parcela_usuario_pagamento: {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
-      status_pagamento_usuario: {
+      status_usuario_pagamento: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null,
       },
-      id_pagamento_usuario: {
+      id_usuario_pagamento: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null,
       },
-      ambiente_pagamento_usuario: {
+      ambiente_usuario_pagamento: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null,
       },
-      tipo_pagamento_usuario: {
+      tipo_usuario_pagamento: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null,
       },
-      json_pagamento_usuario: {
+      json_usuario_pagamento: {
         allowNull: true,
         type: Sequelize.DataTypes.TEXT,
         defaultValue: null,
       },
-      jsonwebhook_pagamento_usuario: {
+      jsonwebhook_usuario_pagamento: {
         allowNull: true,
         type: Sequelize.DataTypes.TEXT,
         defaultValue: null,
@@ -98,6 +98,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    queryInterface.dropTable('tab_pagamento_usuario')
+    queryInterface.dropTable('tab_usuario_pagamento')
   }
 };

@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-    const tab_pagamento_usuario = sequelize.define('tab_pagamento_usuario', {
-        cod_pagamento_usuario: {
+    const tab_usuario_pagamento = sequelize.define('tab_usuario_pagamento', {
+        cod_usuario_pagamento: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
@@ -25,61 +25,61 @@ module.exports = (sequelize, DataTypes) => {
             },
             defaultValue: null
         },
-        data_pagamento_usuario: {
+        data_usuario_pagamento: {
             type: DataTypes.DATEONLY,
             allowNull: false,
         },
-        expiracao_pagamento_usuario: {
+        expiracao_usuario_pagamento: {
             type: DataTypes.DATEONLY,
             allowNull: false,
         },
-        valor_pagamento_usuario: {
+        valor_usuario_pagamento: {
             type: DataTypes.FLOAT(22, 2),
             allowNull: false,
         },
-        liquido_pagamento_usuario: {
+        liquido_usuario_pagamento: {
             type: DataTypes.FLOAT(22, 2),
             allowNull: false,
         },
-        forma_pagamento_usuario: {
+        forma_usuario_pagamento: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        parcela_pagamento_usuario: {
+        parcela_usuario_pagamento: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        status_pagamento_usuario: {
+        status_usuario_pagamento: {
             type: DataTypes.STRING,
             allowNull: true,
             defaultValue: null,
         },
-        id_pagamento_usuario: {
+        id_usuario_pagamento: {
             type: DataTypes.STRING,
             allowNull: true,
             defaultValue: null,
         },
-        assinatura_pagamento_usuario: {
+        assinatura_usuario_pagamento: {
             type: DataTypes.STRING,
             allowNull: true,
             defaultValue: null,
         },
-        ambiente_pagamento_usuario: {
+        ambiente_usuario_pagamento: {
             type: DataTypes.STRING,
             allowNull: true,
             defaultValue: null,
         },
-        tipo_pagamento_usuario: {
+        tipo_usuario_pagamento: {
             type: DataTypes.STRING,
             allowNull: true,
             defaultValue: null,
         },
-        json_pagamento_usuario: {
+        json_usuario_pagamento: {
             type: DataTypes.TEXT,
             allowNull: true,
             defaultValue: null,
         },
-        jsonwebhook_pagamento_usuario: {
+        jsonwebhook_usuario_pagamento: {
             type: DataTypes.TEXT,
             allowNull: true,
             defaultValue: null,
@@ -94,5 +94,5 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: true,
     });
     
-    return tab_pagamento_usuario;
+    return tab_usuario_pagamento;
 };
