@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        recorrencia_plano: {
+            type: DataTypes.ENUM('S', 'N'),
+            allowNull: false,
+            defaultValue: 'N',
+        },
         duracao_plano: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -35,11 +40,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         valor_adesao: {
             type: DataTypes.DOUBLE(22,2),
-            allowNull: true,
-            defaultValue: null,
-        },
-        contrato_plano: {
-            type: DataTypes.TEXT,
             allowNull: true,
             defaultValue: null,
         },

@@ -309,7 +309,7 @@ async function recoveryExercicio(req, res) {
 // }
 
 async function setSessoes(req, res) {
-    const { sessoes, cod_treino, cod_empresa, cod_usuario, removidos } = req.body;
+    const { sessoes, cod_treino, cod_empresa, cod_usuario, removidos, itensRemovidos } = req.body;
     var sessoesAtt = [];
 
     async function setSessaoExercicios(sessao, exercicios) {
@@ -344,6 +344,10 @@ async function setSessoes(req, res) {
 
     for (const removido of removidos) {
         tab_sessao.update({ deletedAt: new Date() }, { where: { cod_sessao: removido.cod_sessao } });
+    }
+    
+    for (const exercicioRemovido of itensRemovidos) {
+        tab_sessao_exercicio.update({ deletedAt: new Date() }, { where: { cod_sessao_exercicio: exercicioRemovido.cod_sessao_exercicio } });
     }
 
     res.send({ status: true, sessoes: sessoesAtt });

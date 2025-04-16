@@ -1,5 +1,5 @@
 const { Sequelize } = require('sequelize');
-const { tab_plano, tab_modalidade, tab_plano_modalidade } = require('../../database/models');
+const { tab_plano, tab_modalidade, tab_plano_modalidade, tab_contrato } = require('../../database/models');
 
 async function setPlano(req, res) {    
     const { plano, modalidades } = req.body;
@@ -125,6 +125,42 @@ async function recoveryModalidade(req, res) {
     res.send({ status: true });
 }
 
+async function setContrato(req, res) {    
+    const { contrato } = req.body;
+    var contratoAtt;
+
+    if (contrato.cod_contrato) contratoAtt = await tab_contrato.findOne({ where: { cod_contrato: contrato.cod_contrato } });
+
+    if (contratoAtt) {
+        await tab_contrato.update(contrato, { where: { cod_contrato: contrato.cod_contrato } });
+    } else {
+        const novoContrato = await tab_contrato.create(contrato);
+        contratoAtt = novoContrato;
+    }
+
+    res.send({ status: true });
+}
+
+async function getContratos(req, res) {
+    const { cod_empresa, deleted } = req.body;
+    var where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+    if (cod_empresa) where = { ...where, [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ] };
+    const contratos = await tab_contrato.findAll({ where: where, paranoid: !deleted });
+    res.send({ status: true, contratos });
+}
+
+async function deleteContrato(req, res) {
+    const { cod_contrato } = req.body;
+    await tab_contrato.update({ deletedAt: new Date() }, { where: { cod_contrato: cod_contrato } });
+    res.send({ status: true });
+}
+
+async function recoveryContrato(req, res) {
+    const { cod_contrato } = req.body;
+    await tab_contrato.update({ deletedAt: null }, { where: { cod_contrato: cod_contrato }, paranoid: false });
+    res.send({ status: true });
+}
+
 module.exports = {
     setPlano,
     getPlanos,
@@ -134,4 +170,8 @@ module.exports = {
     getModalidades,
     deleteModalidade,
     recoveryModalidade,
+    setContrato,
+    getContratos,
+    deleteContrato,
+    recoveryContrato,
 }
