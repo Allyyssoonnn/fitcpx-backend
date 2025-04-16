@@ -309,19 +309,19 @@ async function recoveryExercicio(req, res) {
 // }
 
 async function setSessoes(req, res) {
-    const { sessoes, cod_treino, cod_empresa, cod_usuario, removidos, itensRemovidos } = req.body;
+    const { sessoes, cod_treino, cod_empresa, cod_usuario, removidos, itensRemovidos = [] } = req.body;
     var sessoesAtt = [];
 
     async function setSessaoExercicios(sessao, exercicios) {
         for (const exercicio of exercicios) {
-            if (exercicio.cod_sessao_exercicio) {
+            if (exercicio?.cod_sessao_exercicio) {
                 await tab_sessao_exercicio.update({ ...exercicio, cod_sessao: sessao.cod_sessao }, { where: { cod_sessao_exercicio: exercicio.cod_sessao_exercicio } });
             } else {
                 await tab_sessao_exercicio.create({ ...exercicio, cod_sessao: sessao.cod_sessao });
             }
             
             for (const set of exercicio?.sets) {
-                if (set.cod_sessao_exercicio) {
+                if (set?.cod_sessao_exercicio) {
                     await tab_sessao_exercicio.update({ ...set, cod_sessao: sessao.cod_sessao }, { where: { cod_sessao_exercicio: set.cod_sessao_exercicio } });
                 } else {
                     await tab_sessao_exercicio.create({ ...set, cod_sessao: sessao.cod_sessao });
@@ -347,7 +347,7 @@ async function setSessoes(req, res) {
     }
     
     for (const exercicioRemovido of itensRemovidos) {
-        tab_sessao_exercicio.update({ deletedAt: new Date() }, { where: { cod_sessao_exercicio: exercicioRemovido.cod_sessao_exercicio } });
+        tab_sessao_exercicio.update({ deletedAt: new Date() }, { where: { cod_sessao_exercicio: exercicioRemovido?.cod_sessao_exercicio } });
     }
 
     res.send({ status: true, sessoes: sessoesAtt });
