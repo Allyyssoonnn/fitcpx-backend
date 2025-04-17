@@ -95,12 +95,32 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
-      apikey_empresa: {
+      walletid_empresa: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
-      walletid_empresa: {
+      asaas_id: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      asaas_apikey: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      dev_walletid_empresa: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      dev_asaas_id: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      dev_asaas_apikey: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null

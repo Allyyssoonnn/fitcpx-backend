@@ -18,8 +18,12 @@ module.exports = (sequelize, DataTypes) => {
         estado_empresa: DataTypes.STRING,
         cidade_empresa: DataTypes.STRING,
         imagem_empresa: DataTypes.STRING,
-        apikey_empresa: DataTypes.STRING,
         walletid_empresa: DataTypes.STRING,
+        asaas_id: DataTypes.STRING,
+        asaas_apikey: DataTypes.STRING,
+        dev_walletid_empresa: DataTypes.STRING,
+        dev_asaas_id: DataTypes.STRING,
+        dev_asaas_apikey: DataTypes.STRING,
         presets_treino_inteligente: DataTypes.TEXT,
     }, {
         freezeTableName: true,
