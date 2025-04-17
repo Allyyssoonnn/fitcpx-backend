@@ -347,7 +347,7 @@ async function setSessoes(req, res) {
     }
     
     for (const exercicioRemovido of itensRemovidos) {
-        tab_sessao_exercicio.update({ deletedAt: new Date() }, { where: { cod_sessao_exercicio: exercicioRemovido?.cod_sessao_exercicio } });
+        if (exercicioRemovido?.cod_sessao_exercicio) tab_sessao_exercicio.update({ deletedAt: new Date() }, { where: { cod_sessao_exercicio: exercicioRemovido?.cod_sessao_exercicio } });
     }
 
     res.send({ status: true, sessoes: sessoesAtt });
