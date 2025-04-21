@@ -1,6 +1,10 @@
 const { Sequelize } = require('sequelize');
-const { tab_aluno, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa } = require('../../database/models');
+const { tab_aluno, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa, tab_aluno_contrato, tab_aluno_contrato_pagamento } = require('../../database/models');
 const { removeStringVazia } = require('../../utils');
+const moment = require("moment-timezone");
+const { atualizarCliente, buscarClienteId, buscarPagamentosAssinatura } = require('../asaas');
+const { sendDocument } = require('../autentique');
+const env = process.env.NODE_ENV || 'development';
 
 async function getAlunos(req, res) {    
     const { cod_usuario, cod_empresa, deleted } = req.body;
@@ -56,6 +60,16 @@ async function setAluno(req, res) {
 
     if (alunoAtt) {
         await tab_aluno.update(aluno, { where: { cod_aluno: aluno.cod_aluno } });
+
+        //Verifica se cliente está cadastrado no asaas e atualiza informações
+        const empresa = await tab_empresa.findOne({ where: { cod_empresa: aluno.cod_empresa } });
+        const apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+        if (apikey) {
+            const clienteId = await buscarClienteId(aluno.cod_aluno, apikey);
+            if (clienteId) {
+                await atualizarCliente(clienteId, aluno.nome_aluno, aluno.cpf_aluno, aluno.email_aluno, aluno.telefone_aluno, apikey);
+            }
+        }
     } else {
         const novoAluno = await tab_aluno.create(aluno);
         alunoAtt = novoAluno;
@@ -149,6 +163,138 @@ async function deleteAvaliacao(req, res) {
     res.send({ status: true });
 }
 
+async function setAlunoContrato(req, res) {
+    const { plano } = req.body;
+
+    const { modalidades, valor_plano, valor_adesao, contrato, duracao_plano, nome_plano, cod_aluno, cod_usuario, cod_empresa, parcela_plano } = plano;
+
+    const alunoContrato = await tab_aluno_contrato.create({
+        cod_aluno: cod_aluno,
+        cod_usuario: cod_usuario,
+        cod_empresa: cod_empresa,
+        nome_aluno_contrato: nome_plano ?? `Contrato ${moment().format('DD-MM-YYYY')}`,
+        adesao_aluno_contrato: valor_adesao,
+        parcela_aluno_contrato: parcela_plano,
+        total_aluno_contrato: valor_plano,
+        arquivo_aluno_contrato: contrato,
+        expiracao_aluno_contrato: moment().tz('America/Sao_Paulo').add(duracao_plano, 'months').format('YYYY-MM-DD'),
+        modalidades_aluno_contrato: JSON.stringify(modalidades),
+    });
+
+    res.send({ status: true, alunoContrato });
+}
+
+async function sendAlunoContrato(req, res) {
+    const { cod_aluno_contrato } = req.body;
+    const contratoPDF = req.file;
+
+    const alunoContrato = await tab_aluno_contrato.findOne({ where: { cod_aluno_contrato } });
+    const aluno = await tab_aluno.findOne({ where: { cod_aluno: alunoContrato.cod_aluno } });
+
+    if (alunoContrato.arquivo_aluno_contrato) {
+        const respAutentique = await sendDocument(contratoPDF, aluno.email_aluno);
+        if (respAutentique) tab_aluno_contrato.update({ autentique_aluno_contrato: respAutentique }, { where: { cod_aluno_contrato } });
+        res.send({ status: true });
+        return;
+    }
+
+    res.send({ status: true });
+}
+
+async function getAlunoContratos(req, res) {
+    const { cod_aluno } = req.body;
+
+    var where = {};
+    if (cod_aluno) where = { ...where, [Sequelize.Op.or]: [ { cod_aluno: cod_aluno }, { cod_aluno: null } ] };
+
+    const alunoContratos = await tab_aluno_contrato.findAll({ where: where });
+
+    res.send({ status: true, alunoContratos });
+}
+
+async function getAlunoContrato(req, res) {
+    const { cod_aluno_contrato, cod_empresa } = req.body;
+
+    var where = {};
+    if (cod_aluno_contrato) where = { ...where, [Sequelize.Op.or]: [ { cod_aluno_contrato: cod_aluno_contrato }, { cod_aluno_contrato: null } ] };
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    
+    const alunoContrato = await tab_aluno_contrato.findOne({
+        where: where,
+        include: [
+            { model: tab_aluno_contrato_pagamento, as: 'pagamentos', order: [['parcela_aluno_contrato_pagamento', 'DESC']] },
+        ]
+    });
+
+    //Check payment not captured by webhook - 2025/04/19
+    if (alunoContrato.id_aluno_contrato) {
+        const payments = alunoContrato.pagamentos;
+        const installments = JSON.parse(alunoContrato.parcela_aluno_contrato);
+        const dueDate = [];
+        const startDate = alunoContrato.iniciopagamento_aluno_contrato ? moment(alunoContrato.iniciopagamento_aluno_contrato) : moment(new Date());
+        const today = new Date();
+
+        // Order appPayments
+        const lastPayment = payments.sort((a, b) => new Date(b.expiracao_aluno_contrato_pagamento) - new Date(a.expiracao_aluno_contrato_pagamento))[0];
+        // Get last appPayment
+        const lastPaymentDate = lastPayment?.expiracao_aluno_contrato_pagamento ? moment(lastPayment?.expiracao_aluno_contrato_pagamento) : null;
+
+        // Get all payments date from installments
+        for (let i = 0; i < installments.length; i++) {
+            const date = startDate.clone().add(i, 'month');
+            dueDate.push(date.format('YYYY-MM-DD'));
+        }
+
+        // Get next dueDates
+        const futureDueDates = dueDate.filter(d => moment(d).isSameOrAfter(today));
+
+        // Get next dueDate
+        const nextDueDate = futureDueDates.length ? futureDueDates.reduce((closest, current, index) => {
+            return moment(current).diff(today) < moment(closest).diff(today) ? current : closest;
+        }) : null;
+
+        const isToday = moment(nextDueDate).isSame(today, 'day');
+        const passed = moment(nextDueDate).isSameOrAfter(today, 'day');
+        const existPayment = moment(nextDueDate).isSameOrAfter(lastPaymentDate, 'day');
+
+        if ((isToday || passed) && !existPayment) {
+            const apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+            const asaasPayments = await buscarPagamentosAssinatura(alunoContrato.id_aluno_contrato, apikey);
+            const appPayments = alunoContrato.pagamentos;
+
+            const reorderAsaasPayments = asaasPayments.sort((a, b) => {
+                const dateA = new Date(a.dueDate);
+                const dateB = new Date(b.dueDate);
+                return dateA - dateB;
+            });
+
+            for (let i = 0; i < reorderAsaasPayments.length; i++) {
+                const asaasPayment = reorderAsaasPayments[i];
+                
+                const existPayment = appPayments.find((payment) => payment.id_aluno_contrato_pagamento === asaasPayment.id);
+                if (!existPayment) {
+                    await tab_aluno_contrato_pagamento.create({
+                        cod_aluno_contrato: alunoContrato.cod_aluno_contrato,
+                        id_aluno_contrato_pagamento: asaasPayment.id,
+                        json_aluno_contrato_pagamento: JSON.stringify(asaasPayment),
+                        status_aluno_contrato_pagamento: asaasPayment.status,
+                        valor_aluno_contrato_pagamento: asaasPayment.value,
+                        liquido_aluno_contrato_pagamento: asaasPayment?.netValue || asaasPayment.value,
+                        forma_aluno_contrato_pagamento: asaasPayment?.billingType,
+                        data_aluno_contrato_pagamento: asaasPayment.dateCreated,
+                        expiracao_aluno_contrato_pagamento: asaasPayment.dueDate,
+                        parcela_aluno_contrato_pagamento: appPayments.length + i + 1,
+                        ambiente_aluno_contrato_pagamento: process.env.NODE_ENV,
+                    });
+                }
+            }
+        }
+    }
+
+    res.send({ status: true, alunoContrato });
+}
+
 module.exports = {
     getAlunos,
     getAluno,
@@ -159,4 +305,8 @@ module.exports = {
     getAvaliacao,
     setAvaliacao,
     deleteAvaliacao,
+    setAlunoContrato,
+    sendAlunoContrato,
+    getAlunoContratos,
+    getAlunoContrato,
 }

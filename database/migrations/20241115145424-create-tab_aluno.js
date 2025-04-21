@@ -10,17 +10,23 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.DataTypes.INTEGER
       },
+      cod_empresa: {
+        allowNull: false,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_empresa',
+          key: 'cod_empresa'
+        }
+      },
       nome_aluno: {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
       cpf_aluno: {
         type: Sequelize.DataTypes.STRING,
-        unique: true,
       },
       rg_aluno: {
         type: Sequelize.DataTypes.STRING,
-        unique: true,
       },
       telefone_aluno: {
         type: Sequelize.DataTypes.STRING,
@@ -28,7 +34,6 @@ module.exports = {
       email_aluno: {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
-        unique: true,
       },
       data_nascimento_aluno: {
         type: Sequelize.DataTypes.DATEONLY,

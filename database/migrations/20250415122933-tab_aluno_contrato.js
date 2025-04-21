@@ -10,6 +10,22 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.DataTypes.INTEGER
       },
+      cod_empresa: {
+        allowNull: false,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_empresa',
+          key: 'cod_empresa'
+        }
+      },
+      cod_usuario: {
+        allowNull: false,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_usuario',
+          key: 'cod_usuario'
+        }
+      },
       cod_aluno: {
         allowNull: false,
         type: Sequelize.DataTypes.INTEGER,
@@ -22,9 +38,30 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
+      iniciopagamento_aluno_contrato: {
+          type: Sequelize.DataTypes.DATE,
+          allowNull: true,
+          defaultValue: null,
+      },
+      status_aluno_contrato: {
+        allowNull: false,
+        type: Sequelize.DataTypes.ENUM('A', 'C', 'B', 'P'),
+        defaultValue: 'P',
+        comment: 'Ativo, Cancelado, Bloqueado, Pendente',
+      },
+      observacao_aluno_contrato: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
+      },
       adesao_aluno_contrato: {
         allowNull: true,
         type: Sequelize.DataTypes.DOUBLE(22,2),
+        defaultValue: null
+      },
+      parcela_aluno_contrato: {
+        allowNull: true,
+        type: Sequelize.DataTypes.TEXT,
         defaultValue: null
       },
       total_aluno_contrato: {
@@ -43,6 +80,16 @@ module.exports = {
       arquivo_aluno_contrato: {
         type: Sequelize.DataTypes.TEXT,
         allowNull: false,
+      },
+      id_aluno_contrato: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
+      },
+      autentique_aluno_contrato: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
       },
       createdAt: {
         allowNull: false,

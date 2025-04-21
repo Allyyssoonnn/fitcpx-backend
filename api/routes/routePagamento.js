@@ -1,9 +1,12 @@
 const router = require('express').Router();
 const { webhookAsaas } = require('../asaas');
 const verifyToken = require('../authMiddleware');
-const { processPagamento, getPIXPagamento, getPagamentos, deletePagamento, getCartoes, deleteCartao } = require('../controllers/ctrlPagamento');
+const { processPagamento, getPIXPagamento, getPagamentos, deletePagamento, getCartoes, deleteCartao, gerarIdCarteira, criarPagamentoAluno, getPIXPagamentoAluno } = require('../controllers/ctrlPagamento');
 
-router.post('/processPagamento', verifyToken, processPagamento);
+router.post('/gerarIdCarteira', verifyToken, gerarIdCarteira);
+router.post('/criarPagamentoAluno', verifyToken, criarPagamentoAluno);
+router.post('/getPIXPagamentoAluno', verifyToken, getPIXPagamentoAluno);
+
 router.post('/getPIXPagamento', verifyToken, getPIXPagamento);
 router.post('/getPagamentos', verifyToken, getPagamentos);
 router.post('/deletePagamento', verifyToken, deletePagamento);

@@ -125,7 +125,7 @@ async function recoveryModalidade(req, res) {
     res.send({ status: true });
 }
 
-async function setContrato(req, res) {    
+async function setModContrato(req, res) {    
     const { contrato } = req.body;
     var contratoAtt;
 
@@ -141,7 +141,7 @@ async function setContrato(req, res) {
     res.send({ status: true });
 }
 
-async function getContratos(req, res) {
+async function getModContratos(req, res) {
     const { cod_empresa, deleted } = req.body;
     var where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
     if (cod_empresa) where = { ...where, [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ] };
@@ -170,8 +170,8 @@ module.exports = {
     getModalidades,
     deleteModalidade,
     recoveryModalidade,
-    setContrato,
-    getContratos,
+    setModContrato,
+    getModContratos,
     deleteContrato,
     recoveryContrato,
 }

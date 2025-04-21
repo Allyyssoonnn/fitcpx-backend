@@ -10,9 +10,248 @@ const urlBase = env === 'development'
 //token de teste conta alyson.personalstudio@gmail.com
 //Não utilizada para recebimento
 const token = env === 'development'
-    ? process.env.ASAAS_KEY_PRODUCTION
-    : '[REDACTED_CREDENTIAL]'
+    ? '[REDACTED_CREDENTIAL]'
+    : process.env.ASAAS_KEY_PRODUCTION
 ;
+
+async function criarSubConta(empresa) {
+    const url = `${urlBase}/v3/accounts`;
+    const options = {
+        method: 'POST',
+        headers: {accept: 'application/json', 'content-type': 'application/json', access_token: token},
+        body: JSON.stringify({
+            name: empresa.nome_empresa,
+            email: empresa.email_empresa,
+            loginEmail: empresa.email_empresa,
+            cpfCnpj: empresa.doc_empresa.replace(/[^\d]+/g, ''),
+            companyType: 'LIMITED',
+            // MEI, LIMITED, INDIVIDUAL, ASSOCIATION
+            mobilePhone: empresa.telefone_empresa,
+            incomeValue: 5000,
+            address: empresa.endereco_empresa,
+            addressNumber: empresa.numero_empresa,
+            province: empresa.cidade_empresa,
+            postalCode: empresa.cep_empresa.replace(/[^\d]+/g, ''),
+            site: 'https://fitcpx.com',
+            webhooks: [
+                {
+                    name: `WebHook - ${empresa.nome_empresa}`,
+                    url: 'https://api.fitcpx.com/pagamento/webhookAsaas',
+                    email: empresa.email_empresa,
+                    enabled: true,
+                    interrupted: false,
+                    apiVersion: 3,
+                    sendType: 'SEQUENTIALLY',
+                    events: ['PAYMENT_RECEIVED', 'PAYMENT_CONFIRMED']
+                }
+            ]
+        })
+    };
+
+    try {
+        const response = await fetch(url, options);
+        const resp = await response.json();
+
+        return resp;
+    } catch (err) {
+        console.error('Erro ao criar subconta:', err);
+        return { status: false, message: err.message };
+    }
+}
+
+async function buscarClienteId(cod, apikey) {
+    const url = `${urlBase}/v3/customers?externalReference=${cod}`;
+    const options = {
+        method: 'GET',
+        headers: { accept: 'application/json', access_token: apikey ?? token }
+    };
+
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp?.data[0]?.id || null;
+}
+
+async function criarCliente(nome, email, documento, telefone, endereco, numero, estado, cep, cod, nome_empresa = null, apikey) {
+    const url = `${urlBase}/v3/customers`;
+    const options = {
+        method: 'POST',
+        headers: {accept: 'application/json', 'content-type': 'application/json', access_token: apikey ?? token },
+        body: JSON.stringify({
+            name: nome,
+            cpfCnpj: documento.replace(/[^\d]+/g, ''),
+            email: email,
+            phone: telefone,
+            address: endereco,
+            addressNumber: numero,
+            province: estado,
+            postalCode: cep,
+            externalReference: cod,
+            company: nome_empresa,
+        })
+    };
+    
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp.id;
+}
+
+async function atualizarCliente(customerId, nome, documento, email, telefone, apikey) {
+    const url = `${urlBase}/v3/customers/${customerId}`;
+    const options = {
+        method: 'PUT',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: apikey ?? token },
+        body: JSON.stringify({
+            name: nome,
+            cpfCnpj: documento.replace(/[^\d]+/g, ''),
+            email: email,
+            phone: telefone,
+        })
+    };
+
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return;
+}
+
+async function getTokenCard(customerId, cartao, ip, apikey) {
+    const url = `${urlBase}/v3/creditCard/tokenizeCreditCard`;
+    const options = {
+        method: 'POST',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: apikey ?? token },
+        body: JSON.stringify({
+            creditCard: {
+                number: cartao.cardNumber,
+                expiryMonth: cartao.cardMonth,
+                expiryYear: cartao.cardYear,
+                ccv: cartao.cardCvv,
+                holderName: cartao.cardName,
+            },
+            customer: customerId,
+            remoteIp: ip
+        })
+    };
+
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp;
+}
+
+async function criarCobrancaPIX(customerId, cod, value, apikey, dueDate) {
+    const url = `${urlBase}/v3/payments`;
+    const options = {
+        method: 'POST',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: apikey ?? token },
+        body: JSON.stringify({
+            billingType: 'PIX',
+            customer: customerId,
+            value: value,
+            dueDate: moment(dueDate).tz('America/Sao_Paulo').format('YYYY-MM-DD'),
+            description: 'FitComplex',
+            externalReference: cod,
+            interest: {value: 0},
+            fine: {value: null, type: 'FIXED'},
+            postalService: false,
+            callback: {successUrl: 'https://fitcpx.com', autoRedirect: false}
+        })
+    };
+    
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp;
+}
+
+async function criarCobrancaCartao(customerId, cod, value, dueDate, tokenCartao, meuip, apikey) {
+    const url = `${urlBase}/v3/payments/`;
+    const options = {
+        method: 'POST',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: apikey ?? token },
+        body: JSON.stringify({
+            billingType: 'CREDIT_CARD',
+            customer: customerId,
+            value: value,
+            dueDate: moment(dueDate).tz('America/Sao_Paulo').format('YYYY-MM-DD'),
+            description: 'FitComplex',
+            externalReference: cod,
+            // installmentCount: 1,
+            totalValue: null,
+            // installmentValue: 40,
+            discount: {type: 'PERCENTAGE'},
+            interest: {value: 0},
+            fine: {value: null, type: 'FIXED'},
+            postalService: false,
+            callback: {successUrl: 'https://fitcpx.com', autoRedirect: false},
+            creditCardHolderInfo: {addressComplement: null, phone: null, mobilePhone: null},
+            creditCardToken: tokenCartao,
+            authorizeOnly: null,
+            remoteIp: meuip,
+        })
+    };
+
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp;
+}
+
+async function criarAssinatura(customerId, tokenCartao, cod, value, initialPay, duration, name, apikey) {
+    const url = `${urlBase}/v3/subscriptions/`;
+    const options = {
+        method: 'POST',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: apikey ?? token },
+        body: JSON.stringify({
+            billingType: 'CREDIT_CARD',
+            cycle: 'MONTHLY',
+            customer: customerId,
+            value: value,
+            nextDueDate: moment(initialPay).tz('America/Sao_Paulo').format('YYYY-MM-DD'),
+            discount: {value: 0, dueDateLimitDays: 0, type: 'PERCENTAGE'},
+            interest: {value: 0},
+            fine: {value: null, type: 'FIXED'},
+            description: name,
+            endDate: null,
+            maxPayments: duration,
+            installmentCount: 1,
+            externalReference: cod,
+            callback: {successUrl: 'https://fitcpx.com', autoRedirect: false},
+            creditCardHolderInfo: {addressComplement: null, phone: null, mobilePhone: null},
+            creditCardToken: tokenCartao,
+            remoteIp: null
+        })
+    };
+    
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp;
+}
+
+async function buscarPagamentosAssinatura(subscriptionId, apikey) {
+    const url = `https://api-sandbox.asaas.com/v3/payments?subscription=${subscriptionId}`;
+    const options = {
+        method: 'GET',
+        headers: { accept: 'application/json', access_token: apikey ?? token }
+    };
+
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp?.data ?? [];
+}
+
+// =======================
 
 async function criarClienteUsuario(nome, email, documento, telefone, endereco, numero, estado, cep, cod_empresa, nome_empresa) {
     const url = `${urlBase}/v3/customers`;
@@ -78,7 +317,7 @@ async function criarCobranca(customerId, cod_empresa) {
             customer: customerId,
             value: 40,
             dueDate: moment().tz('America/Sao_Paulo').format('YYYY-MM-DD'),
-            description: 'FitComplex',
+            // description: '',
             externalReference: cod_empresa,
             interest: {value: 0},
             fine: {value: null, type: 'FIXED'},
@@ -94,77 +333,11 @@ async function criarCobranca(customerId, cod_empresa) {
     return resp;
 }
 
-async function criarCobrancaCartao(customerId, cod_empresa, tokenCartao, meuip) {
-    const url = `${urlBase}/v3/payments/`;
-    const options = {
-        method: 'POST',
-        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
-        body: JSON.stringify({
-            billingType: 'CREDIT_CARD',
-            customer: customerId,
-            value: 40,
-            dueDate: moment().tz('America/Sao_Paulo').format('YYYY-MM-DD'),
-            description: 'FitComplex',
-            externalReference: cod_empresa,
-            // installmentCount: 1,
-            totalValue: null,
-            // installmentValue: 40,
-            discount: {type: 'PERCENTAGE'},
-            interest: {value: 0},
-            fine: {value: null, type: 'FIXED'},
-            postalService: false,
-            callback: {successUrl: 'https://fitcpx.com', autoRedirect: false},
-            creditCardHolderInfo: {addressComplement: null, phone: null, mobilePhone: null},
-            creditCardToken: tokenCartao,
-            authorizeOnly: null,
-            remoteIp: meuip,
-        })
-    };
-
-    const response = await fetch(url, options)
-    .catch(err => console.error(err));
-    const resp = await response.json();
-
-    return resp;
-}
-
-async function criarAssinatura(customerId, tokenCartao) {
-    const url = `${urlBase}/v3/subscriptions/`;
-    const options = {
-    method: 'POST',
-    headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
-    body: JSON.stringify({
-        billingType: 'CREDIT_CARD',
-        cycle: 'MONTHLY',
-        customer: customerId,
-        value: 40,
-        nextDueDate: moment().tz('America/Sao_Paulo').format('YYYY-MM-DD'),
-        discount: {value: 0, dueDateLimitDays: 0, type: 'PERCENTAGE'},
-        interest: {value: 0},
-        fine: {value: null, type: 'FIXED'},
-        description: 'Assinatura Plano Fit Complex',
-        endDate: null,
-        maxPayments: null,
-        externalReference: null,
-        callback: {successUrl: 'https://fitcpx.com', autoRedirect: false},
-        creditCardHolderInfo: {addressComplement: null, phone: null, mobilePhone: null},
-        creditCardToken: tokenCartao,
-        remoteIp: null
-    })
-    };
-    
-    const response = await fetch(url, options)
-    .catch(err => console.error(err));
-    const resp = await response.json();
-
-    return resp;
-}
-
-async function getPix(cobrancaId) {
+async function getPix(cobrancaId, apikey) {
     const url = `${urlBase}/v3/payments/${cobrancaId}/pixQrCode`;
     const options = {
         method: 'GET',
-        headers: { accept: 'application/json', access_token: token }
+        headers: { accept: 'application/json', access_token: apikey ?? token }
     };
 
     const response = await fetch(url, options)
@@ -183,75 +356,6 @@ async function cancelarCobranca(cobrancaId) {
     const resp = await response.json();
 
     return resp.deleted;
-}
-
-async function getTokenCard(customerId, cartao, ip) {
-    const url = `${urlBase}/v3/creditCard/tokenizeCreditCard`;
-    const options = {
-    method: 'POST',
-    headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
-    body: JSON.stringify({
-        creditCard: {
-            // number: '5031433215406351',
-            number: cartao.cardNumber,
-            expiryMonth: cartao.cardMonth,
-            expiryYear: cartao.cardYear,
-            ccv: cartao.cardCvv,
-            holderName: cartao.cardName,
-        },
-        customer: customerId,
-        remoteIp: ip
-    })
-    };
-
-    const response = await fetch(url, options)
-    .catch(err => console.error(err));
-    const resp = await response.json();
-
-    return resp;
-}
-
-async function criarSubConta(nome, email, documento, cep, endereco, numero, bairro) {
-    const url = `${urlBase}/v3/accounts`;
-    const options = {
-        method: 'POST',
-        headers: {accept: 'application/json', 'content-type': 'application/json'},
-        body: JSON.stringify({
-            name: nome,
-            email: email,
-            loginEmail: email,
-            cpfCnpj: documento,
-            phone: null,
-            mobilePhone: null,
-            incomeValue: 5000,
-            address: endereco,
-            addressNumber: numero,
-            complement: null,
-            province: bairro,
-            postalCode: cep,
-            webhooks: [
-                {
-                    name: 'Fit Complex',
-                    url: 'https://www.exemplo.com/webhook/asaas',
-                    email: email,
-                    enabled: true,
-                    interrupted: false,
-                    apiVersion: 3,
-                    authToken: '5tLxsL6uoN',
-                    sendType: 'SEQUENTIALLY',
-                    events: ['PAYMENT_RECEIVED', 'PAYMENT_CONFIRMED']
-                }
-            ]
-        })
-    };
-
-    const response = await fetch(url, options)
-    .catch(err => console.error(err));
-    const resp = await response.json();
-
-    console.log(resp);
-
-    return resp;
 }
 
 // =========================== WEBHOOK
@@ -291,6 +395,12 @@ async function webhookAsaas(req, res) {
 }
 
 module.exports = {
+    criarSubConta,
+    buscarClienteId,
+    criarCliente,
+    atualizarCliente,
+    getTokenCard,
+    criarCobrancaPIX,
     criarClienteUsuario,
     buscarClienteIdUsuario,
     criarCobranca,
@@ -298,7 +408,6 @@ module.exports = {
     criarAssinatura,
     getPix,
     cancelarCobranca,
-    getTokenCard,
     webhookAsaas,
-    criarSubConta,
+    buscarPagamentosAssinatura,
 }

@@ -1,75 +1,155 @@
 const moment = require("moment-timezone");
-const { tab_empresa, tab_usuario_pagamento, tab_empresa_cartao } = require('../../database/models');
-const { buscarClienteIdUsuario, criarClienteUsuario, criarCobranca, cancelarCobranca, getPix, getTokenCard, criarCobrancaCartao, criarAssinatura } = require('../asaas');
+const { tab_empresa, tab_aluno, tab_usuario_pagamento, tab_aluno_contrato_pagamento, tab_empresa_cartao, tab_aluno_cartao, tab_aluno_contrato } = require('../../database/models');
+const { buscarClienteIdUsuario, criarClienteUsuario, criarCobranca, cancelarCobranca, getPix, getTokenCard, criarCobrancaCartao, criarAssinatura, criarSubConta, buscarClienteId, criarCobrancaPIX, criarCliente } = require('../asaas');
+const env = process.env.NODE_ENV || 'development';
 
-async function processPagamento(req, res) {
-    const { formaPagamento, cod_empresa, cod_usuario, recorrente, cartao, meuip = null, cod_empresa_cartao } = req.body;
-    var tokenCartao;
-    var cobranca;
+async function gerarIdCarteira(req, res) {
+    const { cod_empresa } = req.body;
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    var clienteId = await buscarClienteIdUsuario(cod_empresa);
-    if (!clienteId) clienteId = await criarClienteUsuario(
-        empresa.nome_empresa,
-        empresa.email_empresa,
-        empresa.doc_empresa,
-        empresa.telefone_empresa,
-        empresa.endereco_empresa,
-        empresa.numero_empresa,
-        empresa.estado_empresa,
-        empresa.cep_empresa,
-        cod_empresa,
-        empresa.nome_empresa,
+    const resp = await criarSubConta(empresa);
+
+    if (!resp?.status) {
+        res.send(resp);
+        return;
+    }
+
+    if (env !== 'development') {
+        if (!empresa.asaas_id) {
+            await tab_empresa.update({
+                asaas_id: resp.id,
+                walletid_empresa: resp.walletId,
+                asaas_apikey: resp.apiKey,
+            }, { where: { cod_empresa } });
+        }
+    } else {
+        if (!empresa.dev_asaas_id) {
+            await tab_empresa.update({
+                dev_asaas_id: resp.id,
+                dev_walletid_empresa: resp.walletId,
+                dev_asaas_apikey: resp.apiKey,
+            }, { where: { cod_empresa } });
+        }
+    }
+
+    const empresaAtt = await tab_empresa.findOne({ where: { cod_empresa } });
+
+    res.send({ status: true, empresa: empresaAtt });
+}
+
+async function criarPagamentoAluno(req, res) {
+    const { cod_aluno, cod_empresa, cod_usuario, cod_aluno_cartao, dadosCartao, cod_aluno_contrato, formaPagamento, mensal, primeiraCobranca = new Date() } = req.body;
+    var tokenCartao;
+    var apikey;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
+    const aluno_contrato = await tab_aluno_contrato.findOne({ where: { cod_aluno_contrato } });
+
+    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+
+    if (!apikey) {
+        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
+        return;
+    }
+
+    var clienteId = await buscarClienteId(cod_aluno, apikey);
+    if (!clienteId) clienteId = await criarCliente(
+        aluno.nome_aluno,
+        aluno.email_aluno,
+        aluno.doc_aluno,
+        aluno.telefone_aluno,
+        aluno.endereco_aluno,
+        aluno.numero_aluno,
+        aluno.estado_aluno,
+        aluno.cep_aluno,
+        cod_aluno,
+        null,
+        apikey
     );
 
-    if (cod_empresa_cartao) {
-        const cartaoAssas = await tab_empresa_cartao.findOne({ where: { cod_empresa_cartao } });
+    if (cod_aluno_cartao) {
+        const cartaoAssas = await tab_aluno_cartao.findOne({ where: { cod_aluno_cartao } });
         if (cartaoAssas) tokenCartao = cartaoAssas.token_empresa_cartao;
     }
-    
-    if (cartao) {
-        const cartaoAssas = await getTokenCard(clienteId, cartao, meuip);
+
+    if (dadosCartao) {
+        const cartaoAssas = await getTokenCard(clienteId, dadosCartao, '', apikey);
         if (cartaoAssas) {
             tokenCartao = cartaoAssas.creditCardToken;
-            await tab_empresa_cartao.create({
-                cod_empresa,
+            await tab_aluno_cartao.create({
+                cod_aluno,
                 cod_usuario,
-                final_empresa_cartao: cartaoAssas.creditCardNumber,
-                bandeira_empresa_cartao: cartaoAssas.creditCardBrand,
-                token_empresa_cartao: cartaoAssas.creditCardToken,
-                json_empresa_cartao: JSON.stringify(cartaoAssas),
+                final_aluno_cartao: cartaoAssas.creditCardNumber,
+                bandeira_aluno_cartao: cartaoAssas.creditCardBrand,
+                token_aluno_cartao: cartaoAssas.creditCardToken,
+                json_aluno_cartao: JSON.stringify(cartaoAssas),
             });
         }
     }
 
-    if (!recorrente && formaPagamento === 'PIX') {
-        cobranca = await criarCobranca(clienteId, cod_empresa);
-    } else {
-        cobranca = await criarCobrancaCartao(clienteId, cod_empresa, tokenCartao, meuip);
+    const resumoParcelas = JSON.parse(aluno_contrato?.parcela_aluno_contrato);
+
+    const valor = mensal ? resumoParcelas[0] : aluno_contrato.total_aluno_contrato;
+
+    // GERA O PAGAMENTO DA ADESÃO COM A DATA INICIAL
+    if (aluno_contrato?.adesao_aluno_contrato) {
+        var cobrancaAdesao;
+        
+        if (formaPagamento === 'PIX') {
+            cobrancaAdesao = await criarCobrancaPIX(clienteId, null, valor, apikey);
+        } else if (formaPagamento === 'CREDIT_CARD'){
+            cobrancaAdesao = await criarCobrancaCartao(clienteId, null, aluno_contrato.adesao_aluno_contrato, primeiraCobranca, tokenCartao, '', apikey);
+        }
+
+        if (cobrancaAdesao?.errors?.length >= 1) {
+            const error = cobranca?.errors[0];
+            res.send({ status: false, message: error.description });
+            return;
+        }
+
+        await tab_aluno_contrato_pagamento.create({
+            cod_aluno_contrato,
+            id_aluno_contrato_pagamento: cobrancaAdesao.id,
+            json_aluno_contrato_pagamento: JSON.stringify(cobrancaAdesao),
+            status_aluno_contrato_pagamento: cobrancaAdesao.status,
+            observacao_aluno_contrato_pagamento: 'Adesão',
+            valor_aluno_contrato_pagamento: cobrancaAdesao.value,
+            liquido_aluno_contrato_pagamento: cobrancaAdesao?.netValue || cobrancaAdesao.value,
+            forma_aluno_contrato_pagamento: formaPagamento,
+            data_aluno_contrato_pagamento: cobrancaAdesao.dateCreated,
+            expiracao_aluno_contrato_pagamento: cobrancaAdesao.nextDueDate,
+            parcela_aluno_contrato_pagamento: 1,
+            ambiente_aluno_contrato_pagamento: process.env.NODE_ENV,
+        });
     }
 
-    if (recorrente) {
-        cobranca = await criarAssinatura(clienteId, tokenCartao);
+    const assinatura = await criarAssinatura(clienteId, tokenCartao, aluno?.cod_aluno_contrato,
+        resumoParcelas[0], primeiraCobranca, resumoParcelas.length, aluno_contrato.nome_aluno_contrato, apikey
+    );
+
+    if (assinatura?.errors?.length >= 1) {
+        const error = cobranca?.errors[0];
+        res.send({ status: false, message: error.description });
+        return;
     }
 
-    const pagamento = await tab_usuario_pagamento.create({
-        cod_usuario,
-        cod_empresa,
-        id_usuario_pagamento: cobranca.id,
-        assinatura_usuario_pagamento: recorrente ? cobranca.id : null,
-        json_usuario_pagamento: JSON.stringify(cobranca),
-        status_usuario_pagamento: cobranca.status,
-        valor_usuario_pagamento: cobranca.value,
-        liquido_usuario_pagamento: cobranca?.netValue || cobranca.value,
-        forma_usuario_pagamento: formaPagamento,
-        data_usuario_pagamento: cobranca.dateCreated,
-        expiracao_usuario_pagamento: moment(cobranca.dateCreated).add(30, 'days').format('YYYY-MM-DD'),
-        parcela_usuario_pagamento: 1,
-        tipo_usuario_pagamento: recorrente ? 'Recorrência' : 'Único',
-        ambiente_usuario_pagamento: process.env.NODE_ENV,
-    });
+    if (assinatura?.id) {
+        await tab_aluno_contrato.update({ id_aluno_contrato: assinatura.id }, { where: { cod_aluno_contrato: aluno_contrato.cod_aluno_contrato } });
+    }
 
-    res.send({ status: true, pagamento });
+    res.send({ status: true });
+}
+
+async function getPIXPagamentoAluno(req, res) {
+    const { cod_aluno_contrato_pagamento, cod_empresa } = req.body;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+    const pagamento = await tab_aluno_contrato_pagamento.findOne({ where: { cod_aluno_contrato_pagamento } });
+    const pix = await getPix(pagamento.id_aluno_contrato_pagamento, apikey);
+
+    res.send({ status: true, pix });
 }
 
 async function getPIXPagamento(req, res) {
@@ -122,7 +202,9 @@ async function deleteCartao(req, res) {
 }
 
 module.exports = {
-    processPagamento,
+    gerarIdCarteira,
+    criarPagamentoAluno,
+    getPIXPagamentoAluno,
     getPIXPagamento,
     getPagamentos,
     deletePagamento,
