@@ -1,4 +1,4 @@
-const { tab_aluno, tab_refreshtoken_aluno, tab_treino_execucao, tab_treino_exercicio_execucao } = require('../../database/models');
+const { tab_aluno, tab_refreshtoken_aluno, tab_treino_execucao, tab_treino_execucao_exercicio } = require('../../database/models');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
@@ -89,16 +89,17 @@ async function finishTreino(req, res) {
     });
 
     for (const exercicio of sessao.exercicios) {
-        await tab_treino_exercicio_execucao.create({
+        await tab_treino_execucao_exercicio.create({
             cod_treino_execucao: treino_execucao.cod_treino_execucao,
             cod_exercicio: exercicio?.cod_exercicio,
             treino_exercicio_executado: exercicio.feito ? 'S' : 'N',
-            sequencia_treino_exercicio_execucao: exercicio?.sequencia_sessao_exercicio,
-            serie_treino_exercicio_execucao: exercicio?.serie_sessao_exercicio,
-            repeticao_treino_exercicio_execucao: exercicio?.repeticao_sessao_exercicio,
-            carga_treino_exercicio_execucao: exercicio?.carga_sessao_exercicio,
-            intervalo_treino_exercicio_execucao: exercicio?.intervalo_sessao_exercicio,
-            observacao_treino_exercicio_execucao: exercicio?.observacao_sessao_exercicio,
+            sequencia_treino_execucao_exercicio: exercicio?.sequencia_sessao_exercicio,
+            serie_treino_execucao_exercicio: exercicio?.serie_sessao_exercicio,
+            repeticao_treino_execucao_exercicio: exercicio?.repeticao_sessao_exercicio,
+            carga_treino_execucao_exercicio: exercicio?.carga_sessao_exercicio,
+            intervalo_treino_execucao_exercicio: exercicio?.intervalo_sessao_exercicio,
+            execucao_treino_execucao_exercicio: JSON.stringify(exercicio?.execucoes),
+            observacao_treino_execucao_exercicio: exercicio?.observacao_sessao_exercicio,
         });
     }
 
@@ -114,7 +115,7 @@ async function getTreinosRealizados(req, res) {
         where: where,
         include: [
             {
-                model: tab_treino_exercicio_execucao,
+                model: tab_treino_execucao_exercicio,
                 as: 'exercicios',
             },
         ],

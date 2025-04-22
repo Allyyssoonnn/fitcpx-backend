@@ -54,7 +54,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     tab_treino_execucao.associate = (models) => {
-        tab_treino_execucao.hasMany(models.tab_treino_exercicio_execucao, {
+        tab_treino_execucao.hasMany(models.tab_treino_execucao_exercicio, {
             foreignKey: 'cod_treino_execucao',
             as: 'exercicios',
         });

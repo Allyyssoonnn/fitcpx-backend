@@ -3,8 +3,8 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('tab_treino_exercicio_execucao', {
-      cod_treino_exercicio_execucao: {
+    await queryInterface.createTable('tab_treino_execucao_exercicio', {
+      cod_treino_execucao_exercicio: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -31,27 +31,32 @@ module.exports = {
         type: Sequelize.DataTypes.ENUM('S', 'N'),
         defaultValue: 'N',
       },
-      sequencia_treino_exercicio_execucao: {
+      sequencia_treino_execucao_exercicio: {
         allowNull: false,
         type: Sequelize.DataTypes.INTEGER,
       },
-      serie_treino_exercicio_execucao: {
+      serie_treino_execucao_exercicio: {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
-      repeticao_treino_exercicio_execucao: {
+      repeticao_treino_execucao_exercicio: {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
-      carga_treino_exercicio_execucao: {
+      carga_treino_execucao_exercicio: {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
-      intervalo_treino_exercicio_execucao: {
+      intervalo_treino_execucao_exercicio: {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
-      observacao_treino_exercicio_execucao: {
+      execucao_treino_execucao_exercicio: {
+        allowNull: true,
+        type: Sequelize.DataTypes.TEXT,
+        defaultValue: null,
+      },
+      observacao_treino_execucao_exercicio: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
       },
@@ -72,6 +77,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    queryInterface.dropTable('tab_treino_exercicio_execucao')
+    queryInterface.dropTable('tab_treino_execucao_exercicio')
   }
 };

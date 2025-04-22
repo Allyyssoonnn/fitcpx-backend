@@ -9,8 +9,8 @@ async function gerarIdCarteira(req, res) {
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
     const resp = await criarSubConta(empresa);
 
-    if (!resp?.status) {
-        res.send(resp);
+    if (resp?.errors?.length) {
+        res.send({ status: false, message: resp.errors[0].description });
         return;
     }
 

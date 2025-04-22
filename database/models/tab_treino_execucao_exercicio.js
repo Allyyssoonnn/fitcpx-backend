@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-    const tab_treino_exercicio_execucao = sequelize.define('tab_treino_exercicio_execucao', {
-        cod_treino_exercicio_execucao: {
+    const tab_treino_execucao_exercicio = sequelize.define('tab_treino_execucao_exercicio', {
+        cod_treino_execucao_exercicio: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
@@ -29,27 +29,32 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: 'N',
         },
-        sequencia_treino_exercicio_execucao: {
+        sequencia_treino_execucao_exercicio: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
-        serie_treino_exercicio_execucao: {
+        serie_treino_execucao_exercicio: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        repeticao_treino_exercicio_execucao: {
+        repeticao_treino_execucao_exercicio: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        carga_treino_exercicio_execucao: {
+        carga_treino_execucao_exercicio: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        intervalo_treino_exercicio_execucao: {
+        intervalo_treino_execucao_exercicio: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        observacao_treino_exercicio_execucao: {
+        execucao_treino_execucao_exercicio: {
+            allowNull: true,
+            type: DataTypes.TEXT,
+            defaultValue: null,
+        },
+        observacao_treino_execucao_exercicio: {
             type: DataTypes.STRING,
             allowNull: true,
         },
@@ -63,5 +68,5 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: true, // Adicionado para garantir createdAt e updatedAt
     });
     
-    return tab_treino_exercicio_execucao;
+    return tab_treino_execucao_exercicio;
 };
