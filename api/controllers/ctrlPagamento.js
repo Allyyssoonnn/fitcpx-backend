@@ -38,7 +38,7 @@ async function gerarIdCarteira(req, res) {
 }
 
 async function criarPagamentoAluno(req, res) {
-    const { cod_aluno, cod_empresa, cod_usuario, cod_aluno_cartao, dadosCartao, cod_aluno_contrato, formaPagamento, mensal, primeiraCobranca = new Date() } = req.body;
+    const { cod_aluno, cod_empresa, cod_usuario, cod_aluno_cartao, dadosCartao, cod_aluno_contrato, formaPagamento, mensal, pagamentoInicial = new Date() } = req.body;
     var tokenCartao;
     var apikey;
 
@@ -99,7 +99,7 @@ async function criarPagamentoAluno(req, res) {
         if (formaPagamento === 'PIX') {
             cobrancaAdesao = await criarCobrancaPIX(clienteId, null, valor, apikey);
         } else if (formaPagamento === 'CREDIT_CARD'){
-            cobrancaAdesao = await criarCobrancaCartao(clienteId, null, aluno_contrato.adesao_aluno_contrato, primeiraCobranca, tokenCartao, '', apikey);
+            cobrancaAdesao = await criarCobrancaCartao(clienteId, null, aluno_contrato.adesao_aluno_contrato, pagamentoInicial, tokenCartao, '', apikey);
         }
 
         if (cobrancaAdesao?.errors?.length >= 1) {
@@ -125,7 +125,7 @@ async function criarPagamentoAluno(req, res) {
     }
 
     const assinatura = await criarAssinatura(clienteId, tokenCartao, aluno?.cod_aluno_contrato,
-        resumoParcelas[0], primeiraCobranca, resumoParcelas.length, aluno_contrato.nome_aluno_contrato, apikey
+        resumoParcelas[0], pagamentoInicial, resumoParcelas.length, aluno_contrato.nome_aluno_contrato, apikey
     );
 
     if (assinatura?.errors?.length >= 1) {

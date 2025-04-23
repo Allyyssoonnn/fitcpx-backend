@@ -166,13 +166,14 @@ async function deleteAvaliacao(req, res) {
 async function setAlunoContrato(req, res) {
     const { plano } = req.body;
 
-    const { modalidades, valor_plano, valor_adesao, contrato, duracao_plano, nome_plano, cod_aluno, cod_usuario, cod_empresa, parcela_plano } = plano;
+    const { modalidades, valor_plano, valor_adesao, contrato, duracao_plano, nome_plano, cod_aluno, cod_usuario, cod_empresa, parcela_plano, pagamentoInicial = new Date() } = plano;
 
     const alunoContrato = await tab_aluno_contrato.create({
         cod_aluno: cod_aluno,
         cod_usuario: cod_usuario,
         cod_empresa: cod_empresa,
-        nome_aluno_contrato: nome_plano ?? `Contrato ${moment().format('DD-MM-YYYY')}`,
+        nome_aluno_contrato: nome_plano ?? `Contrato ${moment().format('DD/MM/YYYY')}`,
+        iniciopagamento_aluno_contrato: pagamentoInicial,
         adesao_aluno_contrato: valor_adesao,
         parcela_aluno_contrato: parcela_plano,
         total_aluno_contrato: valor_plano,
