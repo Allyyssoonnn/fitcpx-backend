@@ -4,6 +4,8 @@ const crypto = require('crypto');
 const { Sequelize, where, Op } = require('sequelize');
 const { getURL, connected } = require('../google');
 const { sendEmail, getMsgEmailRecovery } = require('../sendgrid');
+const { atualizarSubConta } = require('../asaas');
+const env = process.env.NODE_ENV || 'development';
 
 async function login(req, res) {    
     const { email, senha } = req.body;
@@ -224,6 +226,13 @@ async function setEmpresa(req, res) {
 
     if (empresaAtt) {
         await tab_empresa.update(empresa, { where: { cod_empresa: empresa.cod_empresa } });
+
+        //Verifica se empresa está cadastrado no asaas e atualiza informações
+        const empresaBD = await tab_empresa.findOne({ where: { cod_empresa: empresa.cod_empresa } });
+        const apikey = env === 'development' ? empresaBD.dev_asaas_apikey : empresaBD.asaas_apikey;
+        if (apikey) {
+            await atualizarSubConta(empresaAtt, apikey);
+        }
     } else {
         const novaEmpresa = await tab_empresa.create(empresa);
         empresaAtt = novaEmpresa;

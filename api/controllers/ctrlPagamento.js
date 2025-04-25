@@ -1,7 +1,59 @@
 const moment = require("moment-timezone");
 const { tab_empresa, tab_aluno, tab_usuario_pagamento, tab_aluno_contrato_pagamento, tab_empresa_cartao, tab_aluno_cartao, tab_aluno_contrato } = require('../../database/models');
-const { buscarClienteIdUsuario, criarClienteUsuario, criarCobranca, cancelarCobranca, getPix, getTokenCard, criarCobrancaCartao, criarAssinatura, criarSubConta, buscarClienteId, criarCobrancaPIX, criarCliente } = require('../asaas');
+const { buscarClienteIdUsuario, criarClienteUsuario, criarCobranca, cancelarCobranca, getPix, getTokenCard, criarCobrancaCartao, criarAssinatura, criarSubConta, buscarClienteId, criarCobrancaPIX, criarCliente, buscarSaldoSubConta, buscarExtratoSubConta, realizarSaque } = require('../asaas');
 const env = process.env.NODE_ENV || 'development';
+
+async function cashWithdrawal(req, res) {
+    const { cod_empresa } = req.body;
+    var apikey;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+
+    if (!apikey) {
+        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
+        return;
+    }
+
+    const balance = await buscarSaldoSubConta(apikey);
+    const bankExtract = await realizarSaque(apikey, null, null, balance);
+
+    res.send({ status: true });
+}
+
+async function getBankExtract(req, res) {
+    const { cod_empresa, month, year } = req.body;
+    var apikey;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+
+    if (!apikey) {
+        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
+        return;
+    }
+
+    const bankExtract = await buscarExtratoSubConta(apikey, month, year);
+
+    res.send({ status: true, bankExtract });
+}
+
+async function getBalance(req, res) {
+    const { cod_empresa } = req.body;
+    var apikey;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+
+    if (!apikey) {
+        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
+        return;
+    }
+
+    const balance = await buscarSaldoSubConta(apikey);
+
+    res.send({ status: true, balance });
+}
 
 async function gerarIdCarteira(req, res) {
     const { cod_empresa } = req.body;
@@ -141,6 +193,44 @@ async function criarPagamentoAluno(req, res) {
     res.send({ status: true });
 }
 
+async function createCardToken(req, res) {
+    const { dadosCartao, cod_empresa, cod_aluno } = req.body;
+    var tokenCartao;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
+    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+
+    var clienteId = await buscarClienteId(cod_aluno, apikey);
+    if (!clienteId) clienteId = await criarCliente(
+        aluno.nome_aluno,
+        aluno.email_aluno,
+        aluno.doc_aluno,
+        aluno.telefone_aluno,
+        aluno.endereco_aluno,
+        aluno.numero_aluno,
+        aluno.estado_aluno,
+        aluno.cep_aluno,
+        cod_aluno,
+        null,
+        apikey
+    );
+    
+    const cartaoAssas = await getTokenCard(clienteId, dadosCartao, '', apikey);
+    if (cartaoAssas) {
+        tokenCartao = cartaoAssas.creditCardToken;
+        await tab_aluno_cartao.create({
+            cod_aluno,
+            final_aluno_cartao: cartaoAssas.creditCardNumber,
+            bandeira_aluno_cartao: cartaoAssas.creditCardBrand,
+            token_aluno_cartao: cartaoAssas.creditCardToken,
+            json_aluno_cartao: JSON.stringify(cartaoAssas),
+        });
+    }
+
+    res.send({ status: true });
+}
+
 async function getPIXPagamentoAluno(req, res) {
     const { cod_aluno_contrato_pagamento, cod_empresa } = req.body;
 
@@ -202,8 +292,12 @@ async function deleteCartao(req, res) {
 }
 
 module.exports = {
+    cashWithdrawal,
+    getBankExtract,
+    getBalance,
     gerarIdCarteira,
     criarPagamentoAluno,
+    createCardToken,
     getPIXPagamentoAluno,
     getPIXPagamento,
     getPagamentos,

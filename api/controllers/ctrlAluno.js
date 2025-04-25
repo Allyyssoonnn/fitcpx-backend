@@ -1,5 +1,5 @@
 const { Sequelize } = require('sequelize');
-const { tab_aluno, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa, tab_aluno_contrato, tab_aluno_contrato_pagamento } = require('../../database/models');
+const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa, tab_aluno_contrato, tab_aluno_contrato_pagamento } = require('../../database/models');
 const { removeStringVazia } = require('../../utils');
 const moment = require("moment-timezone");
 const { atualizarCliente, buscarClienteId, buscarPagamentosAssinatura } = require('../asaas');
@@ -40,6 +40,23 @@ async function getAluno(req, res) {
         ]
     });    
     res.send({ status: true, aluno });
+}
+
+async function getCards(req, res) {
+    const { cod_aluno } = req.body;
+
+    const cards = await tab_aluno_cartao.findAll({
+        where: { cod_aluno },
+        attributes: { exclude: ['token_aluno_cartao'] }
+    });
+    res.send({ status: true, cards });
+}
+
+async function deleteCard(req, res) {
+    const { cod_aluno_cartao } = req.body;
+    
+    await tab_aluno_cartao.update({ deletedAt: new Date() }, { where: { cod_aluno_cartao } });
+    res.send({ status: true });
 }
 
 async function setAluno(req, res) {    
@@ -299,6 +316,8 @@ async function getAlunoContrato(req, res) {
 module.exports = {
     getAlunos,
     getAluno,
+    getCards,
+    deleteCard,
     setAluno,
     deleteAluno,
     recoveryAluno,

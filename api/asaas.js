@@ -1,5 +1,5 @@
 const moment = require("moment-timezone");
-const { tab_usuario_pagamento } = require('../database/models');
+const { tab_usuario_pagamento, tab_asaas_webhook } = require('../database/models');
 const env = process.env.NODE_ENV || 'development';
 
 const urlBase = env === 'development'
@@ -109,6 +109,36 @@ async function atualizarCliente(customerId, nome, documento, email, telefone, ap
             cpfCnpj: documento.replace(/[^\d]+/g, ''),
             email: email,
             phone: telefone,
+        })
+    };
+
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return;
+}
+
+async function atualizarSubConta(empresa, apikey) {
+    const url = `${urlBase}/v3/myAccount/commercialInfo/`;
+    const options = {
+        method: 'POST',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: apikey ?? token },
+        body: JSON.stringify({
+            name: empresa.nome_empresa,
+            email: empresa.email_empresa,
+            loginEmail: empresa.email_empresa,
+            cpfCnpj: empresa.doc_empresa.replace(/[^\d]+/g, ''),
+            personType: 'JURIDICA',
+            companyType: 'LIMITED',
+            // MEI, LIMITED, INDIVIDUAL, ASSOCIATION
+            mobilePhone: empresa.telefone_empresa,
+            incomeValue: 5000,
+            address: empresa.endereco_empresa,
+            addressNumber: empresa.numero_empresa,
+            province: empresa.cidade_empresa,
+            postalCode: empresa.cep_empresa.replace(/[^\d]+/g, ''),
+            site: 'https://fitcpx.com',
         })
     };
 
@@ -238,7 +268,7 @@ async function criarAssinatura(customerId, tokenCartao, cod, value, initialPay, 
 }
 
 async function buscarPagamentosAssinatura(subscriptionId, apikey) {
-    const url = `https://api-sandbox.asaas.com/v3/payments?subscription=${subscriptionId}`;
+    const url = `${urlBase}/v3/payments?subscription=${subscriptionId}`;
     const options = {
         method: 'GET',
         headers: { accept: 'application/json', access_token: apikey ?? token }
@@ -249,6 +279,59 @@ async function buscarPagamentosAssinatura(subscriptionId, apikey) {
     const resp = await response.json();
 
     return resp?.data ?? [];
+}
+
+async function buscarSaldoSubConta(apikey) {
+    const url = `${urlBase}/v3/finance/balance`;
+    const options = {
+        method: 'GET',
+        headers: { accept: 'application/json', access_token: apikey ?? token }
+    };
+
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp?.balance ?? 0;
+}
+
+async function buscarExtratoSubConta(apikey, month, year) {
+    const startDate = new Date(year, month - 1, 1); // Primeiro dia do mês
+    const endDate = new Date(year, month, 0); // Último dia do mês (dia 0 do mês seguinte)
+    const start = startDate.toISOString().split('T')[0]; // yyyy-mm-dd
+    const end = endDate.toISOString().split('T')[0];
+
+    const url = `${urlBase}/v3/financialTransactions?limit=100&startDate=${start}&finishDate=${end}`;
+    const options = {
+        method: 'GET',
+        headers: { accept: 'application/json', access_token: apikey ?? token }
+    };
+    
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp?.data ?? 0;
+}
+
+async function realizarSaque(apikey, chave, tipoChave, valor) {
+    const url = `${urlBase}/v3/transfers`;
+    const options = {
+        method: 'POST',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: apikey ?? token },
+        body: JSON.stringify({
+            value: valor,
+            operationType: 'PIX',
+            pixAddressKey: chave.replace(/[^\d]+/g, ''),
+            description: `SAQUE - ${moment(new Date()).tz('America/Sao_Paulo').format('YYYY-MM-DD')}`,
+            pixAddressKeyType: tipoChave,
+        })
+    };
+
+    fetch(url, options)
+    .then(res => res.json())
+    .then(json => console.log(json))
+    .catch(err => console.error(err));
 }
 
 // =======================
@@ -363,6 +446,10 @@ async function cancelarCobranca(cobrancaId) {
 async function webhookAsaas(req, res) {
     const { event, payment } = req.body;
 
+    await tab_asaas_webhook.create({
+        json_asaas_webhook: JSON.stringify(req.body),
+    });
+
     if (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') {
         if (payment.id) {
             tab_usuario_pagamento.update({ status_usuario_pagamento: payment.status }, { where: { id_usuario_pagamento: payment.id } });
@@ -395,10 +482,12 @@ async function webhookAsaas(req, res) {
 }
 
 module.exports = {
+    realizarSaque,
     criarSubConta,
     buscarClienteId,
     criarCliente,
     atualizarCliente,
+    atualizarSubConta,
     getTokenCard,
     criarCobrancaPIX,
     criarClienteUsuario,
@@ -407,6 +496,8 @@ module.exports = {
     criarCobrancaCartao,
     criarAssinatura,
     getPix,
+    buscarSaldoSubConta,
+    buscarExtratoSubConta,
     cancelarCobranca,
     webhookAsaas,
     buscarPagamentosAssinatura,

@@ -19,7 +19,8 @@ module.exports = {
         }
       },
       cod_usuario: {
-        allowNull: false,
+        allowNull: true,
+        defaultValue: null,
         type: Sequelize.DataTypes.INTEGER,
         references: {
           model: 'tab_usuario',
