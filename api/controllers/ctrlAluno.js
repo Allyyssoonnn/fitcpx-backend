@@ -220,12 +220,21 @@ async function sendAlunoContrato(req, res) {
 }
 
 async function getAlunoContratos(req, res) {
-    const { cod_aluno } = req.body;
+    const { cod_aluno, cod_empresa } = req.body;
 
     var where = {};
-    if (cod_aluno) where = { ...where, [Sequelize.Op.or]: [ { cod_aluno: cod_aluno }, { cod_aluno: null } ] };
+    if (cod_aluno) where = { cod_aluno: cod_aluno };
+    if (cod_empresa) where = { cod_empresa: cod_empresa };
 
-    const alunoContratos = await tab_aluno_contrato.findAll({ where: where });
+    const alunoContratos = await tab_aluno_contrato.findAll({
+        where: where,
+        include: [
+            {
+                model: tab_aluno,
+                as: 'aluno',
+            }
+        ]
+    });
 
     res.send({ status: true, alunoContratos });
 }

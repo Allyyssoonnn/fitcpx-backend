@@ -104,6 +104,10 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'cod_aluno_contrato',
             as: 'pagamentos',
         })
+        tab_aluno_contrato.belongsTo(models.tab_aluno, {
+            foreignKey: 'cod_aluno',
+            as: 'aluno',
+        })
     };
 
     return tab_aluno_contrato;
