@@ -38,12 +38,14 @@ function uploadDinamico(folder) {
 }
 
 async function uploadIMGAvaliacao(req, res) {
-    const deletedimages = JSON.parse(req.headers['deletedimages']);
+    const deletedimages = JSON.parse(req?.headers['deletedimages']);
 
-    for (const imageData of deletedimages) {
-        const id = imageData.split('/')[imageData.split('/').length - 1];
-        const removida = await deleteIMG('aluno/avaliacao' ,id);
-        if (removida) tab_avaliacao_imagem.update({ deletedAt: new Date() }, { where: { url_imagem: imageData } });
+    if (Array.isArray(deletedimages)) {
+        for (const imageData of deletedimages) {
+            const id = imageData.split('/')[imageData.split('/').length - 1];
+            const removida = await deleteIMG('aluno/avaliacao' ,id);
+            if (removida) tab_avaliacao_imagem.update({ deletedAt: new Date() }, { where: { url_imagem: imageData } });
+        }
     }
 
     const upload = uploadDinamico('aluno/avaliacao').array('image', 15);
