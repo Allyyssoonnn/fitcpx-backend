@@ -2,7 +2,7 @@ const { Sequelize } = require('sequelize');
 const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa, tab_aluno_contrato, tab_aluno_contrato_pagamento } = require('../../database/models');
 const { removeStringVazia } = require('../../utils');
 const moment = require("moment-timezone");
-const { atualizarCliente, buscarClienteId, buscarPagamentosAssinatura } = require('../asaas');
+const { atualizarCliente, buscarClienteId, buscarPagamentosAssinatura, cancelarAssinatura } = require('../asaas');
 const { sendDocument } = require('../autentique');
 const env = process.env.NODE_ENV || 'development';
 
@@ -202,6 +202,24 @@ async function setAlunoContrato(req, res) {
     res.send({ status: true, alunoContrato });
 }
 
+async function cancelAlunoContrato(req, res) {
+    const { cod_aluno_contrato } = req.body;
+
+    const alunoContrato = await tab_aluno_contrato.findOne({ where: { cod_aluno_contrato } });
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa: alunoContrato.cod_empresa } });
+    
+    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+
+    if (alunoContrato?.id_aluno_contrato) {
+        await cancelarAssinatura(alunoContrato.id_aluno_contrato, apikey);
+        await tab_aluno_contrato.update({ deletedAt: new Date() }, { where: { cod_aluno_contrato } });
+    } else {
+        await tab_aluno_contrato.update({ deletedAt: new Date() }, { where: { cod_aluno_contrato } });
+    }
+
+    res.send({ status: true });
+}
+
 async function sendAlunoContrato(req, res) {
     const { cod_aluno_contrato } = req.body;
     const contratoPDF = req.file;
@@ -335,6 +353,7 @@ module.exports = {
     setAvaliacao,
     deleteAvaliacao,
     setAlunoContrato,
+    cancelAlunoContrato,
     sendAlunoContrato,
     getAlunoContratos,
     getAlunoContrato,

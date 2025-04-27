@@ -267,6 +267,17 @@ async function criarAssinatura(customerId, tokenCartao, cod, value, initialPay, 
     return resp;
 }
 
+async function cancelarAssinatura(subscriptionId, apikey) {
+    const url = `${urlBase}/v3/subscriptions/${subscriptionId}`;
+    const options = {method: 'DELETE', headers: { accept: 'application/json', access_token: apikey ?? token }};
+
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp;
+}
+
 async function buscarPagamentosAssinatura(subscriptionId, apikey) {
     const url = `${urlBase}/v3/payments?subscription=${subscriptionId}`;
     const options = {
@@ -495,6 +506,7 @@ module.exports = {
     criarCobranca,
     criarCobrancaCartao,
     criarAssinatura,
+    cancelarAssinatura,
     getPix,
     buscarSaldoSubConta,
     buscarExtratoSubConta,
