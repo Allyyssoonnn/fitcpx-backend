@@ -176,7 +176,7 @@ async function criarPagamentoAluno(req, res) {
         });
     }
 
-    const assinatura = await criarAssinatura(clienteId, tokenCartao, aluno?.cod_aluno_contrato,
+    const assinatura = await criarAssinatura(clienteId, tokenCartao, aluno_contrato?.cod_aluno_contrato,
         resumoParcelas[0], pagamentoInicial, resumoParcelas.length, aluno_contrato.nome_aluno_contrato, apikey
     );
 
