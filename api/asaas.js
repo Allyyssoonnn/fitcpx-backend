@@ -36,7 +36,7 @@ async function criarSubConta(empresa) {
             webhooks: [
                 {
                     name: `WebHook - ${empresa.nome_empresa}`,
-                    url: 'https://api.fitcpx.com/pagamento/webhookAsaas',
+                    url: 'https://webhook.fitcpx.com/webhook',
                     email: empresa.email_empresa,
                     enabled: true,
                     interrupted: false,
