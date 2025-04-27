@@ -170,7 +170,7 @@ async function criarPagamentoAluno(req, res) {
             liquido_aluno_contrato_pagamento: cobrancaAdesao?.netValue || cobrancaAdesao.value,
             forma_aluno_contrato_pagamento: formaPagamento,
             data_aluno_contrato_pagamento: cobrancaAdesao.dateCreated,
-            expiracao_aluno_contrato_pagamento: cobrancaAdesao.nextDueDate,
+            expiracao_aluno_contrato_pagamento: cobrancaAdesao.dueDate,
             parcela_aluno_contrato_pagamento: 1,
             ambiente_aluno_contrato_pagamento: process.env.NODE_ENV,
         });
