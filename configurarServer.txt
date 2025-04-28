@@ -90,8 +90,10 @@ INICIAR APLICAÇÃO
 1. cd Git/servereducapp
 
 2. docker build -t fitcpx .
+docker build -t fitcpx:latest .
 
 3. docker run --env-file .env --restart unless-stopped -p 8070:8070 -p 8090:8090 -p 3070:3070 -p 3075:3075 -p 3080:3080 fitcpx
+docker run --env-file .env --restart unless-stopped -p 8070:8070 -p 8090:8090 -p 3070:3070 -p 3075:3075 -p 3080:3080 fitcpx:latest
 
 * NÃO COLOCAR ASPAS NO ARQUIVO .env PARA QUE IMPORTE CORRETAMENTE NO DOCKER *
 
