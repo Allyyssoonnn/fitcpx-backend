@@ -152,6 +152,9 @@ async function criarPagamentoAluno(req, res) {
             cobrancaAdesao = await criarCobrancaPIX(clienteId, null, valor, apikey);
         } else if (formaPagamento === 'CREDIT_CARD'){
             cobrancaAdesao = await criarCobrancaCartao(clienteId, null, aluno_contrato.adesao_aluno_contrato, pagamentoInicial, tokenCartao, '', apikey);
+        } else if (formaPagamento === 'AFTER'){
+            //Envia cobrança sem dados do cartão para gerar billingType = "UNDEFINED"
+            cobrancaAdesao = await criarCobrancaCartao(clienteId, null, aluno_contrato.adesao_aluno_contrato, pagamentoInicial, tokenCartao, '', apikey);
         }
 
         if (cobrancaAdesao?.errors?.length >= 1) {
