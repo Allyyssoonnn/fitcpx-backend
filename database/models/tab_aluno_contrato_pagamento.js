@@ -41,6 +41,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: null,
         },
+        statustexto_aluno_contrato_pagamento: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null,
+        },
         observacao_aluno_contrato_pagamento: {
             type: DataTypes.STRING,
             allowNull: true,

@@ -43,6 +43,11 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null,
       },
+      statustexto_aluno_contrato_pagamento: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
+      },
       observacao_aluno_contrato_pagamento: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,

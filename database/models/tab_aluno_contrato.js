@@ -42,10 +42,14 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: null,
         },
         status_aluno_contrato: {
-            type: DataTypes.ENUM('A', 'C', 'B', 'P'),
-            allowNull: false,
-            defaultValue: 'P',
-            comment: 'Ativo, Cancelado, Bloqueado, Pendente',
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null,
+        },
+        statustexto_aluno_contrato: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null,
         },
         observacao_aluno_contrato: {
             type: DataTypes.STRING,
