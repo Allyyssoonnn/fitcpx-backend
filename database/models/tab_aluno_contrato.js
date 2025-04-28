@@ -93,6 +93,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             defaultValue: null,
         },
+        statusautentique_aluno_contrato: {
+            allowNull: true,
+            type: DataTypes.STRING,
+            defaultValue: null,
+        },
         deletedAt: {
             type: DataTypes.DATE,
             allowNull: true,

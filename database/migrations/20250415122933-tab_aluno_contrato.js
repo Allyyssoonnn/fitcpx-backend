@@ -95,6 +95,11 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null,
       },
+      statusautentique_aluno_contrato: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,

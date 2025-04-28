@@ -28,14 +28,12 @@ async function sendDocument(contratoPdfObject, emailAluno, nomeDocumento = 'Cont
             data : data
         };
           
-        axios.request(config)
-        .then((response) => {
-            console.log(JSON.stringify(response.data));
-            return response.data.data.createDocument.id;
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+        const resp = await axios.request(config)
+
+        if (resp) {
+            console.log(JSON.stringify(resp.data));
+            return resp.data.data.createDocument.id;
+        }
     } catch (error) {
         console.log(error);
     }
@@ -43,7 +41,7 @@ async function sendDocument(contratoPdfObject, emailAluno, nomeDocumento = 'Cont
 
 async function deleteDocument(id) {
     let data = JSON.stringify({
-        "query": `mutation { deleteDocument(id: ${id}) }`,
+        "query": `mutation { deleteDocument(id: "${id}") }`,
         "variables": {}
     });
 
