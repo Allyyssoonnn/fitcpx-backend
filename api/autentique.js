@@ -65,6 +65,40 @@ async function deleteDocument(id) {
     });
 }
 
+async function downloadContract(documentId, signed) {
+    try {
+        let data = JSON.stringify({
+            "query": `query { document(id: "${documentId}") { id name refusable sortable created_at files { original signed } signatures { public_id name email created_at action { name } link { short_link } user { id name email } email_events { sent opened delivered refused reason } viewed { ...event } signed { ...event } rejected { ...event } } } } fragment event on Event { ip port reason created_at geolocation { country countryISO state stateISO city zipcode latitude longitude } }`,
+            "variables": {}
+        });
+
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://api.autentique.com.br/v2/graphql',
+            headers: { 
+              'Authorization': 'Bearer [REDACTED_CREDENTIAL]', 
+              'Content-Type': 'application/json'
+            },
+            data : data
+        };
+
+        const resp = await axios.request(config);
+
+        const document = resp?.data?.data?.document;
+        if (document?.files?.signed && signed) {
+            return document?.files?.signed;
+        } else if (document?.files?.original) {
+            return document?.files?.original;
+        } else {
+            return null;
+        }        
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
 function multerAutentique() {
     const upload = multer();
     return upload.single('contratoPDF');
@@ -73,5 +107,6 @@ function multerAutentique() {
 module.exports = {
     sendDocument,
     deleteDocument,
+    downloadContract,
     multerAutentique,
 };

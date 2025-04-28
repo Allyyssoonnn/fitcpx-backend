@@ -3,7 +3,7 @@ const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_us
 const { removeStringVazia } = require('../../utils');
 const moment = require("moment-timezone");
 const { atualizarCliente, buscarClienteId, buscarPagamentosAssinatura, cancelarAssinatura } = require('../asaas');
-const { sendDocument, deleteDocument } = require('../autentique');
+const { sendDocument, deleteDocument, downloadContract } = require('../autentique');
 const env = process.env.NODE_ENV || 'development';
 
 async function getAlunos(req, res) {    
@@ -229,6 +229,21 @@ async function sendAlunoContrato(req, res) {
     res.send({ status: true });
 }
 
+async function downloadAlunoContrato(req, res) {
+    const { cod_aluno_contrato, signed } = req.body;
+    const alunoContrato = await tab_aluno_contrato.findOne({ where: { cod_aluno_contrato } });
+
+    if (alunoContrato?.autentique_aluno_contrato) {
+        const resp = await downloadContract(alunoContrato.autentique_aluno_contrato, signed);
+        if (resp) {
+            res.send({ status: true, url: resp });
+        } else res.send({ status: false });
+        return;
+    }
+
+    res.send({ status: true });
+}
+
 async function getAlunoContratos(req, res) {
     const { cod_aluno, cod_empresa } = req.body;
 
@@ -347,6 +362,7 @@ module.exports = {
     setAlunoContrato,
     cancelAlunoContrato,
     sendAlunoContrato,
+    downloadAlunoContrato,
     getAlunoContratos,
     getAlunoContrato,
 }
