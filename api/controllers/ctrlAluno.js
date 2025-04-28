@@ -187,6 +187,7 @@ async function setAlunoContrato(req, res) {
         arquivo_aluno_contrato: contrato,
         expiracao_aluno_contrato: moment().tz('America/Sao_Paulo').add(duracao_plano, 'months').format('YYYY-MM-DD'),
         modalidades_aluno_contrato: JSON.stringify(modalidades),
+        ambiente_aluno_contrato: env,
     });
 
     res.send({ status: true, alunoContrato });
@@ -248,8 +249,9 @@ async function getAlunoContratos(req, res) {
     const { cod_aluno, cod_empresa } = req.body;
 
     var where = {};
-    if (cod_aluno) where = { cod_aluno: cod_aluno };
-    if (cod_empresa) where = { cod_empresa: cod_empresa };
+    if (env !== 'development') where = { ambiente_aluno_contrato: { [Sequelize.Op.ne]: 'development' } };
+    if (cod_aluno) where = { ...where, cod_aluno: cod_aluno };
+    if (cod_empresa) where = { ...where, cod_empresa: cod_empresa };
 
     const alunoContratos = await tab_aluno_contrato.findAll({
         where: where,
