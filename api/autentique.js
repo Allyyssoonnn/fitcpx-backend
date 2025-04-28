@@ -41,6 +41,32 @@ async function sendDocument(contratoPdfObject, emailAluno, nomeDocumento = 'Cont
     }
 }
 
+async function deleteDocument(id) {
+    let data = JSON.stringify({
+        "query": `mutation { deleteDocument(id: ${id}) }`,
+        "variables": {}
+    });
+
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: urlBase,
+        headers: { 
+            'Authorization': `Bearer ${token}`, 
+            'Content-Type': 'application/json'
+        },
+        data : data
+    };
+
+    axios.request(config)
+    .then((response) => {
+        console.log(JSON.stringify(response.data));
+    })
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
 function multerAutentique() {
     const upload = multer();
     return upload.single('contratoPDF');
@@ -48,5 +74,6 @@ function multerAutentique() {
 
 module.exports = {
     sendDocument,
-    multerAutentique
+    deleteDocument,
+    multerAutentique,
 };

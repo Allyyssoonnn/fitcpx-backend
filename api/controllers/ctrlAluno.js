@@ -3,7 +3,7 @@ const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_us
 const { removeStringVazia } = require('../../utils');
 const moment = require("moment-timezone");
 const { atualizarCliente, buscarClienteId, buscarPagamentosAssinatura, cancelarAssinatura } = require('../asaas');
-const { sendDocument } = require('../autentique');
+const { sendDocument, deleteDocument } = require('../autentique');
 const env = process.env.NODE_ENV || 'development';
 
 async function getAlunos(req, res) {    
@@ -64,17 +64,7 @@ async function setAluno(req, res) {
     var alunoAtt;
 
     if (aluno?.cod_aluno) alunoAtt = await tab_aluno.findOne({ where: { cod_aluno: aluno.cod_aluno } });
-
-    if (await tab_aluno.findOne({ where: { email_aluno: aluno.email_aluno } }) && !aluno.cod_aluno) {
-        res.send({ status: false, msg: 'E-mail já cadastrado!' });
-        return;
-    }
-
-    if (await tab_aluno.findOne({ where: { cpf_aluno: aluno.cpf_aluno } }) && !aluno.cod_aluno) {
-        res.send({ status: false, msg: 'CPF já cadastrado!' });
-        return;
-    }
-
+    
     if (alunoAtt) {
         await tab_aluno.update(aluno, { where: { cod_aluno: aluno.cod_aluno } });
 
@@ -207,6 +197,8 @@ async function cancelAlunoContrato(req, res) {
 
     const alunoContrato = await tab_aluno_contrato.findOne({ where: { cod_aluno_contrato } });
     const empresa = await tab_empresa.findOne({ where: { cod_empresa: alunoContrato.cod_empresa } });
+
+    if (alunoContrato?.autentique_aluno_contrato) await deleteDocument(alunoContrato.autentique_aluno_contrato);
     
     apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
 
