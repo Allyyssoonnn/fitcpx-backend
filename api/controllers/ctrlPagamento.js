@@ -94,11 +94,42 @@ async function criarPagamentoAluno(req, res) {
     var tokenCartao;
     var apikey;
 
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    var empresa = await tab_empresa.findOne({ where: { cod_empresa } });
     const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
     const aluno_contrato = await tab_aluno_contrato.findOne({ where: { cod_aluno_contrato } });
 
     apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+
+    if (!empresa?.dev_asaas_apikey && !empresa?.asaas_apikey) {
+        const resp = await criarSubConta(empresa);
+
+        if (resp?.errors?.length) {
+            res.send({ status: false, message: resp.errors[0].description });
+            return;
+        }
+    
+        if (env !== 'development') {
+            if (!empresa.asaas_id) {
+                await tab_empresa.update({
+                    asaas_id: resp.id,
+                    walletid_empresa: resp.walletId,
+                    asaas_apikey: resp.apiKey,
+                }, { where: { cod_empresa } });
+            }
+        } else {
+            if (!empresa.dev_asaas_id) {
+                await tab_empresa.update({
+                    dev_asaas_id: resp.id,
+                    dev_walletid_empresa: resp.walletId,
+                    dev_asaas_apikey: resp.apiKey,
+                }, { where: { cod_empresa } });
+            }
+        }
+    
+        const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+        //Importante pois daqui pra baixo não preenche mais
+        apikey = resp.apiKey;
+    }
 
     if (!apikey) {
         res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
