@@ -268,7 +268,7 @@ async function getAlunoContrato(req, res) {
     const alunoContrato = await tab_aluno_contrato.findOne({
         where: where,
         include: [
-            { model: tab_aluno_contrato_pagamento, as: 'pagamentos', order: [['parcela_aluno_contrato_pagamento', 'DESC']] },
+            { model: tab_aluno_contrato_pagamento, as: 'pagamentos' },
         ]
     });
 
@@ -329,7 +329,6 @@ async function getAlunoContrato(req, res) {
                         forma_aluno_contrato_pagamento: asaasPayment?.billingType,
                         data_aluno_contrato_pagamento: asaasPayment.dateCreated,
                         expiracao_aluno_contrato_pagamento: asaasPayment.dueDate,
-                        parcela_aluno_contrato_pagamento: appPayments.length + i + 1,
                         ambiente_aluno_contrato_pagamento: process.env.NODE_ENV,
                     });
                 }
