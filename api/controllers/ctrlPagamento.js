@@ -171,7 +171,6 @@ async function criarPagamentoAluno(req, res) {
             forma_aluno_contrato_pagamento: formaPagamento,
             data_aluno_contrato_pagamento: cobrancaAdesao.dateCreated,
             expiracao_aluno_contrato_pagamento: cobrancaAdesao.dueDate,
-            parcela_aluno_contrato_pagamento: 1,
             ambiente_aluno_contrato_pagamento: process.env.NODE_ENV,
         });
     }

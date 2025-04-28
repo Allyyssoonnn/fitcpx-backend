@@ -36,11 +36,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        parcela_aluno_contrato_pagamento: {
-            type: DataTypes.INTEGER,
-            allowNull: true,
-            defaultValue: null,
-        },
         status_aluno_contrato_pagamento: {
             type: DataTypes.STRING,
             allowNull: true,
