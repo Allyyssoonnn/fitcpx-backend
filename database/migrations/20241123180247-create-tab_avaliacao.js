@@ -18,6 +18,14 @@ module.exports = {
           key: 'cod_aluno'
         }
       },
+      cod_usuario: {
+        allowNull: false,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_usuario',
+          key: 'cod_usuario'
+        }
+      },
       data_avaliacao: {
         type: Sequelize.DataTypes.DATEONLY,
         allowNull: false,

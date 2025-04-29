@@ -177,6 +177,10 @@ module.exports = (sequelize, DataTypes) => {
           foreignKey: 'cod_aluno', 
           as: 'aluno',
       });
+      tab_avaliacao.belongsTo(models.tab_usuario, { 
+          foreignKey: 'cod_usuario', 
+          as: 'usuario',
+      });
       tab_avaliacao.belongsTo(models.tab_protocolo, { 
         foreignKey: 'cod_protocolo', 
         as: 'protocolo',

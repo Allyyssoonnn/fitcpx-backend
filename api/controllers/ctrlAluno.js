@@ -108,21 +108,19 @@ async function getAvaliacoes(req, res) {
                 as: 'aluno',
                 required: true,
                 where: whereAluno,
+            },
+            {
+                model: tab_usuario,
+                as: 'usuario',
+                required: true,
                 include: [
                     {
-                        model: tab_usuario,
-                        as: 'usuario',
+                        model: tab_empresa,
+                        as: 'empresa',
                         required: true,
-                        include: [
-                            {
-                                model: tab_empresa,
-                                as: 'empresa',
-                                required: true,
-                                where: whereEmpresa,
-                            }
-                        ]
+                        where: whereEmpresa,
                     }
-                ],
+                ]
             },
             {
                 model: tab_avaliacao_imagem,
