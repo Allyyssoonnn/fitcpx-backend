@@ -99,7 +99,7 @@ async function getTreino(req, res) {
     const { cod_treino, deleted } = req.body;
     var where;
     if (cod_treino) where = { cod_treino: cod_treino };
-    where = { ...where, deletedAt: { [Sequelize.Op.ne]: null } };
+    // where = { ...where, deletedAt: { [Sequelize.Op.ne]: null } };
     const treino = await tab_treino.findOne({
         where: where,
         include: [
