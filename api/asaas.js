@@ -80,7 +80,7 @@ async function criarCliente(nome, email, documento, telefone, endereco, numero, 
         headers: {accept: 'application/json', 'content-type': 'application/json', access_token: apikey ?? token },
         body: JSON.stringify({
             name: nome,
-            cpfCnpj: documento.replace(/[^\d]+/g, ''),
+            cpfCnpj: documento?.replace(/[^\d]+/g, ''),
             email: email,
             phone: telefone,
             address: endereco,

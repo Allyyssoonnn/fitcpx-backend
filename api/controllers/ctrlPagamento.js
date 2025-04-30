@@ -140,7 +140,7 @@ async function criarPagamentoAluno(req, res) {
     if (!clienteId) clienteId = await criarCliente(
         aluno.nome_aluno,
         aluno.email_aluno,
-        aluno.doc_aluno,
+        aluno.cpf_aluno,
         aluno.telefone_aluno,
         aluno.endereco_aluno,
         aluno.numero_aluno,
@@ -238,7 +238,7 @@ async function createCardToken(req, res) {
     if (!clienteId) clienteId = await criarCliente(
         aluno.nome_aluno,
         aluno.email_aluno,
-        aluno.doc_aluno,
+        aluno.cpf_aluno,
         aluno.telefone_aluno,
         aluno.endereco_aluno,
         aluno.numero_aluno,
