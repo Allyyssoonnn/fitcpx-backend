@@ -37,6 +37,11 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
+      url_exercicio_empresa: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
       base_exercicio: {
         type: Sequelize.DataTypes.ENUM('S', 'N'),
         defaultValue: 'N'
