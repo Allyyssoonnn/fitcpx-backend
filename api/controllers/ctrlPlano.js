@@ -115,6 +115,13 @@ async function getModalidades(req, res) {
 
 async function deleteModalidade(req, res) {
     const { cod_modalidade } = req.body;
+    const plansWith = await tab_plano_modalidade.findAll({ where: { cod_modalidade } });
+
+    if (plansWith.length > 0) {
+        res.send({ status: false, message: 'Existem planos ativos com essa modalidade!' });
+        return;
+    }
+
     await tab_modalidade.update({ deletedAt: new Date() }, { where: { cod_modalidade: cod_modalidade } });
     res.send({ status: true });
 }
