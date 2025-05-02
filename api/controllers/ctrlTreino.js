@@ -343,7 +343,7 @@ async function setSessoes(req, res) {
     }
 
     for (const removido of removidos) {
-        tab_sessao.update({ deletedAt: new Date() }, { where: { cod_sessao: removido.cod_sessao } });
+        if (removido?.cod_sessao) tab_sessao.update({ deletedAt: new Date() }, { where: { cod_sessao: removido.cod_sessao } });
     }
     
     for (const exercicioRemovido of itensRemovidos) {
