@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const verifyToken = require('../authMiddleware');
 
-const { getAlunos, setAluno, getAluno, setAvaliacao, getAvaliacao, changeAlunoIMG, sendAvaliacaoIMG, deleteAluno, recoveryAluno, getAvaliacoes, deleteAvaliacao, setAlunoContrato, getAlunoContratos, getAlunoContrato, sendAlunoContrato, getCards, deleteCard, cancelAlunoContrato, downloadAlunoContrato } = require('../controllers/ctrlAluno');
+const { getAlunos, setAluno, getAluno, setAvaliacao, getAvaliacao, changeAlunoIMG, sendAvaliacaoIMG, deleteAluno, recoveryAluno, getAvaliacoes, deleteAvaliacao, setAlunoContrato, getAlunoContratos, getAlunoContrato, sendAlunoContrato, getCards, deleteCard, cancelAlunoContrato, downloadAlunoContrato, resendAlunoContrato } = require('../controllers/ctrlAluno');
 const { uploadIMGAvaliacao, uploadIMGAluno } = require('../aws');
 const { multerAutentique } = require('../autentique');
 
@@ -19,6 +19,7 @@ router.post('/deleteAvaliacao', verifyToken, deleteAvaliacao);
 router.post('/setAlunoContrato', verifyToken, setAlunoContrato);
 router.post('/cancelAlunoContrato', verifyToken, cancelAlunoContrato);
 router.post('/sendAlunoContrato', verifyToken, multerAutentique(), sendAlunoContrato);
+router.post('/resendAlunoContrato', verifyToken, multerAutentique(), resendAlunoContrato);
 router.post('/downloadAlunoContrato', verifyToken, downloadAlunoContrato);
 router.post('/getAlunoContratos', verifyToken, getAlunoContratos);
 router.post('/getAlunoContrato', verifyToken, getAlunoContrato);

@@ -211,6 +211,28 @@ async function cancelAlunoContrato(req, res) {
     res.send({ status: true });
 }
 
+async function resendAlunoContrato(req, res) {
+    const { cod_aluno_contrato } = req.body;
+    const contratoPDF = req.file;
+
+    const alunoContrato = await tab_aluno_contrato.findOne({ where: { cod_aluno_contrato } });
+    const aluno = await tab_aluno.findOne({ where: { cod_aluno: alunoContrato.cod_aluno } });
+
+    if (alunoContrato.autentique_aluno_contrato) {
+        await deleteDocument(alunoContrato.autentique_aluno_contrato);
+    }
+
+
+    if (alunoContrato.arquivo_aluno_contrato) {
+        const respAutentique = await sendDocument(contratoPDF, aluno.email_aluno);
+        if (respAutentique) tab_aluno_contrato.update({ autentique_aluno_contrato: respAutentique, statusautentique_aluno_contrato: 'Contrato enviado.' }, { where: { cod_aluno_contrato } });
+        res.send({ status: true });
+        return;
+    }
+
+    res.send({ status: true });
+}
+
 async function sendAlunoContrato(req, res) {
     const { cod_aluno_contrato } = req.body;
     const contratoPDF = req.file;
@@ -247,7 +269,7 @@ async function getAlunoContratos(req, res) {
     const { cod_aluno, cod_empresa } = req.body;
 
     var where = {};
-    if (env !== 'development') where = { ambiente_aluno_contrato: { [Sequelize.Op.ne]: 'development' } };
+    where = { ambiente_aluno_contrato: { [Sequelize.Op.ne]: env === 'development' ? 'development' : 'production' } };
     if (cod_aluno) where = { ...where, cod_aluno: cod_aluno };
     if (cod_empresa) where = { ...where, cod_empresa: cod_empresa };
 
