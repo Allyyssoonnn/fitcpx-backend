@@ -41,6 +41,16 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
+      cpf_usuario: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      data_nascimento_usuario: {
+        allowNull: true,
+        type: Sequelize.DataTypes.DATEONLY,
+        defaultValue: null
+      },
       cep_usuario: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
@@ -82,6 +92,26 @@ module.exports = {
         defaultValue: null
       },
       refreshToken: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
+      stripe_id: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
+      dev_stripe_id: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
+      front_doc_id: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
+      back_doc_id: {
         type: Sequelize.DataTypes.STRING,
         allowNull: true,
         defaultValue: null

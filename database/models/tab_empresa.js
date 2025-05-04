@@ -24,6 +24,12 @@ module.exports = (sequelize, DataTypes) => {
         dev_walletid_empresa: DataTypes.STRING,
         dev_asaas_id: DataTypes.STRING,
         dev_asaas_apikey: DataTypes.STRING,
+        dev_stripe_id: DataTypes.STRING,
+        stripe_id: DataTypes.STRING,
+        titular_banco_conta: DataTypes.STRING,
+        codigo_banco_conta: DataTypes.STRING,
+        agencia_banco_conta: DataTypes.STRING,
+        numero_banco_conta: DataTypes.STRING,
         presets_treino_inteligente: DataTypes.TEXT,
     }, {
         freezeTableName: true,

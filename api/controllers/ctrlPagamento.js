@@ -1,6 +1,7 @@
 const moment = require("moment-timezone");
-const { tab_empresa, tab_aluno, tab_usuario_pagamento, tab_aluno_contrato_pagamento, tab_empresa_cartao, tab_aluno_cartao, tab_aluno_contrato } = require('../../database/models');
+const { tab_usuario, tab_empresa, tab_aluno, tab_usuario_pagamento, tab_aluno_contrato_pagamento, tab_empresa_cartao, tab_aluno_cartao, tab_aluno_contrato } = require('../../database/models');
 const { buscarClienteIdUsuario, criarClienteUsuario, criarCobranca, cancelarCobranca, getPix, getTokenCard, criarCobrancaCartao, criarAssinatura, criarSubConta, buscarClienteId, criarCobrancaPIX, criarCliente, buscarSaldoSubConta, buscarExtratoSubConta, realizarSaque } = require('../asaas');
+const { createAccount, getStatusAccount, sendDocuments } = require("../stripe");
 const env = process.env.NODE_ENV || 'development';
 
 async function cashWithdrawal(req, res) {
@@ -56,37 +57,89 @@ async function getBalance(req, res) {
 }
 
 async function gerarIdCarteira(req, res) {
-    const { cod_empresa } = req.body;
+    const { cod_empresa, cod_usuario } = req.body;
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    const resp = await criarSubConta(empresa);
+    const usuario = await tab_usuario.findOne({ where: { cod_usuario } });
+    const resp = await createAccount(empresa, usuario, req.ip);
 
-    if (resp?.errors?.length) {
-        res.send({ status: false, message: resp.errors[0].description });
-        return;
-    }
+    const { account, person } = resp;
 
     if (env !== 'development') {
-        if (!empresa.asaas_id) {
+        if (account.id) {
             await tab_empresa.update({
-                asaas_id: resp.id,
-                walletid_empresa: resp.walletId,
-                asaas_apikey: resp.apiKey,
+                stripe_id: account.id,
             }, { where: { cod_empresa } });
         }
+        if (person.id) {
+            await tab_usuario.update({
+                stripe_id: person.id,
+            }, { where: { cod_usuario } });
+        }
     } else {
-        if (!empresa.dev_asaas_id) {
+        if (account.id) {
             await tab_empresa.update({
-                dev_asaas_id: resp.id,
-                dev_walletid_empresa: resp.walletId,
-                dev_asaas_apikey: resp.apiKey,
+                dev_stripe_id: account.id,
             }, { where: { cod_empresa } });
+        }
+        if (person.id) {
+            await tab_usuario.update({
+                dev_stripe_id: person.id,
+            }, { where: { cod_usuario } });
         }
     }
 
     const empresaAtt = await tab_empresa.findOne({ where: { cod_empresa } });
 
     res.send({ status: true, empresa: empresaAtt });
+}
+
+async function sendDocument(req, res) {
+    const { frontDoc, backDoc, cod_empresa, cod_usuario, frontDocType, backDocType } = req.body;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    const usuario = await tab_usuario.findOne({ where: { cod_usuario } });
+
+    var id = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
+    var personId = env === 'development' ? usuario.dev_stripe_id : usuario.stripe_id;
+
+    const frontBuffer = Buffer.from(frontDoc.replace(/^data:.*;base64,/, ''), 'base64');
+    const backBuffer = Buffer.from(backDoc.replace(/^data:.*;base64,/, ''), 'base64');
+
+    const resp = await sendDocuments(id, personId, frontBuffer, backBuffer, frontDocType, backDocType);
+    console.log(resp);
+
+    if (resp.frontDocumentId) {
+        await tab_usuario.update({
+            front_doc_id: resp.frontDocumentId,
+        }, { where: { cod_usuario } });
+    }
+
+    if (resp.frontDocumentId) {
+        await tab_usuario.update({
+            back_doc_id: resp.frontDocumentId,
+        }, { where: { cod_usuario } });
+    }
+
+    res.send({ status: true });
+}
+
+async function getStatusConta(req, res) {
+    const { cod_empresa } = req.body;
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    var resp;
+
+    if (env === 'development') {
+        if (empresa.dev_stripe_id) {
+            resp = await getStatusAccount(empresa.dev_stripe_id);
+        }
+    } else {
+        if (empresa.stripe_id) {
+            resp = await getStatusAccount(empresa.stripe_id);
+        }
+    }
+
+    res.send({ status: true, clientSecret: resp });
 }
 
 async function criarPagamentoAluno(req, res) {
@@ -329,6 +382,8 @@ module.exports = {
     getBankExtract,
     getBalance,
     gerarIdCarteira,
+    sendDocument,
+    getStatusConta,
     criarPagamentoAluno,
     createCardToken,
     getPIXPagamentoAluno,

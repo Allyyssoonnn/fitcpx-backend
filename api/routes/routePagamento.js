@@ -1,10 +1,16 @@
 const router = require('express').Router();
 const verifyToken = require('../authMiddleware');
-const { processPagamento, getPIXPagamento, getPagamentos, deletePagamento, getCartoes, deleteCartao, gerarIdCarteira, criarPagamentoAluno, getPIXPagamentoAluno, getBalance, getBankExtract, createCardToken } = require('../controllers/ctrlPagamento');
+const { processPagamento, getPIXPagamento, getPagamentos, deletePagamento, getCartoes, deleteCartao, gerarIdCarteira, criarPagamentoAluno, getPIXPagamentoAluno, getBalance, getBankExtract, createCardToken, getStatusConta, sendDocument } = require('../controllers/ctrlPagamento');
 
+//STRIPE
+router.post('/gerarIdCarteira', verifyToken, gerarIdCarteira);
+router.post('/getStatusAccount', verifyToken, getStatusConta);
+router.post('/sendDocuments', verifyToken, sendDocument);
+
+//ASAAS ANTIGO
 router.post('/getBankExtract', verifyToken, getBankExtract);
 router.post('/getBalance', verifyToken, getBalance);
-router.post('/gerarIdCarteira', verifyToken, gerarIdCarteira);
+
 router.post('/criarPagamentoAluno', verifyToken, criarPagamentoAluno);
 router.post('/createCardToken', verifyToken, createCardToken);
 router.post('/getPIXPagamentoAluno', verifyToken, getPIXPagamentoAluno);
