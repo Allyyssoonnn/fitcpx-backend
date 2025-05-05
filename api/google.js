@@ -4,6 +4,9 @@ const { tab_google_token } = require('../database/models');
 const env = process.env.NODE_ENV || 'development';
 const urlCallback = env == 'development' ? 'http://localhost:5173/' : 'https://app.fitcpx.com/';
 
+// 514929580528-7g93lf20q5okh6slhrcr3pnpau61aq0u.apps.googleusercontent.com
+// [REDACTED_CREDENTIAL]
+
 function createOauthClient(client, rotaCallback) {
     const urlRedirect = `${urlCallback}${rotaCallback}`;
     const oauth2Client = new google.auth.OAuth2(

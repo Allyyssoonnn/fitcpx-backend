@@ -1,1 +1,10 @@
 taskkill /F /IM node.exe
+
+docker stats
+
+//Verifica status dos sistemas
+top -p $(pgrep -d',' -f 'node|mysqld|redis-server')
+htop -p $(pgrep -d',' -f 'node|mysqld|redis-server')
+
+//Remove todos os docker parados
+docker container prune -f
