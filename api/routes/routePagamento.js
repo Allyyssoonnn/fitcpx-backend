@@ -1,8 +1,9 @@
 const router = require('express').Router();
 const verifyToken = require('../authMiddleware');
-const { processPagamento, getPIXPagamento, getPagamentos, deletePagamento, getCartoes, deleteCartao, gerarIdCarteira, criarPagamentoAluno, getPIXPagamentoAluno, getBalance, getBankExtract, createCardToken, getStatusConta, sendDocument } = require('../controllers/ctrlPagamento');
+const { processPagamento, getPIXPagamento, getPagamentos, deletePagamento, getCartoes, deleteCartao, gerarIdCarteira, criarPagamentoAluno, getPIXPagamentoAluno, getBalance, getBankExtract, createCardToken, getStatusConta, sendDocument, deletarConta } = require('../controllers/ctrlPagamento');
 
 //STRIPE
+router.post('/deleteAccount', verifyToken, deletarConta);
 router.post('/gerarIdCarteira', verifyToken, gerarIdCarteira);
 router.post('/getStatusAccount', verifyToken, getStatusConta);
 router.post('/sendDocuments', verifyToken, sendDocument);

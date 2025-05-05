@@ -70,13 +70,13 @@ async function setAluno(req, res) {
 
         //Verifica se cliente está cadastrado no asaas e atualiza informações
         const empresa = await tab_empresa.findOne({ where: { cod_empresa: aluno.cod_empresa } });
-        const apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
-        if (apikey) {
-            const clienteId = await buscarClienteId(aluno.cod_aluno, apikey);
-            if (clienteId) {
-                await atualizarCliente(clienteId, aluno.nome_aluno, aluno.cpf_aluno, aluno.email_aluno, aluno.telefone_aluno, apikey);
-            }
-        }
+        // const apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+        // if (apikey) {
+        //     const clienteId = await buscarClienteId(aluno.cod_aluno, apikey);
+        //     if (clienteId) {
+        //         await atualizarCliente(clienteId, aluno.nome_aluno, aluno.cpf_aluno, aluno.email_aluno, aluno.telefone_aluno, apikey);
+        //     }
+        // }
     } else {
         const novoAluno = await tab_aluno.create(aluno);
         alunoAtt = novoAluno;

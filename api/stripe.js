@@ -24,12 +24,13 @@ const testBank = {
 // 237-0123 (Bradesco, agência 0123)
 // 104-2222 (Caixa Econômica Federal, agência 2222)
 
+async function deleteAccount(id) {
+    const respt = await stripe.account.del(empresa.dev_stripe_id);
+    return respt;
+}
+
 async function createAccount(empresa, usuario, ip) {
     const stripe = require('stripe')(token);
-
-    if (empresa.dev_stripe_id) {
-        await stripe.account.del(empresa.dev_stripe_id);
-    }
 
     const account = await stripe.account.create({
         type: 'custom',
@@ -128,7 +129,7 @@ async function getStatusAccount(id) {
     // const isVerified = accountDetails.charges_enabled && accountDetails.payouts_enabled;
     // const verificationStatus = accountDetails.individual.verification.status;
 
-    return;
+    return accountDetails.requirements;
 }
 
 async function sendDocuments(id, personId, frontDoc, backDoc, frontDocType, backDocType) {
@@ -168,8 +169,83 @@ async function sendDocuments(id, personId, frontDoc, backDoc, frontDocType, back
     return { frontDocumentId: frontDocument.id, backDocumentId: backDocument.id };
 }
 
+async function createConsumer(nome, email, documento, telefone, endereco, numero, cidade, estado, cep, cod, nome_empresa = null, accountId) {
+    const stripe = require('stripe')(token);
+
+    const customer = await stripe.customers.create({
+        name: nome,
+        email: email,
+        phone: formatarCelular(telefone),
+        address: {
+            line1: endereco,
+            line2: numero,
+            city: cidade,
+            state: estado,
+            postal_code: cep,
+            country: 'BR',
+        },
+    }, {
+        stripeAccount: accountId, // ID da conta conectada
+    });
+
+    return customer.id;
+}
+
+async function createProduct(accountId, name, description) {
+    const stripe = require('stripe')(token);
+
+    const product = await stripe.products.create({
+        name: name,
+        description: description,
+    }, {
+        stripeAccount: accountId,
+    });
+
+    return product.id;
+}
+
+async function createPrice(accountId, productId, amount) {
+    const stripe = require('stripe')(token);
+
+    const price = await stripe.prices.create({
+        unit_amount: amount,
+        currency: 'brl',
+        recurring: { interval: 'month' },
+        product: productId,
+    }, {
+        stripeAccount: accountId,
+    });
+
+    return price.id;
+}
+
+async function createSubscription(accountId, paymentMethodId, duration, name) {
+    const stripe = require('stripe')(token);
+
+    const cancelAfter = Math.floor((Date.now() + duration * 30 * 24 * 60 * 60 * 1000) / 1000);
+
+    const subscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [ { price: priceId, quantity: 1, } ],
+        description: name,
+        default_payment_method: paymentMethodId,
+        collection_method: 'charge_automatically',
+        // 🔁 Define cancelamento automático após X ciclos (ex: 3 meses)
+        cancel_at: cancelAfter,   
+    }, {
+        stripeAccount: accountId,
+    });
+
+    return subscription.id;
+}
+
 module.exports = {
+    deleteAccount,
     createAccount,
     getStatusAccount,
     sendDocuments,
+    createConsumer,
+    createProduct,
+    createPrice,
+    createSubscription,
 }

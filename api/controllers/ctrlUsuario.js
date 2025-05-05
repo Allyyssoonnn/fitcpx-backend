@@ -229,10 +229,10 @@ async function setEmpresa(req, res) {
 
         //Verifica se empresa está cadastrado no asaas e atualiza informações
         const empresaBD = await tab_empresa.findOne({ where: { cod_empresa: empresa.cod_empresa } });
-        const apikey = env === 'development' ? empresaBD.dev_asaas_apikey : empresaBD.asaas_apikey;
-        if (apikey) {
-            await atualizarSubConta(empresaAtt, apikey);
-        }
+        // const apikey = env === 'development' ? empresaBD.dev_asaas_apikey : empresaBD.asaas_apikey;
+        // if (apikey) {
+        //     await atualizarSubConta(empresaAtt, apikey);
+        // }
     } else {
         const novaEmpresa = await tab_empresa.create(empresa);
         empresaAtt = novaEmpresa;
