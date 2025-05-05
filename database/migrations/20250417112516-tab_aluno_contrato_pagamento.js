@@ -73,6 +73,11 @@ module.exports = {
         type: Sequelize.DataTypes.TEXT,
         defaultValue: null,
       },
+      stripe_invoice_id: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,

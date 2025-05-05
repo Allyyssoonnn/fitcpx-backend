@@ -169,7 +169,7 @@ async function sendDocuments(id, personId, frontDoc, backDoc, frontDocType, back
     return { frontDocumentId: frontDocument.id, backDocumentId: backDocument.id };
 }
 
-async function createConsumer(nome, email, documento, telefone, endereco, numero, cidade, estado, cep, cod, nome_empresa = null, accountId) {
+async function createCustomer(nome, email, documento, telefone, endereco, numero, cidade, estado, cep, cod, nome_empresa = null, accountId) {
     const stripe = require('stripe')(token);
 
     const customer = await stripe.customers.create({
@@ -191,52 +191,107 @@ async function createConsumer(nome, email, documento, telefone, endereco, numero
     return customer.id;
 }
 
-async function createProduct(accountId, name, description) {
+async function createInvoiceItem(accountId, customerId, name, price, invoiceId) {
     const stripe = require('stripe')(token);
 
-    const product = await stripe.products.create({
-        name: name,
-        description: description,
-    }, {
-        stripeAccount: accountId,
-    });
-
-    return product.id;
-}
-
-async function createPrice(accountId, productId, amount) {
-    const stripe = require('stripe')(token);
-
-    const price = await stripe.prices.create({
-        unit_amount: amount,
-        currency: 'brl',
-        recurring: { interval: 'month' },
-        product: productId,
-    }, {
-        stripeAccount: accountId,
-    });
-
-    return price.id;
-}
-
-async function createSubscription(accountId, paymentMethodId, duration, name) {
-    const stripe = require('stripe')(token);
-
-    const cancelAfter = Math.floor((Date.now() + duration * 30 * 24 * 60 * 60 * 1000) / 1000);
-
-    const subscription = await stripe.subscriptions.create({
+    const invoiceItem = await stripe.invoiceItems.create({
         customer: customerId,
-        items: [ { price: priceId, quantity: 1, } ],
+        invoice: invoiceId,
+        amount: Math.round(price * 100), // em centavos
+        currency: 'brl',
         description: name,
-        default_payment_method: paymentMethodId,
-        collection_method: 'charge_automatically',
-        // 🔁 Define cancelamento automático após X ciclos (ex: 3 meses)
-        cancel_at: cancelAfter,   
     }, {
         stripeAccount: accountId,
     });
 
-    return subscription.id;
+    return invoiceItem.id;
+}
+
+async function createInvoice(accountId, paymentMethod, paymentMethodId, dueDate) {
+    const stripe = require('stripe')(token);
+    var payment = null;
+    var collection_method = paymentMethodId ? 'charge_automatically' : 'send_invoice';
+    if (paymentMethod === 'PIX') payment = 'pix';
+    if (paymentMethod === 'CREDIT_CARD') payment = 'card';
+    if (paymentMethod === 'BOLETO') payment = 'boleto';
+
+    const invoice = await stripe.invoices.create({
+        customer: customerId,
+        collection_method: collection_method,
+        payment_settings: {
+            payment_method_types: [payment],
+        },
+        //Não finaliza a invoice antes do update
+        auto_advance: false,
+    }, {
+        stripeAccount: accountId,
+    });
+
+    await stripe.invoices.update(invoice.id, {
+        due_date: Math.floor(new Date(dueDate).getTime() / 1000),
+    }, {
+        stripeAccount: accountId,
+    });
+
+    // await stripe.invoices.finalizeInvoice(invoice.id, {
+    //     stripeAccount: accountId,
+    // });
+
+    return invoice;
+}
+
+async function finalizeInvoice(accountId, invoiceId) {
+    const stripe = require('stripe')(token);
+
+    await stripe.invoices.finalizeInvoice(invoiceId, {
+        stripeAccount: accountId,
+    });
+
+    return;
+}
+
+async function setDefaultPaymentMethod(accountId, customerId, paymentMethodId) {
+    const stripe = require('stripe')(token);
+    
+    const updated = await stripe.customers.update(customerId, {
+        invoice_settings: {
+          default_payment_method: paymentMethodId,
+        },
+    }, {
+        stripeAccount: accountId,
+    });
+
+    return updated;
+}
+
+//Pegar a intenção de cadastro do cartão para SubConta
+async function getSetupIntent(accountId, customerId) {
+    const stripe = require('stripe')(token);
+
+    const setupIntent = await stripe.setupIntents.create({
+        customer: customerId,
+        payment_method_types: ['card'],
+        usage: 'off_session',
+        // on_behalf_of: accountId,
+    }, {
+        stripeAccount: accountId,
+    });
+
+    return setupIntent.client_secret;
+}
+
+async function getPaymentsMethod(accountId, customerId) {
+    const stripe = require('stripe')(token);
+
+    const paymentMethods = await stripe.paymentMethods.list({
+        customer: customerId,
+        type: 'card',
+    }, {
+        stripeAccount: accountId,
+    });
+
+    console.log(paymentMethods);
+    return paymentMethods.data;
 }
 
 module.exports = {
@@ -244,8 +299,11 @@ module.exports = {
     createAccount,
     getStatusAccount,
     sendDocuments,
-    createConsumer,
-    createProduct,
-    createPrice,
-    createSubscription,
+    createCustomer,
+    createInvoiceItem,
+    setDefaultPaymentMethod,
+    createInvoice,
+    finalizeInvoice,
+    getSetupIntent,
+    getPaymentsMethod,
 }

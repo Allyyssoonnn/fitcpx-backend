@@ -1,60 +1,8 @@
 const moment = require("moment-timezone");
 const { tab_usuario, tab_empresa, tab_aluno, tab_usuario_pagamento, tab_aluno_contrato_pagamento, tab_empresa_cartao, tab_aluno_cartao, tab_aluno_contrato } = require('../../database/models');
 const { buscarClienteIdUsuario, criarClienteUsuario, criarCobranca, cancelarCobranca, getPix, getTokenCard, criarCobrancaCartao, criarAssinatura, criarSubConta, buscarClienteId, criarCobrancaPIX, criarCliente, buscarSaldoSubConta, buscarExtratoSubConta, realizarSaque } = require('../asaas');
-const { createAccount, getStatusAccount, sendDocuments, deleteAccount } = require("../stripe");
+const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createInvoice, createInvoiceItem, createCustomer, getSetupIntent, getPaymentsMethod, finalizeInvoice } = require("../stripe");
 const env = process.env.NODE_ENV || 'development';
-
-async function cashWithdrawal(req, res) {
-    const { cod_empresa } = req.body;
-    var apikey;
-
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
-
-    if (!apikey) {
-        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
-        return;
-    }
-
-    const balance = await buscarSaldoSubConta(apikey);
-    const bankExtract = await realizarSaque(apikey, null, null, balance);
-
-    res.send({ status: true });
-}
-
-async function getBankExtract(req, res) {
-    const { cod_empresa, month, year } = req.body;
-    var apikey;
-
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
-
-    if (!apikey) {
-        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
-        return;
-    }
-
-    const bankExtract = await buscarExtratoSubConta(apikey, month, year);
-
-    res.send({ status: true, bankExtract });
-}
-
-async function getBalance(req, res) {
-    const { cod_empresa } = req.body;
-    var apikey;
-
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
-
-    if (!apikey) {
-        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
-        return;
-    }
-
-    const balance = await buscarSaldoSubConta(apikey);
-
-    res.send({ status: true, balance });
-}
 
 async function deletarConta(req, res) {
     const { cod_empresa } = req.body;
@@ -152,8 +100,7 @@ async function getStatusConta(req, res) {
 }
 
 async function criarPagamentoAluno(req, res) {
-    const { cod_aluno, cod_empresa, cod_usuario, cod_aluno_cartao, dadosCartao, cod_aluno_contrato, formaPagamento, mensal, pagamentoInicial = new Date(), paymentId } = req.body;
-    var tokenCartao;
+    const { cod_aluno, cod_empresa, cod_usuario, cod_aluno_contrato, formaPagamento, mensal, paymentId } = req.body;
     var accountId;
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
@@ -161,14 +108,9 @@ async function criarPagamentoAluno(req, res) {
     const aluno_contrato = await tab_aluno_contrato.findOne({ where: { cod_aluno_contrato } });
 
     accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
-    consumerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
+    customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
 
-    if (!apikey) {
-        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
-        return;
-    }
-
-    if (!consumerId) consumerId = await criarCliente(
+    if (!customerId) customerId = await createCustomer(
         aluno.nome_aluno,
         aluno.email_aluno,
         aluno.cpf_aluno,
@@ -182,80 +124,136 @@ async function criarPagamentoAluno(req, res) {
         null,
         accountId
     );
+    if (customerId) {
+        var field = env === 'development' ? { dev_stripe_id: customerId } : { stripe_id: customerId };
+        await tab_aluno.update(field, { where: { cod_aluno } });
+    }
 
-    // if (cod_aluno_cartao) {
-    //     const cartaoAssas = await tab_aluno_cartao.findOne({ where: { cod_aluno_cartao } });
-    //     if (cartaoAssas) tokenCartao = cartaoAssas.token_empresa_cartao;
-    // }
+    if (paymentId) {
+        await setDefaultPaymentMethod(accountId, customerId, paymentId);
+        var field = env === 'development' ? { dev_payment_stripe_id: paymentId } : { payment_stripe_id: paymentId };
+        await tab_aluno.update(field, { where: { cod_aluno } });
+    }
 
-    // if (dadosCartao) {
-    //     const cartaoAssas = await getTokenCard(clienteId, dadosCartao, '', apikey);
-    //     if (cartaoAssas) {
-    //         tokenCartao = cartaoAssas.creditCardToken;
-    //         await tab_aluno_cartao.create({
-    //             cod_aluno,
-    //             cod_usuario,
-    //             final_aluno_cartao: cartaoAssas.creditCardNumber,
-    //             bandeira_aluno_cartao: cartaoAssas.creditCardBrand,
-    //             token_aluno_cartao: cartaoAssas.creditCardToken,
-    //             json_aluno_cartao: JSON.stringify(cartaoAssas),
-    //         });
-    //     }
-    // }
-
+    const dataInicio = new Date(aluno_contrato?.iniciopagamento_aluno_contrato);
     const resumoParcelas = JSON.parse(aluno_contrato?.parcela_aluno_contrato);
-
+    var modalidades = JSON.parse(aluno_contrato?.modalidades_aluno_contrato);
     const valor = mensal ? resumoParcelas[0] : aluno_contrato.total_aluno_contrato;
 
-    // GERA O PAGAMENTO DA ADESÃO COM A DATA INICIAL
-    // if (aluno_contrato?.adesao_aluno_contrato) {
-    //     var cobrancaAdesao;
-        
-    //     if (formaPagamento === 'PIX') {
-    //         cobrancaAdesao = await criarCobrancaPIX(clienteId, null, valor, apikey);
-    //     } else if (formaPagamento === 'CREDIT_CARD'){
-    //         cobrancaAdesao = await criarCobrancaCartao(clienteId, null, aluno_contrato.adesao_aluno_contrato, pagamentoInicial, tokenCartao, '', apikey);
-    //     } else if (formaPagamento === 'AFTER'){
-    //         //Envia cobrança sem dados do cartão para gerar billingType = "UNDEFINED"
-    //         cobrancaAdesao = await criarCobrancaCartao(clienteId, null, aluno_contrato.adesao_aluno_contrato, pagamentoInicial, tokenCartao, '', apikey);
-    //     }
 
-    //     if (cobrancaAdesao?.errors?.length >= 1) {
-    //         const error = cobranca?.errors[0];
-    //         res.send({ status: false, message: error.description });
-    //         return;
-    //     }
+    for (let i = 0; i < resumoParcelas.length; i++) {
+        const parcela = resumoParcelas[i];
+        const dueDate = moment(dataInicio).add('month', i + 1);
 
-    //     await tab_aluno_contrato_pagamento.create({
-    //         cod_aluno_contrato,
-    //         id_aluno_contrato_pagamento: cobrancaAdesao.id,
-    //         json_aluno_contrato_pagamento: JSON.stringify(cobrancaAdesao),
-    //         status_aluno_contrato_pagamento: cobrancaAdesao.status,
-    //         observacao_aluno_contrato_pagamento: 'Adesão',
-    //         valor_aluno_contrato_pagamento: cobrancaAdesao.value,
-    //         liquido_aluno_contrato_pagamento: cobrancaAdesao?.netValue || cobrancaAdesao.value,
-    //         forma_aluno_contrato_pagamento: formaPagamento,
-    //         data_aluno_contrato_pagamento: cobrancaAdesao.dateCreated,
-    //         expiracao_aluno_contrato_pagamento: cobrancaAdesao.dueDate,
-    //         ambiente_aluno_contrato_pagamento: process.env.NODE_ENV,
-    //     });
-    // }
+        const invoice = await createInvoice(accountId, formaPagamento, paymentId, dueDate);
 
-    const assinatura = await criarAssinatura(clienteId, tokenCartao, aluno_contrato?.cod_aluno_contrato,
-        resumoParcelas[0], pagamentoInicial, resumoParcelas.length, aluno_contrato.nome_aluno_contrato, apikey
-    );
+        //Gerar invoiceItem das modalides
+        var nameInvoiceItem = '';
+        for (const modalidade of modalidades) {
+            if (nameInvoiceItem == '') {
+                nameInvoiceItem = nameInvoiceItem + modalidade.nome_modalidade;
+            } else {
+                nameInvoiceItem = nameInvoiceItem + ' / ' + modalidade.nome_modalidade;
+            }
+        }
+        const invoiceItem = await createInvoiceItem(accountId, customerId, nameInvoiceItem, parcela, invoice.id);
 
-    if (assinatura?.errors?.length >= 1) {
-        const error = cobranca?.errors[0];
-        res.send({ status: false, message: error.description });
+        await finalizeInvoice(accountId, invoice.id);
+
+        await tab_aluno_contrato_pagamento.create({
+            cod_aluno_contrato,
+            id_aluno_contrato_pagamento: invoice.id,
+            json_aluno_contrato_pagamento: JSON.stringify(invoice),
+            status_aluno_contrato_pagamento: invoice.status,
+            valor_aluno_contrato_pagamento: parcela,
+            liquido_aluno_contrato_pagamento: parcela,
+            forma_aluno_contrato_pagamento: formaPagamento,
+            data_aluno_contrato_pagamento: new Date(),
+            expiracao_aluno_contrato_pagamento: dueDate,
+            ambiente_aluno_contrato_pagamento: process.env.NODE_ENV,
+            stripe_invoice_id: invoice.id,
+        });
+    }
+    
+    res.send({ status: true });
+}
+
+async function getIntentCard(req, res) {
+    const { cod_empresa, cod_aluno } = req.body;
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
+    accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
+    customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
+
+    const clientSecret = await getSetupIntent(accountId, customerId);
+
+    res.send({ status: true, clientSecret, accountId });
+}
+
+async function getCards(req, res) {
+    const { cod_empresa, cod_aluno } = req.body;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
+    accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
+    customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
+    const paymentsMethod = await getPaymentsMethod(accountId, customerId);
+
+    res.send({ status: true, paymentsMethod });
+}
+
+// =======================================================
+
+async function cashWithdrawal(req, res) {
+    const { cod_empresa } = req.body;
+    var apikey;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+
+    if (!apikey) {
+        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
         return;
     }
 
-    if (assinatura?.id) {
-        await tab_aluno_contrato.update({ id_aluno_contrato: assinatura.id }, { where: { cod_aluno_contrato: aluno_contrato.cod_aluno_contrato } });
-    }
+    const balance = await buscarSaldoSubConta(apikey);
+    const bankExtract = await realizarSaque(apikey, null, null, balance);
 
     res.send({ status: true });
+}
+
+async function getBankExtract(req, res) {
+    const { cod_empresa, month, year } = req.body;
+    var apikey;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+
+    if (!apikey) {
+        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
+        return;
+    }
+
+    const bankExtract = await buscarExtratoSubConta(apikey, month, year);
+
+    res.send({ status: true, bankExtract });
+}
+
+async function getBalance(req, res) {
+    const { cod_empresa } = req.body;
+    var apikey;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+
+    if (!apikey) {
+        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
+        return;
+    }
+
+    const balance = await buscarSaldoSubConta(apikey);
+
+    res.send({ status: true, balance });
 }
 
 async function createCardToken(req, res) {
@@ -372,4 +370,6 @@ module.exports = {
     deletePagamento,
     getCartoes,
     deleteCartao,
+    getIntentCard,
+    getCards,
 }
