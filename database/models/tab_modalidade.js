@@ -50,10 +50,10 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'cod_empresa',
             as: 'empresa',
         });
-
-        tab_modalidade.hasMany(models.tab_plano_modalidade, {
+        
+        tab_modalidade.hasMany(models.tab_modalidade_variacao, {
             foreignKey: 'cod_modalidade',
-            as: 'planos',
+            as: 'variacoes',
         });
     };
 

@@ -1,5 +1,5 @@
 const { Sequelize } = require('sequelize');
-const { tab_plano, tab_modalidade, tab_plano_modalidade, tab_contrato } = require('../../database/models');
+const { tab_plano, tab_modalidade, tab_plano_modalidade, tab_contrato, tab_modalidade_variacao, tab_modalidade_variacao_valor } = require('../../database/models');
 
 async function setPlano(req, res) {    
     const { plano, modalidades } = req.body;
@@ -93,6 +93,8 @@ async function setModalidade(req, res) {
     const { modalidade } = req.body;
     var modalidadeAtt;
 
+    const { variacoes = [] } = modalidade;
+
     if (modalidade.cod_modalidade) modalidadeAtt = await tab_modalidade.findOne({ where: { cod_modalidade: modalidade.cod_modalidade } });
 
     if (modalidadeAtt) {
@@ -102,6 +104,28 @@ async function setModalidade(req, res) {
         modalidadeAtt = novoGrupo;
     }
 
+    for (const variacao of variacoes) {
+        var variacaoAtt;
+        if (variacao.cod_modalidade_variacao) variacaoAtt = await tab_modalidade_variacao.findOne({ where: { cod_modalidade_variacao: variacao.cod_modalidade_variacao } });
+
+        if (variacaoAtt) {
+            await tab_modalidade_variacao.update(variacao, { where: { cod_modalidade_variacao: variacao.cod_modalidade_variacao } });
+        } else {
+            variacaoAtt = await tab_modalidade_variacao.create({ ...variacao, cod_modalidade: modalidadeAtt.cod_modalidade });
+        }
+
+        for (const valor of (variacao?.valores ?? [])) {
+            var valorAtt;
+            if (valor.cod_modalidade_variacao_valor) valorAtt = await tab_modalidade_variacao_valor.findOne({ where: { cod_modalidade_variacao_valor: valor.cod_modalidade_variacao_valor } });
+
+            if (valorAtt) {
+                await tab_modalidade_variacao_valor.update(valor, { where: { cod_modalidade_variacao_valor: variacao.cod_modalidade_variacao_valor } });
+            } else {
+                valorAtt = await tab_modalidade_variacao_valor.create({ ...valor, cod_modalidade_variacao: variacaoAtt.cod_modalidade_variacao });
+            }
+        }
+    }
+
     res.send({ status: true });
 }
 
@@ -109,7 +133,21 @@ async function getModalidades(req, res) {
     const { cod_empresa, deleted } = req.body;
     var where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
     if (cod_empresa) where = { ...where, [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ] };
-    const modalidades = await tab_modalidade.findAll({ where: where, paranoid: !deleted });
+    const modalidades = await tab_modalidade.findAll({
+        include: [
+            {
+                model: tab_modalidade_variacao,
+                as: 'variacoes',
+                include: [
+                    {
+                        model: tab_modalidade_variacao_valor,
+                        as: 'valores',
+                    }
+                ]
+            }
+        ],
+        where: where, paranoid: !deleted
+    });
     res.send({ status: true, modalidades });
 }
 
