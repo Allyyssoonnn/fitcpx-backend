@@ -45,7 +45,7 @@ async function gerarIdCarteira(req, res) {
         }
     }
 
-    const empresaAtt = await tab_empresa.findOne({ where: { cod_empresa } });
+    const empresaAtt = await tab_empresa.findOne({ where: { cod_empresa: cod_empresa.cod_empresa } });
 
     res.send({ status: true, empresa: empresaAtt });
 }
