@@ -24,6 +24,22 @@ module.exports = (sequelize, DataTypes) => {
                 key: 'cod_modalidade',
             },
         },
+        cod_modalidade_variacao: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tab_modalidade_variacao',
+                key: 'cod_modalidade_variacao',
+            },
+        },
+        cod_modalidade_variacao_valor: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tab_modalidade_variacao_valor',
+                key: 'cod_modalidade_variacao_valor',
+            },
+        },
         deletedAt: {
             type: DataTypes.DATE,
             allowNull: true,

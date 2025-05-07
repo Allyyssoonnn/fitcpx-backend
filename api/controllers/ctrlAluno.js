@@ -1,9 +1,10 @@
 const { Sequelize } = require('sequelize');
-const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa, tab_aluno_contrato, tab_aluno_contrato_pagamento } = require('../../database/models');
+const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa, tab_aluno_contrato, tab_aluno_contrato_pagamento, tab_aluno_contrato_modalidade} = require('../../database/models');
 const { removeStringVazia } = require('../../utils');
 const moment = require("moment-timezone");
-const { atualizarCliente, buscarClienteId, buscarPagamentosAssinatura, cancelarAssinatura } = require('../asaas');
+const { buscarPagamentosAssinatura, cancelarAssinatura } = require('../asaas');
 const { sendDocument, deleteDocument, downloadContract } = require('../autentique');
+const { updateCustomer } = require('../stripe');
 const env = process.env.NODE_ENV || 'development';
 
 async function getAlunos(req, res) {    
@@ -70,13 +71,24 @@ async function setAluno(req, res) {
 
         //Verifica se cliente está cadastrado no asaas e atualiza informações
         const empresa = await tab_empresa.findOne({ where: { cod_empresa: aluno.cod_empresa } });
-        // const apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
-        // if (apikey) {
-        //     const clienteId = await buscarClienteId(aluno.cod_aluno, apikey);
-        //     if (clienteId) {
-        //         await atualizarCliente(clienteId, aluno.nome_aluno, aluno.cpf_aluno, aluno.email_aluno, aluno.telefone_aluno, apikey);
-        //     }
-        // }
+        const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
+        const customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
+        if (accountId && customerId) {
+            await updateCustomer(
+                aluno.nome_aluno,
+                aluno.email_aluno,
+                aluno.cpf_aluno,
+                aluno.telefone_aluno,
+                aluno.endereco_aluno,
+                aluno.numero_aluno,
+                aluno.cidade_aluno,
+                aluno.estado_aluno,
+                aluno.cep_aluno,
+                null,
+                accountId,
+                customerId
+            );
+        }
     } else {
         const novoAluno = await tab_aluno.create(aluno);
         alunoAtt = novoAluno;
@@ -183,10 +195,15 @@ async function setAlunoContrato(req, res) {
         parcela_aluno_contrato: parcela_plano,
         total_aluno_contrato: valor_plano,
         arquivo_aluno_contrato: contrato,
+        duracao_aluno_contrato: duracao_plano,
         expiracao_aluno_contrato: moment().tz('America/Sao_Paulo').add(duracao_plano, 'months').format('YYYY-MM-DD'),
         modalidades_aluno_contrato: JSON.stringify(modalidades),
         ambiente_aluno_contrato: env,
     });
+
+    for (const modalidade of modalidades) {
+        await tab_aluno_contrato_modalidade.create({ cod_aluno_contrato: alunoContrato.cod_aluno_contrato, ...modalidade });
+    }
 
     res.send({ status: true, alunoContrato });
 }

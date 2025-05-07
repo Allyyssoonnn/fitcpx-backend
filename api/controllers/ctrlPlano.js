@@ -1,5 +1,6 @@
 const { Sequelize } = require('sequelize');
 const { tab_plano, tab_modalidade, tab_plano_modalidade, tab_contrato, tab_modalidade_variacao, tab_modalidade_variacao_valor } = require('../../database/models');
+const { removeStringVazia } = require('../../utils');
 
 async function setPlano(req, res) {    
     const { plano, modalidades } = req.body;
@@ -28,18 +29,20 @@ async function setPlano(req, res) {
         if (modalidadesParaAdicionar.length) {
             const novasModalidades = modalidadesParaAdicionar.map(id => ({
                 cod_plano: plano.cod_plano,
-                cod_modalidade: id
+                cod_modalidade: id,
             }));
             await tab_plano_modalidade.bulkCreate(novasModalidades);
         }
     } else {
-        const novoPlano = await tab_plano.create(plano);
+        const novoPlano = await tab_plano.create(removeStringVazia(plano));
         planoAtt = novoPlano;
 
         if (modalidades.length) {
             const novasModalidades = modalidades.map(m => ({
                 cod_plano: planoAtt.cod_plano,
-                cod_modalidade: m.cod_modalidade
+                cod_modalidade: m.cod_modalidade,
+                cod_modalidade_variacao: m.cod_modalidade_variacao,
+                cod_modalidade_variacao_valor: m.cod_modalidade_variacao_valor,
             }));
             await tab_plano_modalidade.bulkCreate(novasModalidades);
         }
@@ -62,6 +65,18 @@ async function getPlanos(req, res) {
                     {
                         model: tab_modalidade,
                         as: 'modalidade',
+                        include: [
+                            {
+                                model: tab_modalidade_variacao,
+                                as: 'variacoes',
+                                include: [
+                                    {
+                                        model: tab_modalidade_variacao_valor,
+                                        as: 'valores',
+                                    }
+                                ]
+                            }
+                        ]
                     },
                 ],
             },

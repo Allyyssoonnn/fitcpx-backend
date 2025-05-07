@@ -1,7 +1,7 @@
 const moment = require("moment-timezone");
-const { tab_usuario, tab_empresa, tab_aluno, tab_usuario_pagamento, tab_aluno_contrato_pagamento, tab_empresa_cartao, tab_aluno_cartao, tab_aluno_contrato } = require('../../database/models');
+const { tab_usuario, tab_empresa, tab_aluno, tab_usuario_pagamento, tab_aluno_contrato_pagamento, tab_empresa_cartao, tab_aluno_cartao, tab_aluno_contrato, tab_aluno_contrato_modalidade, tab_modalidade_variacao, tab_modalidade_variacao_valor, tab_modalidade } = require('../../database/models');
 const { buscarClienteIdUsuario, criarClienteUsuario, criarCobranca, cancelarCobranca, getPix, getTokenCard, criarCobrancaCartao, criarAssinatura, criarSubConta, buscarClienteId, criarCobrancaPIX, criarCliente, buscarSaldoSubConta, buscarExtratoSubConta, realizarSaque } = require('../asaas');
-const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createInvoice, createInvoiceItem, createCustomer, getSetupIntent, getPaymentsMethod, finalizeInvoice } = require("../stripe");
+const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createInvoice, createInvoiceItem, createCustomer, getSetupIntent, getPaymentsMethod, finalizeInvoice, createProduct, createPrice, createSubscriptionSchedule } = require("../stripe");
 const env = process.env.NODE_ENV || 'development';
 
 async function deletarConta(req, res) {
@@ -105,7 +105,29 @@ async function criarPagamentoAluno(req, res) {
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
     const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
-    const aluno_contrato = await tab_aluno_contrato.findOne({ where: { cod_aluno_contrato } });
+    const aluno_contrato = await tab_aluno_contrato.findOne({
+        include: [
+            {
+                model: tab_aluno_contrato_modalidade,
+                as: 'modalidades',
+                include: [
+                    {
+                        model: tab_modalidade_variacao,
+                        as: 'variacao',
+                    },
+                    {
+                        model: tab_modalidade_variacao_valor,
+                        as: 'variacaoValor',
+                    },
+                    {
+                        model: tab_modalidade,
+                        as: 'modalidade',
+                    },
+                ],
+            }
+        ],
+        where: { cod_aluno_contrato },
+    });
 
     accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
     customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
@@ -137,44 +159,35 @@ async function criarPagamentoAluno(req, res) {
 
     const dataInicio = new Date(aluno_contrato?.iniciopagamento_aluno_contrato);
     const resumoParcelas = JSON.parse(aluno_contrato?.parcela_aluno_contrato);
-    var modalidades = JSON.parse(aluno_contrato?.modalidades_aluno_contrato);
     const valor = mensal ? resumoParcelas[0] : aluno_contrato.total_aluno_contrato;
+    const duration = resumoParcelas.length;
 
+    var items = [];
 
-    for (let i = 0; i < resumoParcelas.length; i++) {
-        const parcela = resumoParcelas[i];
-        const dueDate = moment(dataInicio).add('month', i + 1);
+    for (const modalidade of aluno_contrato?.modalidades) {
+        var productId = env === 'development' ? modalidade?.variacao?.dev_stripe_product_id : modalidade?.variacao?.stripe_product_id;
+        var priceId = modalidade?.variacao?.stripe_product_id ? modalidade?.variacaoValor?.dev_stripe_price_id : modalidade?.variacaoValor?.stripe_price_id;
 
-        const invoice = await createInvoice(accountId, formaPagamento, paymentId, dueDate);
-
-        //Gerar invoiceItem das modalides
-        var nameInvoiceItem = '';
-        for (const modalidade of modalidades) {
-            if (nameInvoiceItem == '') {
-                nameInvoiceItem = nameInvoiceItem + modalidade.nome_modalidade;
-            } else {
-                nameInvoiceItem = nameInvoiceItem + ' / ' + modalidade.nome_modalidade;
-            }
+        if (!productId) {
+            var name = `${modalidade.modalidade.nome_modalidade} - ${modalidade.variacao.nome_modalidade_variacao}`;
+            productId = await createProduct(accountId, name);
+            var field = env === 'development' ? { dev_stripe_product_id: productId } : { stripe_product_id: productId };
+            await tab_modalidade_variacao.update(field, { where: { cod_modalidade_variacao: modalidade?.variacao?.cod_modalidade_variacao } });
         }
-        const invoiceItem = await createInvoiceItem(accountId, customerId, nameInvoiceItem, parcela, invoice.id);
+        
+        if (!priceId) {
+            priceId = await createPrice(accountId, productId, modalidade?.variacaoValor?.valor_modalidade_variacao_valor);
+            var field = env === 'development' ? { dev_stripe_price_id: productId } : { stripe_price_id: productId };
+            await tab_modalidade_variacao_valor.update(field, { where: { cod_modalidade_variacao_valor: modalidade?.variacaoValor?.cod_modalidade_variacao_valor } });
+        }
 
-        await finalizeInvoice(accountId, invoice.id);
-
-        await tab_aluno_contrato_pagamento.create({
-            cod_aluno_contrato,
-            id_aluno_contrato_pagamento: invoice.id,
-            json_aluno_contrato_pagamento: JSON.stringify(invoice),
-            status_aluno_contrato_pagamento: invoice.status,
-            valor_aluno_contrato_pagamento: parcela,
-            liquido_aluno_contrato_pagamento: parcela,
-            forma_aluno_contrato_pagamento: formaPagamento,
-            data_aluno_contrato_pagamento: new Date(),
-            expiracao_aluno_contrato_pagamento: dueDate,
-            ambiente_aluno_contrato_pagamento: process.env.NODE_ENV,
-            stripe_invoice_id: invoice.id,
-        });
+        items.push({ price: priceId });
     }
-    
+
+    const subscriptionSchedule = await createSubscriptionSchedule(accountId, customerId, paymentId, items, duration, dataInicio);
+    var field = env === 'development' ? { dev_stripe_id: subscriptionSchedule.id } : { stripe_id: subscriptionSchedule.id };
+    await tab_aluno_contrato.update(field, { where: { cod_aluno_contrato } });
+
     res.send({ status: true });
 }
 
@@ -184,6 +197,25 @@ async function getIntentCard(req, res) {
     const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
     accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
     customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
+
+    if (!customerId) customerId = await createCustomer(
+        aluno.nome_aluno,
+        aluno.email_aluno,
+        aluno.cpf_aluno,
+        aluno.telefone_aluno,
+        aluno.endereco_aluno,
+        aluno.numero_aluno,
+        aluno.cidade_aluno,
+        aluno.estado_aluno,
+        aluno.cep_aluno,
+        cod_aluno,
+        null,
+        accountId
+    );
+    if (customerId) {
+        var field = env === 'development' ? { dev_stripe_id: customerId } : { stripe_id: customerId };
+        await tab_aluno.update(field, { where: { cod_aluno } });
+    }
 
     const clientSecret = await getSetupIntent(accountId, customerId);
 

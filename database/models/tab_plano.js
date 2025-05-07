@@ -32,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         tipo_duracao_plano: {
             type: DataTypes.STRING,
             allowNull: false,
+            defaultValue: 'Meses',
         },
         valor_plano: {
             type: DataTypes.DOUBLE(22,2),
