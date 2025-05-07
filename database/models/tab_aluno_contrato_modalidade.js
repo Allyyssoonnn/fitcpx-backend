@@ -59,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
         as: 'variacao',
     });
     tab_aluno_contrato_modalidade.belongsTo(models.tab_modalidade_variacao_valor, {
-        foreignKey: 'cod_modalidade_variacao',
+        foreignKey: 'cod_modalidade_variacao_valor',
         as: 'variacaoValor',
     });
     tab_aluno_contrato_modalidade.belongsTo(models.tab_modalidade, {

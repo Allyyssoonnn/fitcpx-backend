@@ -166,7 +166,7 @@ async function criarPagamentoAluno(req, res) {
 
     for (const modalidade of aluno_contrato?.modalidades) {
         var productId = env === 'development' ? modalidade?.variacao?.dev_stripe_product_id : modalidade?.variacao?.stripe_product_id;
-        var priceId = modalidade?.variacao?.stripe_product_id ? modalidade?.variacaoValor?.dev_stripe_price_id : modalidade?.variacaoValor?.stripe_price_id;
+        var priceId = env === 'development' ? modalidade?.variacaoValor?.dev_stripe_price_id : modalidade?.variacaoValor?.stripe_price_id;
 
         if (!productId) {
             var name = `${modalidade.modalidade.nome_modalidade} - ${modalidade.variacao.nome_modalidade_variacao}`;
@@ -177,8 +177,14 @@ async function criarPagamentoAluno(req, res) {
         
         if (!priceId) {
             priceId = await createPrice(accountId, productId, modalidade?.variacaoValor?.valor_modalidade_variacao_valor);
-            var field = env === 'development' ? { dev_stripe_price_id: productId } : { stripe_price_id: productId };
+            var field = env === 'development' ? { dev_stripe_price_id: priceId } : { stripe_price_id: priceId };
             await tab_modalidade_variacao_valor.update(field, { where: { cod_modalidade_variacao_valor: modalidade?.variacaoValor?.cod_modalidade_variacao_valor } });
+        } else {
+            //Verificar se valor não foi alterado e cria uma preço só para essa assinatura
+            const price = env === 'development' ? modalidade?.variacaoValor : modalidade?.variacaoValor;
+            if (price.valor_modalidade_variacao_valor !== modalidade.valor_modalidade_alterado) {
+                priceId = await createPrice(accountId, productId, modalidade.valor_modalidade_alterado);
+            }
         }
 
         items.push({ price: priceId });

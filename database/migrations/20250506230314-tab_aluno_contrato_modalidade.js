@@ -44,6 +44,11 @@ module.exports = {
           key: 'cod_modalidade_variacao_valor'
         }
       },
+      valor_modalidade_alterado: {
+        allowNull: true,
+        type: Sequelize.DataTypes.FLOAT(22, 2),
+        defaultValue: null,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,
