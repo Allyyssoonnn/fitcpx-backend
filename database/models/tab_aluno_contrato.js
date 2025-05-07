@@ -118,6 +118,16 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             defaultValue: null,
         },
+        invoice_stripe_id: {
+            allowNull: true,
+            type: DataTypes.STRING,
+            defaultValue: null,
+        },
+        dev_invoice_stripe_id: {
+            allowNull: true,
+            type: DataTypes.STRING,
+            defaultValue: null,
+        },
         deletedAt: {
             type: DataTypes.DATE,
             allowNull: true,

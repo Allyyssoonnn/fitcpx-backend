@@ -1,7 +1,6 @@
 const { formatarCelular } = require('../utils');
 const env = process.env.NODE_ENV || 'development';
 
-const urlBase = 'https://api.stripe.com';
 const dev = env === 'development';
 const token = env === 'development'
     ? process.env.STRYPE_KEY_DEVELOPMENT
@@ -373,10 +372,6 @@ async function createSubscriptionSchedule(accountId, customerId, paymentMethodId
 
     var collection_method = paymentMethodId ? 'charge_automatically' : 'send_invoice';
 
-    const startDate = (dueDate && collection_method == 'send_invoice')
-    ? Math.floor((new Date(dueDate) - 5 * 24 * 60 * 60 * 1000) / 1000)
-    : 'now';
-
     var invoiceSettings = {};
     if (collection_method == 'send_invoice') invoiceSettings = { days_until_due: 1 };
 
@@ -394,32 +389,7 @@ async function createSubscriptionSchedule(accountId, customerId, paymentMethodId
         stripeAccount: accountId,
     });
 
-    try {
-        await createInvoicesSubscriptionSchedule(accountId, customerId, schedule.id);
-    } catch (error) {
-        return schedule;    
-    }
-
     return schedule;
-}
-
-async function createInvoicesSubscriptionSchedule(accountId, customerId, subscriptionId) {
-    const stripe = require('stripe')(token);
-
-    // Após criar o schedule e obter o subscriptionId
-    const invoice = await stripe.invoices.create({
-        customer: customerId,
-        subscription: subscriptionId,
-    }, {
-        stripeAccount: accountId,
-    });
-    
-    // Opcional: finalize a fatura para forçar envio/pagamento
-    await stripe.invoices.finalizeInvoice(invoice.id, {
-        stripeAccount: accountId,
-    });
-
-    return;
 }
 
 async function cancelSubscriptionSchedule(accountId, subscriptionId) {
@@ -430,6 +400,96 @@ async function cancelSubscriptionSchedule(accountId, subscriptionId) {
     });
 
     return;
+}
+
+async function cancelInvoice(accountId, invoiceId) {
+    const stripe = require('stripe')(token);
+    
+    try {
+        const invoice = await stripe.invoices.retrieve(invoiceId, {
+            stripeAccount: accountId,
+        });
+
+        if (invoice.paid) {
+            const paymentIntentId = invoice.payment_intent;
+            const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId, {
+                stripeAccount: accountId,
+            });
+
+            const now = Date.now();
+            const paymentTime = new Date(paymentIntent.created * 1000).getTime();
+            const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+
+            if (now - paymentTime <= sevenDaysInMs) {
+                // Reembolsa o pagamento total
+                await stripe.refunds.create({
+                    payment_intent: paymentIntentId,
+                }, {
+                    stripeAccount: accountId,
+                });
+
+                console.log('Pagamento reembolsado.');
+                return { status: 'refunded' };
+            } else {
+                console.log('Pagamento tem mais de 7 dias. Não será reembolsado.');
+                return { status: 'too_late_for_refund' };
+            }
+        } else {
+            // Cancela a invoice se não foi paga
+            await stripe.invoices.voidInvoice(invoiceId, {
+                stripeAccount: accountId,
+            });
+
+            console.log('Invoice cancelada.');
+            return { status: 'voided' };
+        }
+    } catch (error) {
+        console.error('Erro ao cancelar ou reembolsar a invoice:', error);
+        throw error;
+    }
+}
+
+async function getBalanceAccount(accountId) {
+    const stripe = require('stripe')(token);
+
+    const balance = await stripe.balance.retrieve({
+        stripeAccount: accountId
+    });
+
+    return balance;
+}
+
+async function getExtract(accountId, month, year) {
+    const stripe = require('stripe')(token);
+
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 1); // primeiro dia do mês seguinte
+
+    const transactions = await stripe.balanceTransactions.list({
+        limit: 100,
+        created: {
+            gte: Math.floor(startDate.getTime() / 1000),
+            lt: Math.floor(endDate.getTime() / 1000)
+        }
+    }, {
+        stripeAccount: accountId,
+    });
+
+    return transactions.data;
+}
+
+async function doPayout(accountId) {
+    const balance = await stripe.balance.retrieve();
+    const available = balance.available.find(b => b.currency === 'brl');
+
+    const payout = await stripe.payouts.create({
+        amount: available.amount,
+        currency: 'brl',
+    }, {
+        stripeAccount: accountId,
+    });
+  
+    return payout;
 }
 
 module.exports = {
@@ -449,6 +509,9 @@ module.exports = {
     createProduct,
     createPrice,
     createSubscriptionSchedule,
-    createInvoicesSubscriptionSchedule,
     cancelSubscriptionSchedule,
+    cancelInvoice,
+    getBalanceAccount,
+    getExtract,
+    doPayout,
 }

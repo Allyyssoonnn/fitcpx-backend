@@ -1,7 +1,6 @@
 const moment = require("moment-timezone");
 const { tab_usuario, tab_empresa, tab_aluno, tab_usuario_pagamento, tab_aluno_contrato_pagamento, tab_empresa_cartao, tab_aluno_cartao, tab_aluno_contrato, tab_aluno_contrato_modalidade, tab_modalidade_variacao, tab_modalidade_variacao_valor, tab_modalidade } = require('../../database/models');
-const { buscarClienteIdUsuario, criarClienteUsuario, criarCobranca, cancelarCobranca, getPix, getTokenCard, criarCobrancaCartao, criarAssinatura, criarSubConta, buscarClienteId, criarCobrancaPIX, criarCliente, buscarSaldoSubConta, buscarExtratoSubConta, realizarSaque } = require('../asaas');
-const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createInvoice, createInvoiceItem, createCustomer, getSetupIntent, getPaymentsMethod, finalizeInvoice, createProduct, createPrice, createSubscriptionSchedule, createInvoicesSubscriptionSchedule } = require("../stripe");
+const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createInvoice, createInvoiceItem, createCustomer, getSetupIntent, getPaymentsMethod, finalizeInvoice, createProduct, createPrice, createSubscriptionSchedule, getBalanceAccount, getExtract, doPayout } = require("../stripe");
 const env = process.env.NODE_ENV || 'development';
 
 async function deletarConta(req, res) {
@@ -172,6 +171,13 @@ async function criarPagamentoAluno(req, res) {
         const invoiceItem = await createInvoiceItem(accountId, customerId, aluno_contrato.nome_aluno_contrato, aluno_contrato.total_aluno_contrato, invoice.id);
         await finalizeInvoice(accountId, invoice.id);
 
+        var field = env === 'development' ? { dev_invoice_stripe_id: invoice.id } : { invoice_stripe_id: invoice.id };
+
+        await tab_aluno_contrato.update({
+            ...field,
+            status_aluno_contrato: invoice?.status,
+        }, { where: { cod_aluno_contrato } });
+
         res.send({ status: true });
         return;
     }
@@ -276,155 +282,36 @@ async function getCards(req, res) {
     res.send({ status: true, paymentsMethod });
 }
 
-// =======================================================
-
-async function cashWithdrawal(req, res) {
-    const { cod_empresa } = req.body;
-    var apikey;
-
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
-
-    if (!apikey) {
-        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
-        return;
-    }
-
-    const balance = await buscarSaldoSubConta(apikey);
-    const bankExtract = await realizarSaque(apikey, null, null, balance);
-
-    res.send({ status: true });
-}
-
-async function getBankExtract(req, res) {
-    const { cod_empresa, month, year } = req.body;
-    var apikey;
-
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
-
-    if (!apikey) {
-        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
-        return;
-    }
-
-    const bankExtract = await buscarExtratoSubConta(apikey, month, year);
-
-    res.send({ status: true, bankExtract });
-}
-
 async function getBalance(req, res) {
     const { cod_empresa } = req.body;
-    var apikey;
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+    const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
 
-    if (!apikey) {
-        res.send({ status: false, message: 'Nenhuma chave de api relacionada a empresa.' });
-        return;
-    }
-
-    const balance = await buscarSaldoSubConta(apikey);
+    const balance = await getBalanceAccount(accountId);
 
     res.send({ status: true, balance });
 }
 
-async function createCardToken(req, res) {
-    const { dadosCartao, cod_empresa, cod_aluno } = req.body;
-    var tokenCartao;
+async function getBankExtract(req, res) {
+    const { cod_empresa, month, year } = req.body;
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
-    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+    const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
 
-    var clienteId = await buscarClienteId(cod_aluno, apikey);
-    if (!clienteId) clienteId = await criarCliente(
-        aluno.nome_aluno,
-        aluno.email_aluno,
-        aluno.cpf_aluno,
-        aluno.telefone_aluno,
-        aluno.endereco_aluno,
-        aluno.numero_aluno,
-        aluno.estado_aluno,
-        aluno.cep_aluno,
-        cod_aluno,
-        null,
-        apikey
-    );
-    
-    const cartaoAssas = await getTokenCard(clienteId, dadosCartao, '', apikey);
-    if (cartaoAssas) {
-        tokenCartao = cartaoAssas.creditCardToken;
-        await tab_aluno_cartao.create({
-            cod_aluno,
-            final_aluno_cartao: cartaoAssas.creditCardNumber,
-            bandeira_aluno_cartao: cartaoAssas.creditCardBrand,
-            token_aluno_cartao: cartaoAssas.creditCardToken,
-            json_aluno_cartao: JSON.stringify(cartaoAssas),
-        });
-    }
+    const bankExtract = await getExtract(accountId, month, year);
 
-    res.send({ status: true });
+    res.send({ status: true, bankExtract });
 }
 
-async function getPIXPagamentoAluno(req, res) {
-    const { cod_aluno_contrato_pagamento, cod_empresa } = req.body;
+async function cashWithdrawal(req, res) {
+    const { cod_empresa } = req.body;
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
-    const pagamento = await tab_aluno_contrato_pagamento.findOne({ where: { cod_aluno_contrato_pagamento } });
-    const pix = await getPix(pagamento.id_aluno_contrato_pagamento, apikey);
+    const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
 
-    res.send({ status: true, pix });
-}
+    const payout = await doPayout(accountId);
 
-async function getPIXPagamento(req, res) {
-    const { cod_usuario_pagamento } = req.body;
-
-    const pagamento = await tab_usuario_pagamento.findOne({ where: { cod_usuario_pagamento } });
-    const pix = await getPix(pagamento.id_usuario_pagamento);
-    
-    res.send({ status: true, pix });
-}
-
-async function getPagamentos(req, res) {
-    const { cod_empresa } = req.body;
-
-    const pagamentos = await tab_usuario_pagamento.findAll({
-        where: { cod_empresa },
-        order: [['cod_usuario_pagamento', 'DESC']]
-    });
-
-    res.send({ status: true, pagamentos });
-}
-
-async function deletePagamento(req, res) {
-    const { cod_usuario_pagamento } = req.body;
-
-    const pagamento = await tab_usuario_pagamento.findOne({ where: { cod_usuario_pagamento } });
-
-    var deleted = false;
-    if (pagamento?.id_usuario_pagamento) {
-        deleted = await cancelarCobranca(pagamento.id_usuario_pagamento);
-        if (deleted) await tab_usuario_pagamento.update({ status_usuario_pagamento: 'DELETED' }, { where: { cod_usuario_pagamento } });
-    }
-
-    res.send({ status: deleted });
-}
-
-async function getCartoes(req, res) {
-    const { cod_empresa } = req.body;
-    const cartoes = await tab_empresa_cartao.findAll({ 
-        where: { cod_empresa },
-        attributes: ['cod_empresa_cartao', 'final_empresa_cartao', 'bandeira_empresa_cartao']
-    });
-    res.send({ status: true, cartoes })
-}
-
-async function deleteCartao(req, res) {
-    const { cod_empresa_cartao } = req.body;
-    await tab_empresa_cartao.update({ deletedAt: new Date() }, { where: { cod_empresa_cartao } });
     res.send({ status: true });
 }
 
@@ -437,13 +324,6 @@ module.exports = {
     sendDocument,
     getStatusConta,
     criarPagamentoAluno,
-    createCardToken,
-    getPIXPagamentoAluno,
-    getPIXPagamento,
-    getPagamentos,
-    deletePagamento,
-    getCartoes,
-    deleteCartao,
     getIntentCard,
     getCards,
 }

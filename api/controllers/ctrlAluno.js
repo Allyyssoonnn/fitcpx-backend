@@ -3,7 +3,7 @@ const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_us
 const { removeStringVazia } = require('../../utils');
 const moment = require("moment-timezone");
 const { sendDocument, deleteDocument, downloadContract } = require('../autentique');
-const { updateCustomer, cancelSubscriptionSchedule } = require('../stripe');
+const { updateCustomer, cancelSubscriptionSchedule, cancelInvoice } = require('../stripe');
 const env = process.env.NODE_ENV || 'development';
 
 async function getAlunos(req, res) {    
@@ -68,7 +68,6 @@ async function setAluno(req, res) {
     if (alunoAtt) {
         await tab_aluno.update(aluno, { where: { cod_aluno: aluno.cod_aluno } });
 
-        //Verifica se cliente está cadastrado no asaas e atualiza informações
         const empresa = await tab_empresa.findOne({ where: { cod_empresa: aluno.cod_empresa } });
         const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
         const customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
@@ -217,13 +216,19 @@ async function cancelAlunoContrato(req, res) {
     
     const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
     const subscriptionId = env === 'development' ? alunoContrato.dev_stripe_id : alunoContrato.stripe_id;
+    const invoiceId = env === 'development' ? alunoContrato.dev_invoice_stripe_id : alunoContrato.invoice_stripe_id;
 
     if (accountId && subscriptionId) {
         await cancelSubscriptionSchedule(accountId, subscriptionId);
-        await tab_aluno_contrato.update({ deletedAt: new Date() }, { where: { cod_aluno_contrato } });
-    } else {
-        await tab_aluno_contrato.update({ deletedAt: new Date() }, { where: { cod_aluno_contrato } });
     }
+    if (accountId && invoiceId) {
+        const resp = await cancelInvoice(accountId, invoiceId);
+        if (resp?.invoice) {
+            await tab_aluno_contrato.update({ status_aluno_contrato: resp.status }, { where: { cod_aluno_contrato } });
+        }
+    }
+
+    await tab_aluno_contrato.update({ deletedAt: new Date() }, { where: { cod_aluno_contrato } });
 
     res.send({ status: true });
 }
