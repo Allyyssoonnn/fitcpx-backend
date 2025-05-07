@@ -2,9 +2,8 @@ const { Sequelize } = require('sequelize');
 const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa, tab_aluno_contrato, tab_aluno_contrato_pagamento, tab_aluno_contrato_modalidade} = require('../../database/models');
 const { removeStringVazia } = require('../../utils');
 const moment = require("moment-timezone");
-const { buscarPagamentosAssinatura, cancelarAssinatura } = require('../asaas');
 const { sendDocument, deleteDocument, downloadContract } = require('../autentique');
-const { updateCustomer } = require('../stripe');
+const { updateCustomer, cancelSubscriptionSchedule } = require('../stripe');
 const env = process.env.NODE_ENV || 'development';
 
 async function getAlunos(req, res) {    
@@ -216,10 +215,11 @@ async function cancelAlunoContrato(req, res) {
 
     if (alunoContrato?.autentique_aluno_contrato) await deleteDocument(alunoContrato.autentique_aluno_contrato);
     
-    apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+    const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
+    const subscriptionId = env === 'development' ? alunoContrato.dev_stripe_id : alunoContrato.stripe_id;
 
-    if (alunoContrato?.id_aluno_contrato) {
-        await cancelarAssinatura(alunoContrato.id_aluno_contrato, apikey);
+    if (accountId && subscriptionId) {
+        await cancelSubscriptionSchedule(accountId, subscriptionId);
         await tab_aluno_contrato.update({ deletedAt: new Date() }, { where: { cod_aluno_contrato } });
     } else {
         await tab_aluno_contrato.update({ deletedAt: new Date() }, { where: { cod_aluno_contrato } });
@@ -320,75 +320,75 @@ async function getAlunoContrato(req, res) {
 
     //DESATIVADO - 28/04/2025 - WEBHOOK TEM QUE ESTAR FUNCIONANDO BEM
     // Check payment not captured by webhook - 2025/04/19
-    if (alunoContrato.id_aluno_contrato) {
-        const payments = alunoContrato.pagamentos || [];
-        const installments = JSON.parse(alunoContrato.parcela_aluno_contrato || '[]');
-        const dueDate = [];
-        const startDate = alunoContrato.iniciopagamento_aluno_contrato 
-            ? moment(alunoContrato.iniciopagamento_aluno_contrato) 
-            : moment(new Date());
-        const today = moment(new Date());
+    // if (alunoContrato.id_aluno_contrato) {
+    //     const payments = alunoContrato.pagamentos || [];
+    //     const installments = JSON.parse(alunoContrato.parcela_aluno_contrato || '[]');
+    //     const dueDate = [];
+    //     const startDate = alunoContrato.iniciopagamento_aluno_contrato 
+    //         ? moment(alunoContrato.iniciopagamento_aluno_contrato) 
+    //         : moment(new Date());
+    //     const today = moment(new Date());
     
-        // Gera todas as datas de vencimento com base nas parcelas
-        for (let i = 0; i < installments.length; i++) {
-            const date = startDate.clone().add(i, 'month');
-            dueDate.push(date.format('YYYY-MM-DD'));
-        }
+    //     // Gera todas as datas de vencimento com base nas parcelas
+    //     for (let i = 0; i < installments.length; i++) {
+    //         const date = startDate.clone().add(i, 'month');
+    //         dueDate.push(date.format('YYYY-MM-DD'));
+    //     }
     
-        // Encontra a próxima data de vencimento (atual ou futura)
-        const futureDueDates = dueDate.filter(d => moment(d).isSameOrAfter(today, 'day'));
-        const nextDueDate = futureDueDates.length 
-            ? futureDueDates.sort((a, b) => moment(a).diff(today) - moment(b).diff(today))[0]
-            : null;
+    //     // Encontra a próxima data de vencimento (atual ou futura)
+    //     const futureDueDates = dueDate.filter(d => moment(d).isSameOrAfter(today, 'day'));
+    //     const nextDueDate = futureDueDates.length 
+    //         ? futureDueDates.sort((a, b) => moment(a).diff(today) - moment(b).diff(today))[0]
+    //         : null;
     
-        if (nextDueDate) {
-            // Verifica se já existe algum pagamento no mesmo mês da próxima cobrança
-            const nextDueDateMonth = moment(nextDueDate).format('YYYY-MM');
-            const existsPaymentInSameMonth = payments.some(payment => {
-                if (!payment.expiracao_aluno_contrato_pagamento) return false;
-                const paymentMonth = moment(payment.expiracao_aluno_contrato_pagamento).format('YYYY-MM');
-                return paymentMonth === nextDueDateMonth;
-            });
+    //     if (nextDueDate) {
+    //         // Verifica se já existe algum pagamento no mesmo mês da próxima cobrança
+    //         const nextDueDateMonth = moment(nextDueDate).format('YYYY-MM');
+    //         const existsPaymentInSameMonth = payments.some(payment => {
+    //             if (!payment.expiracao_aluno_contrato_pagamento) return false;
+    //             const paymentMonth = moment(payment.expiracao_aluno_contrato_pagamento).format('YYYY-MM');
+    //             return paymentMonth === nextDueDateMonth;
+    //         });
     
-            // Se não existir pagamento no mesmo mês da próxima cobrança, busca no Asaas
-            if (!existsPaymentInSameMonth) {
-                const apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
-                try {
-                    const asaasPayments = await buscarPagamentosAssinatura(alunoContrato.id_aluno_contrato, apikey);
-                    const appPayments = alunoContrato.pagamentos || [];
+    //         // Se não existir pagamento no mesmo mês da próxima cobrança, busca no Asaas
+    //         if (!existsPaymentInSameMonth) {
+    //             const apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
+    //             try {
+    //                 const asaasPayments = await buscarPagamentosAssinatura(alunoContrato.id_aluno_contrato, apikey);
+    //                 const appPayments = alunoContrato.pagamentos || [];
     
-                    // Ordena os pagamentos do Asaas por data
-                    const reorderAsaasPayments = asaasPayments.sort((a, b) => {
-                        return new Date(a.dueDate) - new Date(b.dueDate);
-                    });
+    //                 // Ordena os pagamentos do Asaas por data
+    //                 const reorderAsaasPayments = asaasPayments.sort((a, b) => {
+    //                     return new Date(a.dueDate) - new Date(b.dueDate);
+    //                 });
     
-                    // Cria os registros para pagamentos que não existem no app
-                    for (const asaasPayment of reorderAsaasPayments) {
-                        const existPayment = appPayments.find((payment) => 
-                            payment.id_aluno_contrato_pagamento === asaasPayment.id
-                        );
+    //                 // Cria os registros para pagamentos que não existem no app
+    //                 for (const asaasPayment of reorderAsaasPayments) {
+    //                     const existPayment = appPayments.find((payment) => 
+    //                         payment.id_aluno_contrato_pagamento === asaasPayment.id
+    //                     );
                         
-                        if (!existPayment) {
-                            await tab_aluno_contrato_pagamento.create({
-                                cod_aluno_contrato: alunoContrato.cod_aluno_contrato,
-                                id_aluno_contrato_pagamento: asaasPayment.id,
-                                json_aluno_contrato_pagamento: JSON.stringify(asaasPayment),
-                                status_aluno_contrato_pagamento: asaasPayment.status,
-                                valor_aluno_contrato_pagamento: asaasPayment.value,
-                                liquido_aluno_contrato_pagamento: asaasPayment?.netValue || asaasPayment.value,
-                                forma_aluno_contrato_pagamento: asaasPayment?.billingType,
-                                data_aluno_contrato_pagamento: asaasPayment.dateCreated,
-                                expiracao_aluno_contrato_pagamento: asaasPayment.dueDate,
-                                ambiente_aluno_contrato_pagamento: process.env.NODE_ENV,
-                            });
-                        }
-                    }
-                } catch (error) {
-                    console.error('Erro ao sincronizar pagamentos do Asaas:', error);
-                }
-            }
-        }
-    }
+    //                     if (!existPayment) {
+    //                         await tab_aluno_contrato_pagamento.create({
+    //                             cod_aluno_contrato: alunoContrato.cod_aluno_contrato,
+    //                             id_aluno_contrato_pagamento: asaasPayment.id,
+    //                             json_aluno_contrato_pagamento: JSON.stringify(asaasPayment),
+    //                             status_aluno_contrato_pagamento: asaasPayment.status,
+    //                             valor_aluno_contrato_pagamento: asaasPayment.value,
+    //                             liquido_aluno_contrato_pagamento: asaasPayment?.netValue || asaasPayment.value,
+    //                             forma_aluno_contrato_pagamento: asaasPayment?.billingType,
+    //                             data_aluno_contrato_pagamento: asaasPayment.dateCreated,
+    //                             expiracao_aluno_contrato_pagamento: asaasPayment.dueDate,
+    //                             ambiente_aluno_contrato_pagamento: process.env.NODE_ENV,
+    //                         });
+    //                     }
+    //                 }
+    //             } catch (error) {
+    //                 console.error('Erro ao sincronizar pagamentos do Asaas:', error);
+    //             }
+    //         }
+    //     }
+    // }
 
     res.send({ status: true, alunoContrato });
 }

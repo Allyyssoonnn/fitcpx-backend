@@ -37,6 +37,11 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
+      dev_stripe_price_id: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,

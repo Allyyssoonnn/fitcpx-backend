@@ -63,10 +63,10 @@ async function createAccount(empresa, usuario, ip) {
             object: 'bank_account',
             country: 'BR',
             currency: 'brl',
-            account_holder_name: empresa.nome_titular_conta,
+            account_holder_name: empresa.titular_banco_conta,
             account_holder_type: 'company',
-            routing_number: empresa.codigo_banco, // Código do banco (3 dígitos)
-            account_number: empresa.conta_bancaria // Número da conta com dígito
+            routing_number: `${empresa.codigo_banco_conta}-${empresa.agencia_banco_conta}`, // Código do banco (3 dígitos)
+            account_number: empresa.numero_banco_conta // Número da conta com dígito
         } : testBank,
 
         capabilities: {
@@ -252,31 +252,31 @@ async function createInvoiceItem(accountId, customerId, name, price, invoiceId) 
     return invoiceItem.id;
 }
 
-async function createInvoice(accountId, paymentMethod, paymentMethodId, dueDate) {
+async function createInvoice(accountId, paymentMethodId, dueDate) {
     const stripe = require('stripe')(token);
-    var payment = null;
     var collection_method = paymentMethodId ? 'charge_automatically' : 'send_invoice';
-    if (paymentMethod === 'PIX') payment = 'pix';
-    if (paymentMethod === 'CREDIT_CARD') payment = 'card';
-    if (paymentMethod === 'BOLETO') payment = 'boleto';
+
+    var invoiceSettings = {};
+    if (collection_method == 'send_invoice') invoiceSettings = { days_until_due: 1 };
 
     const invoice = await stripe.invoices.create({
         customer: customerId,
         collection_method: collection_method,
         payment_settings: {
-            payment_method_types: [payment],
+            payment_method_types: ['boleto', 'card'],
         },
         //Não finaliza a invoice antes do update
         auto_advance: false,
+        ...invoiceSettings,
     }, {
         stripeAccount: accountId,
     });
 
-    await stripe.invoices.update(invoice.id, {
-        due_date: Math.floor(new Date(dueDate).getTime() / 1000),
-    }, {
-        stripeAccount: accountId,
-    });
+    // await stripe.invoices.update(invoice.id, {
+    //     due_date: Math.floor(new Date(dueDate).getTime() / 1000),
+    // }, {
+    //     stripeAccount: accountId,
+    // });
 
     // await stripe.invoices.finalizeInvoice(invoice.id, {
     //     stripeAccount: accountId,
@@ -374,15 +374,15 @@ async function createSubscriptionSchedule(accountId, customerId, paymentMethodId
     var collection_method = paymentMethodId ? 'charge_automatically' : 'send_invoice';
 
     const startDate = (dueDate && collection_method == 'send_invoice')
-    ? Math.floor(new Date(new Date(dueDate).getTime() - (5 * 24 * 60 * 60 * 1000)).getTime() / 1000)
+    ? Math.floor((new Date(dueDate) - 5 * 24 * 60 * 60 * 1000) / 1000)
     : 'now';
 
     var invoiceSettings = {};
-    if (collection_method == 'send_invoice') invoiceSettings = { days_until_due: 5 };
+    if (collection_method == 'send_invoice') invoiceSettings = { days_until_due: 1 };
 
     const schedule = await stripe.subscriptionSchedules.create({
         customer: customerId,
-        start_date: startDate,
+        start_date: 'now',
         end_behavior: 'release',
         phases: [{
             items: items,
@@ -394,7 +394,42 @@ async function createSubscriptionSchedule(accountId, customerId, paymentMethodId
         stripeAccount: accountId,
     });
 
+    try {
+        await createInvoicesSubscriptionSchedule(accountId, customerId, schedule.id);
+    } catch (error) {
+        return schedule;    
+    }
+
     return schedule;
+}
+
+async function createInvoicesSubscriptionSchedule(accountId, customerId, subscriptionId) {
+    const stripe = require('stripe')(token);
+
+    // Após criar o schedule e obter o subscriptionId
+    const invoice = await stripe.invoices.create({
+        customer: customerId,
+        subscription: subscriptionId,
+    }, {
+        stripeAccount: accountId,
+    });
+    
+    // Opcional: finalize a fatura para forçar envio/pagamento
+    await stripe.invoices.finalizeInvoice(invoice.id, {
+        stripeAccount: accountId,
+    });
+
+    return;
+}
+
+async function cancelSubscriptionSchedule(accountId, subscriptionId) {
+    const stripe = require('stripe')(token);
+
+    const schedule = await stripe.subscriptionSchedules.cancel(subscriptionId, {
+        stripeAccount: accountId,
+    });
+
+    return;
 }
 
 module.exports = {
@@ -414,4 +449,6 @@ module.exports = {
     createProduct,
     createPrice,
     createSubscriptionSchedule,
+    createInvoicesSubscriptionSchedule,
+    cancelSubscriptionSchedule,
 }

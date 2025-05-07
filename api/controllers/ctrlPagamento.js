@@ -1,7 +1,7 @@
 const moment = require("moment-timezone");
 const { tab_usuario, tab_empresa, tab_aluno, tab_usuario_pagamento, tab_aluno_contrato_pagamento, tab_empresa_cartao, tab_aluno_cartao, tab_aluno_contrato, tab_aluno_contrato_modalidade, tab_modalidade_variacao, tab_modalidade_variacao_valor, tab_modalidade } = require('../../database/models');
 const { buscarClienteIdUsuario, criarClienteUsuario, criarCobranca, cancelarCobranca, getPix, getTokenCard, criarCobrancaCartao, criarAssinatura, criarSubConta, buscarClienteId, criarCobrancaPIX, criarCliente, buscarSaldoSubConta, buscarExtratoSubConta, realizarSaque } = require('../asaas');
-const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createInvoice, createInvoiceItem, createCustomer, getSetupIntent, getPaymentsMethod, finalizeInvoice, createProduct, createPrice, createSubscriptionSchedule } = require("../stripe");
+const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createInvoice, createInvoiceItem, createCustomer, getSetupIntent, getPaymentsMethod, finalizeInvoice, createProduct, createPrice, createSubscriptionSchedule, createInvoicesSubscriptionSchedule } = require("../stripe");
 const env = process.env.NODE_ENV || 'development';
 
 async function deletarConta(req, res) {
@@ -64,8 +64,7 @@ async function sendDocument(req, res) {
     const backBuffer = Buffer.from(backDoc.replace(/^data:.*;base64,/, ''), 'base64');
 
     const resp = await sendDocuments(id, personId, frontBuffer, backBuffer, frontDocType, backDocType);
-    console.log(resp);
-
+    
     if (resp.frontDocumentId) {
         await tab_usuario.update({
             front_doc_id: resp.frontDocumentId,
@@ -129,6 +128,12 @@ async function criarPagamentoAluno(req, res) {
         where: { cod_aluno_contrato },
     });
 
+    //If contract already pay
+    if (formaPagamento === 'MANUAL') {
+        res.send({ status: true });
+        return;
+    }
+
     accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
     customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
 
@@ -162,40 +167,65 @@ async function criarPagamentoAluno(req, res) {
     const valor = mensal ? resumoParcelas[0] : aluno_contrato.total_aluno_contrato;
     const duration = resumoParcelas.length;
 
-    var items = [];
+    if (formaPagamento === 'UNICA') {
+        const invoice = await createInvoice(accountId, null, dataInicio);
+        const invoiceItem = await createInvoiceItem(accountId, customerId, aluno_contrato.nome_aluno_contrato, aluno_contrato.total_aluno_contrato, invoice.id);
+        await finalizeInvoice(accountId, invoice.id);
 
-    for (const modalidade of aluno_contrato?.modalidades) {
-        var productId = env === 'development' ? modalidade?.variacao?.dev_stripe_product_id : modalidade?.variacao?.stripe_product_id;
-        var priceId = env === 'development' ? modalidade?.variacaoValor?.dev_stripe_price_id : modalidade?.variacaoValor?.stripe_price_id;
-
-        if (!productId) {
-            var name = `${modalidade.modalidade.nome_modalidade} - ${modalidade.variacao.nome_modalidade_variacao}`;
-            productId = await createProduct(accountId, name);
-            var field = env === 'development' ? { dev_stripe_product_id: productId } : { stripe_product_id: productId };
-            await tab_modalidade_variacao.update(field, { where: { cod_modalidade_variacao: modalidade?.variacao?.cod_modalidade_variacao } });
-        }
-        
-        if (!priceId) {
-            priceId = await createPrice(accountId, productId, modalidade?.variacaoValor?.valor_modalidade_variacao_valor);
-            var field = env === 'development' ? { dev_stripe_price_id: priceId } : { stripe_price_id: priceId };
-            await tab_modalidade_variacao_valor.update(field, { where: { cod_modalidade_variacao_valor: modalidade?.variacaoValor?.cod_modalidade_variacao_valor } });
-        } else {
-            //Verificar se valor não foi alterado e cria uma preço só para essa assinatura
-            const price = env === 'development' ? modalidade?.variacaoValor : modalidade?.variacaoValor;
-            if (price.valor_modalidade_variacao_valor !== modalidade.valor_modalidade_alterado) {
-                priceId = await createPrice(accountId, productId, modalidade.valor_modalidade_alterado);
-            }
-        }
-
-        items.push({ price: priceId });
+        res.send({ status: true });
+        return;
     }
 
-    const subscriptionSchedule = await createSubscriptionSchedule(accountId, customerId, paymentId, items, duration, dataInicio);
-    var field = env === 'development' ? { dev_stripe_id: subscriptionSchedule.id } : { stripe_id: subscriptionSchedule.id };
-    await tab_aluno_contrato.update({
-        ...field,
-        status_aluno_contrato: subscriptionSchedule?.status,
-    }, { where: { cod_aluno_contrato } });
+    if (formaPagamento === 'RECORRENTE' || formaPagamento === 'MENSAL') {
+        var items = [];
+
+        for (const modalidade of aluno_contrato?.modalidades) {
+            var productId = env === 'development' ? modalidade?.variacao?.dev_stripe_product_id : modalidade?.variacao?.stripe_product_id;
+            var priceId = env === 'development' ? modalidade?.variacaoValor?.dev_stripe_price_id : modalidade?.variacaoValor?.stripe_price_id;
+    
+            if (!productId) {
+                var name = `${modalidade.modalidade.nome_modalidade} - ${modalidade.variacao.nome_modalidade_variacao}`;
+                productId = await createProduct(accountId, name);
+                var field = env === 'development' ? { dev_stripe_product_id: productId } : { stripe_product_id: productId };
+                await tab_modalidade_variacao.update(field, { where: { cod_modalidade_variacao: modalidade?.variacao?.cod_modalidade_variacao } });
+            }
+            
+            if (!priceId && modalidade?.variacaoValor) {
+                priceId = await createPrice(accountId, productId, modalidade?.variacaoValor?.valor_modalidade_variacao_valor);
+                var field = env === 'development' ? { dev_stripe_price_id: priceId } : { stripe_price_id: priceId };
+                await tab_modalidade_variacao_valor.update(field, { where: { cod_modalidade_variacao_valor: modalidade?.variacaoValor?.cod_modalidade_variacao_valor } });
+            } else {
+                //Verificar se valor não foi alterado e cria uma preço só para essa assinatura
+                const price = env === 'development' ? modalidade?.variacaoValor : modalidade?.variacaoValor;
+
+                if (price) {
+                    if (modalidade.valor_modalidade_alterado && price.valor_modalidade_variacao_valor !== modalidade.valor_modalidade_alterado) {
+                        priceId = await createPrice(accountId, productId, modalidade.valor_modalidade_alterado);
+                    }
+                } else {
+                    //Preenche com preço original
+                    priceId = env === 'development' ? modalidade?.variacao?.dev_stripe_price_id : modalidade?.variacao?.stripe_price_id;
+                    if (!priceId) {
+                        priceId = await createPrice(accountId, productId, modalidade?.variacao?.valor_modalidade_variacao);
+                        var field = env === 'development' ? { dev_stripe_price_id: priceId } : { stripe_price_id: priceId };
+                        await tab_modalidade_variacao.update(field, { where: { cod_modalidade_variacao: modalidade?.variacao?.cod_modalidade_variacao } });
+                    }
+                }
+            }
+            
+            items.push({ price: priceId });
+        }
+    
+        const subscriptionSchedule = await createSubscriptionSchedule(accountId, customerId, paymentId, items, duration, dataInicio);
+        var field = env === 'development' ? { dev_stripe_id: subscriptionSchedule.id } : { stripe_id: subscriptionSchedule.id };
+        await tab_aluno_contrato.update({
+            ...field,
+            status_aluno_contrato: subscriptionSchedule?.status,
+        }, { where: { cod_aluno_contrato } });
+
+        res.send({ status: true });
+        return;
+    }
 
     res.send({ status: true });
 }
@@ -233,12 +263,15 @@ async function getIntentCard(req, res) {
 
 async function getCards(req, res) {
     const { cod_empresa, cod_aluno } = req.body;
+    var paymentsMethod = [];
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
     const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
     accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
     customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
-    const paymentsMethod = await getPaymentsMethod(accountId, customerId);
+    if (accountId && customerId) {
+        paymentsMethod = await getPaymentsMethod(accountId, customerId);
+    }
 
     res.send({ status: true, paymentsMethod });
 }
