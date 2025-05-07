@@ -71,6 +71,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: null,
         },
+        duracao_aluno_contrato: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: null,
+        },
         expiracao_aluno_contrato: {
             type: DataTypes.DATEONLY,
             allowNull: false,
@@ -103,6 +108,16 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             defaultValue: null,
         },
+        stripe_id: {
+            allowNull: true,
+            type: DataTypes.STRING,
+            defaultValue: null,
+        },
+        dev_stripe_id: {
+            allowNull: true,
+            type: DataTypes.STRING,
+            defaultValue: null,
+        },
         deletedAt: {
             type: DataTypes.DATE,
             allowNull: true,
@@ -117,6 +132,10 @@ module.exports = (sequelize, DataTypes) => {
         tab_aluno_contrato.hasMany(models.tab_aluno_contrato_pagamento, {
             foreignKey: 'cod_aluno_contrato',
             as: 'pagamentos',
+        })
+        tab_aluno_contrato.hasMany(models.tab_aluno_contrato_modalidade, {
+            foreignKey: 'cod_aluno_contrato',
+            as: 'modalidades',
         })
         tab_aluno_contrato.belongsTo(models.tab_aluno, {
             foreignKey: 'cod_aluno',

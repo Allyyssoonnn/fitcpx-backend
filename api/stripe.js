@@ -118,6 +118,29 @@ async function createAccount(empresa, usuario, ip) {
     return { account, person };
 }
 
+async function updateAccount(empresa, accountId) {
+    const stripe = require('stripe')(token);
+
+    const account = await stripe.account.update({
+        email: empresa.email_empresa,
+        company: {
+            name: empresa.nome_empresa,
+            address: {
+                line1: empresa.endereco_empresa,
+                city: empresa.cidade_empresa,
+                state: empresa.estado_empresa,
+                postal_code: empresa.cep_empresa,
+            },
+            phone: empresa.telefone_empresa,
+            tax_id: empresa.doc_empresa,
+        },
+    }, {
+        stripeAccount: accountId,
+    });
+
+    return { account };
+}
+
 async function getStatusAccount(id) {
     const stripe = require('stripe')(token);
     
@@ -186,6 +209,28 @@ async function createCustomer(nome, email, documento, telefone, endereco, numero
         },
     }, {
         stripeAccount: accountId, // ID da conta conectada
+    });
+
+    return customer.id;
+}
+
+async function updateCustomer(nome, email, documento, telefone, endereco, numero, cidade, estado, cep, nome_empresa = null, accountId, customerId) {
+    const stripe = require('stripe')(token);
+
+    const customer = await stripe.customers.update(customerId, {
+        name: nome,
+        email: email,
+        phone: formatarCelular(telefone),
+        address: {
+            line1: endereco,
+            line2: numero,
+            city: cidade,
+            state: estado,
+            postal_code: cep,
+            country: 'BR',
+        },
+    }, {
+        stripeAccount: accountId,
     });
 
     return customer.id;
@@ -289,21 +334,84 @@ async function getPaymentsMethod(accountId, customerId) {
     }, {
         stripeAccount: accountId,
     });
-
-    console.log(paymentMethods);
+    
     return paymentMethods.data;
+}
+
+async function createProduct(accountId, name) {
+    const stripe = require('stripe')(token);
+
+    const product = await stripe.products.create({
+        name: name,
+        description: name,
+    }, {
+        stripeAccount: accountId,
+    });
+
+    return product.id;
+}
+
+async function createPrice(accountId, productId, amount) {
+    const stripe = require('stripe')(token);
+
+    const amountInCents = amount * 100;
+
+    const price = await stripe.prices.create({
+        unit_amount: amountInCents,
+        currency: 'brl',
+        recurring: { interval: 'month' },
+        product: productId,
+    }, {
+        stripeAccount: accountId,
+    });
+
+    return price.id;
+}
+
+async function createSubscriptionSchedule(accountId, customerId, paymentMethodId, items, duration, dueDate) {
+    const stripe = require('stripe')(token);
+
+    var collection_method = paymentMethodId ? 'charge_automatically' : 'send_invoice';
+
+    const startDate = (dueDate && collection_method == 'send_invoice')
+    ? Math.floor(new Date(new Date(dueDate).getTime() - (5 * 24 * 60 * 60 * 1000)).getTime() / 1000)
+    : 'now';
+
+    var invoiceSettings = {};
+    if (collection_method == 'send_invoice') invoiceSettings = { days_until_due: 5 };
+
+    const schedule = await stripe.subscriptionSchedules.create({
+        customer: customerId,
+        start_date: startDate,
+        end_behavior: 'release',
+        phases: [{
+            items: items,
+            iterations: duration,
+            collection_method: collection_method,
+            invoice_settings: invoiceSettings
+        }],
+    }, {
+        stripeAccount: accountId,
+    });
+
+    return schedule;
 }
 
 module.exports = {
     deleteAccount,
     createAccount,
+    updateAccount,
     getStatusAccount,
     sendDocuments,
     createCustomer,
+    updateCustomer,
     createInvoiceItem,
     setDefaultPaymentMethod,
     createInvoice,
     finalizeInvoice,
     getSetupIntent,
     getPaymentsMethod,
+    createProduct,
+    createPrice,
+    createSubscriptionSchedule,
 }

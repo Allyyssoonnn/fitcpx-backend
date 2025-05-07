@@ -192,7 +192,10 @@ async function criarPagamentoAluno(req, res) {
 
     const subscriptionSchedule = await createSubscriptionSchedule(accountId, customerId, paymentId, items, duration, dataInicio);
     var field = env === 'development' ? { dev_stripe_id: subscriptionSchedule.id } : { stripe_id: subscriptionSchedule.id };
-    await tab_aluno_contrato.update(field, { where: { cod_aluno_contrato } });
+    await tab_aluno_contrato.update({
+        ...field,
+        status_aluno_contrato: subscriptionSchedule?.status,
+    }, { where: { cod_aluno_contrato } });
 
     res.send({ status: true });
 }

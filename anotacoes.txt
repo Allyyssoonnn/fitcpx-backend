@@ -8,3 +8,7 @@ htop -p $(pgrep -d',' -f 'node|mysqld|redis-server')
 
 //Remove todos os docker parados
 docker container prune -f
+
+npx sequelize-cli migration:generate --name tab_modalidade_variacao
+
+npx sequelize-cli db:migrate

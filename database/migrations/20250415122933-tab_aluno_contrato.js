@@ -73,6 +73,11 @@ module.exports = {
         type: Sequelize.DataTypes.DOUBLE(22,2),
         defaultValue: null
       },
+      duracao_aluno_contrato: {
+        allowNull: true,
+        type: Sequelize.DataTypes.INTEGER,
+        defaultValue: null
+      },
       expiracao_aluno_contrato: {
         type: Sequelize.DataTypes.DATEONLY,
         allowNull: false,
@@ -101,6 +106,16 @@ module.exports = {
         defaultValue: null,
       },
       ambiente_aluno_contrato: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
+      },
+      stripe_id: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
+      },
+      dev_stripe_id: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null,
