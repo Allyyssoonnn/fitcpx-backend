@@ -18,7 +18,7 @@ const PORTAppAluno = 3075;
 const PORTAppAdmin = 3080;
 
 //cors precisa ser declarado antes das rotas para não ocorrer erro no client
-server.use(cors());
+server.use(cors({ origin: '*', credentials: true }));
 server.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 server.use(bodyParser.json({ limit: '50mb' }));
 
