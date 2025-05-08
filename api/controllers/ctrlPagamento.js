@@ -196,25 +196,19 @@ async function criarPagamentoAluno(req, res) {
                 await tab_modalidade_variacao.update(field, { where: { cod_modalidade_variacao: modalidade?.variacao?.cod_modalidade_variacao } });
             }
             
+            //Entra aqui para criar o priceId para um valor existente
             if (!priceId && modalidade?.variacaoValor) {
                 priceId = await createPrice(accountId, productId, modalidade?.variacaoValor?.valor_modalidade_variacao_valor);
                 var field = env === 'development' ? { dev_stripe_price_id: priceId } : { stripe_price_id: priceId };
                 await tab_modalidade_variacao_valor.update(field, { where: { cod_modalidade_variacao_valor: modalidade?.variacaoValor?.cod_modalidade_variacao_valor } });
-            } else {
-                //Verificar se valor não foi alterado e cria uma preço só para essa assinatura
-                const price = env === 'development' ? modalidade?.variacaoValor : modalidade?.variacaoValor;
+            }
+
+            if (modalidade?.variacaoValor) {
+                const price = modalidade?.variacaoValor;
 
                 if (price) {
                     if (modalidade.valor_modalidade_alterado && price.valor_modalidade_variacao_valor !== modalidade.valor_modalidade_alterado) {
                         priceId = await createPrice(accountId, productId, modalidade.valor_modalidade_alterado);
-                    }
-                } else {
-                    //Preenche com preço original
-                    priceId = env === 'development' ? modalidade?.variacao?.dev_stripe_price_id : modalidade?.variacao?.stripe_price_id;
-                    if (!priceId) {
-                        priceId = await createPrice(accountId, productId, modalidade?.variacao?.valor_modalidade_variacao);
-                        var field = env === 'development' ? { dev_stripe_price_id: priceId } : { stripe_price_id: priceId };
-                        await tab_modalidade_variacao.update(field, { where: { cod_modalidade_variacao: modalidade?.variacao?.cod_modalidade_variacao } });
                     }
                 }
             }
