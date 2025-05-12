@@ -59,8 +59,8 @@ appHttp.listen(PORTApp, () => console.log(`Frontend do app está rodando na port
 
 // ================ Aluno
 
-serverAppAluno.use(express.static(path.join(__dirname, '/dist-teste')));
-serverAppAluno.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/dist-teste/index.html'))));
+serverAppAluno.use(express.static(path.join(__dirname, '/dist-aluno')));
+serverAppAluno.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/dist-aluno/index.html'))));
 
 
 const appAlunoHttp = http.createServer(serverAppAluno);
