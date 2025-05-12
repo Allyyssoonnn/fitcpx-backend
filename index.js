@@ -33,6 +33,7 @@ server.use('/appaluno', require('./api/routes/routeAppAluno'));
 server.use('/appadmin', require('./api/routes/routeAppAdmin'));
 server.use('/plano', require('./api/routes/routePlano'));
 server.use('/pagamento', require('./api/routes/routePagamento'));
+server.use('/licenca', require('./api/routes/routeLicenca'));
 
 // ================ Servidor
 

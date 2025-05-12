@@ -1,6 +1,6 @@
 const moment = require("moment-timezone");
 const { tab_usuario, tab_empresa, tab_aluno, tab_usuario_pagamento, tab_aluno_contrato_pagamento, tab_empresa_cartao, tab_aluno_cartao, tab_aluno_contrato, tab_aluno_contrato_modalidade, tab_modalidade_variacao, tab_modalidade_variacao_valor, tab_modalidade } = require('../../database/models');
-const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createInvoice, createInvoiceItem, createCustomer, getSetupIntent, getPaymentsMethod, finalizeInvoice, createProduct, createPrice, createSubscriptionSchedule, getBalanceAccount, getExtract, doPayout } = require("../stripe");
+const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createCustomer, getSetupIntent, getPaymentsMethod, getBalanceAccount, getExtract, createPayment, getPaymentIntent } = require("../stripe");
 const env = process.env.NODE_ENV || 'development';
 
 async function deletarConta(req, res) {
@@ -129,6 +129,11 @@ async function criarPagamentoAluno(req, res) {
 
     //If contract already pay
     if (formaPagamento === 'MANUAL') {
+        await tab_aluno_contrato.update({
+            status_aluno_contrato: 'Ativo',
+            formapagamento_aluno_contrato: formaPagamento,
+        }, { where: { cod_aluno_contrato } });
+
         res.send({ status: true });
         return;
     }
@@ -163,65 +168,86 @@ async function criarPagamentoAluno(req, res) {
 
     const dataInicio = new Date(aluno_contrato?.iniciopagamento_aluno_contrato);
     const resumoParcelas = JSON.parse(aluno_contrato?.parcela_aluno_contrato);
-    const valor = mensal ? resumoParcelas[0] : aluno_contrato.total_aluno_contrato;
+    const valor = formaPagamento === 'RECORRENTE' || formaPagamento === 'MENSAL' ? resumoParcelas[0] : aluno_contrato.total_aluno_contrato;
     const duration = resumoParcelas.length;
 
     if (formaPagamento === 'UNICA') {
-        const invoice = await createInvoice(accountId, null, dataInicio);
-        const invoiceItem = await createInvoiceItem(accountId, customerId, aluno_contrato.nome_aluno_contrato, aluno_contrato.total_aluno_contrato, invoice.id);
-        await finalizeInvoice(accountId, invoice.id);
+        for (const modalidade of aluno_contrato?.modalidades) {
+            name = `${modalidade.modalidade.nome_modalidade} - ${modalidade.variacao.nome_modalidade_variacao}`;
+        }
 
-        var field = env === 'development' ? { dev_invoice_stripe_id: invoice.id } : { invoice_stripe_id: invoice.id };
+        const payment = await createPayment(accountId, paymentId, valor, customerId, name);
+        var field = env === 'development' ? { dev_stripe_payment_id: payment.id } : { stripe_payment_id: payment.id };
+        await tab_aluno_contrato_pagamento.create({
+            ...field,
+            cod_aluno_contrato: aluno_contrato.cod_aluno_contrato,
+            data_aluno_contrato_pagamento: new Date(),
+            expiracao_aluno_contrato_pagamento: new Date(),
+            valor_aluno_contrato_pagamento: valor,
+            liquido_aluno_contrato_pagamento: valor,
+            forma_aluno_contrato_pagamento: formaPagamento,
+            status_aluno_contrato_pagamento: payment?.status,
+            json_aluno_contrato_pagamento: JSON.stringify(payment),
+            ambiente_aluno_contrato_pagamento: env,
+        }, { where: { cod_aluno_contrato } });
 
         await tab_aluno_contrato.update({
-            ...field,
-            status_aluno_contrato: invoice?.status,
+            status_aluno_contrato: 'Ativo',
+            formapagamento_aluno_contrato: formaPagamento,
         }, { where: { cod_aluno_contrato } });
 
         res.send({ status: true });
         return;
     }
 
+    if (formaPagamento === 'RECORRENTE' && !paymentId) {
+        res.send({ status: false, message: 'Opção recorrente selecionada sem um cartão informado!' });
+        return;
+    }
+
     if (formaPagamento === 'RECORRENTE' || formaPagamento === 'MENSAL') {
-        var items = [];
+        var name = '';
 
         for (const modalidade of aluno_contrato?.modalidades) {
-            var productId = env === 'development' ? modalidade?.variacao?.dev_stripe_product_id : modalidade?.variacao?.stripe_product_id;
-            var priceId = env === 'development' ? modalidade?.variacaoValor?.dev_stripe_price_id : modalidade?.variacaoValor?.stripe_price_id;
-    
-            if (!productId) {
-                var name = `${modalidade.modalidade.nome_modalidade} - ${modalidade.variacao.nome_modalidade_variacao}`;
-                productId = await createProduct(accountId, name);
-                var field = env === 'development' ? { dev_stripe_product_id: productId } : { stripe_product_id: productId };
-                await tab_modalidade_variacao.update(field, { where: { cod_modalidade_variacao: modalidade?.variacao?.cod_modalidade_variacao } });
-            }
-            
-            //Entra aqui para criar o priceId para um valor existente
-            if (!priceId && modalidade?.variacaoValor) {
-                priceId = await createPrice(accountId, productId, modalidade?.variacaoValor?.valor_modalidade_variacao_valor);
-                var field = env === 'development' ? { dev_stripe_price_id: priceId } : { stripe_price_id: priceId };
-                await tab_modalidade_variacao_valor.update(field, { where: { cod_modalidade_variacao_valor: modalidade?.variacaoValor?.cod_modalidade_variacao_valor } });
-            }
-
-            if (modalidade?.variacaoValor) {
-                const price = modalidade?.variacaoValor;
-
-                if (price) {
-                    if (modalidade.valor_modalidade_alterado && price.valor_modalidade_variacao_valor !== modalidade.valor_modalidade_alterado) {
-                        priceId = await createPrice(accountId, productId, modalidade.valor_modalidade_alterado);
-                    }
-                }
-            }
-            
-            items.push({ price: priceId });
+            name = `${modalidade.modalidade.nome_modalidade} - ${modalidade.variacao.nome_modalidade_variacao}`;
         }
-    
-        const subscriptionSchedule = await createSubscriptionSchedule(accountId, customerId, paymentId, items, duration, dataInicio);
-        var field = env === 'development' ? { dev_stripe_id: subscriptionSchedule.id } : { stripe_id: subscriptionSchedule.id };
-        await tab_aluno_contrato.update({
+
+        const payment = await createPayment(accountId, paymentId, valor, customerId, name);
+        var field = env === 'development' ? { dev_stripe_payment_id: payment.id } : { stripe_payment_id: payment.id };
+        await tab_aluno_contrato_pagamento.create({
             ...field,
-            status_aluno_contrato: subscriptionSchedule?.status,
+            cod_aluno_contrato: aluno_contrato.cod_aluno_contrato,
+            data_aluno_contrato_pagamento: new Date(),
+            expiracao_aluno_contrato_pagamento: new Date(),
+            valor_aluno_contrato_pagamento: valor,
+            liquido_aluno_contrato_pagamento: valor,
+            forma_aluno_contrato_pagamento: formaPagamento,
+            status_aluno_contrato_pagamento: payment?.status,
+            json_aluno_contrato_pagamento: JSON.stringify(payment),
+            ambiente_aluno_contrato_pagamento: env,
         }, { where: { cod_aluno_contrato } });
+
+        await tab_aluno_contrato.update({
+            status_aluno_contrato: 'Ativo',
+            formapagamento_aluno_contrato: formaPagamento,
+        }, { where: { cod_aluno_contrato } });
+
+        for (let i = 0; i < resumoParcelas.length; i++) {
+            const parcela = resumoParcelas[i];
+            //Ignorar primeira parcela que já foi gerada
+            if (i > 0) {
+                await tab_aluno_contrato_pagamento.create({
+                    cod_aluno_contrato: aluno_contrato.cod_aluno_contrato,
+                    data_aluno_contrato_pagamento: moment(new Date()).add('month', i),
+                    expiracao_aluno_contrato_pagamento: moment(new Date()).add('month', i),
+                    valor_aluno_contrato_pagamento: parcela,
+                    liquido_aluno_contrato_pagamento: parcela,
+                    forma_aluno_contrato_pagamento: formaPagamento,
+                    status_aluno_contrato_pagamento: 'Pendente',
+                    ambiente_aluno_contrato_pagamento: env,
+                }, { where: { cod_aluno_contrato } });
+            }
+        }
 
         res.send({ status: true });
         return;
@@ -261,6 +287,37 @@ async function getIntentCard(req, res) {
     res.send({ status: true, clientSecret, accountId });
 }
 
+async function getIntentPayment(req, res) {
+    const { cod_empresa, cod_aluno_contrato_pagamento } = req.body;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    const pagamento = await tab_aluno_contrato_pagamento.findOne({ where: { cod_aluno_contrato_pagamento } });
+    const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
+    const paymentIntentId = env === 'development' ? pagamento.dev_stripe_payment_id : pagamento.stripe_payment_id;
+
+    const payment = await getPaymentIntent(accountId, paymentIntentId);
+
+    res.send({ status: true, payment });
+}
+
+async function updatePaymentIntentStatus(req, res) {
+    const { paymentId, status, cobrarRecorrente } = req.body;
+
+    const where = env === 'development' ? { dev_stripe_payment_id: paymentId } : { dev_stripe_payment_id: paymentId };
+
+    const pagamento = await tab_aluno_contrato_pagamento.update({
+        status_aluno_contrato_pagamento: status,
+    }, { where: where });
+
+    if (cobrarRecorrente && pagamento.cod_aluno_contrato) {
+        await tab_aluno_contrato.update({ status_aluno_contrato: 'RECORRENTE' },
+            { where: { cod_aluno_contrato: pagamento.cod_aluno_contrato } }
+        )
+    }
+
+    res.send({ status: true });
+}
+
 async function getCards(req, res) {
     const { cod_empresa, cod_aluno } = req.body;
     var paymentsMethod = [];
@@ -287,6 +344,23 @@ async function getBalance(req, res) {
     res.send({ status: true, balance });
 }
 
+async function updateMethodPayment(req, res) {
+    const { cod_empresa, cod_aluno, paymentId } = req.body;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
+    const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
+    const customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
+
+    if (paymentId) {
+        await setDefaultPaymentMethod(accountId, customerId, paymentId);
+        var field = env === 'development' ? { dev_payment_stripe_id: paymentId } : { payment_stripe_id: paymentId };
+        await tab_aluno.update(field, { where: { cod_aluno } });
+    }
+
+    res.send({ status: true });
+}
+
 async function getBankExtract(req, res) {
     const { cod_empresa, month, year } = req.body;
 
@@ -298,26 +372,17 @@ async function getBankExtract(req, res) {
     res.send({ status: true, bankExtract });
 }
 
-async function cashWithdrawal(req, res) {
-    const { cod_empresa } = req.body;
-
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
-
-    const payout = await doPayout(accountId);
-
-    res.send({ status: true });
-}
-
 module.exports = {
-    cashWithdrawal,
     getBankExtract,
     getBalance,
+    updateMethodPayment,
+    updatePaymentIntentStatus,
     deletarConta,
     gerarIdCarteira,
     sendDocument,
     getStatusConta,
     criarPagamentoAluno,
     getIntentCard,
+    getIntentPayment,
     getCards,
 }

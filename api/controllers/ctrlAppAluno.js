@@ -1,4 +1,4 @@
-const { tab_aluno, tab_refreshtoken_aluno, tab_treino_execucao, tab_treino_execucao_exercicio } = require('../../database/models');
+const { tab_aluno, tab_empresa, tab_refreshtoken_aluno, tab_treino_execucao, tab_treino_execucao_exercicio } = require('../../database/models');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
@@ -13,6 +13,10 @@ async function login(req, res) {
                 { cpf_aluno: login.trim() }
             ]
         }
+    });
+
+    const empresa = await tab_empresa.findOne({
+        where: { cod_empresa: aluno.cod_empresa },
     });
 
     if (!aluno) {
@@ -40,7 +44,7 @@ async function login(req, res) {
         ip_aluno: ipAddress,
         expiresAt: expiresAt,
     });
-    res.send({ status: true, token, refreshToken, aluno });
+    res.send({ status: true, token, refreshToken, aluno, empresa });
 }
 
 async function refreshToken(req, res) {

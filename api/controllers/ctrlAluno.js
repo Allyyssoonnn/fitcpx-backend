@@ -3,7 +3,7 @@ const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_us
 const { removeStringVazia } = require('../../utils');
 const moment = require("moment-timezone");
 const { sendDocument, deleteDocument, downloadContract } = require('../autentique');
-const { updateCustomer, cancelSubscriptionSchedule, cancelInvoice } = require('../stripe');
+const { updateCustomer } = require('../stripe');
 const env = process.env.NODE_ENV || 'development';
 
 async function getAlunos(req, res) {    
@@ -218,17 +218,17 @@ async function cancelAlunoContrato(req, res) {
     const subscriptionId = env === 'development' ? alunoContrato.dev_stripe_id : alunoContrato.stripe_id;
     const invoiceId = env === 'development' ? alunoContrato.dev_invoice_stripe_id : alunoContrato.invoice_stripe_id;
 
-    if (accountId && subscriptionId) {
-        await cancelSubscriptionSchedule(accountId, subscriptionId);
-    }
-    if (accountId && invoiceId) {
-        const resp = await cancelInvoice(accountId, invoiceId);
-        if (resp?.invoice) {
-            await tab_aluno_contrato.update({ status_aluno_contrato: resp.status }, { where: { cod_aluno_contrato } });
-        }
-    }
+    // if (accountId && subscriptionId) {
+    //     await cancelSubscriptionSchedule(accountId, subscriptionId);
+    // }
+    // if (accountId && invoiceId) {
+    //     const resp = await cancelInvoice(accountId, invoiceId);
+    //     if (resp?.invoice) {
+    //         await tab_aluno_contrato.update({ status_aluno_contrato: resp.status }, { where: { cod_aluno_contrato } });
+    //     }
+    // }
 
-    await tab_aluno_contrato.update({ deletedAt: new Date() }, { where: { cod_aluno_contrato } });
+    await tab_aluno_contrato.update({ deletedAt: new Date(), status_aluno_contrato: 'Cancelado' }, { where: { cod_aluno_contrato } });
 
     res.send({ status: true });
 }

@@ -73,7 +73,12 @@ module.exports = {
         type: Sequelize.DataTypes.TEXT,
         defaultValue: null,
       },
-      stripe_invoice_id: {
+      dev_stripe_payment_id: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
+      },
+      stripe_payment_id: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null,
