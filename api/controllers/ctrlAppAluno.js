@@ -15,10 +15,6 @@ async function login(req, res) {
         }
     });
 
-    const empresa = await tab_empresa.findOne({
-        where: { cod_empresa: aluno.cod_empresa },
-    });
-
     if (!aluno) {
         res.send({ status: true, msg: 'CPF ou E-mail não cadastrado!' });
         return;
@@ -28,6 +24,10 @@ async function login(req, res) {
         res.send({ status: true, msg: 'Senha incorreta!' });
         return;
     }
+
+    const empresa = await tab_empresa.findOne({
+        where: { cod_empresa: aluno.cod_empresa },
+    });
 
     const userAgent = req.headers['user-agent'];
     const ipAddress = req.ip || req.connection.remoteAddress;
