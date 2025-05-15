@@ -8,10 +8,15 @@ async function login(req, res) {
 
     const aluno = await tab_aluno.findOne({
         where: {
-            [Op.or]: [
-                { email_aluno: login.trim() },
-                { cpf_aluno: login.trim() }
-            ]
+            [Op.and]: [
+            {
+                [Op.or]: [
+                    { email_aluno: login.trim() },
+                    { cpf_aluno: login.trim() }
+                ]
+            },
+            { deletedAt: null }
+        ]
         }
     });
 
