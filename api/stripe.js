@@ -325,7 +325,7 @@ async function createPayment(accountId, paymentId, value, customerId, name) {
     const stripe = require('stripe')(token);
     const amountInCents = Math.round(value * 100);
 
-    const feePercentage = 0.01;
+    const feePercentage = 0.012;
     const feeAmount = Math.round(amountInCents * feePercentage);
 
     const baseOptions = {
@@ -359,7 +359,7 @@ async function createPayment(accountId, paymentId, value, customerId, name) {
     return paymentIntent;
 }
 
-async function getPaymentIntent(accountId, paymentIntentId) {
+async function getPaymentIntent(accountId, paymentIntentId, amount) {
     const stripe = require('stripe')(token);
 
     const paymentIntent = await stripe.paymentIntents.retrieve(
@@ -369,6 +369,36 @@ async function getPaymentIntent(accountId, paymentIntentId) {
     });
 
     return paymentIntent;
+}
+
+async function refundPayment(accountId, paymentIntentId, amount) {
+    const stripe = require('stripe')(token);
+
+    try {
+        // Busca o último charge vinculado ao PaymentIntent
+        const paymentIntent = await stripe.paymentIntents.retrieve(
+            paymentIntentId,
+            { expand: ['latest_charge'] },
+            { stripeAccount: accountId }
+        );
+
+        const chargeId = paymentIntent.latest_charge?.id;
+        if (!chargeId) throw new Error('Charge não encontrado.');
+
+        // Cria o reembolso
+        const reembolso = await stripe.refunds.create({
+            charge: chargeId,
+            ...(amount ? { amount } : {}), // reembolso parcial se amount fornecido
+        }, {
+            stripeAccount: accountId,
+        });
+
+        console.log('Reembolso criado:', reembolso.id);
+        return reembolso;
+    } catch (error) {
+        console.error('Erro ao reembolsar:', error.message);
+        throw error;
+    }
 }
 
 module.exports = {
@@ -386,4 +416,5 @@ module.exports = {
     getExtract,
     createPayment,
     getPaymentIntent,
+    refundPayment,
 }

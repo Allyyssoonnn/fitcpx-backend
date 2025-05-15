@@ -1,6 +1,6 @@
 const moment = require("moment-timezone");
 const { tab_usuario, tab_empresa, tab_aluno, tab_usuario_pagamento, tab_aluno_contrato_pagamento, tab_empresa_cartao, tab_aluno_cartao, tab_aluno_contrato, tab_aluno_contrato_modalidade, tab_modalidade_variacao, tab_modalidade_variacao_valor, tab_modalidade } = require('../../database/models');
-const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createCustomer, getSetupIntent, getPaymentsMethod, getBalanceAccount, getExtract, createPayment, getPaymentIntent } = require("../stripe");
+const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createCustomer, getSetupIntent, getPaymentsMethod, getBalanceAccount, getExtract, createPayment, getPaymentIntent, refundPayment } = require("../stripe");
 const env = process.env.NODE_ENV || 'development';
 
 async function deletarConta(req, res) {
@@ -127,12 +127,34 @@ async function criarPagamentoAluno(req, res) {
         where: { cod_aluno_contrato },
     });
 
+    const dataInicio = new Date(aluno_contrato?.iniciopagamento_aluno_contrato);
+    const resumoParcelas = JSON.parse(aluno_contrato?.parcela_aluno_contrato);
+    const valor = formaPagamento === 'RECORRENTE' || formaPagamento === 'MENSAL' ? resumoParcelas[0] : aluno_contrato.total_aluno_contrato;
+    const duration = resumoParcelas.length;
+
     //If contract already pay
     if (formaPagamento === 'MANUAL') {
         await tab_aluno_contrato.update({
             status_aluno_contrato: 'Ativo',
             formapagamento_aluno_contrato: formaPagamento,
         }, { where: { cod_aluno_contrato } });
+
+        for (let i = 0; i < resumoParcelas.length; i++) {
+            const parcela = resumoParcelas[i];
+            //Ignorar primeira parcela que já foi gerada
+            if (i > 0) {
+                await tab_aluno_contrato_pagamento.create({
+                    cod_aluno_contrato: aluno_contrato.cod_aluno_contrato,
+                    data_aluno_contrato_pagamento: moment(new Date()).add('month', i),
+                    expiracao_aluno_contrato_pagamento: moment(new Date()).add('month', i),
+                    valor_aluno_contrato_pagamento: parcela,
+                    liquido_aluno_contrato_pagamento: parcela,
+                    forma_aluno_contrato_pagamento: formaPagamento,
+                    status_aluno_contrato_pagamento: 'Pendente',
+                    ambiente_aluno_contrato_pagamento: env,
+                }, { where: { cod_aluno_contrato } });
+            }
+        }
 
         res.send({ status: true });
         return;
@@ -165,11 +187,6 @@ async function criarPagamentoAluno(req, res) {
         var field = env === 'development' ? { dev_payment_stripe_id: paymentId } : { payment_stripe_id: paymentId };
         await tab_aluno.update(field, { where: { cod_aluno } });
     }
-
-    const dataInicio = new Date(aluno_contrato?.iniciopagamento_aluno_contrato);
-    const resumoParcelas = JSON.parse(aluno_contrato?.parcela_aluno_contrato);
-    const valor = formaPagamento === 'RECORRENTE' || formaPagamento === 'MENSAL' ? resumoParcelas[0] : aluno_contrato.total_aluno_contrato;
-    const duration = resumoParcelas.length;
 
     if (formaPagamento === 'UNICA') {
         for (const modalidade of aluno_contrato?.modalidades) {
@@ -372,6 +389,30 @@ async function getBankExtract(req, res) {
     res.send({ status: true, bankExtract });
 }
 
+async function doRefundPayment(req, res) {
+    const { cod_empresa, cod_aluno_contrato_pagamento } = req.body;
+
+    const pagamento = await tab_aluno_contrato_pagamento.findOne({ where: { cod_aluno_contrato_pagamento } });
+
+    const paymentId = env === 'development' ? pagamento.dev_stripe_payment_id : pagamento.stripe_payment_id;
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
+
+    const refund = await refundPayment(accountId, paymentId);
+
+    if (refund.id) {
+        await tab_aluno_contrato_pagamento.update(
+            {
+                status_aluno_contrato_pagamento: 'refund',
+                dev_stripe_refund_id: refund.id,
+            },
+            { where: { cod_aluno_contrato_pagamento } }
+        );
+    }
+
+    res.send({ status: true, refund });
+}
+
 module.exports = {
     getBankExtract,
     getBalance,
@@ -385,4 +426,5 @@ module.exports = {
     getIntentCard,
     getIntentPayment,
     getCards,
+    doRefundPayment,
 }

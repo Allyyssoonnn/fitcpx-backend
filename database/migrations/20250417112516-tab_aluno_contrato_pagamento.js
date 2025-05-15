@@ -83,6 +83,16 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null,
       },
+      dev_stripe_refund_id: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
+      },
+      stripe_refund_id: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,

@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const verifyToken = require('../authMiddleware');
-const { gerarIdCarteira, criarPagamentoAluno, getBalance, getBankExtract, getStatusConta, sendDocument, deletarConta, getIntentCard, getCards, getIntentPayment, updateMethodPayment, updatePaymentIntentStatus } = require('../controllers/ctrlPagamento');
+const { gerarIdCarteira, criarPagamentoAluno, getBalance, getBankExtract, getStatusConta, sendDocument, deletarConta, getIntentCard, getCards, getIntentPayment, updateMethodPayment, updatePaymentIntentStatus, doRefundPayment } = require('../controllers/ctrlPagamento');
 
 //STRIPE
 router.post('/deleteAccount', verifyToken, deletarConta);
@@ -15,5 +15,6 @@ router.post('/getBalance', verifyToken, getBalance);
 router.post('/getBankExtract', verifyToken, getBankExtract);
 router.post('/updateMethodPayment', verifyToken, updateMethodPayment);
 router.post('/updatePaymentIntentStatus', verifyToken, updatePaymentIntentStatus);
+router.post('/doRefundPayment', verifyToken, doRefundPayment);
 
 module.exports = router;
