@@ -191,13 +191,13 @@ async function sendDocuments(id, personId, frontDoc, backDoc, frontDocType, back
     return { frontDocumentId: frontDocument.id, backDocumentId: backDocument.id };
 }
 
-async function createCustomer(nome, email, documento, telefone, endereco, numero, cidade, estado, cep, cod, nome_empresa = null, accountId) {
+async function createCustomer(nome, email, documento, telefone, endereco, numero, cidade, estado, cep, accountId) {
     const stripe = require('stripe')(token);
 
     const customer = await stripe.customers.create({
         name: nome,
         email: email,
-        phone: formatarCelular(telefone),
+        phone: telefone ? formatarCelular(telefone) : null,
         address: {
             line1: endereco,
             line2: numero,
@@ -207,7 +207,7 @@ async function createCustomer(nome, email, documento, telefone, endereco, numero
             country: 'BR',
         },
     }, {
-        stripeAccount: accountId, // ID da conta conectada
+        stripeAccount: accountId,
     });
 
     return customer.id;
@@ -333,8 +333,9 @@ async function createPayment(accountId, paymentId, value, customerId, name) {
         currency: 'brl',
         customer: customerId,
         description: name,
-        application_fee_amount: feeAmount,
+        ...(accountId ? { application_fee_amount: feeAmount } : {})
     };
+
 
     // Se paymentId estiver definido, cobra imediatamente
     const paymentOptions = paymentId

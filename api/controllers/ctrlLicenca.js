@@ -1,15 +1,11 @@
-const { tab_licenca, tab_empresa_licenca, tab_licenca_variacao } = require('../../database/models');
+const moment = require("moment-timezone");
+const { tab_licenca, tab_empresa_licenca, tab_empresa, tab_empresa_licenca_pagamento } = require('../../database/models');
+const env = process.env.NODE_ENV || 'development';
+const { createPayment, createCustomer } = require("../stripe");
 
 async function getLicencas(req, res) {    
     const licencas = await tab_licenca.findAll({
-        include: [
-            {
-                model: tab_licenca_variacao,
-                as: 'licencaVariacao'
-            },
-        ],
         where: { visivel_licenca: 'S' },
-        order: [[{ model: tab_licenca_variacao, as: 'licencaVariacao' }, 'sequencia_licenca_variacao', 'ASC']],
     });
     res.send({ status: true, licencas });
 }
@@ -23,25 +19,116 @@ async function getLicenca(req, res) {
                 model: tab_licenca,
                 as: 'licenca'
             },
-            {
-                model: tab_licenca_variacao,
-                as: 'licencaVariacao'
-            },
         ],
-        where: { cod_empresa }
+        where: { cod_empresa, status_empresa_licenca: 'Active' }
     });
 
-    const licencaData = licenca.get({ plain: true });
+    const licencaData = licenca?.get({ plain: true }) ?? {};
     const licencaResp = {
         ...licencaData,
         ...licencaData.licenca,
-        licencaVariacao: licencaData.licencaVariacao,
     }
 
     res.send({ status: true, licenca: licencaResp });
 }
 
+async function buyLicenca(req, res) {
+    const { cod_empresa, cod_licenca, formaPagamento, paymentMethodId } = req.body;
+
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    const licenca = await tab_licenca.findOne({ where: { cod_licenca } });
+    customerId = env === 'development' ? empresa.dev_stripe_customer_id : empresa.stripe_customer_id;
+
+    if (!customerId) customerId = await createCustomer(
+        empresa.nome_empresa,
+        empresa.email_empresa,
+        empresa.doc_empresa,
+        empresa.telefone_empresa,
+        empresa.endereco_empresa,
+        empresa.numero_empresa,
+        empresa.cidade_empresa,
+        empresa.estado_empresa,
+        empresa.cep_empresa,
+        null
+    );
+
+    if (customerId) {
+        var field = env === 'development' ? { dev_stripe_customer_id: customerId } : { stripe_customer_id: customerId };
+        await tab_empresa.update(field, { where: { cod_empresa } });
+    }
+
+    await tab_empresa_licenca.update({
+        status_empresa_licenca: 'Cancelled',
+    }, { where: { status_empresa_licenca: 'Active' } });
+
+    const empresa_licenca = await tab_empresa_licenca.create({
+        status_empresa_licenca: 'Active',
+        cod_licenca,
+        cod_empresa,
+        ambiente_empresa_licenca: env,
+        forma_empresa_licenca: formaPagamento,
+    });
+
+    const valor = licenca.valor_licenca;
+
+    const payment = await createPayment(null, paymentMethodId, valor, customerId, licenca.nome_licenca);
+    var field = env === 'development' ? { dev_stripe_payment_id: payment.id } : { stripe_payment_id: payment.id };
+
+    await tab_empresa_licenca_pagamento.create({
+        ...field,
+        cod_empresa_licenca: empresa_licenca.cod_empresa_licenca,
+        data_empresa_licenca_pagamento: new Date(),
+        expiracao_empresa_licenca_pagamento: moment(new Date()).add('month', 1),
+        valor_empresa_licenca_pagamento: valor,
+        forma_empresa_licenca_pagamento: formaPagamento,
+        status_empresa_licenca_pagamento: payment?.status,
+        json_empresa_licenca_pagamento: JSON.stringify(payment),
+        ambiente_empresa_licenca_pagamento: env,
+    }, { where: { cod_empresa_licenca: empresa_licenca.cod_empresa_licenca } });
+
+    res.send({ status: true });
+    return;
+}
+
+async function cancelLicenca(req, res) {
+    const { cod_empresa_licenca } = req.body;
+
+    const licenca = await tab_empresa_licenca.findOne({
+        where: { cod_empresa_licenca }
+    });
+
+    await tab_empresa_licenca.update({ status_empresa_licenca: 'Cancelled' },
+        { where: { cod_empresa_licenca } }
+    );
+
+    res.send({ status: true });
+}
+
+async function getPayments(req, res) {    
+    const { cod_empresa } = req.body;
+
+    const payments = await tab_empresa_licenca.findAll({
+        include: [
+            {
+                model: tab_empresa_licenca_pagamento,
+                as: 'payments',
+            },
+            {
+                model: tab_licenca,
+                as: 'licenca'
+            },
+        ],
+        where: { cod_empresa },
+        order: [['createdAt', 'DESC']]
+    })
+
+    res.send({ status: true, payments });
+}
+
 module.exports = {
     getLicencas,
     getLicenca,
+    buyLicenca,
+    cancelLicenca,
+    getPayments,
 }

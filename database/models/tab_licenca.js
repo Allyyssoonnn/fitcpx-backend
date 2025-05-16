@@ -52,13 +52,6 @@ module.exports = (sequelize, DataTypes) => {
     freezeTableName: true,
     timestamps: true
   });
-
-  tab_licenca.associate = models => {
-    tab_licenca.hasMany(models.tab_licenca_variacao, {
-      foreignKey: 'cod_licenca',
-      as: 'licencaVariacao',
-    });
-  };
-
+  
   return tab_licenca;
 };

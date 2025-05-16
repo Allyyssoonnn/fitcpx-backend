@@ -1,5 +1,5 @@
 const moment = require("moment-timezone");
-const { tab_usuario, tab_empresa, tab_aluno, tab_usuario_pagamento, tab_aluno_contrato_pagamento, tab_empresa_cartao, tab_aluno_cartao, tab_aluno_contrato, tab_aluno_contrato_modalidade, tab_modalidade_variacao, tab_modalidade_variacao_valor, tab_modalidade } = require('../../database/models');
+const { tab_usuario, tab_empresa, tab_aluno, tab_empresa_licenca_pagamento, tab_aluno_contrato_pagamento, tab_empresa_licenca, tab_aluno_cartao, tab_aluno_contrato, tab_aluno_contrato_modalidade, tab_modalidade_variacao, tab_modalidade_variacao_valor, tab_modalidade } = require('../../database/models');
 const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createCustomer, getSetupIntent, getPaymentsMethod, getBalanceAccount, getExtract, createPayment, getPaymentIntent, refundPayment } = require("../stripe");
 const env = process.env.NODE_ENV || 'development';
 
@@ -274,77 +274,132 @@ async function criarPagamentoAluno(req, res) {
 }
 
 async function getIntentCard(req, res) {
-    const { cod_empresa, cod_aluno } = req.body;
+    const { cod_empresa, cod_aluno, licenca } = req.body;
+    
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
-    accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
-    customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
+    var customerId;
+    var accountId;
 
-    if (!customerId) customerId = await createCustomer(
-        aluno.nome_aluno,
-        aluno.email_aluno,
-        aluno.cpf_aluno,
-        aluno.telefone_aluno,
-        aluno.endereco_aluno,
-        aluno.numero_aluno,
-        aluno.cidade_aluno,
-        aluno.estado_aluno,
-        aluno.cep_aluno,
-        cod_aluno,
-        null,
-        accountId
-    );
-    if (customerId) {
-        var field = env === 'development' ? { dev_stripe_id: customerId } : { stripe_id: customerId };
-        await tab_aluno.update(field, { where: { cod_aluno } });
+    if (licenca) {
+        customerId = env === 'development' ? empresa.dev_stripe_customer_id : empresa.stripe_customer_id;
+        
+        if (!customerId) customerId = await createCustomer(
+            empresa.nome_empresa,
+            empresa.email_empresa,
+            empresa.doc_empresa,
+            empresa.telefone_empresa,
+            empresa.endereco_empresa,
+            empresa.numero_empresa,
+            empresa.cidade_empresa,
+            empresa.estado_empresa,
+            empresa.cep_empresa,
+            null
+        );
+
+        if (customerId) {
+            var field = env === 'development' ? { dev_stripe_customer_id: customerId } : { stripe_customer_id: customerId };
+            await tab_empresa.update(field, { where: { cod_empresa } });
+        }
+    } else {
+        const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
+        accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
+        customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
+
+        if (!customerId) customerId = await createCustomer(
+            aluno.nome_aluno,
+            aluno.email_aluno,
+            aluno.cpf_aluno,
+            aluno.telefone_aluno,
+            aluno.endereco_aluno,
+            aluno.numero_aluno,
+            aluno.cidade_aluno,
+            aluno.estado_aluno,
+            aluno.cep_aluno,
+            accountId
+        );
+
+        if (customerId) {
+            var field = env === 'development' ? { dev_stripe_id: customerId } : { stripe_id: customerId };
+            await tab_aluno.update(field, { where: { cod_aluno } });
+        }
     }
 
     const clientSecret = await getSetupIntent(accountId, customerId);
-
     res.send({ status: true, clientSecret, accountId });
 }
 
 async function getIntentPayment(req, res) {
-    const { cod_empresa, cod_aluno_contrato_pagamento } = req.body;
+    const { cod_empresa, cod_aluno_contrato_pagamento, cod_empresa_licenca_pagamento } = req.body;
+    var payment;
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    const pagamento = await tab_aluno_contrato_pagamento.findOne({ where: { cod_aluno_contrato_pagamento } });
-    const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
-    const paymentIntentId = env === 'development' ? pagamento.dev_stripe_payment_id : pagamento.stripe_payment_id;
 
-    const payment = await getPaymentIntent(accountId, paymentIntentId);
+    if (cod_aluno_contrato_pagamento) {
+        const pagamento = await tab_aluno_contrato_pagamento.findOne({ where: { cod_aluno_contrato_pagamento } });
+        const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
+        const paymentIntentId = env === 'development' ? pagamento.dev_stripe_payment_id : pagamento.stripe_payment_id;
+        payment = await getPaymentIntent(accountId, paymentIntentId);
+    }
+
+    if (cod_empresa_licenca_pagamento) {
+        const pagamento = await tab_empresa_licenca_pagamento.findOne({ where: { cod_empresa_licenca_pagamento } });
+        const paymentIntentId = env === 'development' ? pagamento.dev_stripe_payment_id : pagamento.stripe_payment_id;
+        payment = await getPaymentIntent(null, paymentIntentId);
+    }
 
     res.send({ status: true, payment });
 }
 
 async function updatePaymentIntentStatus(req, res) {
-    const { paymentId, status, cobrarRecorrente } = req.body;
+    const { paymentId, status, licenca, cobrarRecorrente } = req.body;
 
     const where = env === 'development' ? { dev_stripe_payment_id: paymentId } : { dev_stripe_payment_id: paymentId };
 
-    const pagamento = await tab_aluno_contrato_pagamento.update({
-        status_aluno_contrato_pagamento: status,
-    }, { where: where });
+    if (licenca) {
+        await tab_empresa_licenca_pagamento.update({
+            status_empresa_licenca_pagamento: status,
+        }, { where: where });
 
-    if (cobrarRecorrente && pagamento.cod_aluno_contrato) {
-        await tab_aluno_contrato.update({ status_aluno_contrato: 'RECORRENTE' },
-            { where: { cod_aluno_contrato: pagamento.cod_aluno_contrato } }
-        )
+        if (cobrarRecorrente) {
+            await tab_empresa_licenca.update({ status_empresa_licenca: 'RECORRENTE' },
+                { where: where }
+            )
+        }
+    } else {
+        await tab_aluno_contrato_pagamento.update({
+            status_aluno_contrato_pagamento: status,
+        }, { where: where });
+
+        if (cobrarRecorrente) {
+            await tab_aluno_contrato.update({ status_aluno_contrato: 'RECORRENTE' },
+                { where: where }
+            )
+        }
     }
 
     res.send({ status: true });
 }
 
 async function getCards(req, res) {
-    const { cod_empresa, cod_aluno } = req.body;
+    const { cod_empresa, cod_aluno, licenca } = req.body;
     var paymentsMethod = [];
-
+    
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
-    accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
-    customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
-    if (accountId && customerId) {
-        paymentsMethod = await getPaymentsMethod(accountId, customerId);
+
+    if (licenca) {
+        customerId = env === 'development' ? empresa.dev_stripe_customer_id : empresa.stripe_customer_id;
+    
+        if (customerId) {
+            paymentsMethod = await getPaymentsMethod(null, customerId);
+        }
+    } else {
+        const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
+        accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
+        customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
+    
+        if (accountId && customerId) {
+            paymentsMethod = await getPaymentsMethod(accountId, customerId);
+        }
     }
 
     res.send({ status: true, paymentsMethod });

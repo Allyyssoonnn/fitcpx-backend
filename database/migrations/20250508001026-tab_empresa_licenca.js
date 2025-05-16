@@ -26,35 +26,17 @@ module.exports = {
           key: 'cod_licenca'
         }
       },
-      cod_licenca_variacao: {
-        allowNull: false,
-        type: Sequelize.DataTypes.INTEGER,
-        references: {
-          model: 'tab_licenca_variacao',
-          key: 'cod_licenca_variacao'
-        }
-      },
-      expiracao_licenca_variacao: {
-        type: Sequelize.DataTypes.DATEONLY,
-        allowNull: true,
-        defaultValue: null
-      },
-      stripe_subscription_id: {
+      status_empresa_licenca: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
-      stripe_invoice_id: {
+      forma_empresa_licenca: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
-      dev_stripe_subscription_id: {
-        allowNull: true,
-        type: Sequelize.DataTypes.STRING,
-        defaultValue: null
-      },
-      dev_stripe_invoice_id: {
+      ambiente_empresa_licenca: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
