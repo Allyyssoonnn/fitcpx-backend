@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { Sequelize, where, Op } = require('sequelize');
 const { getURL, connected } = require('../google');
-const { sendEmail, getMsgEmailRecovery } = require('../sendgrid');
+const { sendEmail, getMsgEmailRecovery, getMsgEmailConfirmation } = require('../sendgrid');
 const { updateAccount } = require('../stripe');
 const env = process.env.NODE_ENV || 'development';
 
@@ -73,8 +73,11 @@ async function register(req, res) {
     });
     const novoUsuario = await tab_usuario.create({ ...req.body, cod_empresa: novaEmpresa.cod_empresa, admin_usuario: 'S' });
     
-    //Envia E-mail com código de confirmação
-    verifyEmail(null, null, novaEmpresa.cod_empresa);
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa: novaEmpresa.cod_empresa } });
+    
+    const msgHtml = await getMsgEmailConfirmation(empresa);
+
+    sendEmail(email_usuario, msgHtml, 'FitCpx - E-mail de verificação');
 
     const token = jwt.sign({ email_usuario }, process.env.SECRET);
     const refreshToken = crypto.randomBytes(64).toString('hex');
@@ -244,7 +247,7 @@ async function verifyEmail(req, res, codEmpresa) {
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa: cod_empresa || codEmpresa } });
 
-    const msgHtml = await getMsgEmailRecovery(empresa);
+    const msgHtml = await getMsgEmailConfirmation(empresa);
 
     sendEmail(empresa.email_empresa, msgHtml, 'FitCpx - E-mail de verificação');
 
