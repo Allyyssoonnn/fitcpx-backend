@@ -28,7 +28,7 @@ module.exports = {
       },
       nome_evento: {
         type: Sequelize.DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       data_inicio: {
         type: Sequelize.DataTypes.DATE,
@@ -40,7 +40,11 @@ module.exports = {
       },
       tipo_evento: {
         type: Sequelize.DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
+      },
+      cor_evento: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,

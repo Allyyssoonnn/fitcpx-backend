@@ -1,4 +1,5 @@
 const { tab_agenda, tab_google_token } = require('../../database/models');
+const { removeStringVazia } = require('../../utils');
 const { getURL, connected, syncEvents } = require('../google');
 
 async function getAgenda(req, res) {    
@@ -14,9 +15,9 @@ async function setAgenda(req, res) {
     if (evento.cod_evento) agendaAtt = await tab_agenda.findOne({ where: { cod_evento: evento.cod_evento } });
 
     if (agendaAtt) {
-        await tab_agenda.update(evento, { where: { cod_evento: aluno.cod_evento } });
+        await tab_agenda.update(removeStringVazia(evento), { where: { cod_evento: aluno.cod_evento } });
     } else {
-        const novaAgenda = await tab_agenda.create(evento);
+        const novaAgenda = await tab_agenda.create(removeStringVazia(evento));
         agendaAtt = novaAgenda;
     }
 
