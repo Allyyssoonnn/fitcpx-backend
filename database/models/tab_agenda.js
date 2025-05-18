@@ -8,6 +8,11 @@ module.exports = (sequelize, DataTypes) => {
         tipo_evento: DataTypes.STRING,
         cor_evento: DataTypes.STRING,
         google_id: DataTypes.STRING,
+        deletedAt: {
+            type: DataTypes.DATE,
+            allowNull: true,
+            defaultValue: null,
+        },
     }, {
         freezeTableName: true,
     });
