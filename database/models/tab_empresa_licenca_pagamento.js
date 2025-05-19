@@ -79,7 +79,8 @@ module.exports = (sequelize, DataTypes) => {
 
   tab_empresa_licenca_pagamento.associate = models => {
     tab_empresa_licenca_pagamento.belongsTo(models.tab_empresa_licenca, {
-      foreignKey: 'cod_empresa_licenca'
+      foreignKey: 'cod_empresa_licenca',
+      as: 'empresaLicenca'
     });
   };
 

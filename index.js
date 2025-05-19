@@ -22,6 +22,7 @@ server.use(cors({ origin: '*', credentials: true }));
 server.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 server.use(bodyParser.json({ limit: '50mb' }));
 
+server.get('/ping', async (req, res) => res.send({status: true}));
 server.get('/test', async (req, res) => res.send({status: true}));
 server.use('/error', require('./api/error'));
 server.use('/usuario', require('./api/routes/routeUsuario'));
@@ -34,6 +35,7 @@ server.use('/appadmin', require('./api/routes/routeAppAdmin'));
 server.use('/plano', require('./api/routes/routePlano'));
 server.use('/pagamento', require('./api/routes/routePagamento'));
 server.use('/licenca', require('./api/routes/routeLicenca'));
+server.use('/app', require('./api/routes/routeApp'));
 
 // ================ Servidor
 

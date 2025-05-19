@@ -81,7 +81,7 @@ async function register(req, res) {
 
     const token = jwt.sign({ email_usuario }, process.env.SECRET);
     const refreshToken = crypto.randomBytes(64).toString('hex');
-    res.send({ status: true, token, refreshToken, usuario: novoUsuario });
+    res.send({ status: true, token, refreshToken, usuario: novoUsuario, empresa });
 }
 
 async function recovery(req, res) {
