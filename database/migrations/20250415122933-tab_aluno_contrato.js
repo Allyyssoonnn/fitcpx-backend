@@ -38,6 +38,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
+      descricao_aluno_contrato: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
+      },
       formapagamento_aluno_contrato: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,

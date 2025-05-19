@@ -58,7 +58,7 @@ async function buyLicenca(req, res) {
     }
 
     await tab_empresa_licenca.update({
-        status_empresa_licenca: 'Cancelled',
+        status_empresa_licenca: 'Canceled',
     }, { where: { status_empresa_licenca: 'Active' } });
 
     const empresa_licenca = await tab_empresa_licenca.create({
@@ -97,7 +97,7 @@ async function cancelLicenca(req, res) {
         where: { cod_empresa_licenca }
     });
 
-    await tab_empresa_licenca.update({ status_empresa_licenca: 'Cancelled' },
+    await tab_empresa_licenca.update({ status_empresa_licenca: 'Canceled' },
         { where: { cod_empresa_licenca } }
     );
 

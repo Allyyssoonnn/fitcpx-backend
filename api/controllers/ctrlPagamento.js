@@ -134,9 +134,16 @@ async function criarPagamentoAluno(req, res) {
 
     //If contract already pay
     if (formaPagamento === 'MANUAL') {
+        var name = '';
+
+        for (const modalidade of aluno_contrato?.modalidades) {
+            name = `${modalidade.modalidade.nome_modalidade} - ${modalidade.variacao.nome_modalidade_variacao}`;
+        }
+
         await tab_aluno_contrato.update({
             status_aluno_contrato: 'Ativo',
             formapagamento_aluno_contrato: formaPagamento,
+            descricao_aluno_contrato: name,
         }, { where: { cod_aluno_contrato } });
 
         for (let i = 0; i < resumoParcelas.length; i++) {
@@ -210,6 +217,7 @@ async function criarPagamentoAluno(req, res) {
 
         await tab_aluno_contrato.update({
             status_aluno_contrato: 'Ativo',
+            descricao_aluno_contrato: name,
             formapagamento_aluno_contrato: formaPagamento,
         }, { where: { cod_aluno_contrato } });
 
@@ -246,6 +254,7 @@ async function criarPagamentoAluno(req, res) {
 
         await tab_aluno_contrato.update({
             status_aluno_contrato: 'Ativo',
+            descricao_aluno_contrato: name,
             formapagamento_aluno_contrato: formaPagamento,
         }, { where: { cod_aluno_contrato } });
 
