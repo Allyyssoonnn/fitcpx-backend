@@ -15,6 +15,11 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
+      status_empresa: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: 'Active'
+      },
       descricao_empresa: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
