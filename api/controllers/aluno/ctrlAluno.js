@@ -1,9 +1,9 @@
 const { Sequelize } = require('sequelize');
-const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa, tab_aluno_contrato, tab_aluno_contrato_pagamento, tab_aluno_contrato_modalidade} = require('../../database/models');
-const { removeStringVazia } = require('../../utils');
+const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa, tab_aluno_contrato, tab_aluno_contrato_pagamento, tab_aluno_contrato_modalidade} = require('../../../database/models');
+const { removeStringVazia } = require('../../../utils');
 const moment = require("moment-timezone");
-const { sendDocument, deleteDocument, downloadContract } = require('../autentique');
-const { updateCustomer } = require('../stripe');
+const { sendDocument, deleteDocument, downloadContract } = require('../../autentique');
+const { updateCustomer } = require('../../stripe');
 const env = process.env.NODE_ENV || 'development';
 
 async function getAlunos(req, res) {    
@@ -218,16 +218,6 @@ async function cancelAlunoContrato(req, res) {
     const subscriptionId = env === 'development' ? alunoContrato.dev_stripe_id : alunoContrato.stripe_id;
     const invoiceId = env === 'development' ? alunoContrato.dev_invoice_stripe_id : alunoContrato.invoice_stripe_id;
 
-    // if (accountId && subscriptionId) {
-    //     await cancelSubscriptionSchedule(accountId, subscriptionId);
-    // }
-    // if (accountId && invoiceId) {
-    //     const resp = await cancelInvoice(accountId, invoiceId);
-    //     if (resp?.invoice) {
-    //         await tab_aluno_contrato.update({ status_aluno_contrato: resp.status }, { where: { cod_aluno_contrato } });
-    //     }
-    // }
-
     await tab_aluno_contrato.update({ deletedAt: new Date(), status_aluno_contrato: 'Cancelado' }, { where: { cod_aluno_contrato } });
 
     res.send({ status: true });
@@ -291,7 +281,7 @@ async function getAlunoContratos(req, res) {
     const { cod_aluno, cod_empresa } = req.body;
 
     var where = {};
-    where = { ambiente_aluno_contrato: { [Sequelize.Op.ne]: env !== 'production' ? 'production' : 'development' } };
+    where = { ambiente_aluno_contrato: { [Sequelize.Op.ne]: env !== 'production' ? 'development' : 'production' } };
     if (cod_aluno) where = { ...where, cod_aluno: cod_aluno };
     if (cod_empresa) where = { ...where, cod_empresa: cod_empresa };
 
@@ -322,78 +312,6 @@ async function getAlunoContrato(req, res) {
             { model: tab_aluno_contrato_pagamento, as: 'pagamentos' },
         ]
     });
-
-    //DESATIVADO - 28/04/2025 - WEBHOOK TEM QUE ESTAR FUNCIONANDO BEM
-    // Check payment not captured by webhook - 2025/04/19
-    // if (alunoContrato.id_aluno_contrato) {
-    //     const payments = alunoContrato.pagamentos || [];
-    //     const installments = JSON.parse(alunoContrato.parcela_aluno_contrato || '[]');
-    //     const dueDate = [];
-    //     const startDate = alunoContrato.iniciopagamento_aluno_contrato 
-    //         ? moment(alunoContrato.iniciopagamento_aluno_contrato) 
-    //         : moment(new Date());
-    //     const today = moment(new Date());
-    
-    //     // Gera todas as datas de vencimento com base nas parcelas
-    //     for (let i = 0; i < installments.length; i++) {
-    //         const date = startDate.clone().add(i, 'month');
-    //         dueDate.push(date.format('YYYY-MM-DD'));
-    //     }
-    
-    //     // Encontra a próxima data de vencimento (atual ou futura)
-    //     const futureDueDates = dueDate.filter(d => moment(d).isSameOrAfter(today, 'day'));
-    //     const nextDueDate = futureDueDates.length 
-    //         ? futureDueDates.sort((a, b) => moment(a).diff(today) - moment(b).diff(today))[0]
-    //         : null;
-    
-    //     if (nextDueDate) {
-    //         // Verifica se já existe algum pagamento no mesmo mês da próxima cobrança
-    //         const nextDueDateMonth = moment(nextDueDate).format('YYYY-MM');
-    //         const existsPaymentInSameMonth = payments.some(payment => {
-    //             if (!payment.expiracao_aluno_contrato_pagamento) return false;
-    //             const paymentMonth = moment(payment.expiracao_aluno_contrato_pagamento).format('YYYY-MM');
-    //             return paymentMonth === nextDueDateMonth;
-    //         });
-    
-    //         // Se não existir pagamento no mesmo mês da próxima cobrança, busca no Asaas
-    //         if (!existsPaymentInSameMonth) {
-    //             const apikey = env === 'development' ? empresa.dev_asaas_apikey : empresa.asaas_apikey;
-    //             try {
-    //                 const asaasPayments = await buscarPagamentosAssinatura(alunoContrato.id_aluno_contrato, apikey);
-    //                 const appPayments = alunoContrato.pagamentos || [];
-    
-    //                 // Ordena os pagamentos do Asaas por data
-    //                 const reorderAsaasPayments = asaasPayments.sort((a, b) => {
-    //                     return new Date(a.dueDate) - new Date(b.dueDate);
-    //                 });
-    
-    //                 // Cria os registros para pagamentos que não existem no app
-    //                 for (const asaasPayment of reorderAsaasPayments) {
-    //                     const existPayment = appPayments.find((payment) => 
-    //                         payment.id_aluno_contrato_pagamento === asaasPayment.id
-    //                     );
-                        
-    //                     if (!existPayment) {
-    //                         await tab_aluno_contrato_pagamento.create({
-    //                             cod_aluno_contrato: alunoContrato.cod_aluno_contrato,
-    //                             id_aluno_contrato_pagamento: asaasPayment.id,
-    //                             json_aluno_contrato_pagamento: JSON.stringify(asaasPayment),
-    //                             status_aluno_contrato_pagamento: asaasPayment.status,
-    //                             valor_aluno_contrato_pagamento: asaasPayment.value,
-    //                             liquido_aluno_contrato_pagamento: asaasPayment?.netValue || asaasPayment.value,
-    //                             forma_aluno_contrato_pagamento: asaasPayment?.billingType,
-    //                             data_aluno_contrato_pagamento: asaasPayment.dateCreated,
-    //                             expiracao_aluno_contrato_pagamento: asaasPayment.dueDate,
-    //                             ambiente_aluno_contrato_pagamento: process.env.NODE_ENV,
-    //                         });
-    //                     }
-    //                 }
-    //             } catch (error) {
-    //                 console.error('Erro ao sincronizar pagamentos do Asaas:', error);
-    //             }
-    //         }
-    //     }
-    // }
 
     res.send({ status: true, alunoContrato });
 }

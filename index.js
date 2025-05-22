@@ -27,6 +27,7 @@ server.get('/test', async (req, res) => res.send({status: true}));
 server.use('/error', require('./api/error'));
 server.use('/usuario', require('./api/routes/routeUsuario'));
 server.use('/aluno', require('./api/routes/routeAluno'));
+server.use('/aluno/sessao', require('./api/routes/aluno/routeSessao'));
 server.use('/agenda', require('./api/routes/routeAgenda'));
 server.use('/treino', require('./api/routes/routeTreino'));
 server.use('/cardapio', require('./api/routes/routeCardapio'));

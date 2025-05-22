@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const verifyToken = require('../authMiddleware');
 
-const { getAlunos, setAluno, getAluno, setAvaliacao, getAvaliacao, changeAlunoIMG, sendAvaliacaoIMG, deleteAluno, recoveryAluno, getAvaliacoes, deleteAvaliacao, setAlunoContrato, getAlunoContratos, getAlunoContrato, sendAlunoContrato, getCards, deleteCard, cancelAlunoContrato, downloadAlunoContrato, resendAlunoContrato } = require('../controllers/ctrlAluno');
+const { getAlunos, setAluno, getAluno, setAvaliacao, getAvaliacao, changeAlunoIMG, sendAvaliacaoIMG, deleteAluno, recoveryAluno, getAvaliacoes, deleteAvaliacao, setAlunoContrato, getAlunoContratos, getAlunoContrato, sendAlunoContrato, getCards, deleteCard, cancelAlunoContrato, downloadAlunoContrato, resendAlunoContrato } = require('../controllers/aluno/ctrlAluno');
 const { uploadIMGAvaliacao, uploadIMGAluno } = require('../aws');
 const { multerAutentique } = require('../autentique');
 
