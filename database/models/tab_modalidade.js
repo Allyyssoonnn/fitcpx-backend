@@ -35,6 +35,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: null,
         },
+        comissao_modalidade: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+            defaultValue: null,
+        },
         stripe_product_id: {
             type: DataTypes.STRING,
             allowNull: true,
