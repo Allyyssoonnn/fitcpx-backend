@@ -3,7 +3,6 @@ const verifyToken = require('../authMiddleware');
 const { gerarIdCarteira, criarPagamentoAluno, getBalance, getBankExtract, getStatusConta, sendDocument, deletarConta, getIntentCard, getCards, getIntentPayment, updateMethodPayment, updatePaymentIntentStatus, doRefundPayment } = require('../controllers/ctrlPagamento');
 
 //STRIPE
-router.post('/deleteAccount', verifyToken, deletarConta);
 router.post('/gerarIdCarteira', verifyToken, gerarIdCarteira);
 router.post('/getStatusAccount', verifyToken, getStatusConta);
 router.post('/sendDocuments', verifyToken, sendDocument);

@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
 const { tab_modalidade, tab_aluno, tab_empresa, tab_aluno_sessao_pacote, tab_aluno_sessao_modalidade } = require('../../../database/models');
-const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createCustomer, getSetupIntent, getPaymentsMethod, getBalanceAccount, getExtract, createPayment, getPaymentIntent, refundPayment } = require("../../stripe");
+const { createAccount, getStatusAccount, sendDocuments, setDefaultPaymentMethod, createCustomer, getSetupIntent, getPaymentsMethod, getBalanceAccount, getExtract, createPayment, getPaymentIntent, refundPayment } = require("../../stripe");
 const env = process.env.NODE_ENV || 'development';
 const moment = require("moment-timezone");
 

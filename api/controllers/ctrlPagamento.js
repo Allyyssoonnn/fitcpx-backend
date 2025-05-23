@@ -1,68 +1,57 @@
 const moment = require("moment-timezone");
 const { tab_usuario, tab_empresa, tab_aluno, tab_empresa_licenca_pagamento, tab_aluno_contrato_pagamento, tab_empresa_licenca, tab_aluno_cartao, tab_aluno_contrato, tab_aluno_contrato_modalidade, tab_modalidade_variacao, tab_modalidade_variacao_valor, tab_modalidade } = require('../../database/models');
-const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createCustomer, getSetupIntent, getPaymentsMethod, getBalanceAccount, getExtract, createPayment, getPaymentIntent, refundPayment, createAccountUser } = require("../stripe");
+const { createAccount, getStatusAccount, sendDocuments, setDefaultPaymentMethod, createCustomer, getSetupIntent, getPaymentsMethod, getBalanceAccount, getExtract, createPayment, getPaymentIntent, refundPayment, createAccountUser, deleteAccount, updateAccountUser, updateAccountCompany } = require("../stripe");
 const env = process.env.NODE_ENV || 'development';
-
-async function deletarConta(req, res) {
-    const { cod_empresa } = req.body;
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-
-    const accountId = env !== 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
-    if (accountId) await deleteAccount(id);
-    res.send({ status: true });
-}
+const dev = env === 'development';
 
 async function gerarIdCarteira(req, res) {
     const { cod_empresa, cod_usuario } = req.body;
 
     const empresa = cod_empresa ? await tab_empresa.findOne({ where: { cod_empresa } }) : null;
     const usuario = await tab_usuario.findOne({ where: { cod_usuario } });
-    const resp = cod_empresa ? await createAccount(empresa, usuario, req.ip) : await createAccountUser(usuario, req.ip);
 
+    // await deleteAccount('acct_1RRz8sPZi7F5lQMc');
+
+    if (((dev && empresa?.dev_stripe_id) || (!dev && empresa?.stripe_id)) ||
+    ((dev && usuario?.dev_stripe_account_id) || (!dev && usuario?.stripe_account_id))) {
+        var accountId;
+        if (cod_empresa) {
+            accountId = env === 'development' ? empresa?.dev_stripe_id : empresa?.stripe_id;
+        } else {
+            accountId = env === 'development' ? usuario?.dev_stripe_account_id : usuario?.stripe_account_id;
+        }
+
+        cod_empresa ? updateAccountCompany(accountId, empresa, usuario): updateAccountUser(accountId, usuario);
+
+        res.send({ status: true, empresa, usuario });
+        return;
+    }
+
+    const resp = cod_empresa ? await createAccount(empresa, usuario, req.ip) : await createAccountUser(usuario, req.ip);
     const { account, person } = resp;
 
     if (cod_empresa) {
         if (env !== 'development') {
-            if (account.id) {
-                await tab_empresa.update({
-                    stripe_id: account.id,
-                }, { where: { cod_empresa } });
-            }
-            if (person.id) {
-                await tab_usuario.update({
-                    stripe_id: person.id,
-                }, { where: { cod_usuario } });
-            }
+            //Update dev data
+            if (account.id) await tab_empresa.update({ stripe_id: account.id }, { where: { cod_empresa } });
+            if (person.id) await tab_usuario.update({ stripe_id: person.id }, { where: { cod_usuario } });
         } else {
-            if (account.id) {
-                await tab_empresa.update({
-                    dev_stripe_id: account.id,
-                }, { where: { cod_empresa } });
-            }
-            if (person.id) {
-                await tab_usuario.update({
-                    dev_stripe_id: person.id,
-                }, { where: { cod_usuario } });
-            }
+            //Update production data
+            if (account.id) await tab_empresa.update({ dev_stripe_id: account.id }, { where: { cod_empresa } });
+            if (person.id) await tab_usuario.update({ dev_stripe_id: person.id }, { where: { cod_usuario } });
         }
     } else {
         if (env !== 'development') {
-            if (account.id) {
-                await tab_usuario.update({
-                    stripe_account_id: account.id,
-                }, { where: { cod_usuario } });
-            }
+            //Update dev data
+            if (account.id) await tab_usuario.update({ stripe_account_id: account.id }, { where: { cod_usuario } });
         } else {
-            if (account.id) {
-                await tab_usuario.update({
-                    dev_stripe_account_id: account.id,
-                }, { where: { cod_usuario } });
-            }
+            //Update production data
+            if (account.id) await tab_usuario.update({ dev_stripe_account_id: account.id }, { where: { cod_usuario } });
         }
     }
 
     const empresaAtt = cod_empresa ? await tab_empresa.findOne({ where: { cod_empresa: cod_empresa.cod_empresa } }) : null;
-    const usuarioAtt = await tab_usuario.findOne({ where: { cod_usuario: cod_empresa.cod_usuario } });
+    const usuarioAtt = await tab_usuario.findOne({ where: { cod_usuario: cod_usuario } });
 
     res.send({ status: true, empresa: empresaAtt, usuario: usuarioAtt });
 }
@@ -70,48 +59,44 @@ async function gerarIdCarteira(req, res) {
 async function sendDocument(req, res) {
     const { frontDoc, backDoc, cod_empresa, cod_usuario, frontDocType, backDocType } = req.body;
 
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    const empresa = cod_empresa ? await tab_empresa.findOne({ where: { cod_empresa } }) : null;
     const usuario = await tab_usuario.findOne({ where: { cod_usuario } });
 
-    var id = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
-    var personId = env === 'development' ? usuario.dev_stripe_id : usuario.stripe_id;
+    var id;
+    var personId;
 
+    if (cod_empresa) {
+        id = env === 'development' ? empresa?.dev_stripe_id : empresa?.stripe_id;
+        personId = env === 'development' ? usuario.dev_stripe_id : usuario.stripe_id;
+    } else {
+        id = env === 'development' ? usuario?.dev_stripe_account_id : usuario?.stripe_account_id;
+    }
+
+    const frontDocId = usuario?.front_doc_id;
+    const backDocId = usuario?.back_doc_id;
     const frontBuffer = Buffer.from(frontDoc.replace(/^data:.*;base64,/, ''), 'base64');
     const backBuffer = Buffer.from(backDoc.replace(/^data:.*;base64,/, ''), 'base64');
 
-    const resp = await sendDocuments(id, personId, frontBuffer, backBuffer, frontDocType, backDocType);
-    
-    if (resp.frontDocumentId) {
-        await tab_usuario.update({
-            front_doc_id: resp.frontDocumentId,
-        }, { where: { cod_usuario } });
-    }
-
-    if (resp.frontDocumentId) {
-        await tab_usuario.update({
-            back_doc_id: resp.frontDocumentId,
-        }, { where: { cod_usuario } });
-    }
+    await sendDocuments(id, personId, frontBuffer, backBuffer, frontDocType, backDocType, frontDocId, backDocId);
 
     res.send({ status: true });
 }
 
 async function getStatusConta(req, res) {
-    const { cod_empresa } = req.body;
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    var resp;
+    const { cod_empresa, cod_usuario } = req.body;
+    const empresa = cod_empresa ? await tab_empresa.findOne({ where: { cod_empresa } }) : null;
+    const usuario = cod_usuario ? await tab_usuario.findOne({ where: { cod_usuario } }) : null;
 
+    var resp;
     if (env === 'development') {
-        if (empresa.dev_stripe_id) {
-            resp = await getStatusAccount(empresa.dev_stripe_id);
-        }
+        if (cod_empresa && empresa.dev_stripe_id) resp = await getStatusAccount(empresa.dev_stripe_id);
+        if (!cod_empresa && usuario.dev_stripe_account_id) resp = await getStatusAccount(usuario.dev_stripe_account_id);
     } else {
-        if (empresa.stripe_id) {
-            resp = await getStatusAccount(empresa.stripe_id);
-        }
+        if (cod_empresa && empresa.stripe_id) resp = await getStatusAccount(empresa.stripe_id);
+        if (!cod_empresa && usuario.stripe_account_id) resp = await getStatusAccount(usuario.stripe_account_id);
     }
 
-    res.send({ status: true, clientSecret: resp });
+    res.send({ status: true, data: resp });
 }
 
 async function criarPagamentoAluno(req, res) {
@@ -499,7 +484,6 @@ module.exports = {
     getBalance,
     updateMethodPayment,
     updatePaymentIntentStatus,
-    deletarConta,
     gerarIdCarteira,
     sendDocument,
     getStatusConta,

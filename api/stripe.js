@@ -24,7 +24,8 @@ const testBank = {
 // 104-2222 (Caixa Econômica Federal, agência 2222)
 
 async function deleteAccount(id) {
-    const respt = await stripe.account.del(empresa.dev_stripe_id);
+    const stripe = require('stripe')(token);
+    const respt = await stripe.account.del(id);
     return respt;
 }
 
@@ -117,13 +118,99 @@ async function createAccount(empresa, usuario, ip) {
     return { account, person };
 }
 
+async function updateAccountCompany(accountId, empresa, usuario) {
+    const stripe = require('stripe')(token);
+
+    const updatedAccount = await stripe.accounts.update(accountId, {
+        email: empresa.email_empresa,
+        business_profile: {
+            mcc: '7997',
+            product_description: 'Atividades para saúde',
+        },
+        business_type: 'company',
+        company: {
+            name: empresa.nome_empresa,
+            address: {
+                line1: empresa.endereco_empresa,
+                city: empresa.cidade_empresa,
+                state: empresa.estado_empresa,
+                postal_code: empresa.cep_empresa,
+                country: 'BR'
+            },
+            phone: empresa.telefone_empresa,
+            tax_id: empresa.doc_empresa,
+            directors_provided: true,
+            executives_provided: true,
+            owners_provided: true,
+        }
+    });
+
+    // Atualiza conta bancária
+    if (!dev) {
+        await stripe.accounts.updateExternalAccount(accountId, empresa.id_banco_stripe, {
+            external_account: {
+                object: 'bank_account',
+                country: 'BR',
+                currency: 'brl',
+                account_holder_name: empresa.titular_banco_conta,
+                account_holder_type: 'company',
+                routing_number: `${empresa.codigo_banco_conta}-${empresa.agencia_banco_conta}`,
+                account_number: empresa.numero_banco_conta
+            }
+        });
+    }
+
+    // Atualiza dados do representante (person)
+    const dopDate = new Date(usuario.data_nascimento_usuario);
+
+    if (usuario.id_stripe_person) {
+        await stripe.accounts.updatePerson(accountId, usuario.id_stripe_person, {
+            first_name: usuario.nome_usuario,
+            last_name: usuario.nome_usuario,
+            email: usuario.email_usuario,
+            phone: formatarCelular(usuario.celular_usuario),
+            id_number: usuario.cpf_usuario.replace(/[^0-9]/g, ''),
+            political_exposure: 'none',
+            dob: {
+                day: dopDate.getDate(),
+                month: dopDate.getMonth() + 1,
+                year: dopDate.getFullYear(),
+            },
+            address: {
+                line1: usuario.endereco_usuario,
+                city: usuario.cidade_usuario,
+                state: usuario.estado_usuario,
+                postal_code: usuario.cep_usuario.replace(/[^0-9]/g, ''),
+                country: 'BR'
+            },
+            relationship: {
+                representative: true,
+                title: 'CEO',
+                owner: false,
+                executive: true,
+                director: false,
+                percent_ownership: null,
+            },
+            nationality: 'BR',
+        });
+    }
+
+    return { updatedAccount };
+}
+
 async function createAccountUser(usuario, ip) {
     const stripe = require('stripe')(token);
+
+    const dopDate = new Date(usuario.data_nascimento_usuario);
 
     const account = await stripe.account.create({
         type: 'custom',
         country: 'BR',
         email: usuario.email_usuario,
+        business_profile: {
+            mcc: '7997',
+            product_description: 'Atividados para saúde',
+        },
         business_type: 'individual',
         individual: {
             first_name: usuario.nome_usuario.split(' ')[0],
@@ -131,6 +218,7 @@ async function createAccountUser(usuario, ip) {
             email: usuario.email_usuario,
             phone: formatarCelular(usuario.celular_usuario),
             id_number: usuario.cpf_usuario.replace(/\D/g, ''),
+            political_exposure: 'none',
             dob: {
                 day: dopDate.getDate(),
                 month: dopDate.getMonth() + 1,
@@ -165,7 +253,58 @@ async function createAccountUser(usuario, ip) {
         }
     });
 
-    return { account, person };
+    return { account };
+}
+
+async function updateAccountUser(accountId, usuario) {
+    const stripe = require('stripe')(token);
+
+    const dopDate = new Date(usuario.data_nascimento_usuario);
+
+    const updatedAccount = await stripe.accounts.update(accountId, {
+        email: usuario.email_usuario,
+        business_profile: {
+            mcc: '7997',
+            product_description: 'Atividades para saúde',
+        },
+        business_type: 'individual',
+        individual: {
+            first_name: usuario.nome_usuario.split(' ')[0],
+            last_name: usuario.nome_usuario.split(' ').slice(1).join(' ') || usuario.nome_usuario,
+            email: usuario.email_usuario,
+            phone: formatarCelular(usuario.celular_usuario),
+            id_number: usuario.cpf_usuario.replace(/\D/g, ''),
+            political_exposure: 'none',
+            dob: {
+                day: dopDate.getDate(),
+                month: dopDate.getMonth() + 1,
+                year: dopDate.getFullYear(),
+            },
+            address: {
+                line1: usuario.endereco_usuario,
+                city: usuario.cidade_usuario,
+                state: usuario.estado_usuario,
+                postal_code: usuario.cep_usuario.replace(/\D/g, ''),
+                country: 'BR',
+            },
+        }
+    });
+
+    // Se precisar atualizar a conta bancária também:
+    if (!dev) {
+        await stripe.accounts.updateExternalAccount(accountId, usuario.id_banco_stripe, {
+            external_account: {
+                object: 'bank_account',
+                country: 'BR',
+                currency: 'brl',
+                account_holder_name: usuario.titular_banco_conta,
+                routing_number: `${usuario.codigo_banco_conta}-${usuario.agencia_banco_conta}`,
+                account_number: usuario.numero_banco_conta
+            }
+        });
+    }
+
+    return { updatedAccount };
 }
 
 async function updateAccount(empresa, accountId) {
@@ -193,16 +332,8 @@ async function updateAccount(empresa, accountId) {
 
 async function getStatusAccount(id) {
     const stripe = require('stripe')(token);
-    
     const accountDetails = await stripe.accounts.retrieve(id);
-
-    console.log(accountDetails.requirements);
-
-    // Verificar se a conta está verificada e ativa
-    // const isVerified = accountDetails.charges_enabled && accountDetails.payouts_enabled;
-    // const verificationStatus = accountDetails.individual.verification.status;
-
-    return accountDetails.requirements;
+    return accountDetails;
 }
 
 async function sendDocuments(id, personId, frontDoc, backDoc, frontDocType, backDocType) {
@@ -226,18 +357,32 @@ async function sendDocuments(id, personId, frontDoc, backDoc, frontDocType, back
         },
     });
 
-    await stripe.accounts.updatePerson(
-        id,
-        personId,
-        {
-            verification: {
-                document: {
-                    front: frontDocument.id,
-                    back: backDocument.id,
+    if (personId) {
+        await stripe.accounts.updatePerson(
+            id,
+            personId,
+            {
+                verification: {
+                    document: {
+                        front: frontDocument?.id,
+                        back: backDocument?.id,
+                    },
+                },
+            }
+        );
+    } else {
+        await stripe.accounts.update(id, {
+            individual: {
+                verification: {
+                    document: {
+                        front: frontDocument?.id,
+                        back: backDocument?.id,
+                    },
                 },
             },
-        }
-    );
+        });
+    }
+
 
     return { frontDocumentId: frontDocument.id, backDocumentId: backDocument.id };
 }
@@ -456,7 +601,9 @@ async function refundPayment(accountId, paymentIntentId, amount) {
 module.exports = {
     deleteAccount,
     createAccount,
+    updateAccountCompany,
     createAccountUser,
+    updateAccountUser,
     updateAccount,
     getStatusAccount,
     sendDocuments,
