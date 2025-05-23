@@ -106,6 +106,16 @@ module.exports = {
         allowNull: true,
         defaultValue: null
       },
+      stripe_account_id: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
+      dev_stripe_account_id: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+      },
       front_doc_id: {
         type: Sequelize.DataTypes.STRING,
         allowNull: true,
@@ -114,6 +124,26 @@ module.exports = {
       back_doc_id: {
         type: Sequelize.DataTypes.STRING,
         allowNull: true,
+        defaultValue: null
+      },
+      titular_banco_conta: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      codigo_banco_conta: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      agencia_banco_conta: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      numero_banco_conta: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
       admin_usuario: {

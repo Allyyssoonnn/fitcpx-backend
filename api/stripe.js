@@ -117,6 +117,57 @@ async function createAccount(empresa, usuario, ip) {
     return { account, person };
 }
 
+async function createAccountUser(usuario, ip) {
+    const stripe = require('stripe')(token);
+
+    const account = await stripe.account.create({
+        type: 'custom',
+        country: 'BR',
+        email: usuario.email_usuario,
+        business_type: 'individual',
+        individual: {
+            first_name: usuario.nome_usuario.split(' ')[0],
+            last_name: usuario.nome_usuario.split(' ').slice(1).join(' ') || usuario.nome_usuario,
+            email: usuario.email_usuario,
+            phone: formatarCelular(usuario.celular_usuario),
+            id_number: usuario.cpf_usuario.replace(/\D/g, ''),
+            dob: {
+                day: dopDate.getDate(),
+                month: dopDate.getMonth() + 1,
+                year: dopDate.getFullYear(),
+            },
+            address: {
+                line1: usuario.endereco_usuario,
+                city: usuario.cidade_usuario,
+                state: usuario.estado_usuario,
+                postal_code: usuario.cep_usuario.replace(/\D/g, ''),
+                country: 'BR',
+            },
+        },
+        // Dados bancários (obrigatórios para receber pagamentos)
+        external_account: !dev ? {
+            object: 'bank_account',
+            country: 'BR',
+            currency: 'brl',
+            account_holder_name: usuario.titular_banco_conta,
+            routing_number: `${usuario.codigo_banco_conta}-${usuario.agencia_banco_conta}`, // Código do banco (3 dígitos)
+            account_number: usuario.numero_banco_conta // Número da conta com dígito
+        } : testBank,
+
+        capabilities: {
+            card_payments: { requested: true },
+            transfers: { requested: true },
+            boleto_payments: { requested: true },
+        },
+        tos_acceptance: {
+            date: Math.floor(Date.now() / 1000),
+            ip: ip
+        }
+    });
+
+    return { account, person };
+}
+
 async function updateAccount(empresa, accountId) {
     const stripe = require('stripe')(token);
 
@@ -405,6 +456,7 @@ async function refundPayment(accountId, paymentIntentId, amount) {
 module.exports = {
     deleteAccount,
     createAccount,
+    createAccountUser,
     updateAccount,
     getStatusAccount,
     sendDocuments,

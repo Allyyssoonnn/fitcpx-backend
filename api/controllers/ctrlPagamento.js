@@ -1,6 +1,6 @@
 const moment = require("moment-timezone");
 const { tab_usuario, tab_empresa, tab_aluno, tab_empresa_licenca_pagamento, tab_aluno_contrato_pagamento, tab_empresa_licenca, tab_aluno_cartao, tab_aluno_contrato, tab_aluno_contrato_modalidade, tab_modalidade_variacao, tab_modalidade_variacao_valor, tab_modalidade } = require('../../database/models');
-const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createCustomer, getSetupIntent, getPaymentsMethod, getBalanceAccount, getExtract, createPayment, getPaymentIntent, refundPayment } = require("../stripe");
+const { createAccount, getStatusAccount, sendDocuments, deleteAccount, setDefaultPaymentMethod, createCustomer, getSetupIntent, getPaymentsMethod, getBalanceAccount, getExtract, createPayment, getPaymentIntent, refundPayment, createAccountUser } = require("../stripe");
 const env = process.env.NODE_ENV || 'development';
 
 async function deletarConta(req, res) {
@@ -15,39 +15,56 @@ async function deletarConta(req, res) {
 async function gerarIdCarteira(req, res) {
     const { cod_empresa, cod_usuario } = req.body;
 
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
+    const empresa = cod_empresa ? await tab_empresa.findOne({ where: { cod_empresa } }) : null;
     const usuario = await tab_usuario.findOne({ where: { cod_usuario } });
-    const resp = await createAccount(empresa, usuario, req.ip);
+    const resp = cod_empresa ? await createAccount(empresa, usuario, req.ip) : await createAccountUser(usuario, req.ip);
 
     const { account, person } = resp;
 
-    if (env !== 'development') {
-        if (account.id) {
-            await tab_empresa.update({
-                stripe_id: account.id,
-            }, { where: { cod_empresa } });
-        }
-        if (person.id) {
-            await tab_usuario.update({
-                stripe_id: person.id,
-            }, { where: { cod_usuario } });
+    if (cod_empresa) {
+        if (env !== 'development') {
+            if (account.id) {
+                await tab_empresa.update({
+                    stripe_id: account.id,
+                }, { where: { cod_empresa } });
+            }
+            if (person.id) {
+                await tab_usuario.update({
+                    stripe_id: person.id,
+                }, { where: { cod_usuario } });
+            }
+        } else {
+            if (account.id) {
+                await tab_empresa.update({
+                    dev_stripe_id: account.id,
+                }, { where: { cod_empresa } });
+            }
+            if (person.id) {
+                await tab_usuario.update({
+                    dev_stripe_id: person.id,
+                }, { where: { cod_usuario } });
+            }
         }
     } else {
-        if (account.id) {
-            await tab_empresa.update({
-                dev_stripe_id: account.id,
-            }, { where: { cod_empresa } });
-        }
-        if (person.id) {
-            await tab_usuario.update({
-                dev_stripe_id: person.id,
-            }, { where: { cod_usuario } });
+        if (env !== 'development') {
+            if (account.id) {
+                await tab_usuario.update({
+                    stripe_account_id: account.id,
+                }, { where: { cod_usuario } });
+            }
+        } else {
+            if (account.id) {
+                await tab_usuario.update({
+                    dev_stripe_account_id: account.id,
+                }, { where: { cod_usuario } });
+            }
         }
     }
 
-    const empresaAtt = await tab_empresa.findOne({ where: { cod_empresa: cod_empresa.cod_empresa } });
+    const empresaAtt = cod_empresa ? await tab_empresa.findOne({ where: { cod_empresa: cod_empresa.cod_empresa } }) : null;
+    const usuarioAtt = await tab_usuario.findOne({ where: { cod_usuario: cod_empresa.cod_usuario } });
 
-    res.send({ status: true, empresa: empresaAtt });
+    res.send({ status: true, empresa: empresaAtt, usuario: usuarioAtt });
 }
 
 async function sendDocument(req, res) {
