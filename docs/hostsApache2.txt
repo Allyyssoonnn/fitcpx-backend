@@ -1,25 +1,5 @@
 <VirtualHost *:80>
 
-        ServerName www.admin.fitcpx.com
-        ServerAlias admin.fitcpx.com
-
-        ProxyPass / http://localhost:3080/
-        ProxyPassReverse / http://localhost:3080/
-
-</VirtualHost>
-
-<VirtualHost *:80>
-
-        ServerName www.admin.fitcpx.com.br
-        ServerAlias admin.fitcpx.com.br
-
-        ProxyPass / http://localhost:3080/
-        ProxyPassReverse / http://localhost:3080/
-
-</VirtualHost>
-
-<VirtualHost *:80>
-
         ServerName www.aluno.fitcpx.com
         ServerAlias aluno.fitcpx.com
 
