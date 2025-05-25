@@ -105,7 +105,7 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
-      asaas_id: {
+      stripe_customer_id: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
@@ -120,7 +120,7 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
-      dev_asaas_id: {
+      dev_stripe_customer_id: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null

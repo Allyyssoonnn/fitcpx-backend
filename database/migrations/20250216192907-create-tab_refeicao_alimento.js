@@ -37,7 +37,7 @@ module.exports = {
       horario_refeicao_alimento: {
         allowNull: true,
         type: Sequelize.DataTypes.TIME,
-        defaultValue: 'NULL',
+        defaultValue: null,
       },
       observacao_refeicao_alimento: {
         allowNull: true,

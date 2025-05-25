@@ -22,6 +22,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
+      status_aluno: {
+        type: Sequelize.DataTypes.ENUM('A', 'I', 'B'),
+      },
       cpf_aluno: {
         type: Sequelize.DataTypes.STRING,
       },

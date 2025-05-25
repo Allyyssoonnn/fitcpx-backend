@@ -1,9 +1,12 @@
 const { tab_email_envio } = require('../database/models');
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey('[REDACTED_CREDENTIAL]');
+const env = process.env.NODE_ENV || 'development';
+const dev = env === 'development';
 
 async function sendEmail(email, msgHtml, header) {  
     try {
+        if (dev) return;
         sgMail
         .send({
             to: email,
