@@ -2,7 +2,10 @@ module.exports = (sequelize, DataTypes) => {
     const tab_aluno = sequelize.define('tab_aluno', {
         cod_aluno: { type: DataTypes.INTEGER, primaryKey: true },
         nome_aluno: DataTypes.STRING,
-        status_aluno: DataTypes.ENUM('A', 'I', 'B'),
+        status_aluno: {
+            type: DataTypes.ENUM('A', 'I', 'B'),
+            defaultValue: 'A',
+        },
         cpf_aluno: DataTypes.STRING,
         rg_aluno: DataTypes.STRING,
         telefone_aluno: DataTypes.STRING,

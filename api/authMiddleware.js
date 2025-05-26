@@ -1,4 +1,7 @@
 const jwt = require('jsonwebtoken');
+const env = process.env.NODE_ENV || 'development';
+const dev = env === 'development';
+const devToken = process.env.DEV_TOKEN;
 
 function verifyToken(req, res, next) {
     // Extrai o token do cabeçalho "Authorization"
@@ -14,6 +17,11 @@ function verifyToken(req, res, next) {
 
     if (!token) {
         return res.status(401).send({ status: false, msg: 'Token malformado!' });
+    }
+
+    if (dev && token === devToken) {
+        next();
+        return;
     }
 
     try {

@@ -6,6 +6,8 @@ const { getURL, connected } = require('../google');
 const { sendEmail, getMsgEmailRecovery, getMsgEmailConfirmation } = require('../sendgrid');
 const { updateAccount } = require('../stripe');
 const env = process.env.NODE_ENV || 'development';
+const dev = env === 'development';
+const devToken = process.env.DEV_TOKEN;
 
 async function login(req, res) {    
     const { email, senha } = req.body;
@@ -137,6 +139,14 @@ async function changePassword(req, res) {
 
 async function refreshToken(req, res) {
     const { refreshToken } = req.body;
+
+    if (dev && refreshToken === devToken) {
+        const usuario = await tab_usuario.findOne({ where: { cod_usuario: 1 } });
+        const empresa = usuario?.cod_empresa ? await tab_empresa.findOne({ where: { cod_empresa: usuario.cod_empresa } }) : null;
+
+        res.send({ status: true, token: refreshToken, usuario, empresa });
+        return;
+    }
 
     if (!refreshToken) return res.status(403).send({ status: false, msg: 'Token de atualização não fornecido!' });
 
