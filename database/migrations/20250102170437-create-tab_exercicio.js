@@ -198,6 +198,14 @@ module.exports = {
           key: 'cod_tipo_exercicio'
         }
       },
+      cod_tipo_exercicio_2: {
+        allowNull: true,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_tipo_exercicio',
+          key: 'cod_tipo_exercicio'
+        }
+      },
       cod_exercicio_resistencia: {
         allowNull: true,
         type: Sequelize.DataTypes.INTEGER,
@@ -207,6 +215,22 @@ module.exports = {
         }
       },
       cod_indicacao: {
+        allowNull: true,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_indicacao',
+          key: 'cod_indicacao'
+        }
+      },
+      cod_indicacao_2: {
+        allowNull: true,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_indicacao',
+          key: 'cod_indicacao'
+        }
+      },
+      cod_indicacao_3: {
         allowNull: true,
         type: Sequelize.DataTypes.INTEGER,
         references: {

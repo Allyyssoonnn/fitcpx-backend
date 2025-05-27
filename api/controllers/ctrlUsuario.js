@@ -72,7 +72,7 @@ async function register(req, res) {
         nome_empresa: nome_usuario,
         status_empresa: 'Active',
         email_empresa: email_usuario,
-        email_codigo: email_codigo,
+        email_codigo: dev ? '1234' : email_codigo,
     });
     const novoUsuario = await tab_usuario.create({ ...req.body, cod_empresa: novaEmpresa.cod_empresa, admin_usuario: 'S' });
     

@@ -12,3 +12,11 @@ docker container prune -f
 npx sequelize-cli migration:generate --name tab_modalidade_variacao
 
 npx sequelize-cli db:migrate
+
+Adicionar path no MacOS
+
+- nano ~/.zshrc
+
+- export PATH="/usr/local/mysql/bin:$PATH"
+
+- source ~/.zshrc

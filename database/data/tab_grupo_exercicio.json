@@ -1,0 +1,342 @@
+[
+ {
+   "cod_grupo_exercicio": 1,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Adutores\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 2,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Antebraços\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 3,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Antebraços (Extensores)\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": "2025-05-07 16:11:42"
+ },
+ {
+   "cod_grupo_exercicio": 4,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Antebraços (Flexores)\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": "2025-05-07 16:11:43"
+ },
+ {
+   "cod_grupo_exercicio": 5,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Bíceps\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 6,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Bíceps (Cabeça Curta)\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": "2025-05-07 16:11:44"
+ },
+ {
+   "cod_grupo_exercicio": 7,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Bíceps (Cabeça Longa)\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": "2025-05-07 16:11:45"
+ },
+ {
+   "cod_grupo_exercicio": 8,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Deltóide\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 9,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Deltoide (Anterior)\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": "2025-05-07 16:11:46"
+ },
+ {
+   "cod_grupo_exercicio": 10,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Deltoide (Medial)\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": "2025-05-07 16:11:47"
+ },
+ {
+   "cod_grupo_exercicio": 11,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Deltoide (Posterior)\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": "2025-05-07 16:11:48"
+ },
+ {
+   "cod_grupo_exercicio": 12,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Glúteos\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 13,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Iliopsoas\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 14,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Isquiossurais",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 15,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Latíssimo\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 16,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Oblíquo\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 17,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Panturrilhas\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 18,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Peitoral\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 19,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Peitoral (Inferior)\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": "2025-05-07 16:11:50"
+ },
+ {
+   "cod_grupo_exercicio": 20,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Peitoral (Medial)\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": "2025-05-07 16:11:51"
+ },
+ {
+   "cod_grupo_exercicio": 21,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Peitoral (Superior)\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": "2025-05-07 16:11:52"
+ },
+ {
+   "cod_grupo_exercicio": 22,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Quadrado lombar\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 23,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Quadríceps\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 24,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Reto abdominal\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 25,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Rombóides\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 26,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Serrátil\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 27,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Tibial anterior\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 28,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Transverso do abdômen\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 29,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Trapézio\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 30,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Tríceps\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": null
+ },
+ {
+   "cod_grupo_exercicio": 31,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Tríceps (Cabeça Lateral)\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": "2025-05-07 16:11:54"
+ },
+ {
+   "cod_grupo_exercicio": 32,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Tríceps (Cabeça Longa)\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": "2025-05-07 16:11:54"
+ },
+ {
+   "cod_grupo_exercicio": 33,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Tríceps (Cabeça Medial)\n",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 10:46:19",
+   "updatedAt": "2025-01-07 10:46:20",
+   "deletedAt": "2025-05-07 16:11:55"
+ },
+ {
+   "cod_grupo_exercicio": 34,
+   "cod_empresa": null,
+   "cod_usuario": null,
+   "nome_grupo_exercicio": "Flexores do Pé",
+   "base_grupo_exercicio": "S",
+   "createdAt": "2025-01-07 17:10:05",
+   "updatedAt": "2025-01-07 17:10:05",
+   "deletedAt": null
+ }
+]

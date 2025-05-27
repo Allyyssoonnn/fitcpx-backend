@@ -1,0 +1,51 @@
+[
+ {
+   "cod_exercicio_resistencia": 1,
+   "nome_exercicio_resistencia": "TRC (Cabo)",
+   "createdAt": "2025-01-07 14:50:47",
+   "updatedAt": "2025-01-07 14:50:48",
+   "deletedAt": null
+ },
+ {
+   "cod_exercicio_resistencia": 2,
+   "nome_exercicio_resistencia": "TRE (Elástico)\n",
+   "createdAt": "2025-01-07 14:50:47",
+   "updatedAt": "2025-01-07 14:50:48",
+   "deletedAt": null
+ },
+ {
+   "cod_exercicio_resistencia": 3,
+   "nome_exercicio_resistencia": "TRM (Máquina)\n",
+   "createdAt": "2025-01-07 14:50:47",
+   "updatedAt": "2025-01-07 14:50:48",
+   "deletedAt": null
+ },
+ {
+   "cod_exercicio_resistencia": 4,
+   "nome_exercicio_resistencia": "TRPC (Peso Corporal)\n",
+   "createdAt": "2025-01-07 14:50:47",
+   "updatedAt": "2025-01-07 14:50:48",
+   "deletedAt": null
+ },
+ {
+   "cod_exercicio_resistencia": 5,
+   "nome_exercicio_resistencia": "TRPL (Peso Livre)\n",
+   "createdAt": "2025-01-07 14:50:47",
+   "updatedAt": "2025-01-07 14:50:48",
+   "deletedAt": null
+ },
+ {
+   "cod_exercicio_resistencia": 6,
+   "nome_exercicio_resistencia": "TRS (Suspenso)\n",
+   "createdAt": "2025-01-07 14:50:47",
+   "updatedAt": "2025-01-07 14:50:48",
+   "deletedAt": null
+ },
+ {
+   "cod_exercicio_resistencia": 7,
+   "nome_exercicio_resistencia": "Liberação Miofascil",
+   "createdAt": "2025-02-12 13:40:01",
+   "updatedAt": "2025-02-12 13:40:03",
+   "deletedAt": null
+ }
+]

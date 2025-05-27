@@ -1,0 +1,646 @@
+[
+ {
+   "cod_equipamento": 1,
+   "nome_equipamento": "Anilha\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 2,
+   "nome_equipamento": "Argola de agilidade\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 3,
+   "nome_equipamento": "Banco Declinado\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 4,
+   "nome_equipamento": "Banco Inclinado\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 5,
+   "nome_equipamento": "Banco Reto\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 6,
+   "nome_equipamento": "Banco Scott\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 7,
+   "nome_equipamento": "Band\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 8,
+   "nome_equipamento": "Barra Australiana\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 9,
+   "nome_equipamento": "Barra Curta\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 10,
+   "nome_equipamento": "Barra Fixa\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 11,
+   "nome_equipamento": "Barra Longa\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 12,
+   "nome_equipamento": "Barras Paralelas\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 13,
+   "nome_equipamento": "Bastão\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 14,
+   "nome_equipamento": "Bola de Liberação\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 15,
+   "nome_equipamento": "Bola Pequena\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 16,
+   "nome_equipamento": "Bola Suíça\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 17,
+   "nome_equipamento": "Bozu\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 18,
+   "nome_equipamento": "Caixote\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 19,
+   "nome_equipamento": "Caneleira\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 20,
+   "nome_equipamento": "Colchonete\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 21,
+   "nome_equipamento": "Cone\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 22,
+   "nome_equipamento": "Cone chinês\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 23,
+   "nome_equipamento": "Corda de Pular\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 24,
+   "nome_equipamento": "Corda Naval\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 25,
+   "nome_equipamento": "Cross Over\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 26,
+   "nome_equipamento": "Escada de Agilidade\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 27,
+   "nome_equipamento": "Espaldar\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 28,
+   "nome_equipamento": "Fit Pulley\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 29,
+   "nome_equipamento": "Foam Roller\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 30,
+   "nome_equipamento": "Halter\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 31,
+   "nome_equipamento": "Jump\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 32,
+   "nome_equipamento": "Kettlebell\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 33,
+   "nome_equipamento": "Máquina\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 34,
+   "nome_equipamento": "Medicine Ball\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 35,
+   "nome_equipamento": "Mini Band\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 36,
+   "nome_equipamento": "Parede\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 37,
+   "nome_equipamento": "Pegador Barra D\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 38,
+   "nome_equipamento": "Pegador Barra Reta\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 39,
+   "nome_equipamento": "Pegador Corda\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 40,
+   "nome_equipamento": "Pegador D\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 41,
+   "nome_equipamento": "Pegador Triângulo\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 42,
+   "nome_equipamento": "Peso corporal\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 43,
+   "nome_equipamento": "Polia (Alta)\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 44,
+   "nome_equipamento": "Polia (Baixa)\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 45,
+   "nome_equipamento": "Polia (Média)\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 46,
+   "nome_equipamento": "Rodinha Abdominal\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 47,
+   "nome_equipamento": "Step\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 48,
+   "nome_equipamento": "Super Band\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 49,
+   "nome_equipamento": "Suporte Articulado para Barra\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 50,
+   "nome_equipamento": "Thera Band\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 51,
+   "nome_equipamento": "Tornozeleira\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 52,
+   "nome_equipamento": "TRX\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 53,
+   "nome_equipamento": "Tube Band\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 54,
+   "nome_equipamento": "Banco Articulado\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 55,
+   "nome_equipamento": "Pegador Barra V\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 56,
+   "nome_equipamento": "Banco Romano\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 57,
+   "nome_equipamento": "Pistola e Liberação\n",
+   "createdAt": "2025-01-07 14:48:01",
+   "updatedAt": "2025-01-07 14:48:02",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 58,
+   "nome_equipamento": "Crossover",
+   "createdAt": "2025-04-20 15:14:17",
+   "updatedAt": "2025-04-20 15:14:20",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 59,
+   "nome_equipamento": "Barra Reta",
+   "createdAt": "2025-04-20 15:15:03",
+   "updatedAt": "2025-04-20 15:15:03",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 60,
+   "nome_equipamento": "Smith",
+   "createdAt": "2025-04-20 15:15:13",
+   "updatedAt": "2025-04-20 15:15:14",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 61,
+   "nome_equipamento": "Hack de Agachamento",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 62,
+   "nome_equipamento": "Graviton",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 63,
+   "nome_equipamento": "Voador",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 64,
+   "nome_equipamento": "Leg Press 45º",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 65,
+   "nome_equipamento": "Leg Press Horizontal",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 66,
+   "nome_equipamento": "Leg Press Vertical",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 67,
+   "nome_equipamento": "Banco de Desenvolvimento",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 68,
+   "nome_equipamento": "Máquina para Elevação Pélvica",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 69,
+   "nome_equipamento": "Cadeira Extensora",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 70,
+   "nome_equipamento": "Mesa Flexora",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 71,
+   "nome_equipamento": "Fita de Suspensão",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 72,
+   "nome_equipamento": "Flexor em Pé",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 73,
+   "nome_equipamento": "Cadeira Flexora",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 74,
+   "nome_equipamento": "Apolete",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 75,
+   "nome_equipamento": "Panturrilha Sentada",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 76,
+   "nome_equipamento": "Pulldown Máquina",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 77,
+   "nome_equipamento": "Puxada Alta",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 78,
+   "nome_equipamento": "Puxador Máquina",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 79,
+   "nome_equipamento": "Remada Máquina",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 80,
+   "nome_equipamento": "Remada Baixa",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 81,
+   "nome_equipamento": "Supino Declinado Máquina",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 82,
+   "nome_equipamento": "Supino Inclinado Máquina",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 83,
+   "nome_equipamento": "Supino Reto Máquina",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 84,
+   "nome_equipamento": "Tríceps Testa Máquina",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 85,
+   "nome_equipamento": "Step",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 86,
+   "nome_equipamento": "Caixa de Salto",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 87,
+   "nome_equipamento": "Feijão de Liberação",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 88,
+   "nome_equipamento": "Mini Foam Roller",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 89,
+   "nome_equipamento": "Máquina para Coice",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 90,
+   "nome_equipamento": "Cadeira Abdutora",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 91,
+   "nome_equipamento": "Cadeira Adutora",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ },
+ {
+   "cod_equipamento": 92,
+   "nome_equipamento": "Abdominal Máquina",
+   "createdAt": "2025-04-20 15:15:44",
+   "updatedAt": "2025-04-20 15:15:45",
+   "deletedAt": null
+ }
+]

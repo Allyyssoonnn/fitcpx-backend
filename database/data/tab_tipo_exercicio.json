@@ -1,0 +1,58 @@
+[
+ {
+   "cod_tipo_exercicio": 1,
+   "nome_tipo_exercicio": "Aeróbio\n",
+   "createdAt": "2025-01-07 14:51:12",
+   "updatedAt": "2025-01-07 14:51:13",
+   "deletedAt": null
+ },
+ {
+   "cod_tipo_exercicio": 2,
+   "nome_tipo_exercicio": "Ativação\n",
+   "createdAt": "2025-01-07 14:51:12",
+   "updatedAt": "2025-01-07 14:51:13",
+   "deletedAt": null
+ },
+ {
+   "cod_tipo_exercicio": 3,
+   "nome_tipo_exercicio": "Estabilidade\n",
+   "createdAt": "2025-01-07 14:51:12",
+   "updatedAt": "2025-01-07 14:51:13",
+   "deletedAt": null
+ },
+ {
+   "cod_tipo_exercicio": 4,
+   "nome_tipo_exercicio": "Flexibilidade\n",
+   "createdAt": "2025-01-07 14:51:12",
+   "updatedAt": "2025-01-07 14:51:13",
+   "deletedAt": null
+ },
+ {
+   "cod_tipo_exercicio": 5,
+   "nome_tipo_exercicio": "Força\n",
+   "createdAt": "2025-01-07 14:51:12",
+   "updatedAt": "2025-01-07 14:51:13",
+   "deletedAt": null
+ },
+ {
+   "cod_tipo_exercicio": 6,
+   "nome_tipo_exercicio": "Mobilidade\n",
+   "createdAt": "2025-01-07 14:51:12",
+   "updatedAt": "2025-01-07 14:51:13",
+   "deletedAt": null
+ },
+ {
+   "cod_tipo_exercicio": 7,
+   "nome_tipo_exercicio": "Potência\n",
+   "createdAt": "2025-01-07 14:51:12",
+   "updatedAt": "2025-01-07 14:51:13",
+   "deletedAt": null
+ },
+ {
+   "cod_tipo_exercicio": 8,
+   "nome_tipo_exercicio": "Liberação Miofascial\n",
+   "createdAt": "2025-04-20 15:31:05",
+   "updatedAt": "2025-04-20 15:31:05",
+   "deletedAt": null
+ }
+]

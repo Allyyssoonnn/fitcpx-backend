@@ -1,0 +1,72 @@
+[
+ {
+   "cod_articulacao": 1,
+   "nome_articulacao": "Arco Plantar\n",
+   "createdAt": "2025-01-07 14:51:52",
+   "updatedAt": "2025-01-07 14:51:52",
+   "deletedAt": null
+ },
+ {
+   "cod_articulacao": 2,
+   "nome_articulacao": "Cotovelo\n",
+   "createdAt": "2025-01-07 14:51:52",
+   "updatedAt": "2025-01-07 14:51:52",
+   "deletedAt": null
+ },
+ {
+   "cod_articulacao": 3,
+   "nome_articulacao": "Escápula\n",
+   "createdAt": "2025-01-07 14:51:52",
+   "updatedAt": "2025-01-07 14:51:52",
+   "deletedAt": null
+ },
+ {
+   "cod_articulacao": 4,
+   "nome_articulacao": "Joelho\n",
+   "createdAt": "2025-01-07 14:51:52",
+   "updatedAt": "2025-01-07 14:51:52",
+   "deletedAt": null
+ },
+ {
+   "cod_articulacao": 5,
+   "nome_articulacao": "Lombar\n",
+   "createdAt": "2025-01-07 14:51:52",
+   "updatedAt": "2025-01-07 14:51:52",
+   "deletedAt": null
+ },
+ {
+   "cod_articulacao": 6,
+   "nome_articulacao": "Ombro\n",
+   "createdAt": "2025-01-07 14:51:52",
+   "updatedAt": "2025-01-07 14:51:52",
+   "deletedAt": null
+ },
+ {
+   "cod_articulacao": 7,
+   "nome_articulacao": "Punho\n",
+   "createdAt": "2025-01-07 14:51:52",
+   "updatedAt": "2025-01-07 14:51:52",
+   "deletedAt": null
+ },
+ {
+   "cod_articulacao": 8,
+   "nome_articulacao": "Quadril\n",
+   "createdAt": "2025-01-07 14:51:52",
+   "updatedAt": "2025-01-07 14:51:52",
+   "deletedAt": null
+ },
+ {
+   "cod_articulacao": 9,
+   "nome_articulacao": "Tórax\n",
+   "createdAt": "2025-01-07 14:51:52",
+   "updatedAt": "2025-01-07 14:51:52",
+   "deletedAt": null
+ },
+ {
+   "cod_articulacao": 10,
+   "nome_articulacao": "Tornozelo\n",
+   "createdAt": "2025-01-07 14:51:52",
+   "updatedAt": "2025-01-07 14:51:52",
+   "deletedAt": null
+ }
+]

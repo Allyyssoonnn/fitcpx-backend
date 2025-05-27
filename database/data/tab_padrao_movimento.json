@@ -1,0 +1,142 @@
+[
+ {
+   "cod_padrao_movimento": 1,
+   "nome_padrao_movimento": "Anti-flexão lateral",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 2,
+   "nome_padrao_movimento": "Anti-hiperextensão",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 3,
+   "nome_padrao_movimento": "Anti-rotação",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 4,
+   "nome_padrao_movimento": "Combinado\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 5,
+   "nome_padrao_movimento": "Complementar\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 6,
+   "nome_padrao_movimento": "Corpo Inteiro\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 7,
+   "nome_padrao_movimento": "Empurrar horizontal\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 8,
+   "nome_padrao_movimento": "Empurrar vertical\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 9,
+   "nome_padrao_movimento": "Flexão de Tronco\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 10,
+   "nome_padrao_movimento": "Flexão Lateral de Tronco\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 11,
+   "nome_padrao_movimento": "Hiperextensão de Tronco\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 12,
+   "nome_padrao_movimento": "Joelho bilateral assimétrico\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 13,
+   "nome_padrao_movimento": "Joelho bilateral simétrico\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 14,
+   "nome_padrao_movimento": "Joelho unilateral\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 15,
+   "nome_padrao_movimento": "Parede lombar\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 16,
+   "nome_padrao_movimento": "Puxar horizontal\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 17,
+   "nome_padrao_movimento": "Puxar vertical\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 18,
+   "nome_padrao_movimento": "Quadril bilateral\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 19,
+   "nome_padrao_movimento": "Quadril unilateral\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ },
+ {
+   "cod_padrao_movimento": 20,
+   "nome_padrao_movimento": "Rotação de Tronco\n",
+   "createdAt": "2025-01-07 14:53:05",
+   "updatedAt": "2025-01-07 14:53:06",
+   "deletedAt": null
+ }
+]
