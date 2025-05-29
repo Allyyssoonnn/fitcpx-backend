@@ -1,0 +1,16 @@
+# 1. Crie uma branch a partir da dev
+git checkout dev
+git pull
+git checkout -b feature/nova-funcionalidade
+
+# 2. Faça alterações e commits normalmente
+git add .
+git commit -m "Implementa nova funcionalidade"
+
+# 3. Quando terminar, mescle de volta na dev
+git checkout dev
+git merge feature/nova-funcionalidade
+git push origin dev
+
+# 4. Teste tudo na dev
+# 5. Quando estiver OK, crie Pull Request de dev → main no GitHub

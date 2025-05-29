@@ -98,7 +98,8 @@ module.exports = {
       },
       arquivo_aluno_contrato: {
         type: Sequelize.DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
+        defaultValue: null,
       },
       id_aluno_contrato: {
         allowNull: true,

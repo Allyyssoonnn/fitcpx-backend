@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         data_fim: DataTypes.DATE,
         tipo_evento: DataTypes.STRING,
         cor_evento: DataTypes.STRING,
+        descricao_evento: DataTypes.STRING,
         google_id: DataTypes.STRING,
         deletedAt: {
             type: DataTypes.DATE,

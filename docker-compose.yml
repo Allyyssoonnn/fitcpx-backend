@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  fitcpx:
+    build: .
+    image: fitcpx
+    env_file:
+      - .env
+    ports:
+      - "8070:8070"
+      - "8090:8090"
+      - "3070:3070"
+      - "3075:3075"
+      - "3080:3080"
+    restart: unless-stopped

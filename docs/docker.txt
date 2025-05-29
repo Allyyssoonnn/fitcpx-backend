@@ -1,0 +1,41 @@
+Criar ssh
+ssh-keygen -t rsa -b 4096 -C "seu-email@exemplo.com"
+
+- Copiar ssh
+pbcopy < ~/.ssh/id_rsa.pub
+
+- Apagar ssh
+rm ~/.ssh/id_rsa ~/.ssh/id_rsa.pub
+
+- Instalar Portainer
+
+docker volume create portainer_data
+
+docker run -d -p 9000:9000 --name portainer \
+  --restart=always \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v portainer_data:/data \
+  portainer/portainer-ce
+
+
+- Acessar na rede
+http://212.85.2.135:9000
+
+- subir projeto
+docker-compose up -d --build
+
+- parar projeto
+docker-compose down
+
+Comandos principais
+
+docker-compose up -d — sobe todos os serviços definidos no arquivo (em background).
+docker-compose down — para e remove os containers.
+docker-compose build — constrói as imagens (útil se você alterar o Dockerfile).
+docker-compose pull — baixa as imagens da registry, se estiver usando imagens remotas.
+docker-compose logs — vê os logs dos containers.
+
+- ROLLBACK
+
+git revert <commit_id>
+git push origin main

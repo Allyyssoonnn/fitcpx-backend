@@ -26,6 +26,22 @@ module.exports = {
           key: 'cod_modalidade'
         }
       },
+      cod_modalidade_variacao: {
+        allowNull: false,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_modalidade_variacao',
+          key: 'cod_modalidade_variacao'
+        }
+      },
+      cod_modalidade_variacao_valor: {
+        allowNull: false,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_modalidade_variacao_valor',
+          key: 'cod_modalidade_variacao_valor'
+        }
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,

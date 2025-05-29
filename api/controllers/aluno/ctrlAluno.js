@@ -281,9 +281,10 @@ async function getAlunoContratos(req, res) {
     const { cod_aluno, cod_empresa } = req.body;
 
     var where = {};
-    where = { ambiente_aluno_contrato: { [Sequelize.Op.ne]: env !== 'production' ? 'development' : 'production' } };
-    if (cod_aluno) where = { ...where, cod_aluno: cod_aluno };
-    if (cod_empresa) where = { ...where, cod_empresa: cod_empresa };
+    const ambienteAtual = process.env.NODE_ENV !== 'production' ? 'development' : 'production';
+    where = { ambiente_aluno_contrato: { [Sequelize.Op.eq]: ambienteAtual } };
+    if (cod_aluno) where.cod_aluno = cod_aluno;
+    if (cod_empresa) where.cod_empresa = cod_empresa;
 
     const alunoContratos = await tab_aluno_contrato.findAll({
         where: where,

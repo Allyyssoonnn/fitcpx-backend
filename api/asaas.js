@@ -1,0 +1,127 @@
+const moment = require("moment-timezone");
+// const { tab_usuario_pagamento, tab_asaas_webhook } = require('../database/models');
+const env = process.env.NODE_ENV || 'development';
+
+const urlBase = env === 'development'
+    ? 'https://api-sandbox.asaas.com/'
+    : 'https://api.asaas.com/'
+;
+
+const token = env === 'development'
+    ? process.env.ASAAS_KEY_DEVELOPMENT
+    : process.env.ASAAS_KEY_PRODUCTION
+;
+
+async function criarCliente(nome, email, documento, telefone, endereco, numero, estado, cep, cod, nome_empresa = null) {
+    const url = `${urlBase}/v3/customers`;
+    const options = {
+        method: 'POST',
+        headers: {accept: 'application/json', 'content-type': 'application/json', access_token: token },
+        body: JSON.stringify({
+            name: nome,
+            cpfCnpj: documento?.replace(/[^\d]+/g, ''),
+            email: email,
+            phone: telefone,
+            address: endereco,
+            addressNumber: numero,
+            province: estado,
+            postalCode: cep,
+            externalReference: cod,
+            company: nome_empresa,
+            groupName: `${cod}_${nome_empresa}`,
+            notificationDisabled: true,
+        })
+    };
+    
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp.id;
+}
+
+async function atualizarCliente(customerId, nome, documento, email, telefone, apikey) {
+    const url = `${urlBase}/v3/customers/${customerId}`;
+    const options = {
+        method: 'PUT',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: apikey ?? token },
+        body: JSON.stringify({
+            name: nome,
+            cpfCnpj: documento.replace(/[^\d]+/g, ''),
+            email: email,
+            phone: telefone,
+        })
+    };
+
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return;
+}
+
+async function getTokenCard(customerId, cartao, ip) {
+    const url = `${urlBase}/v3/creditCard/tokenizeCreditCard`;
+    const options = {
+        method: 'POST',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
+        body: JSON.stringify({
+            creditCard: {
+                number: cartao.number,
+                expiryMonth: cartao.month,
+                expiryYear: cartao.year,
+                ccv: cartao.code,
+                holderName: cartao.name,
+            },
+            customer: customerId,
+            remoteIp: ip
+        })
+    };
+
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp;
+}
+
+async function criarCobrancaCartao(customerId, cod, value, dueDate, tokenCartao, meuip) {
+    const url = `${urlBase}/v3/payments/`;
+    const options = {
+        method: 'POST',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
+        body: JSON.stringify({
+            billingType: tokenCartao ? 'CREDIT_CARD' : 'UNDEFINED',
+            customer: customerId,
+            value: value,
+            dueDate: moment().tz('America/Sao_Paulo').format('YYYY-MM-DD'),
+            description: 'FitCpx',
+            externalReference: cod,
+            installmentCount: 12,
+            totalValue: value,
+            // installmentValue: 40,
+            discount: { type: 'PERCENTAGE', value: 0 },
+            interest: {value: 0},
+            fine: { value: 0, type: 'FIXED' },
+            postalService: false,
+            callback: { successUrl: 'https://fitcpx.com', autoRedirect: false },
+            creditCardHolderInfo: {addressComplement: null, phone: null, mobilePhone: null},
+            creditCardToken: tokenCartao,
+            authorizeOnly: null,
+            remoteIp: meuip,
+        })
+    };
+
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp;
+}
+
+module.exports = {
+    criarCliente,
+    atualizarCliente,
+    getTokenCard,
+    criarCobrancaCartao,
+}

@@ -1,6 +1,7 @@
 const moment = require("moment-timezone");
 const { tab_usuario, tab_empresa, tab_aluno, tab_empresa_licenca_pagamento, tab_aluno_contrato_pagamento, tab_empresa_licenca, tab_aluno_cartao, tab_aluno_contrato, tab_aluno_contrato_modalidade, tab_modalidade_variacao, tab_modalidade_variacao_valor, tab_modalidade } = require('../../database/models');
 const { createAccount, getStatusAccount, sendDocuments, setDefaultPaymentMethod, createCustomer, getSetupIntent, getPaymentsMethod, getBalanceAccount, getExtract, createPayment, getPaymentIntent, refundPayment, createAccountUser, deleteAccount, updateAccountUser, updateAccountCompany } = require("../stripe");
+const { criarCliente, getTokenCard, criarCobrancaCartao } = require("../asaas");
 const env = process.env.NODE_ENV || 'development';
 const dev = env === 'development';
 
@@ -100,7 +101,7 @@ async function getStatusConta(req, res) {
 }
 
 async function criarPagamentoAluno(req, res) {
-    const { cod_aluno, cod_empresa, cod_usuario, cod_aluno_contrato, formaPagamento, mensal, paymentId } = req.body;
+    const { cod_aluno, cod_empresa, cod_usuario, cod_aluno_contrato, formaPagamento, mensal, paymentId, formCard } = req.body;
     var accountId;
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
@@ -172,20 +173,23 @@ async function criarPagamentoAluno(req, res) {
     accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
     customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
 
-    if (!customerId) customerId = await createCustomer(
-        aluno.nome_aluno,
-        aluno.email_aluno,
-        aluno.cpf_aluno,
-        aluno.telefone_aluno,
-        aluno.endereco_aluno,
-        aluno.numero_aluno,
-        aluno.cidade_aluno,
-        aluno.estado_aluno,
-        aluno.cep_aluno,
-        cod_aluno,
-        null,
-        accountId
-    );
+    if (accountId && !customerId) {
+        customerId = await createCustomer(
+            aluno.nome_aluno,
+            aluno.email_aluno,
+            aluno.cpf_aluno,
+            aluno.telefone_aluno,
+            aluno.endereco_aluno,
+            aluno.numero_aluno,
+            aluno.cidade_aluno,
+            aluno.estado_aluno,
+            aluno.cep_aluno,
+            cod_aluno,
+            null,
+            accountId
+        );
+    }
+    
     if (customerId) {
         var field = env === 'development' ? { dev_stripe_id: customerId } : { stripe_id: customerId };
         await tab_aluno.update(field, { where: { cod_aluno } });
@@ -279,6 +283,34 @@ async function criarPagamentoAluno(req, res) {
 
         res.send({ status: true });
         return;
+    }
+
+    if (formaPagamento === 'PARCELADO') {
+        var asaasId = dev ? aluno.dev_asaas_id : aluno.asaas_id;
+
+        if (!asaasId) {
+            asaasId = await criarCliente(
+                aluno.nome_aluno,
+                aluno.email_aluno,
+                aluno.cpf_aluno,
+                aluno.telefone_aluno,
+                aluno.endereco_aluno,
+                aluno.numero_aluno,
+                aluno.estado_aluno,
+                aluno.cep_aluno,
+                aluno.cod_aluno,
+                empresa.nome_empresa,
+            );
+            const fieldUpdate = dev ? { dev_asaas_id: asaasId } : { asaas_id: asaasId };
+            await tab_aluno.update(fieldUpdate, { where: { cod_aluno } });
+        }
+
+        if (asaasId) {
+            const tokenCard = await getTokenCard(asaasId, { ...formCard, name: aluno.nome_aluno }, null);
+            const { creditCardToken } = tokenCard;
+            const invoice = await criarCobrancaCartao(asaasId, cod_aluno_contrato, aluno_contrato.total_aluno_contrato, null, creditCardToken, null);
+            const { status, value, netValue, id, description, invoiceNumber } = invoice;
+        }
     }
 
     res.send({ status: true });
