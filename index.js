@@ -8,14 +8,10 @@ require('dotenv').config();
 
 const server = express();
 const serverSite = express();
-const serverApp = express();
 const serverAppAluno = express();
-const serverAppAdmin = express();
 const PORT = 8070;
 const PORTSITE = 8090;
-const PORTApp = 3070;
 const PORTAppAluno = 3075;
-const PORTAppAdmin = 3080;
 
 //cors precisa ser declarado antes das rotas para não ocorrer erro no client
 server.use(cors({ origin: '*', credentials: true }));
@@ -52,14 +48,6 @@ serverSite.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/site/ind
 const serverWebHttp = http.createServer(serverSite);
 serverWebHttp.listen(PORTSITE, () => console.log(`WebSite do app está rodando na porta: ${PORTSITE}`));
 
-// ================ Usuário
-
-serverApp.use(express.static(path.join(__dirname, '/dist-usuario')));
-serverApp.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/dist-usuario/index.html'))));
-
-const appHttp = http.createServer(serverApp);
-appHttp.listen(PORTApp, () => console.log(`Frontend do app está rodando na porta: ${PORTApp}`));
-
 // ================ Aluno
 
 serverAppAluno.use(express.static(path.join(__dirname, '/dist-aluno')));
@@ -68,11 +56,3 @@ serverAppAluno.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/dist
 
 const appAlunoHttp = http.createServer(serverAppAluno);
 appAlunoHttp.listen(PORTAppAluno, () => console.log(`Frontend do app está rodando na porta: ${PORTAppAluno}`));
-
-// ================ Admin
-
-serverAppAdmin.use(express.static(path.join(__dirname, '/dist-admin')));
-serverAppAdmin.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/dist-admin/index.html'))));
-
-const appAdminHttp = http.createServer(serverAppAdmin);
-appAdminHttp.listen(PORTAppAdmin, () => console.log(`Frontend do app está rodando na porta: ${PORTAppAdmin}`));
