@@ -3,6 +3,7 @@ ssh-keygen -t rsa -b 4096 -C "seu-email@exemplo.com"
 
 - Copiar ssh
 pbcopy < ~/.ssh/id_rsa.pub
+pbcopy < ~/.ssh/id_rsa
 
 - Apagar ssh
 rm ~/.ssh/id_rsa ~/.ssh/id_rsa.pub
