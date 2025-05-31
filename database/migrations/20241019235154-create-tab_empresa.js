@@ -60,6 +60,11 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
+      celular_empresa: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
       cep_empresa: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,

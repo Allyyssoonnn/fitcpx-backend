@@ -17,7 +17,6 @@ COPY . .
 EXPOSE 8070
 EXPOSE 8090
 EXPOSE 3075
-EXPOSE 3080
 
 # Comando para iniciar a aplicação
 CMD [ "npm", "start" ]

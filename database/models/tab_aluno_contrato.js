@@ -47,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
             defaultvalue: null,
         },
         iniciopagamento_aluno_contrato: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATEONLY,
             allowNull: true,
             defaultValue: null,
         },

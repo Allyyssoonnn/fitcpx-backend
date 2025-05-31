@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         email_confirmado: DataTypes.ENUM("S", "N"),
         email_codigo: DataTypes.STRING,
         telefone_empresa: DataTypes.STRING,
+        celular_empresa: DataTypes.STRING,
         cep_empresa: DataTypes.STRING,
         endereco_empresa: DataTypes.STRING,
         numero_empresa: DataTypes.STRING,

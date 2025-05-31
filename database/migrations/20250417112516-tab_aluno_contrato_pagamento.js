@@ -93,6 +93,11 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null,
       },
+      asaas_id: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,

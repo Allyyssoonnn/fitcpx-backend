@@ -13,8 +13,10 @@ async function gerarIdCarteira(req, res) {
 
     // await deleteAccount('acct_1RRz8sPZi7F5lQMc');
 
-    if (((dev && empresa?.dev_stripe_id) || (!dev && empresa?.stripe_id)) ||
-    ((dev && usuario?.dev_stripe_account_id) || (!dev && usuario?.stripe_account_id))) {
+    if (
+        ((dev && empresa?.dev_stripe_id) || (!dev && empresa?.stripe_id)) ||
+        ((dev && usuario?.dev_stripe_account_id) || (!dev && usuario?.stripe_account_id))
+    ) {
         var accountId;
         if (cod_empresa) {
             accountId = env === 'development' ? empresa?.dev_stripe_id : empresa?.stripe_id;
@@ -101,7 +103,7 @@ async function getStatusConta(req, res) {
 }
 
 async function criarPagamentoAluno(req, res) {
-    const { cod_aluno, cod_empresa, cod_usuario, cod_aluno_contrato, formaPagamento, mensal, paymentId, formCard } = req.body;
+    const { cod_aluno, cod_empresa, cod_usuario, cod_aluno_contrato, formaPagamento, mensal, paymentId, formCard, typePayment } = req.body;
     var accountId;
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
@@ -170,121 +172,125 @@ async function criarPagamentoAluno(req, res) {
         return;
     }
 
-    accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
-    customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
-
-    if (accountId && !customerId) {
-        customerId = await createCustomer(
-            aluno.nome_aluno,
-            aluno.email_aluno,
-            aluno.cpf_aluno,
-            aluno.telefone_aluno,
-            aluno.endereco_aluno,
-            aluno.numero_aluno,
-            aluno.cidade_aluno,
-            aluno.estado_aluno,
-            aluno.cep_aluno,
-            cod_aluno,
-            null,
-            accountId
-        );
-    }
+    //STRIPE PAYMENT
+    if (!(typePayment === 'CREDIT' && formaPagamento === 'PARCELADO')) {
+        accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
+        customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
     
-    if (customerId) {
-        var field = env === 'development' ? { dev_stripe_id: customerId } : { stripe_id: customerId };
-        await tab_aluno.update(field, { where: { cod_aluno } });
-    }
-
-    if (paymentId) {
-        await setDefaultPaymentMethod(accountId, customerId, paymentId);
-        var field = env === 'development' ? { dev_payment_stripe_id: paymentId } : { payment_stripe_id: paymentId };
-        await tab_aluno.update(field, { where: { cod_aluno } });
-    }
-
-    if (formaPagamento === 'UNICA') {
-        for (const modalidade of aluno_contrato?.modalidades) {
-            name = `${modalidade.modalidade.nome_modalidade} - ${modalidade.variacao.nome_modalidade_variacao}`;
+        if (accountId && !customerId) {
+            customerId = await createCustomer(
+                aluno.nome_aluno,
+                aluno.email_aluno,
+                aluno.cpf_aluno,
+                aluno.telefone_aluno,
+                aluno.endereco_aluno,
+                aluno.numero_aluno,
+                aluno.cidade_aluno,
+                aluno.estado_aluno,
+                aluno.cep_aluno,
+                cod_aluno,
+                null,
+                accountId
+            );
+        }
+        
+        if (customerId) {
+            var field = env === 'development' ? { dev_stripe_id: customerId } : { stripe_id: customerId };
+            await tab_aluno.update(field, { where: { cod_aluno } });
+        }
+        
+        if (paymentId) {
+            await setDefaultPaymentMethod(accountId, customerId, paymentId);
+            var field = env === 'development' ? { dev_payment_stripe_id: paymentId } : { payment_stripe_id: paymentId };
+            await tab_aluno.update(field, { where: { cod_aluno } });
         }
 
-        const payment = await createPayment(accountId, paymentId, valor, customerId, name);
-        var field = env === 'development' ? { dev_stripe_payment_id: payment.id } : { stripe_payment_id: payment.id };
-        await tab_aluno_contrato_pagamento.create({
-            ...field,
-            cod_aluno_contrato: aluno_contrato.cod_aluno_contrato,
-            data_aluno_contrato_pagamento: new Date(),
-            expiracao_aluno_contrato_pagamento: new Date(),
-            valor_aluno_contrato_pagamento: valor,
-            liquido_aluno_contrato_pagamento: valor,
-            forma_aluno_contrato_pagamento: formaPagamento,
-            status_aluno_contrato_pagamento: payment?.status,
-            json_aluno_contrato_pagamento: JSON.stringify(payment),
-            ambiente_aluno_contrato_pagamento: env,
-        }, { where: { cod_aluno_contrato } });
-
-        await tab_aluno_contrato.update({
-            status_aluno_contrato: 'Ativo',
-            descricao_aluno_contrato: name,
-            formapagamento_aluno_contrato: formaPagamento,
-        }, { where: { cod_aluno_contrato } });
-
-        res.send({ status: true });
-        return;
-    }
-
-    if (formaPagamento === 'RECORRENTE' && !paymentId) {
-        res.send({ status: false, message: 'Opção recorrente selecionada sem um cartão informado!' });
-        return;
-    }
-
-    if (formaPagamento === 'RECORRENTE' || formaPagamento === 'MENSAL') {
-        var name = '';
-
-        for (const modalidade of aluno_contrato?.modalidades) {
-            name = `${modalidade.modalidade.nome_modalidade} - ${modalidade.variacao.nome_modalidade_variacao}`;
-        }
-
-        const payment = await createPayment(accountId, paymentId, valor, customerId, name);
-        var field = env === 'development' ? { dev_stripe_payment_id: payment.id } : { stripe_payment_id: payment.id };
-        await tab_aluno_contrato_pagamento.create({
-            ...field,
-            cod_aluno_contrato: aluno_contrato.cod_aluno_contrato,
-            data_aluno_contrato_pagamento: new Date(),
-            expiracao_aluno_contrato_pagamento: new Date(),
-            valor_aluno_contrato_pagamento: valor,
-            liquido_aluno_contrato_pagamento: valor,
-            forma_aluno_contrato_pagamento: formaPagamento,
-            status_aluno_contrato_pagamento: payment?.status,
-            json_aluno_contrato_pagamento: JSON.stringify(payment),
-            ambiente_aluno_contrato_pagamento: env,
-        }, { where: { cod_aluno_contrato } });
-
-        await tab_aluno_contrato.update({
-            status_aluno_contrato: 'Ativo',
-            descricao_aluno_contrato: name,
-            formapagamento_aluno_contrato: formaPagamento,
-        }, { where: { cod_aluno_contrato } });
-
-        for (let i = 0; i < resumoParcelas.length; i++) {
-            const parcela = resumoParcelas[i];
-            //Ignorar primeira parcela que já foi gerada
-            if (i > 0) {
-                await tab_aluno_contrato_pagamento.create({
-                    cod_aluno_contrato: aluno_contrato.cod_aluno_contrato,
-                    data_aluno_contrato_pagamento: moment(new Date()).add('month', i),
-                    expiracao_aluno_contrato_pagamento: moment(new Date()).add('month', i),
-                    valor_aluno_contrato_pagamento: parcela,
-                    liquido_aluno_contrato_pagamento: parcela,
-                    forma_aluno_contrato_pagamento: formaPagamento,
-                    status_aluno_contrato_pagamento: 'Pendente',
-                    ambiente_aluno_contrato_pagamento: env,
-                }, { where: { cod_aluno_contrato } });
+        if (formaPagamento === 'UNICA') {
+            for (const modalidade of aluno_contrato?.modalidades) {
+                name = `${modalidade.modalidade.nome_modalidade} - ${modalidade.variacao.nome_modalidade_variacao}`;
             }
+    
+            const payment = await createPayment(accountId, paymentId, valor, customerId, name);
+            var field = env === 'development' ? { dev_stripe_payment_id: payment.id } : { stripe_payment_id: payment.id };
+            await tab_aluno_contrato_pagamento.create({
+                ...field,
+                cod_aluno_contrato: aluno_contrato.cod_aluno_contrato,
+                data_aluno_contrato_pagamento: new Date(),
+                expiracao_aluno_contrato_pagamento: new Date(),
+                valor_aluno_contrato_pagamento: valor,
+                liquido_aluno_contrato_pagamento: valor,
+                forma_aluno_contrato_pagamento: formaPagamento,
+                status_aluno_contrato_pagamento: payment?.status,
+                json_aluno_contrato_pagamento: JSON.stringify(payment),
+                ambiente_aluno_contrato_pagamento: env,
+            }, { where: { cod_aluno_contrato } });
+    
+            await tab_aluno_contrato.update({
+                status_aluno_contrato: 'Ativo',
+                descricao_aluno_contrato: name,
+                formapagamento_aluno_contrato: formaPagamento,
+            }, { where: { cod_aluno_contrato } });
+    
+            res.send({ status: true });
+            return;
         }
 
-        res.send({ status: true });
-        return;
+        if (formaPagamento === 'RECORRENTE' && !paymentId) {
+            res.send({ status: false, message: 'Opção recorrente selecionada sem um cartão informado!' });
+            return;
+        }
+
+        if (formaPagamento === 'RECORRENTE') {
+            var name = '';
+    
+            for (const modalidade of aluno_contrato?.modalidades) {
+                name = `${modalidade.modalidade.nome_modalidade} - ${modalidade.variacao.nome_modalidade_variacao}`;
+            }
+    
+            const payment = await createPayment(accountId, paymentId, valor, customerId, name);
+            var field = env === 'development' ? { dev_stripe_payment_id: payment.id } : { stripe_payment_id: payment.id };
+            await tab_aluno_contrato_pagamento.create({
+                ...field,
+                cod_aluno_contrato: aluno_contrato.cod_aluno_contrato,
+                data_aluno_contrato_pagamento: new Date(),
+                expiracao_aluno_contrato_pagamento: new Date(),
+                valor_aluno_contrato_pagamento: valor,
+                liquido_aluno_contrato_pagamento: valor,
+                forma_aluno_contrato_pagamento: formaPagamento,
+                status_aluno_contrato_pagamento: payment?.status,
+                json_aluno_contrato_pagamento: JSON.stringify(payment),
+                ambiente_aluno_contrato_pagamento: env,
+            }, { where: { cod_aluno_contrato } });
+    
+            await tab_aluno_contrato.update({
+                status_aluno_contrato: 'Ativo',
+                descricao_aluno_contrato: name,
+                formapagamento_aluno_contrato: formaPagamento,
+            }, { where: { cod_aluno_contrato } });
+    
+            for (let i = 0; i < resumoParcelas.length; i++) {
+                const parcela = resumoParcelas[i];
+                //Ignorar primeira parcela que já foi gerada
+                if (i > 0) {
+                    await tab_aluno_contrato_pagamento.create({
+                        cod_aluno_contrato: aluno_contrato.cod_aluno_contrato,
+                        data_aluno_contrato_pagamento: moment(new Date()).add('month', i),
+                        expiracao_aluno_contrato_pagamento: moment(new Date()).add('month', i),
+                        valor_aluno_contrato_pagamento: parcela,
+                        liquido_aluno_contrato_pagamento: parcela,
+                        forma_aluno_contrato_pagamento: formaPagamento,
+                        status_aluno_contrato_pagamento: 'Pendente',
+                        ambiente_aluno_contrato_pagamento: env,
+                    }, { where: { cod_aluno_contrato } });
+                }
+            }
+    
+            res.send({ status: true });
+            return;
+        }
     }
 
+    // ASAAS
     if (formaPagamento === 'PARCELADO') {
         var asaasId = dev ? aluno.dev_asaas_id : aluno.asaas_id;
 
@@ -306,10 +312,12 @@ async function criarPagamentoAluno(req, res) {
         }
 
         if (asaasId) {
+            const { installments } = formCard;
             const tokenCard = await getTokenCard(asaasId, { ...formCard, name: aluno.nome_aluno }, null);
             const { creditCardToken } = tokenCard;
-            const invoice = await criarCobrancaCartao(asaasId, cod_aluno_contrato, aluno_contrato.total_aluno_contrato, null, creditCardToken, null);
+            const invoice = await criarCobrancaCartao(asaasId, cod_aluno_contrato, aluno_contrato.total_aluno_contrato, dataInicio, creditCardToken, null, installments);
             const { status, value, netValue, id, description, invoiceNumber } = invoice;
+            //Payments deliveried from webhook
         }
     }
 

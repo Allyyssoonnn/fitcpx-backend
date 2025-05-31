@@ -240,8 +240,7 @@ async function setEmpresa(req, res) {
 
     if (empresaAtt) {
         await tab_empresa.update(empresa, { where: { cod_empresa: empresa.cod_empresa } });
-
-        //Verifica se empresa está cadastrado no asaas e atualiza informações
+        
         const empresaBD = await tab_empresa.findOne({ where: { cod_empresa: empresa.cod_empresa } });
         const accountId = env === 'development' ? empresaBD.dev_stripe_id : empresaBD.stripe_id;
         if (accountId) await updateAccount(empresaAtt, accountId);

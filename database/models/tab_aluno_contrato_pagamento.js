@@ -91,6 +91,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: null,
         },
+        asaas_id: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null,
+        },
         deletedAt: {
             type: DataTypes.DATE,
             allowNull: true,

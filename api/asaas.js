@@ -85,7 +85,7 @@ async function getTokenCard(customerId, cartao, ip) {
     return resp;
 }
 
-async function criarCobrancaCartao(customerId, cod, value, dueDate, tokenCartao, meuip) {
+async function criarCobrancaCartao(customerId, cod, value, dueDate, tokenCartao, meuip, installments) {
     const url = `${urlBase}/v3/payments/`;
     const options = {
         method: 'POST',
@@ -94,10 +94,10 @@ async function criarCobrancaCartao(customerId, cod, value, dueDate, tokenCartao,
             billingType: tokenCartao ? 'CREDIT_CARD' : 'UNDEFINED',
             customer: customerId,
             value: value,
-            dueDate: moment().tz('America/Sao_Paulo').format('YYYY-MM-DD'),
+            dueDate: moment(dueDate).tz('America/Sao_Paulo').format('YYYY-MM-DD'),
             description: 'FitCpx',
             externalReference: cod,
-            installmentCount: 12,
+            installmentCount: installments,
             totalValue: value,
             // installmentValue: 40,
             discount: { type: 'PERCENTAGE', value: 0 },

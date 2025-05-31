@@ -49,9 +49,9 @@ module.exports = {
         defaultValue: null,
       },
       iniciopagamento_aluno_contrato: {
-          type: Sequelize.DataTypes.DATE,
-          allowNull: true,
-          defaultValue: null,
+        type: Sequelize.DataTypes.DATEONLY,
+        allowNull: true,
+        defaultValue: null,
       },
       status_aluno_contrato: {
         allowNull: true,
