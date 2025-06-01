@@ -235,7 +235,7 @@ async function setEmpresa(req, res) {
 
     if (empresa?.cod_empresa) empresaAtt = await tab_empresa.findOne({
         where: { cod_empresa: empresa.cod_empresa },
-        attributes: { exclude: ['apikey_empresa', 'walletid_empresa'] }
+        attributes: { exclude: ['apikey_empresa', 'walletid_empresa', 'stripe_customer_id', 'dev_stripe_id', 'stripe_id'] }
     });
 
     if (empresaAtt) {

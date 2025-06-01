@@ -310,7 +310,7 @@ async function updateAccountUser(accountId, usuario) {
 async function updateAccount(empresa, accountId) {
     const stripe = require('stripe')(token);
 
-    const account = await stripe.account.update({
+    const account = await stripe.accounts.update(accountId, {
         email: empresa.email_empresa,
         company: {
             name: empresa.nome_empresa,
@@ -323,8 +323,6 @@ async function updateAccount(empresa, accountId) {
             phone: empresa.telefone_empresa,
             tax_id: empresa.doc_empresa,
         },
-    }, {
-        stripeAccount: accountId,
     });
 
     return { account };

@@ -13,19 +13,18 @@ async function gerarIdCarteira(req, res) {
 
     // await deleteAccount('acct_1RRz8sPZi7F5lQMc');
 
-    if (
-        ((dev && empresa?.dev_stripe_id) || (!dev && empresa?.stripe_id)) ||
-        ((dev && usuario?.dev_stripe_account_id) || (!dev && usuario?.stripe_account_id))
-    ) {
+    if (cod_empresa && ((dev && empresa?.dev_stripe_id) || (!dev && empresa?.stripe_id))) {
         var accountId;
-        if (cod_empresa) {
-            accountId = env === 'development' ? empresa?.dev_stripe_id : empresa?.stripe_id;
-        } else {
-            accountId = env === 'development' ? usuario?.dev_stripe_account_id : usuario?.stripe_account_id;
-        }
+        accountId = env === 'development' ? empresa?.dev_stripe_id : empresa?.stripe_id;
+        updateAccountCompany(accountId, empresa, usuario);
+        res.send({ status: true, empresa, usuario });
+        return;
+    }
 
-        cod_empresa ? updateAccountCompany(accountId, empresa, usuario): updateAccountUser(accountId, usuario);
-
+    if (!cod_empresa && ((dev && usuario?.dev_stripe_account_id) || (!dev && usuario?.stripe_account_id))) {
+        var accountId;
+        accountId = env === 'development' ? usuario?.dev_stripe_account_id : usuario?.stripe_account_id;
+        updateAccountUser(accountId, usuario);
         res.send({ status: true, empresa, usuario });
         return;
     }
@@ -53,7 +52,7 @@ async function gerarIdCarteira(req, res) {
         }
     }
 
-    const empresaAtt = cod_empresa ? await tab_empresa.findOne({ where: { cod_empresa: cod_empresa.cod_empresa } }) : null;
+    const empresaAtt = cod_empresa ? await tab_empresa.findOne({ where: { cod_empresa: cod_empresa } }) : null;
     const usuarioAtt = await tab_usuario.findOne({ where: { cod_usuario: cod_usuario } });
 
     res.send({ status: true, empresa: empresaAtt, usuario: usuarioAtt });
