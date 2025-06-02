@@ -8,10 +8,8 @@ require('dotenv').config();
 
 const server = express();
 const serverSite = express();
-const serverAppAluno = express();
 const PORT = 8070;
 const PORTSITE = 8090;
-const PORTAppAluno = 3075;
 
 //cors precisa ser declarado antes das rotas para não ocorrer erro no client
 server.use(cors({ origin: '*', credentials: true }));
@@ -47,12 +45,3 @@ serverSite.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/site/ind
 
 const serverWebHttp = http.createServer(serverSite);
 serverWebHttp.listen(PORTSITE, () => console.log(`WebSite do app está rodando na porta: ${PORTSITE}`));
-
-// ================ Aluno
-
-serverAppAluno.use(express.static(path.join(__dirname, '/dist-aluno')));
-serverAppAluno.get('/*', ((req, res) => res.sendFile(path.join(__dirname, '/dist-aluno/index.html'))));
-
-
-const appAlunoHttp = http.createServer(serverAppAluno);
-appAlunoHttp.listen(PORTAppAluno, () => console.log(`Frontend do app está rodando na porta: ${PORTAppAluno}`));

@@ -293,9 +293,10 @@ async function getAlunoContratos(req, res) {
                 model: tab_aluno,
                 as: 'aluno',
             }
-        ]
+        ],
+        paranoid: false,
     });
-
+    
     res.send({ status: true, alunoContratos });
 }
 
