@@ -211,7 +211,8 @@ async function setUsuario(req, res) {
     if (usuario?.cod_usuario) usuarioAtt = await tab_usuario.findOne({ where: { cod_usuario: usuario.cod_usuario } });
 
     if (usuarioAtt) {
-        await tab_usuario.update(usuario, { where: { cod_usuario: usuario.cod_usuario } });
+        const user = await tab_usuario.update(usuario, { where: { cod_usuario: usuario.cod_usuario } });
+        usuarioAtt = await tab_usuario.findOne({ where: { cod_usuario: usuario.cod_usuario } });
     } else {
         const novoUsuario = await tab_usuario.create(usuario);
         usuarioAtt = novoUsuario;
@@ -240,6 +241,10 @@ async function setEmpresa(req, res) {
 
     if (empresaAtt) {
         await tab_empresa.update(empresa, { where: { cod_empresa: empresa.cod_empresa } });
+        empresaAtt = await tab_empresa.findOne({
+            where: { cod_empresa: empresa.cod_empresa },
+            attributes: { exclude: ['apikey_empresa', 'walletid_empresa', 'stripe_customer_id', 'dev_stripe_id', 'stripe_id'] }
+        });
         
         const empresaBD = await tab_empresa.findOne({ where: { cod_empresa: empresa.cod_empresa } });
         const accountId = env === 'development' ? empresaBD.dev_stripe_id : empresaBD.stripe_id;
