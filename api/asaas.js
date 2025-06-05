@@ -85,31 +85,57 @@ async function getTokenCard(customerId, cartao, ip) {
     return resp;
 }
 
-async function criarCobrancaCartao(customerId, cod, value, dueDate, tokenCartao, meuip, installments) {
+async function criarCobranca(customerId, cod, value, dueDate,
+    tokenCartao, meuip, installments, billingType, license = false
+) {
     const url = `${urlBase}/v3/payments/`;
+    const body = {
+        billingType, // 'CREDIT_CARD', 'PIX', 'BOLETO'
+        customer: customerId,
+        value: value,
+        dueDate: moment(dueDate).tz('America/Sao_Paulo').format('YYYY-MM-DD'),
+        description: license ? 'Use License' : 'FitCpx',
+        externalReference: cod,
+        postalService: false,
+        discount: { type: 'PERCENTAGE', value: 0 },
+        interest: { value: 0 },
+        fine: { value: 0, type: 'FIXED' },
+    };
+
+    if (billingType === 'CREDIT_CARD' && tokenCartao) {
+        body.installmentCount = installments || 1;
+        body.totalValue = value;
+        body.creditCardToken = tokenCartao;
+        body.remoteIp = meuip;
+        body.callback = {
+            successUrl: 'https://fitcpx.com',
+            autoRedirect: false,
+        };
+        body.creditCardHolderInfo = {
+            addressComplement: null,
+            phone: null,
+            mobilePhone: null,
+        };
+    }
+
     const options = {
         method: 'POST',
         headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
-        body: JSON.stringify({
-            billingType: tokenCartao ? 'CREDIT_CARD' : 'UNDEFINED',
-            customer: customerId,
-            value: value,
-            dueDate: moment(dueDate).tz('America/Sao_Paulo').format('YYYY-MM-DD'),
-            description: 'FitCpx',
-            externalReference: cod,
-            installmentCount: installments,
-            totalValue: value,
-            // installmentValue: 40,
-            discount: { type: 'PERCENTAGE', value: 0 },
-            interest: {value: 0},
-            fine: { value: 0, type: 'FIXED' },
-            postalService: false,
-            callback: { successUrl: 'https://fitcpx.com', autoRedirect: false },
-            creditCardHolderInfo: {addressComplement: null, phone: null, mobilePhone: null},
-            creditCardToken: tokenCartao,
-            authorizeOnly: null,
-            remoteIp: meuip,
-        })
+        body: JSON.stringify(body)
+    };
+
+    const response = await fetch(url, options)
+    .catch(err => console.error(err));
+    const resp = await response.json();
+
+    return resp;
+}
+
+async function buscarCobranca(id) {
+    const url = `${urlBase}/v3/payments/${id}`;
+    const options = {
+        method: 'POST',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
     };
 
     const response = await fetch(url, options)
@@ -123,5 +149,6 @@ module.exports = {
     criarCliente,
     atualizarCliente,
     getTokenCard,
-    criarCobrancaCartao,
+    criarCobranca,
+    buscarCobranca,
 }

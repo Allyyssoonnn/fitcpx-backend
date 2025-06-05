@@ -2,6 +2,7 @@ const moment = require("moment-timezone");
 const { tab_licenca, tab_empresa_licenca, tab_empresa, tab_empresa_licenca_pagamento } = require('../../database/models');
 const env = process.env.NODE_ENV || 'development';
 const { createPayment, createCustomer } = require("../stripe");
+const { criarCliente, criarCobranca } = require("../asaas");
 
 async function getLicencas(req, res) {    
     const licencas = await tab_licenca.findAll({
@@ -33,28 +34,20 @@ async function getLicenca(req, res) {
 }
 
 async function buyLicenca(req, res) {
-    const { cod_empresa, cod_licenca, formaPagamento, paymentMethodId } = req.body;
+    const { cod_empresa, cod_licenca, typePayment } = req.body;
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
     const licenca = await tab_licenca.findOne({ where: { cod_licenca } });
-    customerId = env === 'development' ? empresa.dev_stripe_customer_id : empresa.stripe_customer_id;
+    var asaas_id = empresa.asaas_id;
 
-    if (!customerId) customerId = await createCustomer(
-        empresa.nome_empresa,
-        empresa.email_empresa,
-        empresa.doc_empresa,
-        empresa.telefone_empresa,
-        empresa.endereco_empresa,
-        empresa.numero_empresa,
-        empresa.cidade_empresa,
-        empresa.estado_empresa,
-        empresa.cep_empresa,
-        null
-    );
-
-    if (customerId) {
-        var field = env === 'development' ? { dev_stripe_customer_id: customerId } : { stripe_customer_id: customerId };
-        await tab_empresa.update(field, { where: { cod_empresa } });
+    if (!asaas_id) {
+        asaas_id = await criarCliente(
+            empresa.nome_empresa, empresa.email_empresa, empresa.doc_empresa,
+            empresa.telefone_empresa, empresa.endereco_empresa, empresa.numero_empresa,
+            empresa.estado_empresa, empresa.cep_empresa, empresa.cod_empresa,
+            'Lab Complex Dev LTDA'
+        );
+        await tab_empresa.update({ asaas_id: asaas_id }, { where: { cod_empresa } });
     }
 
     await tab_empresa_licenca.update({
@@ -66,25 +59,20 @@ async function buyLicenca(req, res) {
         cod_licenca,
         cod_empresa,
         ambiente_empresa_licenca: env,
-        forma_empresa_licenca: formaPagamento,
+        forma_empresa_licenca: null,
+        tipopagamento_empresa_licenca: null,
     });
 
     const valor = licenca.valor_licenca;
 
-    const payment = await createPayment(null, paymentMethodId, valor, customerId, licenca.nome_licenca);
-    var field = env === 'development' ? { dev_stripe_payment_id: payment.id } : { stripe_payment_id: payment.id };
+    var billingType = 'UNDEFINED';
+    var dueDate = new Date();
 
-    await tab_empresa_licenca_pagamento.create({
-        ...field,
-        cod_empresa_licenca: empresa_licenca.cod_empresa_licenca,
-        data_empresa_licenca_pagamento: new Date(),
-        expiracao_empresa_licenca_pagamento: moment(new Date()).add('month', 1),
-        valor_empresa_licenca_pagamento: valor,
-        forma_empresa_licenca_pagamento: formaPagamento,
-        status_empresa_licenca_pagamento: payment?.status,
-        json_empresa_licenca_pagamento: JSON.stringify(payment),
-        ambiente_empresa_licenca_pagamento: env,
-    }, { where: { cod_empresa_licenca: empresa_licenca.cod_empresa_licenca } });
+    await criarCobranca(
+        asaas_id, empresa_licenca.cod_empresa_licenca, valor,
+        dueDate, null, null, null,
+        billingType, true
+    );
 
     res.send({ status: true });
     return;

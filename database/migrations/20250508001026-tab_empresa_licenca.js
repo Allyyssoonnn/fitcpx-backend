@@ -26,12 +26,22 @@ module.exports = {
           key: 'cod_licenca'
         }
       },
+      asaas_id: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
       status_empresa_licenca: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
       forma_empresa_licenca: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      tipopagamento_empresa_licenca: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
         defaultValue: null

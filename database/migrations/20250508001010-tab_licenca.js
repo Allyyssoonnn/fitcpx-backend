@@ -24,6 +24,11 @@ module.exports = {
         allowNull: true,
         defaultValue: 0
       },
+      visivel_licenca: {
+        type: Sequelize.DataTypes.ENUM('S', 'N'),
+        allowNull: true,
+        defaultValue: 'S'
+      },
       stripe_product_id: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,

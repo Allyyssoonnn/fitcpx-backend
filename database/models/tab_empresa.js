@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
         walletid_empresa: DataTypes.STRING,
         dev_stripe_customer_id: DataTypes.STRING,
         asaas_apikey: DataTypes.STRING,
+        asaas_id: DataTypes.STRING,
         dev_walletid_empresa: DataTypes.STRING,
         stripe_customer_id: DataTypes.STRING,
         dev_asaas_apikey: DataTypes.STRING,

@@ -596,6 +596,43 @@ async function refundPayment(accountId, paymentIntentId, amount) {
     }
 }
 
+async function genBoleto(accountId, paymentIntentId, nome, email, documento, endereco, cidade, estado, cep) {
+    try {
+        const stripe = require('stripe')(token);
+
+        const confirmedPayment = await stripe.paymentIntents.confirm(
+            paymentIntentId,
+            {
+                payment_method_data: {
+                    type: 'boleto',
+                    boleto: {
+                        tax_id: documento.replace(/\D/g, ''),
+                    },
+                    billing_details: {
+                        name: nome,
+                        email: email,
+                        address: {
+                            line1: endereco,
+                            city: cidade,
+                            state: estado,
+                            postal_code: cep,
+                            country: 'BR',
+                        },
+                    },
+                },
+            }, { stripeAccount: accountId, }
+        );
+
+        const code = confirmedPayment.next_action.boleto_display_details.number;
+        const url = confirmedPayment.next_action.boleto_display_details.hosted_voucher_url;
+        const pdf = confirmedPayment.next_action.boleto_display_details.pdf;
+
+        return { code, url, pdf };
+    } catch (error) {
+        return {};
+    }
+}
+
 module.exports = {
     deleteAccount,
     createAccount,
@@ -615,4 +652,5 @@ module.exports = {
     createPayment,
     getPaymentIntent,
     refundPayment,
+    genBoleto,
 }

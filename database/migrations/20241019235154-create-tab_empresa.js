@@ -120,6 +120,11 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
+      asaas_id: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
       dev_walletid_empresa: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,
