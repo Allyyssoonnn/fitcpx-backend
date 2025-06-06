@@ -16,11 +16,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    asaas_id: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: null
-    },
     status_empresa_licenca: {
       type: DataTypes.STRING,
       allowNull: true,

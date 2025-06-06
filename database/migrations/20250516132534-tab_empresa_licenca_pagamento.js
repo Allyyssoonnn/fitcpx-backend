@@ -37,6 +37,11 @@ module.exports = {
         allowNull: true,
         defaultValue: null
       },
+      asaas_id: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
       status_empresa_licenca_pagamento: {
         type: Sequelize.DataTypes.STRING,
         allowNull: true,
