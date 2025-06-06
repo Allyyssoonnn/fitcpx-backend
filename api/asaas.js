@@ -12,6 +12,20 @@ const token = env === 'development'
     : process.env.ASAAS_KEY_PRODUCTION
 ;
 
+async function fetchJson(url, options) {
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            const errorBody = await response.text();
+            throw new Error(`Erro na requisição: ${response.status} ${response.statusText} - ${errorBody}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Erro fetchJson:', error.message);
+        throw error;
+    }
+}
+
 async function criarCliente(nome, email, documento, telefone, endereco, numero, estado, cep, cod, nome_empresa = null) {
     const url = `${urlBase}/v3/customers`;
     const options = {
@@ -33,9 +47,7 @@ async function criarCliente(nome, email, documento, telefone, endereco, numero, 
         })
     };
     
-    const response = await fetch(url, options)
-    .catch(err => console.error(err));
-    const resp = await response.json();
+    const resp = await fetchJson(url, options);
 
     return resp.id;
 }
@@ -53,9 +65,7 @@ async function atualizarCliente(customerId, nome, documento, email, telefone, ap
         })
     };
 
-    const response = await fetch(url, options)
-    .catch(err => console.error(err));
-    const resp = await response.json();
+    const response = await fetchJson(url, options);
 
     return;
 }
@@ -78,9 +88,7 @@ async function getTokenCard(customerId, cartao, ip) {
         })
     };
 
-    const response = await fetch(url, options)
-    .catch(err => console.error(err));
-    const resp = await response.json();
+    const resp = await fetchJson(url, options);
 
     return resp;
 }
@@ -124,9 +132,7 @@ async function criarCobranca(customerId, cod, value, dueDate,
         body: JSON.stringify(body)
     };
 
-    const response = await fetch(url, options)
-    .catch(err => console.error(err));
-    const resp = await response.json();
+    const resp = await fetchJson(url, options);
 
     return resp;
 }
@@ -138,9 +144,7 @@ async function buscarCobranca(id) {
         headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
     };
 
-    const response = await fetch(url, options)
-    .catch(err => console.error(err));
-    const resp = await response.json();
+    const resp = await fetchJson(url, options);
 
     return resp;
 }
