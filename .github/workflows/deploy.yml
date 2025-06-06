@@ -19,6 +19,7 @@ jobs:
         port: 22
         script: |
           cd Git/servereducapp
-          git pull origin main
+          git fetch origin main
+          git reset --hard origin/main
           docker compose pull
           docker compose up -d --remove-orphans --build
