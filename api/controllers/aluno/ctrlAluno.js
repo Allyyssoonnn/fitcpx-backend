@@ -3,7 +3,6 @@ const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_us
 const { removeStringVazia } = require('../../../utils');
 const moment = require("moment-timezone");
 const { sendDocument, deleteDocument, downloadContract } = require('../../autentique');
-const { updateCustomer } = require('../../stripe');
 const env = process.env.NODE_ENV || 'development';
 
 async function getAlunos(req, res) {    
@@ -71,22 +70,22 @@ async function setAluno(req, res) {
         const empresa = await tab_empresa.findOne({ where: { cod_empresa: aluno.cod_empresa } });
         const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
         const customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
-        if (accountId && customerId) {
-            await updateCustomer(
-                aluno.nome_aluno,
-                aluno.email_aluno,
-                aluno.cpf_aluno,
-                aluno.telefone_aluno,
-                aluno.endereco_aluno,
-                aluno.numero_aluno,
-                aluno.cidade_aluno,
-                aluno.estado_aluno,
-                aluno.cep_aluno,
-                null,
-                accountId,
-                customerId
-            );
-        }
+        // if (accountId && customerId) {
+        //     await updateCustomer(
+        //         aluno.nome_aluno,
+        //         aluno.email_aluno,
+        //         aluno.cpf_aluno,
+        //         aluno.telefone_aluno,
+        //         aluno.endereco_aluno,
+        //         aluno.numero_aluno,
+        //         aluno.cidade_aluno,
+        //         aluno.estado_aluno,
+        //         aluno.cep_aluno,
+        //         null,
+        //         accountId,
+        //         customerId
+        //     );
+        // }
     } else {
         const novoAluno = await tab_aluno.create(aluno);
         alunoAtt = novoAluno;

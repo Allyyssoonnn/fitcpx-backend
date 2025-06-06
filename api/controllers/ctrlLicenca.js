@@ -1,7 +1,6 @@
 const moment = require("moment-timezone");
 const { tab_licenca, tab_empresa_licenca, tab_empresa, tab_empresa_licenca_pagamento } = require('../../database/models');
 const env = process.env.NODE_ENV || 'development';
-const { createPayment, createCustomer } = require("../stripe");
 const { criarCliente, criarCobranca } = require("../asaas");
 
 async function getLicencas(req, res) {    

@@ -4,7 +4,6 @@ const crypto = require('crypto');
 const { Sequelize, where, Op } = require('sequelize');
 const { getURL, connected } = require('../google');
 const { sendEmail, getMsgEmailRecovery, getMsgEmailConfirmation } = require('../sendgrid');
-const { updateAccount } = require('../stripe');
 const env = process.env.NODE_ENV || 'development';
 const dev = env === 'development';
 const devToken = process.env.DEV_TOKEN;
@@ -248,7 +247,7 @@ async function setEmpresa(req, res) {
         
         const empresaBD = await tab_empresa.findOne({ where: { cod_empresa: empresa.cod_empresa } });
         const accountId = env === 'development' ? empresaBD.dev_stripe_id : empresaBD.stripe_id;
-        if (accountId) await updateAccount(empresaAtt, accountId);
+        // if (accountId) await updateAccount(empresaAtt, accountId);
     } else {
         const novaEmpresa = await tab_empresa.create(empresa);
         empresaAtt = novaEmpresa;
