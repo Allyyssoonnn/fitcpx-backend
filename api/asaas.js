@@ -7,10 +7,11 @@ const urlBase = env === 'development'
     : 'https://api.asaas.com/'
 ;
 
-const token = env === 'development'
-    ? process.env.ASAAS_KEY_DEVELOPMENT
-    : process.env.ASAAS_KEY_PRODUCTION
-;
+const token = '[REDACTED_CREDENTIAL]';
+// const token = env === 'development'
+//     ? process.env.ASAAS_KEY_DEVELOPMENT
+//     : process.env.ASAAS_KEY_PRODUCTION
+// ;
 
 async function fetchJson(url, options) {
     try {
