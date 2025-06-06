@@ -16,7 +16,6 @@ COPY . .
 # Expõe as portas em que a aplicação irá rodar
 EXPOSE 8070
 EXPOSE 8090
-EXPOSE 3075
 
 # Comando para iniciar a aplicação
 CMD [ "npm", "start" ]
