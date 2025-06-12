@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'cod_aluno',
             as: 'aluno',
         });
+        tab_agenda.belongsTo(models.tab_modalidade, {
+            foreignKey: 'cod_modalidade',
+            as: 'modalidade',
+        });
         tab_agenda.belongsTo(models.tab_empresa, {
             foreignKey: 'cod_empresa',
             as: 'empresa',

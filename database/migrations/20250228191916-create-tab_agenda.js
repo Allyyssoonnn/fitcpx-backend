@@ -18,12 +18,28 @@ module.exports = {
           key: 'cod_usuario'
         }
       },
+      cod_empresa: {
+        allowNull: false,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_empresa',
+          key: 'cod_empresa'
+        }
+      },
       cod_aluno: {
         allowNull: true,
         type: Sequelize.DataTypes.INTEGER,
         references: {
           model: 'tab_aluno',
           key: 'cod_aluno'
+        }
+      },
+      cod_modalidade: {
+        allowNull: true,
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'tab_modalidade',
+          key: 'cod_modalidade'
         }
       },
       nome_evento: {
@@ -49,6 +65,11 @@ module.exports = {
       descricao_evento: {
         type: Sequelize.DataTypes.STRING,
         allowNull: true,
+      },
+      google_id: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
       },
       createdAt: {
         allowNull: false,
