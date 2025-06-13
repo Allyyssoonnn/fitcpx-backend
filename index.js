@@ -31,6 +31,7 @@ server.use('/plano', require('./api/routes/routePlano'));
 server.use('/pagamento', require('./api/routes/routePagamento'));
 server.use('/licenca', require('./api/routes/routeLicenca'));
 server.use('/app', require('./api/routes/routeApp'));
+server.use('/avaliacao', require('./api/routes/routeAvaliacao'));
 
 // ================ Servidor
 

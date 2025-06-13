@@ -3,6 +3,7 @@ const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_us
 const { removeStringVazia } = require('../../../utils');
 const moment = require("moment-timezone");
 const { sendDocument, deleteDocument, downloadContract } = require('../../autentique');
+const { calculaPorcentagemGordura, calculaPorcentagemMusculo, calculaPorcentagemMassaMagra, getResultPhysicalAssesment } = require('../ctrlAvaliacao');
 const env = process.env.NODE_ENV || 'development';
 
 async function getAlunos(req, res) {    
@@ -61,31 +62,16 @@ async function deleteCard(req, res) {
 async function setAluno(req, res) {    
     const { aluno } = req.body;
     var alunoAtt;
-
+    
     if (aluno?.cod_aluno) alunoAtt = await tab_aluno.findOne({ where: { cod_aluno: aluno.cod_aluno } });
     
     if (alunoAtt) {
-        await tab_aluno.update(aluno, { where: { cod_aluno: aluno.cod_aluno } });
+        const { asaas_id, ...alunoSemAsaasId } = aluno;
+        await tab_aluno.update(alunoSemAsaasId, { where: { cod_aluno: aluno.cod_aluno } });
 
         const empresa = await tab_empresa.findOne({ where: { cod_empresa: aluno.cod_empresa } });
         const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
         const customerId = env === 'development' ? aluno.dev_stripe_id : aluno.stripe_id;
-        // if (accountId && customerId) {
-        //     await updateCustomer(
-        //         aluno.nome_aluno,
-        //         aluno.email_aluno,
-        //         aluno.cpf_aluno,
-        //         aluno.telefone_aluno,
-        //         aluno.endereco_aluno,
-        //         aluno.numero_aluno,
-        //         aluno.cidade_aluno,
-        //         aluno.estado_aluno,
-        //         aluno.cep_aluno,
-        //         null,
-        //         accountId,
-        //         customerId
-        //     );
-        // }
     } else {
         const novoAluno = await tab_aluno.create(aluno);
         alunoAtt = novoAluno;
@@ -138,9 +124,27 @@ async function getAvaliacoes(req, res) {
         ],
     });
     const avaliacoesLimpa = avaliacoes.map(avaliacao => avaliacao.toJSON());
-    // for (const av of avaliacoes) av.nome_aluno = av.aluno.nome_aluno;
-    // Reorganizando os dados para que nome_aluno seja o primeiro atributo
-    const avaliacoesFormatadas = avaliacoesLimpa.map(av => ({
+
+    const physicalAssesments = await Promise.all(
+        avaliacoesLimpa.map(async (v) => ({
+            ...v,
+            result: await getResultPhysicalAssesment({ body: { avaliacao: v } })
+        }))
+    );
+    
+    const avaliacoesFormatadas = physicalAssesments.map(av => ({
+        gordura: calculaPorcentagemGordura(
+            { data_nascimento_aluno: av?.aluno?.data_nascimento_aluno, sexo_aluno: av?.aluno?.sexo_aluno },
+            av,
+        ),
+        massa_muscular: calculaPorcentagemMusculo(
+            { data_nascimento_aluno: av?.aluno?.data_nascimento_aluno, sexo_aluno: av?.aluno?.sexo_aluno },
+            av,
+        ),
+        massa_magra: calculaPorcentagemMassaMagra(
+            { data_nascimento_aluno: av?.aluno?.data_nascimento_aluno, sexo_aluno: av?.aluno?.sexo_aluno },
+            av,
+        ),
         nome_aluno: av.aluno?.nome_aluno, // Primeiro atributo
         ...av, // Outros atributos
     }));
