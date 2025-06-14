@@ -82,6 +82,9 @@ function calculaPorcentagemGordura(aluno, avaliacao) {
     }
     //60 a 81 anos - Tran e Weltman - (1988)
     if (avaliacao.cod_protocolo === 5) {
+        function calculaIliaco(avaliacao) {
+            return (Number(avaliacao.abdomen) + Number(avaliacao.quadril)) / 2
+        }
         // calculaIliaco
         const resultado = (
             -47.371817 +
