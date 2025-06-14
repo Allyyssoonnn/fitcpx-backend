@@ -7,7 +7,7 @@ const { Upload } = require("@aws-sdk/lib-storage");
 function getS3Client() {
     // Configuração do cliente S3
     const s3Client = new S3Client({
-        region: 'us-east-2', // Substitua pela região do seu bucket, como 'us-east-1'
+        region: 'sa-east-1', // Substitua pela região do seu bucket, como 'us-east-1'
         credentials: {
             accessKeyId: '[REDACTED_CREDENTIAL]', // Substitua pela sua Access Key
             secretAccessKey: '[REDACTED_CREDENTIAL]', // Substitua pela sua Secret Key
@@ -25,7 +25,7 @@ function uploadDinamico(folder) {
     return multer({
         storage: multerS3({
             s3: getS3Client(),
-            bucket: 'apppersonalfit',
+            bucket: 'media.fitcpx.com',
             acl: "public-read",
             contentType: multerS3.AUTO_CONTENT_TYPE, // Mantém o tipo correto
             key: function (req, file, cb) {
@@ -187,7 +187,7 @@ async function uploadIMGEmpresa(req, res) {
 async function deleteIMG(folder, id) {
     try {
         const params = {
-            Bucket: 'apppersonalfit',
+            Bucket: 'media.fitcpx.com',
             Key: `${folder}/${id}`
         };
 
