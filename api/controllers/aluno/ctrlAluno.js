@@ -4,7 +4,9 @@ const { removeStringVazia } = require('../../../utils');
 const moment = require("moment-timezone");
 const { sendDocument, deleteDocument, downloadContract } = require('../../autentique');
 const { calculaPorcentagemGordura, calculaPorcentagemMusculo, calculaPorcentagemMassaMagra, getResultPhysicalAssesment } = require('../ctrlAvaliacao');
+const { getTokenCard, criarCliente } = require('../../asaas');
 const env = process.env.NODE_ENV || 'development';
+const dev = env === 'development';
 
 async function getAlunos(req, res) {    
     const { cod_usuario, cod_empresa, deleted } = req.body;
@@ -50,6 +52,38 @@ async function getCards(req, res) {
         attributes: { exclude: ['token_aluno_cartao'] }
     });
     res.send({ status: true, cards });
+}
+
+async function createCard(req, res) {
+    const { formCard, cod_aluno } = req.body;
+
+    const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
+    const empresa = await tab_empresa.findOne({ where: { cod_empresa: aluno.cod_empresa } });
+    let asaasId = aluno.asaas_id;
+
+    if (!asaasId) {
+        asaasId = await criarCliente(
+            aluno.nome_aluno, aluno.email_aluno, aluno.cpf_aluno,
+            aluno.telefone_aluno, aluno.endereco_aluno, aluno.numero_aluno,
+            aluno.estado_aluno, aluno.cep_aluno, aluno.cod_aluno,
+            empresa.nome_empresa
+        );
+        await tab_aluno.update({ asaas_id: asaasId }, { where: { cod_aluno } });
+    }
+    
+    let cardToken;
+    if (formCard) {
+        const { creditCardToken } = await getTokenCard(asaasId, { ...formCard, name: aluno.nome_aluno });
+        cardToken = creditCardToken;
+    }
+
+    if (cardToken) await tab_aluno_cartao.create({
+        cod_aluno,
+        final_aluno_cartao: formCard.number.slice(-4),
+        expiracao_aluno_cartao: `${formCard.month}/${formCard.year}`,
+        token_aluno_cartao: cardToken,
+    });
+    res.send({ status: true });
 }
 
 async function deleteCard(req, res) {
@@ -325,6 +359,7 @@ module.exports = {
     getAlunos,
     getAluno,
     getCards,
+    createCard,
     deleteCard,
     setAluno,
     deleteAluno,

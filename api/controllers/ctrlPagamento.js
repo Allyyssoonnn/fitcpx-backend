@@ -1,6 +1,6 @@
 const moment = require("moment-timezone");
 const { tab_usuario, tab_empresa, tab_aluno, tab_empresa_licenca_pagamento, tab_aluno_contrato_pagamento, tab_empresa_licenca, tab_aluno_cartao, tab_aluno_contrato, tab_aluno_contrato_modalidade, tab_modalidade_variacao, tab_modalidade_variacao_valor, tab_modalidade } = require('../../database/models');
-const { criarCliente, getTokenCard, criarCobranca, buscarCobranca } = require("../asaas");
+const { criarCliente, getTokenCard, criarCobranca, buscarCobranca, pagarCobrancaCartao } = require("../asaas");
 const env = process.env.NODE_ENV || 'development';
 const dev = env === 'development';
 
@@ -71,7 +71,7 @@ async function criarPagamentoAluno(req, res) {
 
         // === ASAAS
         if (getway === 'ASAAS') {
-            let asaasId = dev ? aluno.dev_asaas_id : aluno.asaas_id;
+            let asaasId = aluno.asaas_id;
             if (!asaasId) {
                 asaasId = await criarCliente(
                     aluno.nome_aluno, aluno.email_aluno, aluno.cpf_aluno,
@@ -79,17 +79,26 @@ async function criarPagamentoAluno(req, res) {
                     aluno.estado_aluno, aluno.cep_aluno, aluno.cod_aluno,
                     empresa.nome_empresa
                 );
-                await tab_aluno.update(
-                    dev ? { dev_asaas_id: asaasId } : { asaas_id: asaasId },
-                    { where: { cod_aluno } }
-                );
+                await tab_aluno.update({ asaas_id: asaasId }, { where: { cod_aluno } });
             }
 
             var cardToken = null;
             const installments = (formaPagamento === 'UNICA' || formaPagamento === 'PARCELADO') ? formCard?.installments : null;
-            if (formCard) {
+            if (formCard && !formCard?.cod_aluno_cartao) {
                 const { creditCardToken } = await getTokenCard(asaasId, { ...formCard, name: aluno.nome_aluno });
                 cardToken = creditCardToken;
+
+                if (creditCardToken) await tab_aluno_cartao.create({
+                    cod_aluno,
+                    final_aluno_cartao: formCard.number.slice(-4),
+                    expiracao_aluno_cartao: `${formCard.month}/${formCard.year}`,
+                    token_aluno_cartao: cardToken,
+                });
+            }
+
+            if (formCard?.cod_aluno_cartao) {
+                cardSaved = await tab_aluno_cartao.findOne({ where: { cod_aluno_cartao: formCard?.cod_aluno_cartao } });
+                cardToken = cardSaved.token_aluno_cartao;
             }
 
             resumoParcelas.map(async (parcela, i) => {
@@ -125,7 +134,19 @@ async function buscarCobrancaAluno(req, res) {
     }
 }
 
+async function pagarCobranca(req, res) {
+    try {
+        const { asaasId, cod_aluno_cartao } = req.body;
+        const aluno_cartao = await tab_aluno_cartao.findOne({ where: { cod_aluno_cartao } });
+        await pagarCobrancaCartao(asaasId, aluno_cartao?.token_aluno_cartao);
+        res.send({ status: true });
+    } catch (error) {
+        res.send({ status: false, message: error.message });
+    }
+}
+
 module.exports = {
     criarPagamentoAluno,
     buscarCobrancaAluno,
+    pagarCobranca,
 }

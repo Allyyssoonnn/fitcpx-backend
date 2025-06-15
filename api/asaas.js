@@ -149,10 +149,25 @@ async function buscarCobranca(id) {
     return resp;
 }
 
+async function pagarCobrancaCartao(id, cardToken) {
+    const url = `${urlBase}/v3/payments/${id}/payWithCreditCard`;
+    const options = {
+        method: 'POST',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
+        body: JSON.stringify({
+            creditCardToken: cardToken
+        })
+    };
+
+    const resp = await fetchJson(url, options);
+    return resp;
+}
+
 module.exports = {
     criarCliente,
     atualizarCliente,
     getTokenCard,
     criarCobranca,
     buscarCobranca,
+    pagarCobrancaCartao,
 }

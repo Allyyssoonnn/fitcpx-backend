@@ -31,7 +31,13 @@ module.exports = (sequelize, DataTypes) => {
         },
         bandeira_aluno_cartao: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
+            defaultValue: null,
+        },
+        expiracao_aluno_cartao: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null,
         },
         token_aluno_cartao: {
             type: DataTypes.STRING,
