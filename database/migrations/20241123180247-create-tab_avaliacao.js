@@ -45,7 +45,8 @@ module.exports = {
       },
       gordura_viceral: {
         type: Sequelize.DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
+        defaultValue: null,
       },
       cod_protocolo: {
         allowNull: false,
