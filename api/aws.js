@@ -14,7 +14,9 @@ function getS3Client() {
         },
         requestHandler: {
             metadata: { timeout: 300000 } // 5 minutos
-        }
+        },
+        endpoint: 'https://media.fitcpx.com', // <–– seu domínio customizado
+        forcePathStyle: false                // usa estilo virtual-hosted
     });
     
     return s3Client;
