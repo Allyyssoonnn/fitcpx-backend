@@ -3,6 +3,8 @@ const multer = require("multer");
 const { tab_avaliacao_imagem, tab_usuario, tab_aluno, tab_alimento, tab_empresa } = require('../database/models');
 const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { Upload } = require("@aws-sdk/lib-storage");
+const env = process.env.NODE_ENV || 'development';
+const dev = env === 'development';
 
 function getS3Client() {
     // Configuração do cliente S3
@@ -15,8 +17,6 @@ function getS3Client() {
         requestHandler: {
             metadata: { timeout: 300000 } // 5 minutos
         },
-        endpoint: 'https://media.fitcpx.com', // <–– seu domínio customizado
-        forcePathStyle: false                // usa estilo virtual-hosted
     });
     
     return s3Client;
@@ -32,7 +32,7 @@ function uploadDinamico(folder) {
             contentType: multerS3.AUTO_CONTENT_TYPE, // Mantém o tipo correto
             key: function (req, file, cb) {
                 const fileName = `${Date.now()}_${file.originalname}`;
-                cb(null, `${folder}/${fileName}`);
+                cb(null, `${dev ? "developer/" : ""}${folder}/${fileName}`);
             },
         }),
         // limits: { fileSize: 10 * 1024 * 1024 }, // Limite de 10MB
@@ -53,11 +53,14 @@ async function uploadIMGAvaliacao(req, res) {
     const upload = uploadDinamico('aluno/avaliacao').array('image', 15);
 
     upload(req, res, async (err) => {
-        if (err) return res.status(400).json({ error: err.message });
+        if (err) {
+            console.log(err);
+            return res.status(400).json({ error: err.message });
+        }
 
         // Criar array de URLs públicas dos arquivos
         const imagensSalvas = req.files.map((file, index) => ({
-            url_imagem: file.location,  // 📌 file.location já tem a publicUrl do S3
+            url_imagem: `https://media.fitcpx.com/${file.key}`,  // 📌 file.location já tem a publicUrl do S3
             descricao_imagem: (file.originalname.split('[')[1]).split(']')[0],
             tamanho_imagem: (file.originalname.split('(')[1]).split(')')[0],
             cod_avaliacao: req.headers["cod_avaliacao"] // Pegando código da avaliação do header
