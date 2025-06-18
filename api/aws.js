@@ -94,10 +94,11 @@ async function uploadIMGUsuario(req, res) {
         if (err) return res.status(400).json({ error: err.message });
 
         try {
-            usuario.imagem_usuario = req.files[0].location;
+            const url = `https://media.fitcpx.com/${req.files[0].key}`
+            usuario.imagem_usuario = url;
             usuario.save();
 
-            res.send({ status: true, id: req.files[0].location });
+            res.send({ status: true, id: url });
         } catch (dbError) {
             console.error("Erro ao salvar no banco:", dbError);
             res.send({ error: "Erro ao salvar no banco de dados" });
@@ -122,10 +123,11 @@ async function uploadIMGAluno(req, res) {
         if (err) return res.status(400).json({ error: err.message });
 
         try {
-            aluno.imagem_aluno = req.files[0].location;
+            const url = `https://media.fitcpx.com/${req.files[0].key}`;
+            aluno.imagem_aluno = url;
             aluno.save();
 
-            res.send({ status: true, id: req.files[0].location });
+            res.send({ status: true, id: url });
         } catch (dbError) {
             console.error("Erro ao salvar no banco:", dbError);
             res.send({ error: "Erro ao salvar no banco de dados" });
@@ -150,10 +152,11 @@ async function uploadIMGAlimento(req, res) {
         if (err) return res.status(400).json({ error: err.message });
 
         try {
-            alimento.imagem_alimento = req.files[0].location;
+            const url = `https://media.fitcpx.com/${req.files[0].key}`
+            alimento.imagem_alimento = url;
             alimento.save();
 
-            res.send({ status: true, id: req.files[0].location });
+            res.send({ status: true, id: url });
         } catch (dbError) {
             console.error("Erro ao salvar no banco:", dbError);
             res.send({ error: "Erro ao salvar no banco de dados" });
@@ -178,10 +181,11 @@ async function uploadIMGEmpresa(req, res) {
         if (err) return res.status(400).json({ error: err.message });
 
         try {
-            empresa.imagem_empresa = req.files[0].location;
+            const url = `https://media.fitcpx.com/${req.files[0].key}`
+            empresa.imagem_empresa = url;
             empresa.save();
 
-            res.send({ status: true, id: req.files[0].location });
+            res.send({ status: true, id: url });
         } catch (dbError) {
             console.error("Erro ao salvar no banco:", dbError);
             res.send({ error: "Erro ao salvar no banco de dados" });
