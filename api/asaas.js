@@ -9,7 +9,7 @@ const urlBase = env === 'development'
 
 const token = env === 'development'
     ? process.env.ASAAS_KEY_DEVELOPMENT
-    : process.env.ASAAS_KEY_PRODUCTION
+    : "[REDACTED_CREDENTIAL]"
 ;
 
 async function fetchJson(url, options) {
