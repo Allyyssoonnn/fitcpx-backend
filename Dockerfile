@@ -18,7 +18,6 @@ COPY . .
 
 # Copia o arquivo de configuração do PM2 (se existir)
 COPY ecosystem.config.js ./
-COPY .env ./
 
 # Expõe as portas em que a aplicação irá rodar
 EXPOSE 8070
