@@ -137,6 +137,27 @@ async function criarCobranca(customerId, cod, value, dueDate,
     return resp;
 }
 
+async function criarAssinatura(customerId, cod, value, dueDate, installments, billingType, license = false, name) {
+    const url = `${urlBase}/v3/subscriptions`;
+    const options = {
+        method: 'POST',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
+        body: JSON.stringify({
+            billingType: billingType,
+            cycle: 'MONTHLY',
+            description: license ? 'Use License' : (name ?? 'FitCpx'),
+            externalReference: cod,
+            customer: customerId,
+            value: value,
+            nextDueDate: dueDate,
+            maxPayments: installments,
+        })
+    };
+
+    const resp = await fetchJson(url, options);
+    return resp;
+}
+
 async function buscarCobranca(id) {
     const url = `${urlBase}/v3/payments/${id}`;
     const options = {
@@ -170,4 +191,5 @@ module.exports = {
     criarCobranca,
     buscarCobranca,
     pagarCobrancaCartao,
+    criarAssinatura,
 }

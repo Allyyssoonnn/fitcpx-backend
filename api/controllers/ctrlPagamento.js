@@ -1,6 +1,6 @@
 const moment = require("moment-timezone");
 const { tab_usuario, tab_empresa, tab_aluno, tab_empresa_licenca_pagamento, tab_aluno_contrato_pagamento, tab_empresa_licenca, tab_aluno_cartao, tab_aluno_contrato, tab_aluno_contrato_modalidade, tab_modalidade_variacao, tab_modalidade_variacao_valor, tab_modalidade } = require('../../database/models');
-const { criarCliente, getTokenCard, criarCobranca, buscarCobranca, pagarCobrancaCartao } = require("../asaas");
+const { criarCliente, getTokenCard, criarCobranca, buscarCobranca, pagarCobrancaCartao, criarAssinatura } = require("../asaas");
 const env = process.env.NODE_ENV || 'development';
 const dev = env === 'development';
 
@@ -82,41 +82,38 @@ async function criarPagamentoAluno(req, res) {
                 await tab_aluno.update({ asaas_id: asaasId }, { where: { cod_aluno } });
             }
 
-            var cardToken = null;
             const installments = (formaPagamento === 'UNICA' || formaPagamento === 'PARCELADO') ? formCard?.installments : null;
-            if (formCard && !formCard?.cod_aluno_cartao) {
-                const { creditCardToken } = await getTokenCard(asaasId, { ...formCard, name: aluno.nome_aluno });
-                cardToken = creditCardToken;
 
-                if (creditCardToken) await tab_aluno_cartao.create({
-                    cod_aluno,
-                    final_aluno_cartao: formCard.number.slice(-4),
-                    expiracao_aluno_cartao: `${formCard.month}/${formCard.year}`,
-                    token_aluno_cartao: cardToken,
+            var value = (formaPagamento === 'UNICA' || formaPagamento === 'PARCELADO') ? valor : resumoParcelas[0];
+            
+            if (formaPagamento === 'RECORRENTE' && billingType === 'CREDIT_CARD') {
+                const respAsaas = await criarAssinatura(
+                    asaasId, cod_aluno_contrato, valor,
+                    dataInicio, installments, billingType, name
+                );
+                if (respAsaas.id) {
+                    await tab_aluno_contrato.update({
+                        asaas_id: respAsaas.id
+                    }, { where: { cod_aluno_contrato } });
+                }
+                console.log(respAsaas);
+            } else {
+                resumoParcelas.map(async (parcela, i) => {
+                    if (i > 0 && (formaPagamento === 'UNICA' || formaPagamento === 'PARCELADO')) return;
+                    var value = (formaPagamento === 'UNICA' || formaPagamento === 'PARCELADO') ? valor : parcela;
+    
+                    const dueDate = moment(dataInicio).add(i, 'months');
+                    const respAsaas = await criarCobranca(
+                        asaasId, cod_aluno_contrato, value,
+                        dueDate, null, null, installments,
+                        billingType
+                    );
+                    console.log(respAsaas);
                 });
             }
-
-            if (formCard?.cod_aluno_cartao) {
-                cardSaved = await tab_aluno_cartao.findOne({ where: { cod_aluno_cartao: formCard?.cod_aluno_cartao } });
-                cardToken = cardSaved.token_aluno_cartao;
-            }
-
-            resumoParcelas.map(async (parcela, i) => {
-                if (i > 0 && (formaPagamento === 'UNICA' || formaPagamento === 'PARCELADO')) return;
-                var value = (formaPagamento === 'UNICA' || formaPagamento === 'PARCELADO') ? valor : parcela;
-
-                const dueDate = moment(dataInicio).add(i, 'months');
-                if (i > 0 && formaPagamento !== 'PARCELADO') cardToken = null;
-                const respAsaas = await criarCobranca(
-                    asaasId, cod_aluno_contrato, value,
-                    dueDate, cardToken, null, installments,
-                    billingType
-                );
-                console.log(respAsaas);
-            });
             // pagamento retornará pelo webhook
         }
-
+        
         res.send({ status: true });
     } catch (error) {
         console.error('Erro ao criar pagamento:', error);
