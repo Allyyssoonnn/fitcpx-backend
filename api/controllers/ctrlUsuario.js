@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const { Sequelize, where, Op } = require('sequelize');
 const { getURL, connected } = require('../google');
 const { sendEmail, getMsgEmailRecovery, getMsgEmailConfirmation } = require('../sendgrid');
+const { sendConfirmationCode } = require('../n8n');
 const env = process.env.NODE_ENV || 'development';
 const dev = env === 'development';
 const devToken = process.env.DEV_TOKEN;
@@ -66,6 +67,8 @@ async function register(req, res) {
         return;
     }
     const email_codigo = [...crypto.randomFillSync(Buffer.alloc(4))].map(n => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[n % 36]).join('');
+
+    if (!dev) sendConfirmationCode(email_usuario, nome_usuario, email_codigo);
 
     const novaEmpresa = await tab_empresa.create({
         nome_empresa: nome_usuario,
