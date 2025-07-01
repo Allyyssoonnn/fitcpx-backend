@@ -110,10 +110,10 @@ async function criarCobranca(customerId, cod, value, dueDate,
         fine: { value: 0, type: 'FIXED' },
     };
 
-    if (billingType === 'CREDIT_CARD' && tokenCartao) {
+    if (billingType === 'CREDIT_CARD') {
         body.installmentCount = installments || 1;
         body.totalValue = value;
-        body.creditCardToken = tokenCartao;
+        // body.creditCardToken = tokenCartao;
         body.remoteIp = meuip;
         body.callback = {
             successUrl: 'https://fitcpx.com',

@@ -331,7 +331,7 @@ async function getAlunoContratos(req, res) {
                 as: 'aluno',
             }
         ],
-        paranoid: false,
+        // paranoid: false,
     });
     
     res.send({ status: true, alunoContratos });
