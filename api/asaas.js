@@ -159,27 +159,47 @@ async function criarAssinatura(customerId, cod, value, dueDate, installments, bi
 }
 
 async function buscarCobranca(id) {
-    const url = `${urlBase}/v3/payments/${id}`;
-    const options = {
-        method: 'POST',
-        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
-    };
-
-    const resp = await fetchJson(url, options);
-
-    return resp;
+    try {
+        const url = `${urlBase}/v3/payments/${id}`;
+        const options = {
+            method: 'POST',
+            headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
+        };
+    
+        const resp = await fetchJson(url, options);
+    
+        return resp;
+    } catch (error) {
+        return null;
+    }
 }
 
-async function pagarCobrancaCartao(id, cardToken) {
-    const url = `${urlBase}/v3/payments/${id}/payWithCreditCard`;
+async function cobrancaRecebida(id) {
+    const cobranca = await buscarCobranca(id);
+    if (!cobranca) return;
+    const url = `${urlBase}/v3/payments/${id}/receiveInCash`;
     const options = {
         method: 'POST',
         headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
         body: JSON.stringify({
-            creditCardToken: cardToken
+            paymentDate: new Date(),
+            value: cobranca?.value,
         })
     };
+    
+    const resp = await fetchJson(url, options);
+    return resp;
+}
 
+async function removerCobranca(id) {
+    const cobranca = await buscarCobranca(id);
+    if (!cobranca || cobranca?.status !== "PENDING") return;
+    const url = `${urlBase}/v3/payments/${id}`;
+    const options = {
+        method: 'DELETE',
+        headers: { accept: 'application/json', 'content-type': 'application/json', access_token: token },
+    };
+    
     const resp = await fetchJson(url, options);
     return resp;
 }
@@ -190,6 +210,7 @@ module.exports = {
     getTokenCard,
     criarCobranca,
     buscarCobranca,
-    pagarCobrancaCartao,
+    cobrancaRecebida,
     criarAssinatura,
+    removerCobranca,
 }

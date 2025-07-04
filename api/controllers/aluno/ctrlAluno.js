@@ -4,7 +4,7 @@ const { removeStringVazia } = require('../../../utils');
 const moment = require("moment-timezone");
 const { sendDocument, deleteDocument, downloadContract } = require('../../autentique');
 const { calculaPorcentagemGordura, calculaPorcentagemMusculo, calculaPorcentagemMassaMagra, getResultPhysicalAssesment } = require('../ctrlAvaliacao');
-const { getTokenCard, criarCliente } = require('../../asaas');
+const { getTokenCard, criarCliente, removerCobranca } = require('../../asaas');
 const env = process.env.NODE_ENV || 'development';
 const dev = env === 'development';
 
@@ -247,13 +247,13 @@ async function cancelAlunoContrato(req, res) {
     const { cod_aluno_contrato } = req.body;
 
     const alunoContrato = await tab_aluno_contrato.findOne({ where: { cod_aluno_contrato } });
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa: alunoContrato.cod_empresa } });
-
     if (alunoContrato?.autentique_aluno_contrato) await deleteDocument(alunoContrato.autentique_aluno_contrato);
     
-    const accountId = env === 'development' ? empresa.dev_stripe_id : empresa.stripe_id;
-    const subscriptionId = env === 'development' ? alunoContrato.dev_stripe_id : alunoContrato.stripe_id;
-    const invoiceId = env === 'development' ? alunoContrato.dev_invoice_stripe_id : alunoContrato.invoice_stripe_id;
+    //Delete all pending payments
+    const payments = await tab_aluno_contrato_pagamento.findAll({ where: { cod_aluno_contrato } });
+    for (const payment of payments) {
+        if (payment?.asaas_id) await removerCobranca(payment?.asaas_id);
+    }
 
     await tab_aluno_contrato.update({ deletedAt: new Date(), status_aluno_contrato: 'Cancelado' }, { where: { cod_aluno_contrato } });
 
@@ -329,6 +329,10 @@ async function getAlunoContratos(req, res) {
             {
                 model: tab_aluno,
                 as: 'aluno',
+            },
+            {
+                model: tab_aluno_contrato_pagamento,
+                as: 'pagamentos'
             }
         ],
         // paranoid: false,

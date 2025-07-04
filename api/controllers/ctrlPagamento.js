@@ -1,6 +1,6 @@
 const moment = require("moment-timezone");
 const { tab_usuario, tab_empresa, tab_aluno, tab_empresa_licenca_pagamento, tab_aluno_contrato_pagamento, tab_empresa_licenca, tab_aluno_cartao, tab_aluno_contrato, tab_aluno_contrato_modalidade, tab_modalidade_variacao, tab_modalidade_variacao_valor, tab_modalidade } = require('../../database/models');
-const { criarCliente, getTokenCard, criarCobranca, buscarCobranca, pagarCobrancaCartao, criarAssinatura } = require("../asaas");
+const { criarCliente, getTokenCard, criarCobranca, buscarCobranca, cobrancaRecebida, criarAssinatura } = require("../asaas");
 const env = process.env.NODE_ENV || 'development';
 const dev = env === 'development';
 
@@ -130,11 +130,10 @@ async function buscarCobrancaAluno(req, res) {
     }
 }
 
-async function pagarCobranca(req, res) {
+async function marcarCobrancaRecebida(req, res) {
     try {
-        const { asaasId, cod_aluno_cartao } = req.body;
-        const aluno_cartao = await tab_aluno_cartao.findOne({ where: { cod_aluno_cartao } });
-        await pagarCobrancaCartao(asaasId, aluno_cartao?.token_aluno_cartao);
+        const { asaasId } = req.body;
+        await cobrancaRecebida(asaasId);
         res.send({ status: true });
     } catch (error) {
         res.send({ status: false, message: error.message });
@@ -144,5 +143,5 @@ async function pagarCobranca(req, res) {
 module.exports = {
     criarPagamentoAluno,
     buscarCobrancaAluno,
-    pagarCobranca,
+    marcarCobrancaRecebida,
 }
