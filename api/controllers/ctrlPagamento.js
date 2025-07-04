@@ -27,8 +27,7 @@ async function criarPagamentoAluno(req, res) {
             }],
         });
 
-        const [ano, mes, dia] = aluno_contrato.iniciopagamento_aluno_contrato.split('-');
-        const dataInicio = new Date(ano, mes - 1, dia);
+        const dataInicio = aluno_contrato.iniciopagamento_aluno_contrato ? moment(aluno_contrato.iniciopagamento_aluno_contrato) : new Date();
         const resumoParcelas = JSON.parse(aluno_contrato?.parcela_aluno_contrato);
         const duration = resumoParcelas.length;
         const valor = (formaPagamento === 'RECORRENTE' && duration > 0)
@@ -106,7 +105,7 @@ async function criarPagamentoAluno(req, res) {
                     const respAsaas = await criarCobranca(
                         asaasId, cod_aluno_contrato, value,
                         dueDate, null, null, installments,
-                        billingType
+                        billingType, null, name
                     );
                     console.log(respAsaas);
                 });

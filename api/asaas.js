@@ -94,7 +94,7 @@ async function getTokenCard(customerId, cartao, ip) {
 }
 
 async function criarCobranca(customerId, cod, value, dueDate,
-    tokenCartao, meuip, installments, billingType, license = false
+    tokenCartao, meuip, installments, billingType, license = false, name
 ) {
     const url = `${urlBase}/v3/payments/`;
     const body = {
@@ -102,7 +102,7 @@ async function criarCobranca(customerId, cod, value, dueDate,
         customer: customerId,
         value: value,
         dueDate: moment(dueDate).tz('America/Sao_Paulo').format('YYYY-MM-DD'),
-        description: license ? 'Use License' : 'FitCpx',
+        description: license ? 'Use License' : (name || 'FitCpx'),
         externalReference: cod,
         postalService: false,
         discount: { type: 'PERCENTAGE', value: 0 },
