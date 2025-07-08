@@ -10,6 +10,7 @@ htop -p $(pgrep -d',' -f 'node|mysqld|redis-server')
 docker container prune -f
 
 npx sequelize-cli migration:generate --name tab_modalidade_variacao
+npx sequelize-cli seed:generate --name roles
 
 npx sequelize-cli db:migrate
 

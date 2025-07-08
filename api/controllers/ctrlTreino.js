@@ -247,10 +247,25 @@ async function recoveryGrupoExercicio(req, res) {
 
 async function getExercicios(req, res) {
     const { cod_empresa, deleted } = req.body;
-    var where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
-    if (cod_empresa) where = { ...where, [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ] }
-    // Se não houver cod_empresa, inclui os exercícios mesmo que tenham deletedAt preenchido
-    if (!cod_empresa) where = { ...where, deletedAt: { [Sequelize.Op.or]: [null, { [Sequelize.Op.ne]: null }] } };
+    var where = {};
+
+    if (deleted) {
+        // Trazer apenas deletados com cod_empresa exato
+        where.deletedAt = { [Sequelize.Op.ne]: null };
+      
+        if (cod_empresa) {
+          where.cod_empresa = cod_empresa;
+        }
+      } else {
+        // Não deletados
+        if (cod_empresa) {
+          where[Sequelize.Op.or] = [
+            { cod_empresa: cod_empresa },
+            { cod_empresa: null }
+          ];
+        }
+    }
+
     const exercicios = await tab_exercicio.findAll({
         where: where,
         paranoid: cod_empresa ? !deleted : false,
