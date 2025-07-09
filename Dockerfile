@@ -7,9 +7,6 @@ WORKDIR /app
 # Copia os arquivos package*.json para o diretório de trabalho
 COPY package*.json ./
 
-# Migra o banco de dados antes de instalar as dependências
-RUN npx sequelize-cli db:migrate
-
 # Instala as dependências
 RUN npm install
 
@@ -22,10 +19,21 @@ COPY . .
 # Copia o arquivo de configuração do PM2 (se existir)
 COPY ecosystem.config.js ./
 
+# Copia o arquivo de configuração do PM2 (se houver)
+COPY ecosystem.config.js ./
+
+# Copia o entrypoint customizado
+COPY entrypoint.sh /app/entrypoint.sh
+
+# Dá permissão de execução para o script
+RUN chmod +x /app/entrypoint.sh
+
 # Expõe as portas em que a aplicação irá rodar
 EXPOSE 8070
 EXPOSE 8090
 
 # Comando para iniciar a aplicação
 # CMD [ "npm", "start" ]
-CMD [ "pm2-runtime", "ecosystem.config.js"]
+# CMD [ "pm2-runtime", "ecosystem.config.js"]
+# Define o entrypoint para executar migrações e subir a app
+ENTRYPOINT ["/app/entrypoint.sh"]
