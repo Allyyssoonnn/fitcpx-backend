@@ -1,4 +1,4 @@
-const { tab_licenca, tab_empresa_licenca, tab_empresa, tab_empresa_licenca_pagamento } = require('../../database/models');
+const { tab_licenca, tab_empresa_licenca, feedbacks, tab_empresa_licenca_pagamento } = require('../../database/models');
 
 async function getNotifications(req, res) {    
     const { cod_empresa } = req.body;
@@ -37,6 +37,19 @@ async function getNotifications(req, res) {
     res.send({ status: true, notifications });
 }
 
+async function sendFeedback(req, res) {
+    const { cod_empresa, type, message } = req.body;
+
+    feedbacks.create({
+        company_id: cod_empresa,
+        type,
+        message,
+    });
+
+    res.send({ status: true, message: 'Feedback enviado com sucesso!' });
+}
+
 module.exports = {
     getNotifications,
+    sendFeedback,
 }

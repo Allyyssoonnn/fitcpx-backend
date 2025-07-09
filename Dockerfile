@@ -7,6 +7,9 @@ WORKDIR /app
 # Copia os arquivos package*.json para o diretório de trabalho
 COPY package*.json ./
 
+# Migra o banco de dados antes de instalar as dependências
+RUN npx sequelize-cli db:migrate
+
 # Instala as dependências
 RUN npm install
 
