@@ -42,7 +42,7 @@ async function criarCliente(nome, email, documento, telefone, endereco, numero, 
             postalCode: cep,
             externalReference: cod,
             company: nome_empresa,
-            groupName: `${cod}_${nome_empresa}`,
+            groupName: nome_empresa,
             notificationDisabled: true,
         })
     };

@@ -76,7 +76,7 @@ async function criarPagamentoAluno(req, res) {
                     aluno.nome_aluno, aluno.email_aluno, aluno.cpf_aluno,
                     aluno.telefone_aluno, aluno.endereco_aluno, aluno.numero_aluno,
                     aluno.estado_aluno, aluno.cep_aluno, aluno.cod_aluno,
-                    empresa.nome_empresa
+                    `${empresa.cod_empresa}_${empresa.nome_empresa}`
                 );
                 await tab_aluno.update({ asaas_id: asaasId }, { where: { cod_aluno } });
             }
