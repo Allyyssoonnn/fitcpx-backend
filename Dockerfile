@@ -19,9 +19,6 @@ COPY . .
 # Copia o arquivo de configuração do PM2 (se existir)
 COPY ecosystem.config.js ./
 
-# Copia o arquivo de configuração do PM2 (se houver)
-COPY ecosystem.config.js ./
-
 # Copia o entrypoint customizado
 COPY entrypoint.sh /app/entrypoint.sh
 
