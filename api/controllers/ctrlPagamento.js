@@ -105,7 +105,7 @@ async function criarPagamentoAluno(req, res) {
                     const respAsaas = await criarCobranca(
                         asaasId, cod_aluno_contrato, value,
                         dueDate, null, null, installments,
-                        billingType, null, name
+                        billingType, name
                     );
                     console.log(respAsaas);
                 });

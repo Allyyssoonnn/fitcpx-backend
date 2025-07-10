@@ -94,7 +94,7 @@ async function getTokenCard(customerId, cartao, ip) {
 }
 
 async function criarCobranca(customerId, cod, value, dueDate,
-    tokenCartao, meuip, installments, billingType, license = false, name
+    tokenCartao, meuip, installments, billingType, name
 ) {
     const url = `${urlBase}/v3/payments/`;
     const body = {
@@ -102,7 +102,7 @@ async function criarCobranca(customerId, cod, value, dueDate,
         customer: customerId,
         value: value,
         dueDate: moment(dueDate).tz('America/Sao_Paulo').format('YYYY-MM-DD'),
-        description: license ? 'Use License' : (name || 'FitCpx'),
+        description: name || 'FitCpx',
         externalReference: cod,
         postalService: false,
         discount: { type: 'PERCENTAGE', value: 0 },
@@ -137,7 +137,7 @@ async function criarCobranca(customerId, cod, value, dueDate,
     return resp;
 }
 
-async function criarAssinatura(customerId, cod, value, dueDate, installments, billingType, license = false, name) {
+async function criarAssinatura(customerId, cod, value, dueDate, installments, billingType, name) {
     const url = `${urlBase}/v3/subscriptions`;
     const options = {
         method: 'POST',
@@ -145,7 +145,7 @@ async function criarAssinatura(customerId, cod, value, dueDate, installments, bi
         body: JSON.stringify({
             billingType: billingType,
             cycle: 'MONTHLY',
-            description: license ? 'Use License' : (name ?? 'FitCpx'),
+            description: name || 'FitCpx',
             externalReference: cod,
             customer: customerId,
             value: value,
