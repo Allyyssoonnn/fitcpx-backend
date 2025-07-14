@@ -15,7 +15,7 @@ router.post('/setGrupoExercicio', verifyToken, setGrupoExercicio);
 router.post('/deleteGrupoExercicio', verifyToken, deleteGrupoExercicio);
 router.post('/recoveryGrupoExercicio', verifyToken, recoveryGrupoExercicio);
 
-router.post('/getExercicios', verifyToken, getExercicios);
+router.post('/getExercicios', getExercicios);
 router.post('/setExercicio', verifyToken, setExercicio);
 router.post('/deleteExercicio', verifyToken, deleteExercicio);
 router.post('/recoveryExercicio', verifyToken, recoveryExercicio);
