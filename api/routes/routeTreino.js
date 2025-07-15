@@ -10,7 +10,7 @@ router.post('/getTreino', verifyToken, getTreino);
 router.post('/setTreino', verifyToken, setTreino);
 router.post('/deleteTreino', verifyToken, deleteTreino);
 
-router.post('/getGrupoExercicios', verifyToken, getGrupoExercicios);
+router.post('/getGrupoExercicios', getGrupoExercicios);
 router.post('/setGrupoExercicio', verifyToken, setGrupoExercicio);
 router.post('/deleteGrupoExercicio', verifyToken, deleteGrupoExercicio);
 router.post('/recoveryGrupoExercicio', verifyToken, recoveryGrupoExercicio);
@@ -25,11 +25,11 @@ router.post('/setSessoes', verifyToken, setSessoes);
 router.post('/deleteSessao', verifyToken, deleteSessao);
 router.post('/recoverySessao', verifyToken, recoverySessao);
 
-router.post('/getEquipamentos', verifyToken, getEquipamentos);
-router.post('/getArticulacoes', verifyToken, getArticulacoes);
-router.post('/getTipoExercicios', verifyToken, getTipoExercicios);
-router.post('/getExerciciosResistencias', verifyToken, getExerciciosResistencias);
-router.post('/getIndicacoes', verifyToken, getIndicacoes);
-router.post('/getPadraoesMovimentos', verifyToken, getPadraoesMovimentos);
+router.post('/getEquipamentos', getEquipamentos);
+router.post('/getArticulacoes', getArticulacoes);
+router.post('/getTipoExercicios', getTipoExercicios);
+router.post('/getExerciciosResistencias', getExerciciosResistencias);
+router.post('/getIndicacoes', getIndicacoes);
+router.post('/getPadraoesMovimentos', getPadraoesMovimentos);
 
 module.exports = router;
