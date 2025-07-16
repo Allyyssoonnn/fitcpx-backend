@@ -120,7 +120,7 @@ async function setModalidade(req, res) {
     }
 
     for (const variacao of variacoes) {
-        var variacaoAtt;
+        var variacaoAtt = null;
         if (variacao.cod_modalidade_variacao) variacaoAtt = await tab_modalidade_variacao.findOne({ where: { cod_modalidade_variacao: variacao.cod_modalidade_variacao } });
 
         if (variacaoAtt) {
@@ -136,7 +136,7 @@ async function setModalidade(req, res) {
             if (valorAtt) {
                 await tab_modalidade_variacao_valor.update(valor, { where: { cod_modalidade_variacao_valor: valorAtt.cod_modalidade_variacao_valor } });
             } else {
-                valorAtt = await tab_modalidade_variacao_valor.create({ ...valor, cod_modalidade_variacao: variacaoAtt.cod_modalidade_variacao });
+                await tab_modalidade_variacao_valor.create({ ...valor, cod_modalidade_variacao: variacaoAtt.cod_modalidade_variacao });
             }
         }
     }
