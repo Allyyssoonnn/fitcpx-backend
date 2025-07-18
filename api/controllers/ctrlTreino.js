@@ -279,6 +279,18 @@ async function getExercicios(req, res) {
             { model: tab_grupo_exercicio, as: 'grupo_exercicio_6', attributes: ['nome_grupo_exercicio'] },
             { model: tab_grupo_exercicio, as: 'grupo_exercicio_7', attributes: ['nome_grupo_exercicio'] },
             { model: tab_grupo_exercicio, as: 'grupo_exercicio_8', attributes: ['nome_grupo_exercicio'] },
+            { model: tab_grupo_exercicio, as: 'grupo_exercicio_9', attributes: ['nome_grupo_exercicio'] },
+            { model: tab_grupo_exercicio, as: 'grupo_exercicio_10', attributes: ['nome_grupo_exercicio'] },
+            { model: tab_equipamento, as: 'equipamento_1', attributes: ['nome_equipamento'] },
+            { model: tab_equipamento, as: 'equipamento_2', attributes: ['nome_equipamento'] },
+            { model: tab_equipamento, as: 'equipamento_3', attributes: ['nome_equipamento'] },
+            { model: tab_articulacao, as: 'articulacao_1', attributes: ['nome_articulacao'] },
+            { model: tab_articulacao, as: 'articulacao_2', attributes: ['nome_articulacao'] },
+            { model: tab_articulacao, as: 'articulacao_3', attributes: ['nome_articulacao'] },
+            { model: tab_articulacao, as: 'articulacao_4', attributes: ['nome_articulacao'] },
+            { model: tab_tipo_exercicio, as: 'tipo_exercicio', attributes: ['nome_tipo_exercicio'] },
+            { model: tab_exercicio_resistencia, as: 'exercicio_resistencia', attributes: ['nome_exercicio_resistencia'] },
+            { model: tab_indicacao, as: 'indicacao', attributes: ['nome_indicacao'] },
         ],
         order: [['nome_exercicio', 'ASC']]
     });

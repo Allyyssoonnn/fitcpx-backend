@@ -198,46 +198,54 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'cod_grupo_exercicio_8',
             as: 'grupo_exercicio_8',
         });
-        // tab_exercicio.belongsTo(models.tab_equipamento, {
-        //     foreignKey: 'cod_equipamento_1',
-        //     as: 'equipamento_1',
-        // });
-        // tab_exercicio.belongsTo(models.tab_equipamento, {
-        //     foreignKey: 'cod_equipamento_2',
-        //     as: 'equipamento_2',
-        // });
-        // tab_exercicio.belongsTo(models.tab_equipamento, {
-        //     foreignKey: 'cod_equipamento_3',
-        //     as: 'equipamento_3',
-        // });
-        // tab_exercicio.belongsTo(models.tab_articulacao, {
-        //     foreignKey: 'cod_articulacao_1',
-        //     as: 'articulacao_1',
-        // });
-        // tab_exercicio.belongsTo(models.tab_articulacao, {
-        //     foreignKey: 'cod_articulacao_2',
-        //     as: 'articulacao_2',
-        // });
-        // tab_exercicio.belongsTo(models.tab_articulacao, {
-        //     foreignKey: 'cod_articulacao_3',
-        //     as: 'articulacao_3',
-        // });
-        // tab_exercicio.belongsTo(models.tab_articulacao, {
-        //     foreignKey: 'cod_articulacao_4',
-        //     as: 'articulacao_4',
-        // });
-        // tab_exercicio.belongsTo(models.tab_tipo_exercicio, {
-        //     foreignKey: 'cod_tipo_exercicio',
-        //     as: 'tipo_exercicio',
-        // });
-        // tab_exercicio.belongsTo(models.tab_exercicio_resistencia, {
-        //     foreignKey: 'cod_exercicio_resistencia',
-        //     as: 'exercicio_resistencia',
-        // });
-        // tab_exercicio.belongsTo(models.tab_indicacao, {
-        //     foreignKey: 'cod_indicacao',
-        //     as: 'indicacao',
-        // });
+        tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
+            foreignKey: 'cod_grupo_exercicio_9',
+            as: 'grupo_exercicio_9',
+        });
+        tab_exercicio.belongsTo(models.tab_grupo_exercicio, {
+            foreignKey: 'cod_grupo_exercicio_10',
+            as: 'grupo_exercicio_10',
+        });
+        tab_exercicio.belongsTo(models.tab_equipamento, {
+            foreignKey: 'cod_equipamento_1',
+            as: 'equipamento_1',
+        });
+        tab_exercicio.belongsTo(models.tab_equipamento, {
+            foreignKey: 'cod_equipamento_2',
+            as: 'equipamento_2',
+        });
+        tab_exercicio.belongsTo(models.tab_equipamento, {
+            foreignKey: 'cod_equipamento_3',
+            as: 'equipamento_3',
+        });
+        tab_exercicio.belongsTo(models.tab_articulacao, {
+            foreignKey: 'cod_articulacao_1',
+            as: 'articulacao_1',
+        });
+        tab_exercicio.belongsTo(models.tab_articulacao, {
+            foreignKey: 'cod_articulacao_2',
+            as: 'articulacao_2',
+        });
+        tab_exercicio.belongsTo(models.tab_articulacao, {
+            foreignKey: 'cod_articulacao_3',
+            as: 'articulacao_3',
+        });
+        tab_exercicio.belongsTo(models.tab_articulacao, {
+            foreignKey: 'cod_articulacao_4',
+            as: 'articulacao_4',
+        });
+        tab_exercicio.belongsTo(models.tab_tipo_exercicio, {
+            foreignKey: 'cod_tipo_exercicio',
+            as: 'tipo_exercicio',
+        });
+        tab_exercicio.belongsTo(models.tab_exercicio_resistencia, {
+            foreignKey: 'cod_exercicio_resistencia',
+            as: 'exercicio_resistencia',
+        });
+        tab_exercicio.belongsTo(models.tab_indicacao, {
+            foreignKey: 'cod_indicacao',
+            as: 'indicacao',
+        });
     };
 
     return tab_exercicio;
