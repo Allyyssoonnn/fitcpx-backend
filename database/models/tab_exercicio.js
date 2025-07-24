@@ -20,6 +20,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        nome_exercicio_en: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        nome_exercicio_es: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         url_exercicio: {
             type: DataTypes.STRING,
             allowNull: true,

@@ -246,17 +246,16 @@ async function recoveryGrupoExercicio(req, res) {
 }
 
 async function getExercicios(req, res) {
-    const { cod_empresa, deleted } = req.body;
+    const { cod_empresa, deleted, locale } = req.body;
     var where = {};
 
     if (deleted) {
-        // Trazer apenas deletados com cod_empresa exato
-        where.deletedAt = { [Sequelize.Op.ne]: null };
-      
-        if (cod_empresa) {
-          where.cod_empresa = cod_empresa;
-        }
-      } else {
+            where.deletedAt = { [Sequelize.Op.ne]: null };
+            if (cod_empresa) {
+                where.cod_empresa = cod_empresa;
+            }
+    } else {
+        where.deletedAt = { [Sequelize.Op.eq]: null };
         // Não deletados
         if (cod_empresa) {
           where[Sequelize.Op.or] = [
@@ -266,35 +265,59 @@ async function getExercicios(req, res) {
         }
     }
 
-    const exercicios = await tab_exercicio.findAll({
-        where: where,
-        paranoid: cod_empresa ? !deleted : false,
-        include: [
-            { model: tab_usuario, as: 'usuario', },
-            { model: tab_grupo_exercicio, as: 'grupo_exercicio_1', attributes: ['nome_grupo_exercicio'] },
-            { model: tab_grupo_exercicio, as: 'grupo_exercicio_2', attributes: ['nome_grupo_exercicio'] },
-            { model: tab_grupo_exercicio, as: 'grupo_exercicio_3', attributes: ['nome_grupo_exercicio'] },
-            { model: tab_grupo_exercicio, as: 'grupo_exercicio_4', attributes: ['nome_grupo_exercicio'] },
-            { model: tab_grupo_exercicio, as: 'grupo_exercicio_5', attributes: ['nome_grupo_exercicio'] },
-            { model: tab_grupo_exercicio, as: 'grupo_exercicio_6', attributes: ['nome_grupo_exercicio'] },
-            { model: tab_grupo_exercicio, as: 'grupo_exercicio_7', attributes: ['nome_grupo_exercicio'] },
-            { model: tab_grupo_exercicio, as: 'grupo_exercicio_8', attributes: ['nome_grupo_exercicio'] },
-            { model: tab_grupo_exercicio, as: 'grupo_exercicio_9', attributes: ['nome_grupo_exercicio'] },
-            { model: tab_grupo_exercicio, as: 'grupo_exercicio_10', attributes: ['nome_grupo_exercicio'] },
-            { model: tab_equipamento, as: 'equipamento_1', attributes: ['nome_equipamento'] },
-            { model: tab_equipamento, as: 'equipamento_2', attributes: ['nome_equipamento'] },
-            { model: tab_equipamento, as: 'equipamento_3', attributes: ['nome_equipamento'] },
-            { model: tab_articulacao, as: 'articulacao_1', attributes: ['nome_articulacao'] },
-            { model: tab_articulacao, as: 'articulacao_2', attributes: ['nome_articulacao'] },
-            { model: tab_articulacao, as: 'articulacao_3', attributes: ['nome_articulacao'] },
-            { model: tab_articulacao, as: 'articulacao_4', attributes: ['nome_articulacao'] },
-            { model: tab_tipo_exercicio, as: 'tipo_exercicio', attributes: ['nome_tipo_exercicio'] },
-            { model: tab_exercicio_resistencia, as: 'exercicio_resistencia', attributes: ['nome_exercicio_resistencia'] },
-            { model: tab_indicacao, as: 'indicacao', attributes: ['nome_indicacao'] },
-        ],
-        order: [['nome_exercicio', 'ASC']]
-    });
-    res.send({ status: true, exercicios });
+    let nomeExercicioColumn;
+    switch (locale) {
+        case 'en':
+            nomeExercicioColumn = 'nome_exercicio_en';
+            break;
+        case 'es':
+            nomeExercicioColumn = 'nome_exercicio_es';
+            break;
+        default: // 'pt' ou qualquer outro não especificado será o padrão
+            nomeExercicioColumn = 'nome_exercicio';
+            break;
+    }
+
+    try {
+        const exercicios = await tab_exercicio.findAll({
+            where: where,
+            paranoid: cod_empresa ? !deleted : false,
+            attributes: {
+                include: [
+                    [Sequelize.literal(`${nomeExercicioColumn}`), 'nome_exercicio'],
+                ],
+                exclude: ['nome_exercicio_en', 'nome_exercicio_es']
+            },
+            include: [
+                { model: tab_usuario, as: 'usuario', },
+                { model: tab_grupo_exercicio, as: 'grupo_exercicio_1', attributes: ['nome_grupo_exercicio'] },
+                { model: tab_grupo_exercicio, as: 'grupo_exercicio_2', attributes: ['nome_grupo_exercicio'] },
+                { model: tab_grupo_exercicio, as: 'grupo_exercicio_3', attributes: ['nome_grupo_exercicio'] },
+                { model: tab_grupo_exercicio, as: 'grupo_exercicio_4', attributes: ['nome_grupo_exercicio'] },
+                { model: tab_grupo_exercicio, as: 'grupo_exercicio_5', attributes: ['nome_grupo_exercicio'] },
+                { model: tab_grupo_exercicio, as: 'grupo_exercicio_6', attributes: ['nome_grupo_exercicio'] },
+                { model: tab_grupo_exercicio, as: 'grupo_exercicio_7', attributes: ['nome_grupo_exercicio'] },
+                { model: tab_grupo_exercicio, as: 'grupo_exercicio_8', attributes: ['nome_grupo_exercicio'] },
+                { model: tab_grupo_exercicio, as: 'grupo_exercicio_9', attributes: ['nome_grupo_exercicio'] },
+                { model: tab_grupo_exercicio, as: 'grupo_exercicio_10', attributes: ['nome_grupo_exercicio'] },
+                { model: tab_equipamento, as: 'equipamento_1', attributes: ['nome_equipamento'] },
+                { model: tab_equipamento, as: 'equipamento_2', attributes: ['nome_equipamento'] },
+                { model: tab_equipamento, as: 'equipamento_3', attributes: ['nome_equipamento'] },
+                { model: tab_articulacao, as: 'articulacao_1', attributes: ['nome_articulacao'] },
+                { model: tab_articulacao, as: 'articulacao_2', attributes: ['nome_articulacao'] },
+                { model: tab_articulacao, as: 'articulacao_3', attributes: ['nome_articulacao'] },
+                { model: tab_articulacao, as: 'articulacao_4', attributes: ['nome_articulacao'] },
+                { model: tab_tipo_exercicio, as: 'tipo_exercicio', attributes: ['nome_tipo_exercicio'] },
+                { model: tab_exercicio_resistencia, as: 'exercicio_resistencia', attributes: ['nome_exercicio_resistencia'] },
+                { model: tab_indicacao, as: 'indicacao', attributes: ['nome_indicacao'] },
+            ],
+            order: [[Sequelize.literal(`${nomeExercicioColumn}`), 'ASC']]
+        });
+        res.send({ status: true, exercicios });
+    } catch (error) {
+        console.error('Erro ao buscar exercícios:', error);
+        res.status(500).send({ status: false, message: 'Erro ao buscar exercícios.' });
+    }
 }
 
 async function setExercicio(req, res) {
