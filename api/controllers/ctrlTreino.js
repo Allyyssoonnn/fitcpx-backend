@@ -210,11 +210,41 @@ async function deleteTreino(req, res) {
 }
 
 async function getGrupoExercicios(req, res) {
-    const { cod_empresa, deleted } = req.body;
+    const { cod_empresa, deleted, locale } = req.body;
     var where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
+
+    let nomeGroupExercicioColumn;
+    switch (locale) {
+        case 'en':
+            nomeGroupExercicioColumn = 'nome_grupo_exercicio_en';
+            break;
+        case 'es':
+            nomeGroupExercicioColumn = 'nome_grupo_exercicio_es';
+            break;
+        default: // 'pt' ou qualquer outro não especificado será o padrão
+            nomeGroupExercicioColumn = 'nome_grupo_exercicio';
+            break;
+    }
+
     if (cod_empresa) where = { ...where, [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ] };
-    const grupos = await tab_grupo_exercicio.findAll({ where: where, paranoid: !deleted });
-    res.send({ status: true, grupos });
+
+    try {
+        const grupos = await tab_grupo_exercicio.findAll({
+            where: where,
+            paranoid: !deleted,
+            attributes: {
+                include: [
+                    [Sequelize.literal(`${nomeGroupExercicioColumn}`), 'nome_grupo_exercicio'],
+                ],
+                exclude: ['nome_grupo_exercicio_en', 'nome_grupo_exercicio_es']
+            },
+            order: [[Sequelize.literal(`${nomeGroupExercicioColumn}`), 'ASC']]
+        });
+        res.send({ status: true, grupos });
+    } catch (error) {
+        console.error('Erro ao buscar exercícios:', error);
+        res.status(500).send({ status: false, message: 'Erro ao buscar exercícios.' });
+    }
 }
 
 async function setGrupoExercicio(req, res) {
@@ -426,13 +456,42 @@ async function getEquipamentos(req, res) {
 }
 
 async function getArticulacoes(req, res) {
-    const { cod_empresa, deleted } = req.body;
+    const { cod_empresa, deleted, locale } = req.body;
     const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
-    const articulacoes = await tab_articulacao.findAll({ where: {
-        // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
-        // ...where
-    }, paranoid: !deleted });
-    res.send({ status: true, articulacoes });
+
+    let nomeArticulacaoColumn;
+    switch (locale) {
+        case 'en':
+            nomeArticulacaoColumn = 'nome_articulacao_en';
+            break;
+        case 'es':
+            nomeArticulacaoColumn = 'nome_articulacao_es';
+            break;
+        default: // 'pt' ou qualquer outro não especificado será o padrão
+            nomeArticulacaoColumn = 'nome_articulacao';
+            break;
+    }
+
+    try {
+        const articulacoes = await tab_articulacao.findAll({
+        where: {
+            // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+            // ...where
+        },
+        attributes: {
+            include: [
+                [Sequelize.literal(`${nomeArticulacaoColumn}`), 'nome_articulacao'],
+            ],
+            exclude: ['nome_articulacao_en', 'nome_articulacao_es']
+        },
+        paranoid: !deleted,
+        order: [[Sequelize.literal(`${nomeArticulacaoColumn}`), 'ASC']]
+    });
+        res.send({ status: true, articulacoes });
+    } catch (error) {
+        console.error('Erro ao buscar articulacoes:', error);
+        res.status(500).send({ status: false, message: 'Erro ao buscar articulacoes.' });
+    }
 }
 
 async function getTipoExercicios(req, res) {

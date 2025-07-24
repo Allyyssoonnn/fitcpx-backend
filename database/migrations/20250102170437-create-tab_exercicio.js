@@ -32,6 +32,14 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
+      nome_exercicio_en: {
+        allowNull: false,
+        type: Sequelize.DataTypes.STRING,
+      },
+      nome_exercicio_es: {
+        allowNull: false,
+        type: Sequelize.DataTypes.STRING,
+      },
       url_exercicio: {
         allowNull: true,
         type: Sequelize.DataTypes.STRING,

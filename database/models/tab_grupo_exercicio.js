@@ -18,6 +18,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        nome_grupo_exercicio_en: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        nome_grupo_exercicio_es: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         base_grupo_exercicio: {
             type: DataTypes.ENUM('S', 'N'),
             defaultValue: 'N'
