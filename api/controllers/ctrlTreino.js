@@ -299,14 +299,56 @@ async function getExercicios(req, res) {
     switch (locale) {
         case 'en':
             nomeExercicioColumn = 'nome_exercicio_en';
+            nomeGrupoColumn = 'nome_grupo_exercicio_en';
+            nameJointColumn = 'nome_articulacao_en';
+            nameEquipmentColumn = 'nome_equipamento_en';
+            nameExerciseTypeColumn = 'nome_tipo_exercicio_en';
+            nameExerciseResistenceColumn = 'nome_exercicio_resistencia_en';
+            nameSugestionColumn = 'nome_indicacao_en';
             break;
         case 'es':
             nomeExercicioColumn = 'nome_exercicio_es';
+            nomeGrupoColumn = 'nome_grupo_exercicio_es';
+            nameJointColumn = 'nome_articulacao_es';
+            nameEquipmentColumn = 'nome_equipamento_es';
+            nameExerciseTypeColumn = 'nome_tipo_exercicio_es';
+            nameExerciseResistenceColumn = 'nome_exercicio_resistencia_es';
+            nameSugestionColumn = 'nome_indicacao_es';
             break;
         default: // 'pt' ou qualquer outro não especificado será o padrão
             nomeExercicioColumn = 'nome_exercicio';
+            nomeGrupoColumn = 'nome_grupo_exercicio';
+            nameJointColumn = 'nome_articulacao';
+            nameEquipmentColumn = 'nome_equipamento';
+            nameExerciseTypeColumn = 'nome_tipo_exercicio';
+            nameExerciseResistenceColumn = 'nome_exercicio_resistencia';
+            nameSugestionColumn = 'nome_indicacao';
             break;
     }
+
+    const grupoExercicioInclude = Array.from({ length: 10 }, (_, i) => ({
+        model: tab_grupo_exercicio,
+        as: `grupo_exercicio_${i + 1}`,
+        attributes: [
+            [Sequelize.literal(`\`${`grupo_exercicio_${i + 1}`}\`.\`${nomeGrupoColumn}\``), 'nome_grupo_exercicio']
+        ]
+    }));
+
+    const articulacaoInclude = Array.from({ length: 4 }, (_, i) => ({
+        model: tab_articulacao,
+        as: `articulacao_${i + 1}`,
+        attributes: [
+            [Sequelize.literal(`\`${`articulacao_${i + 1}`}\`.\`${nameJointColumn}\``), 'nome_articulacao']
+        ]
+    }));
+
+    const equipamentoInclude = Array.from({ length: 3 }, (_, i) => ({
+        model: tab_equipamento,
+        as: `equipamento_${i + 1}`,
+        attributes: [
+            [Sequelize.literal(`\`${`equipamento_${i + 1}`}\`.\`${nameEquipmentColumn}\``), 'nome_equipamento']
+        ]
+    }));
 
     try {
         const exercicios = await tab_exercicio.findAll({
@@ -320,26 +362,12 @@ async function getExercicios(req, res) {
             },
             include: [
                 { model: tab_usuario, as: 'usuario', },
-                { model: tab_grupo_exercicio, as: 'grupo_exercicio_1', attributes: ['nome_grupo_exercicio'] },
-                { model: tab_grupo_exercicio, as: 'grupo_exercicio_2', attributes: ['nome_grupo_exercicio'] },
-                { model: tab_grupo_exercicio, as: 'grupo_exercicio_3', attributes: ['nome_grupo_exercicio'] },
-                { model: tab_grupo_exercicio, as: 'grupo_exercicio_4', attributes: ['nome_grupo_exercicio'] },
-                { model: tab_grupo_exercicio, as: 'grupo_exercicio_5', attributes: ['nome_grupo_exercicio'] },
-                { model: tab_grupo_exercicio, as: 'grupo_exercicio_6', attributes: ['nome_grupo_exercicio'] },
-                { model: tab_grupo_exercicio, as: 'grupo_exercicio_7', attributes: ['nome_grupo_exercicio'] },
-                { model: tab_grupo_exercicio, as: 'grupo_exercicio_8', attributes: ['nome_grupo_exercicio'] },
-                { model: tab_grupo_exercicio, as: 'grupo_exercicio_9', attributes: ['nome_grupo_exercicio'] },
-                { model: tab_grupo_exercicio, as: 'grupo_exercicio_10', attributes: ['nome_grupo_exercicio'] },
-                { model: tab_equipamento, as: 'equipamento_1', attributes: ['nome_equipamento'] },
-                { model: tab_equipamento, as: 'equipamento_2', attributes: ['nome_equipamento'] },
-                { model: tab_equipamento, as: 'equipamento_3', attributes: ['nome_equipamento'] },
-                { model: tab_articulacao, as: 'articulacao_1', attributes: ['nome_articulacao'] },
-                { model: tab_articulacao, as: 'articulacao_2', attributes: ['nome_articulacao'] },
-                { model: tab_articulacao, as: 'articulacao_3', attributes: ['nome_articulacao'] },
-                { model: tab_articulacao, as: 'articulacao_4', attributes: ['nome_articulacao'] },
-                { model: tab_tipo_exercicio, as: 'tipo_exercicio', attributes: ['nome_tipo_exercicio'] },
-                { model: tab_exercicio_resistencia, as: 'exercicio_resistencia', attributes: ['nome_exercicio_resistencia'] },
-                { model: tab_indicacao, as: 'indicacao', attributes: ['nome_indicacao'] },
+                ...grupoExercicioInclude,
+                ...articulacaoInclude,
+                ...equipamentoInclude,
+                { model: tab_tipo_exercicio, as: 'tipo_exercicio', attributes: [[Sequelize.literal(`\`tipo_exercicio\`.\`${nameExerciseTypeColumn}\``), 'nome_tipo_exercicio']] },
+                { model: tab_exercicio_resistencia, as: 'exercicio_resistencia', attributes: [[Sequelize.literal(`\`exercicio_resistencia\`.\`${nameExerciseResistenceColumn}\``), 'nome_exercicio_resistencia']] },
+                { model: tab_indicacao, as: 'indicacao', attributes: [[Sequelize.literal(`\`indicacao\`.\`${nameSugestionColumn}\``), 'nome_indicacao']] },
             ],
             order: [[Sequelize.literal(`${nomeExercicioColumn}`), 'ASC']]
         });

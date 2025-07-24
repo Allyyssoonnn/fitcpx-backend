@@ -15,6 +15,16 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
+      nome_equipamento_en: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      nome_equipamento_es: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,

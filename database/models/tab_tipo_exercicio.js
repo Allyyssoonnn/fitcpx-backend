@@ -11,6 +11,16 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: null,
         },
+        nome_tipo_exercicio_en: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null,
+        },
+        nome_tipo_exercicio_es: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null,
+        },
         createdAt: {
             type: DataTypes.DATE,
             allowNull: false,

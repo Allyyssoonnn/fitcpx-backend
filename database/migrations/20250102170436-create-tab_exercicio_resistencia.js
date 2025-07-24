@@ -15,6 +15,16 @@ module.exports = {
         type: Sequelize.DataTypes.STRING,
         defaultValue: null
       },
+      nome_exercicio_resistencia_en: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
+      nome_exercicio_resistencia_es: {
+        allowNull: true,
+        type: Sequelize.DataTypes.STRING,
+        defaultValue: null
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DataTypes.DATE,
