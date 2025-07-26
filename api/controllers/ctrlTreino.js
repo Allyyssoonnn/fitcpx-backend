@@ -52,6 +52,7 @@ async function getTreinos(req, res) {
 
         return ({
             ...treinoLimpo,
+            qtd_sessoes: sessoesOrdenadas?.length ?? 0,
             sessoes: sessoesOrdenadas.map((sessao) => {
                 // Ordena os exercícios por `sequencia_sessao_exercicios`
                 const exerciciosOrdenados = [...sessao.exercicios].sort(
