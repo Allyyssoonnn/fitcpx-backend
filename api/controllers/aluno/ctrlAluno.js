@@ -414,7 +414,10 @@ async function sendAlunoContrato(req, res) {
         });
 
         if (alunoContrato.arquivo_aluno_contrato) {
-            const browser = await puppeteer.launch();
+            const browser = await puppeteer.launch({
+                headless: "new",
+                args: ["--no-sandbox"],
+            });
             const page = await browser.newPage();
             await page.setContent(alunoContrato?.arquivo_aluno_contrato, {
                 waitUntil: "networkidle0",
