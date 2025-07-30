@@ -1,5 +1,6 @@
 const urlBase = "https://api.autentique.com.br/v2/graphql";
-const token = process.env.AUTENTIQUE_KEY;
+const token =
+    "[REDACTED_CREDENTIAL]";
 const multer = require("multer");
 const env = process.env.NODE_ENV || "development";
 const axios = require("axios");
