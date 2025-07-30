@@ -29,6 +29,7 @@
     "mysql2": "^3.11.4",
     "nodemon": "^3.1.7",
     "postmark": "^4.0.5",
+    "puppeteer": "^24.15.0",
     "sequelize": "^6.37.5",
     "stripe": "^18.1.0"
   },
