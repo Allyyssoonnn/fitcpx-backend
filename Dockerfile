@@ -1,6 +1,30 @@
 # Usa a imagem base do Node.js
 FROM node:18
 
+# Instala bibliotecas necessárias pro Chrome headless (Puppeteer)
+RUN apt-get update && apt-get install -y \
+    libnss3 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2 \
+    libpangocairo-1.0-0 \
+    libpango-1.0-0 \
+    libgtk-3-0 \
+    libnspr4 \
+    libxshmfence1 \
+    ca-certificates \
+    fonts-liberation \
+    wget \
+    --no-install-recommends && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Define o diretório de trabalho dentro do contêiner
 WORKDIR /app
 
@@ -29,8 +53,5 @@ RUN chmod +x /app/entrypoint.sh
 EXPOSE 8070
 EXPOSE 8090
 
-# Comando para iniciar a aplicação
-# CMD [ "npm", "start" ]
-# CMD [ "pm2-runtime", "ecosystem.config.js"]
 # Define o entrypoint para executar migrações e subir a app
 ENTRYPOINT ["/app/entrypoint.sh"]
