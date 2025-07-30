@@ -1,46 +1,48 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('tab_grupo_exercicio', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable("tab_grupo_exercicio", {
       cod_grupo_exercicio: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.DataTypes.INTEGER
+        type: Sequelize.DataTypes.INTEGER,
       },
       cod_empresa: {
         allowNull: true,
         type: Sequelize.DataTypes.INTEGER,
         references: {
-          model: 'tab_empresa',
-          key: 'cod_empresa'
-        }
+          model: "tab_empresa",
+          key: "cod_empresa",
+        },
       },
       cod_usuario: {
         allowNull: true,
         type: Sequelize.DataTypes.INTEGER,
         references: {
-          model: 'tab_usuario',
-          key: 'cod_usuario'
-        }
+          model: "tab_usuario",
+          key: "cod_usuario",
+        },
       },
       nome_grupo_exercicio: {
         allowNull: false,
         type: Sequelize.DataTypes.STRING,
       },
       nome_grupo_exercicio_en: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
       },
       nome_grupo_exercicio_es: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DataTypes.STRING,
+        defaultValue: null,
       },
       base_grupo_exercicio: {
-        type: Sequelize.DataTypes.ENUM('S', 'N'),
-        defaultValue: 'N'
+        type: Sequelize.DataTypes.ENUM("S", "N"),
+        defaultValue: "N",
       },
       createdAt: {
         allowNull: false,
@@ -53,12 +55,12 @@ module.exports = {
       deletedAt: {
         allowNull: true,
         type: Sequelize.DataTypes.DATE,
-        defaultValue: null
+        defaultValue: null,
       },
-    })
+    });
   },
 
-  async down (queryInterface, Sequelize) {
-    queryInterface.dropTable('tab_grupo_exercicio')
-  }
+  async down(queryInterface, Sequelize) {
+    queryInterface.dropTable("tab_grupo_exercicio");
+  },
 };
