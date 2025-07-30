@@ -403,49 +403,57 @@ async function resendAlunoContrato(req, res) {
 }
 
 async function sendAlunoContrato(req, res) {
-    const { cod_aluno_contrato } = req.body;
+    try {
+        const { cod_aluno_contrato } = req.body;
 
-    const alunoContrato = await tab_aluno_contrato.findOne({
-        where: { cod_aluno_contrato },
-    });
-    const aluno = await tab_aluno.findOne({
-        where: { cod_aluno: alunoContrato.cod_aluno },
-    });
-
-    if (alunoContrato.arquivo_aluno_contrato) {
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-        await page.setContent(alunoContrato?.arquivo_aluno_contrato, {
-            waitUntil: "networkidle0",
+        const alunoContrato = await tab_aluno_contrato.findOne({
+            where: { cod_aluno_contrato },
+        });
+        const aluno = await tab_aluno.findOne({
+            where: { cod_aluno: alunoContrato.cod_aluno },
         });
 
-        const pdfBuffer = await page.pdf({
-            format: "A4",
-            printBackground: true,
-            margin: {
-                top: "40px",
-                bottom: "40px",
-                left: "40px",
-                right: "40px",
-            },
-        });
+        if (alunoContrato.arquivo_aluno_contrato) {
+            const browser = await puppeteer.launch();
+            const page = await browser.newPage();
+            await page.setContent(alunoContrato?.arquivo_aluno_contrato, {
+                waitUntil: "networkidle0",
+            });
 
-        await browser.close();
-
-        const respAutentique = await sendDocument(pdfBuffer, aluno.email_aluno);
-        if (respAutentique)
-            tab_aluno_contrato.update(
-                {
-                    autentique_aluno_contrato: respAutentique,
-                    statusautentique_aluno_contrato: "Contrato enviado.",
+            const pdfBuffer = await page.pdf({
+                format: "A4",
+                printBackground: true,
+                margin: {
+                    top: "40px",
+                    bottom: "40px",
+                    left: "40px",
+                    right: "40px",
                 },
-                { where: { cod_aluno_contrato } }
-            );
-        res.send({ status: true });
-        return;
-    }
+            });
 
-    res.send({ status: true });
+            await browser.close();
+
+            const respAutentique = await sendDocument(
+                pdfBuffer,
+                aluno.email_aluno
+            );
+            if (respAutentique)
+                tab_aluno_contrato.update(
+                    {
+                        autentique_aluno_contrato: respAutentique,
+                        statusautentique_aluno_contrato: "Contrato enviado.",
+                    },
+                    { where: { cod_aluno_contrato } }
+                );
+            res.send({ status: true });
+            return;
+        }
+
+        res.send({ status: true });
+    } catch (e) {
+        console.log(e);
+        res.send({ status: false });
+    }
 }
 
 async function downloadAlunoContrato(req, res) {
