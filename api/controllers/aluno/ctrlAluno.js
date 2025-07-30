@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
-const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa, tab_aluno_contrato, tab_aluno_contrato_pagamento, tab_aluno_contrato_modalidade} = require('../../../database/models');
-const { removeStringVazia } = require('../../../utils');
+const { tab_aluno, tab_aluno_cartao, tab_avaliacao, tab_avaliacao_imagem, tab_usuario, tab_empresa, tab_aluno_contrato, tab_aluno_contrato_pagamento, tab_aluno_contrato_modalidade } = require('../../../database/models');
+const { removeStringVazia, calcularIdadeDtAvaliacao } = require('../../../utils');
 const moment = require("moment-timezone");
 const { sendDocument, deleteDocument, downloadContract } = require('../../autentique');
 const { calculaPorcentagemGordura, calculaPorcentagemMusculo, calculaPorcentagemMassaMagra, getResultPhysicalAssesment } = require('../ctrlAvaliacao');
@@ -8,7 +8,7 @@ const { getTokenCard, criarCliente, removerCobranca } = require('../../asaas');
 const env = process.env.NODE_ENV || 'development';
 const dev = env === 'development';
 
-async function getAlunos(req, res) {    
+async function getAlunos(req, res) {
     const { cod_usuario, cod_empresa, deleted } = req.body;
     const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : { deletedAt: null };
     const alunos = await tab_aluno.findAll({
@@ -24,7 +24,7 @@ async function getAlunos(req, res) {
     res.send({ status: true, alunos });
 }
 
-async function getAluno(req, res) {    
+async function getAluno(req, res) {
     const { cod_aluno } = req.body;
     const aluno = await tab_aluno.findOne({
         where: { cod_aluno: cod_aluno },
@@ -40,7 +40,7 @@ async function getAluno(req, res) {
                 ]
             }
         ]
-    });    
+    });
     res.send({ status: true, aluno });
 }
 
@@ -70,7 +70,7 @@ async function createCard(req, res) {
         );
         await tab_aluno.update({ asaas_id: asaasId }, { where: { cod_aluno } });
     }
-    
+
     let cardToken;
     if (formCard) {
         const { creditCardToken } = await getTokenCard(asaasId, { ...formCard, name: aluno.nome_aluno });
@@ -88,17 +88,17 @@ async function createCard(req, res) {
 
 async function deleteCard(req, res) {
     const { cod_aluno_cartao } = req.body;
-    
+
     await tab_aluno_cartao.update({ deletedAt: new Date() }, { where: { cod_aluno_cartao } });
     res.send({ status: true });
 }
 
-async function setAluno(req, res) {    
+async function setAluno(req, res) {
     const { aluno } = req.body;
     var alunoAtt;
-    
+
     if (aluno?.cod_aluno) alunoAtt = await tab_aluno.findOne({ where: { cod_aluno: aluno.cod_aluno } });
-    
+
     if (alunoAtt) {
         const { asaas_id, ...alunoSemAsaasId } = aluno;
         await tab_aluno.update(alunoSemAsaasId, { where: { cod_aluno: aluno.cod_aluno } });
@@ -125,7 +125,7 @@ async function recoveryAluno(req, res) {
     res.send({ status: true });
 }
 
-async function getAvaliacoes(req, res) {    
+async function getAvaliacoes(req, res) {
     const { cod_empresa, cod_aluno } = req.body;
     const whereEmpresa = cod_empresa ? { cod_empresa } : null;
     const whereAluno = cod_aluno ? { cod_aluno } : null;
@@ -165,7 +165,7 @@ async function getAvaliacoes(req, res) {
             result: await getResultPhysicalAssesment({ body: { avaliacao: v } })
         }))
     );
-    
+
     const avaliacoesFormatadas = physicalAssesments.map(av => ({
         gordura: calculaPorcentagemGordura(
             { data_nascimento_aluno: av?.aluno?.data_nascimento_aluno, sexo_aluno: av?.aluno?.sexo_aluno },
@@ -179,6 +179,7 @@ async function getAvaliacoes(req, res) {
             { data_nascimento_aluno: av?.aluno?.data_nascimento_aluno, sexo_aluno: av?.aluno?.sexo_aluno },
             av,
         ),
+        idade: calcularIdadeDtAvaliacao(av?.aluno?.data_nascimento_aluno, av?.data_avaliacao),
         nome_aluno: av.aluno?.nome_aluno, // Primeiro atributo
         ...av, // Outros atributos
     }));
@@ -191,7 +192,7 @@ async function getAvaliacao(req, res) {
     res.send({ status: true, avaliacao });
 }
 
-async function setAvaliacao(req, res) {    
+async function setAvaliacao(req, res) {
     const { avaliacao: avaliacaoReq } = req.body;
     var avaliacaoAtt;
 
@@ -248,7 +249,7 @@ async function cancelAlunoContrato(req, res) {
 
     const alunoContrato = await tab_aluno_contrato.findOne({ where: { cod_aluno_contrato } });
     if (alunoContrato?.autentique_aluno_contrato) await deleteDocument(alunoContrato.autentique_aluno_contrato);
-    
+
     //Delete all pending payments
     const payments = await tab_aluno_contrato_pagamento.findAll({ where: { cod_aluno_contrato } });
     for (const payment of payments) {
@@ -337,7 +338,7 @@ async function getAlunoContratos(req, res) {
         ],
         // paranoid: false,
     });
-    
+
     res.send({ status: true, alunoContratos });
 }
 
@@ -345,10 +346,10 @@ async function getAlunoContrato(req, res) {
     const { cod_aluno_contrato, cod_empresa } = req.body;
 
     var where = {};
-    if (cod_aluno_contrato) where = { ...where, [Sequelize.Op.or]: [ { cod_aluno_contrato: cod_aluno_contrato }, { cod_aluno_contrato: null } ] };
+    if (cod_aluno_contrato) where = { ...where, [Sequelize.Op.or]: [{ cod_aluno_contrato: cod_aluno_contrato }, { cod_aluno_contrato: null }] };
 
     const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-    
+
     const alunoContrato = await tab_aluno_contrato.findOne({
         where: where,
         include: [
