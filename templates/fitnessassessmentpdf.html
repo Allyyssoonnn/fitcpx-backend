@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ficha de Avaliação Física</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap");
+
+      body > * {
+        page-break-inside: avoid;
+      }
+
+      body {
+        font-family: "Open Sans", sans-serif;
+        padding: 0;
+        margin: 0;
+        background: #fff;
+        color: #222;
+      }
+
+      .content-wrapper {
+        page-break-inside: avoid;
+      }
+
+      header,
+      main,
+      footer,
+      section {
+        page-break-inside: avoid;
+      }
+
+      header {
+        justify-content: space-between;
+        page-break-inside: auto;
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        border-bottom: 2px solid #3b5998;
+        padding-bottom: 8px;
+        max-height: 100px;
+        overflow: hidden;
+      }
+
+      header img {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+        margin-right: 12px;
+      }
+
+      header .clinic-info {
+        color: #0d3b66;
+      }
+
+      header .clinic-info h1 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      header .clinic-info h2 {
+        margin: 4px 0 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e6091;
+      }
+
+      .header-ad {
+        font-size: 11px;
+        color: #666;
+        text-align: right;
+        max-width: 200px;
+      }
+
+      .header-ad .app-name {
+        font-weight: 700;
+        color: #0d3b66;
+        margin-bottom: 4px;
+        font-size: 14px;
+        white-space: nowrap;
+      }
+
+      .left-block {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      main {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+
+      section {
+        background: #f5f7fa;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 12px 16px;
+        flex: 1 1 45%;
+        box-sizing: border-box;
+        min-width: 300px;
+        page-break-inside: avoid;
+      }
+
+      section h3 {
+        color: #0d3b66;
+        font-weight: 700;
+        margin-top: 0;
+        margin-bottom: 12px;
+      }
+
+      section ul {
+        list-style: none;
+        padding-left: 0;
+        margin: 0;
+      }
+
+      section ul li {
+        font-size: 13px;
+        padding: 4px 0;
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      footer {
+        margin-top: 32px;
+        border-top: 1px solid #ccc;
+        padding-top: 12px;
+        font-size: 11px;
+        color: #666;
+        text-align: center;
+        page-break-inside: avoid;
+      }
+
+      footer .app-name {
+        font-weight: 700;
+        color: #0d3b66;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content-wrapper">
+      <header>
+        <div class="left-block">
+          <img
+            src="https://media.fitcpx.com/empresa/1752596644250_cropped_image.jpg"
+            alt="Logo"
+          />
+          <div class="clinic-info">
+            <h1><!-- {{company}} --></h1>
+            <h2>Ficha de Avaliação Física</h2>
+          </div>
+        </div>
+        <div class="header-ad">
+          <div class="app-name">FitCpx - fitcpx.com</div>
+          Aplicativo para treinadores e alunos - Controle total dos treinos
+        </div>
+      </header>
+
+      <main>
+        <section>
+          <h3>Geral</h3>
+          <ul>
+            <li>
+              <span>Avaliador:</span> <span><!-- {{trainer}} --></span>
+            </li>
+            <li>
+              <span>Aluno:</span> <span><!-- {{client}} --></span>
+            </li>
+            <li>
+              <span>Altura:</span>
+              <span
+                ><!-- {{height}} -->
+                cm</span
+              >
+            </li>
+            <li>
+              <span>Peso:</span>
+              <span
+                ><!-- {{weight}} -->
+                kg</span
+              >
+            </li>
+            <li>
+              <span>Gordura:</span>
+              <span
+                ><!-- {{bodyFat}} -->
+                kg (<!-- {{bodyFatPercentage}} -->%)</span
+              >
+            </li>
+            <li>
+              <span>Muscular:</span>
+              <span
+                ><!-- {{muscleMass}} -->
+                kg (<!-- {{musclePerMass}} -->%)</span
+              >
+            </li>
+            <li>
+              <span>Magra:</span>
+              <span
+                ><!-- {{leanMass}} -->
+                kg (<!-- {{leanPercMass}} -->%)</span
+              >
+            </li>
+            <li>
+              <span>Óssea:</span>
+              <span
+                ><!-- {{boneMass}} -->
+                kg (<!-- {{bonePercMass}} -->%)</span
+              >
+            </li>
+            <li>
+              <span>Residual:</span>
+              <span
+                ><!-- {{residualMass}} -->
+                kg (<!-- {{residualPercMass}} -->%)</span
+              >
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Dobras</h3>
+          <ul>
+            <li>
+              <span>Tríceps:</span> <span><!-- {{tricepsFold}} --></span>
+            </li>
+            <li>
+              <span>Peitoral:</span> <span><!-- {{chestFold}} --></span>
+            </li>
+            <li>
+              <span>Subescapular:</span>
+              <span><!-- {{subscapularisFold}} --></span>
+            </li>
+            <li>
+              <span>Axilar Média:</span> <span><!-- {{armpitFold}} --></span>
+            </li>
+            <li>
+              <span>Abdominal:</span> <span><!-- {{abdominal}} --></span>
+            </li>
+            <li>
+              <span>Coxa:</span> <span><!-- {{thighFold}} --></span>
+            </li>
+            <li>
+              <span>Suprailiaca:</span> <span><!-- {{suprailiacFold}} --></span>
+            </li>
+            <li>
+              <span>Supraespinhal:</span>
+              <span><!-- {{supraspinatusFold}} --></span>
+            </li>
+            <li>
+              <span>Bíceps:</span> <span><!-- {{bicepsFold}} --></span>
+            </li>
+            <li>
+              <span>Panturrilha:</span> <span><!-- {{calfFold}} --></span>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Lado Direito</h3>
+          <ul>
+            <li>
+              <span>Braço Relaxado Direito:</span>
+              <span><!-- {{rightArmRelaxed}} --></span>
+            </li>
+            <li>
+              <span>Braço Contraído Direito:</span>
+              <span><!-- {{rightArmContracted}} --></span>
+            </li>
+            <li>
+              <span>Antebraço Direito:</span>
+              <span><!-- {{rightForearm}} --></span>
+            </li>
+            <li>
+              <span>Coxa Direita:</span> <span><!-- {{rightThigh}} --></span>
+            </li>
+            <li>
+              <span>Panturrilha Direita:</span>
+              <span><!-- {{rightCalf}} --></span>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Lado Esquerdo</h3>
+          <ul>
+            <li>
+              <span>Braço Relaxado Esquerdo:</span>
+              <span><!-- {{leftArmRelaxed}} --></span>
+            </li>
+            <li>
+              <span>Braço Contraído Esquerdo:</span>
+              <span><!-- {{leftArmContracted}} --></span>
+            </li>
+            <li>
+              <span>Antebraço Esquerdo:</span>
+              <span><!-- {{leftForearm}} --></span>
+            </li>
+            <li>
+              <span>Coxa Esquerda:</span> <span><!-- {{leftThigh}} --></span>
+            </li>
+            <li>
+              <span>Panturrilha Esquerda:</span>
+              <span><!-- {{leftCalf}} --></span>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Perimetria</h3>
+          <ul>
+            <li>
+              <span>Pescoço:</span> <span><!-- {{neck}} --></span>
+            </li>
+            <li>
+              <span>Ombro:</span> <span><!-- {{shoulder}} --></span>
+            </li>
+            <li>
+              <span>Tórax Inspirado:</span>
+              <span><!-- {{chestInhaled}} --></span>
+            </li>
+            <li>
+              <span>Tórax Expirado:</span>
+              <span><!-- {{chestExhaled}} --></span>
+            </li>
+            <li>
+              <span>Abdomên:</span> <span><!-- {{waist}} --></span>
+            </li>
+            <li>
+              <span>Abdômen:</span> <span><!-- {{abdomen}} --></span>
+            </li>
+            <li>
+              <span>Quadril:</span> <span><!-- {{hips}} --></span>
+            </li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
