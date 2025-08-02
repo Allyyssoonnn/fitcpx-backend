@@ -202,7 +202,9 @@ async function criarPagamentoAluno(req, res) {
                             data_aluno_contrato_pagamento:
                                 respAsaas.dateCreated,
                             expiracao_aluno_contrato_pagamento:
-                                respAsaas.dueDate,
+                                respAsaas?.dueDate ??
+                                respAsaas?.nextDueDate ??
+                                new Date(),
                         },
                         { where: { cod_aluno_contrato } }
                     );
