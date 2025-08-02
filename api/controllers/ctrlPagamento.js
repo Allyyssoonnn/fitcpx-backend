@@ -169,45 +169,6 @@ async function criarPagamentoAluno(req, res) {
                         },
                         { where: { cod_aluno_contrato } }
                     );
-
-                    let descont = Number(
-                        (respAsaas?.value * (1 - 4.99 / 100)).toFixed(2)
-                    );
-
-                    if (respAsaas.billingType === "CREDIT_CARD")
-                        descont = Number(
-                            (respAsaas?.value * (1 - 4.99 / 100)).toFixed(2)
-                        ); //4,99%
-                    if (respAsaas.billingType === "PIX")
-                        descont = Number(
-                            (respAsaas?.value * (1 - 2.19 / 100)).toFixed(2)
-                        ); //2,19%
-                    if (respAsaas.billingType === "BOLETO")
-                        descont = Number(respAsaas?.value - 4.0).toFixed(2); //$4,00
-
-                    await tab_aluno_contrato_pagamento.create(
-                        {
-                            cod_aluno_contrato,
-                            asaas_id: respAsaas.id,
-                            asaas_url: respAsaas.invoiceUrl,
-                            json_aluno_contrato_pagamento:
-                                JSON.stringify(respAsaas),
-                            jsonwebhook_aluno_contrato_pagamento:
-                                JSON.stringify(respAsaas),
-                            status_aluno_contrato_pagamento: "Pending",
-                            valor_aluno_contrato_pagamento: respAsaas.value,
-                            liquido_aluno_contrato_pagamento: descont,
-                            forma_aluno_contrato_pagamento:
-                                respAsaas.billingType,
-                            data_aluno_contrato_pagamento:
-                                respAsaas.dateCreated,
-                            expiracao_aluno_contrato_pagamento:
-                                respAsaas?.dueDate ??
-                                respAsaas?.nextDueDate ??
-                                new Date(),
-                        },
-                        { where: { cod_aluno_contrato } }
-                    );
                 }
             } else {
                 resumoParcelas.map(async (parcela, i) => {
