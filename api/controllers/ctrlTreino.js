@@ -1,46 +1,73 @@
-const { Sequelize, Op } = require('sequelize');
-const { tab_treino, tab_grupo_exercicio, tab_exercicio, tab_usuario, tab_sessao, tab_equipamento, tab_articulacao, tab_tipo_exercicio, tab_exercicio_resistencia, tab_indicacao, tab_padrao_movimento, tab_sessao_exercicio } = require('../../database/models');
+const { Sequelize, Op } = require("sequelize");
+const {
+    tab_treino,
+    tab_grupo_exercicio,
+    tab_exercicio,
+    tab_usuario,
+    tab_sessao,
+    tab_equipamento,
+    tab_articulacao,
+    tab_tipo_exercicio,
+    tab_exercicio_resistencia,
+    tab_indicacao,
+    tab_padrao_movimento,
+    tab_sessao_exercicio,
+} = require("../../database/models");
 
 async function getTreinos(req, res) {
-    const { cod_empresa, cod_aluno, deleted, findAll } = req.body;
+    const { cod_empresa, cod_aluno, deleted, activeOnly } = req.body;
     var where;
-    if (cod_empresa && !findAll) where = { [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ], cod_aluno: null };
-    if (cod_empresa && findAll) where = { [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ] };
+    if (cod_empresa && !findAll)
+        where = {
+            [Sequelize.Op.or]: [
+                { cod_empresa: cod_empresa },
+                { cod_empresa: null },
+            ],
+            cod_aluno: null,
+        };
+    if (cod_empresa && findAll)
+        where = {
+            [Sequelize.Op.or]: [
+                { cod_empresa: cod_empresa },
+                { cod_empresa: null },
+            ],
+        };
     if (cod_aluno) where = { cod_aluno: cod_aluno };
     if (deleted) where = { ...where, deletedAt: { [Sequelize.Op.ne]: null } };
+    if (activeOnly) where.status_treino = "A";
     const treinos = await tab_treino.findAll({
         where: where,
         include: [
             {
                 model: tab_usuario,
-                as: 'usuario',
+                as: "usuario",
             },
             {
                 model: tab_sessao,
-                as: 'sessoes',
+                as: "sessoes",
                 include: [
                     {
                         model: tab_sessao_exercicio,
-                        as: 'exercicios',
+                        as: "exercicios",
                         include: [
                             {
                                 model: tab_exercicio,
-                                as: 'exercicio',
+                                as: "exercicio",
                                 include: [
                                     {
                                         model: tab_grupo_exercicio,
-                                        as: 'grupo_exercicio_1',
-                                    }
-                                ]
+                                        as: "grupo_exercicio_1",
+                                    },
+                                ],
                             },
                         ],
-                        order: [['sequencia_sessao_exercicio', 'ASC']]
-                    }
+                        order: [["sequencia_sessao_exercicio", "ASC"]],
+                    },
                 ],
-                order: [['sequencia_sessao', 'ASC']]
+                order: [["sequencia_sessao", "ASC"]],
             },
         ],
-        paranoid: !deleted
+        paranoid: !deleted,
     });
     //Junta a informação dos exercicios junto ao objeto exercicio para que não exista um objeto exercicio dentro de outro
     const treinosReorganizados = treinos.map((treino) => {
@@ -50,13 +77,15 @@ async function getTreinos(req, res) {
             (a, b) => a.sequencia_sessao - b.sequencia_sessao
         );
 
-        return ({
+        return {
             ...treinoLimpo,
             qtd_sessoes: sessoesOrdenadas?.length ?? 0,
             sessoes: sessoesOrdenadas.map((sessao) => {
                 // Ordena os exercícios por `sequencia_sessao_exercicios`
                 const exerciciosOrdenados = [...sessao.exercicios].sort(
-                    (a, b) => a.sequencia_sessao_exercicios - b.sequencia_sessao_exercicios
+                    (a, b) =>
+                        a.sequencia_sessao_exercicios -
+                        b.sequencia_sessao_exercicios
                 );
 
                 const agrupados = {};
@@ -64,7 +93,7 @@ async function getTreinos(req, res) {
                 // Agrupa os exercícios por `sequencia_sessao_exercicios`
                 exerciciosOrdenados.forEach((exercicio) => {
                     const sequencia = exercicio.sequencia_sessao_exercicio;
-                    
+
                     if (!agrupados[sequencia]) {
                         agrupados[sequencia] = {
                             //Sequencia importante para preservar as informações do createdAt, deletedAt, updatedAt
@@ -81,7 +110,7 @@ async function getTreinos(req, res) {
                     }
                 });
 
-                return ({
+                return {
                     ...sessao,
                     exercicios: Object.values(agrupados).map((exercicio) => ({
                         //Sequencia importante para preservar as informações do createdAt, deletedAt, updatedAt
@@ -89,10 +118,10 @@ async function getTreinos(req, res) {
                         ...exercicio,
                         sets: exercicio.sets || [], // Garante que o campo exista
                     })),
-                })
-            })
-        })
-    })
+                };
+            }),
+        };
+    });
     res.send({ status: true, treinos: treinosReorganizados });
 }
 
@@ -106,37 +135,37 @@ async function getTreino(req, res) {
         include: [
             {
                 model: tab_usuario,
-                as: 'usuario',
+                as: "usuario",
             },
             {
                 model: tab_sessao,
-                as: 'sessoes',
+                as: "sessoes",
                 include: [
                     {
                         model: tab_sessao_exercicio,
-                        as: 'exercicios',
+                        as: "exercicios",
                         include: [
                             {
                                 model: tab_exercicio,
-                                as: 'exercicio',
+                                as: "exercicio",
                                 include: [
                                     {
                                         model: tab_grupo_exercicio,
-                                        as: 'grupo_exercicio_1',
-                                    }
-                                ]
+                                        as: "grupo_exercicio_1",
+                                    },
+                                ],
                             },
                         ],
-                        order: [['sequencia_sessao_exercicio', 'ASC']]
-                    }
+                        order: [["sequencia_sessao_exercicio", "ASC"]],
+                    },
                 ],
-                order: [['sequencia_sessao', 'ASC']]
+                order: [["sequencia_sessao", "ASC"]],
             },
         ],
-        paranoid: !deleted
+        paranoid: !deleted,
     });
     //Junta a informação dos exercicios junto ao objeto exercicio para que não exista um objeto exercicio dentro de outro
-    
+
     const treinoLimpo = treino.toJSON();
 
     const sessoesOrdenadas = [...treinoLimpo.sessoes].sort(
@@ -148,7 +177,9 @@ async function getTreino(req, res) {
         sessoes: sessoesOrdenadas.map((sessao) => {
             // Ordena os exercícios por `sequencia_sessao_exercicios`
             const exerciciosOrdenados = [...sessao.exercicios].sort(
-                (a, b) => a.sequencia_sessao_exercicios - b.sequencia_sessao_exercicios
+                (a, b) =>
+                    a.sequencia_sessao_exercicios -
+                    b.sequencia_sessao_exercicios
             );
 
             const agrupados = {};
@@ -156,7 +187,7 @@ async function getTreino(req, res) {
             // Agrupa os exercícios por `sequencia_sessao_exercicios`
             exerciciosOrdenados.forEach((exercicio) => {
                 const sequencia = exercicio.sequencia_sessao_exercicio;
-                
+
                 if (!agrupados[sequencia]) {
                     agrupados[sequencia] = {
                         //Sequencia importante para preservar as informações do createdAt, deletedAt, updatedAt
@@ -173,7 +204,7 @@ async function getTreino(req, res) {
                 }
             });
 
-            return ({
+            return {
                 ...sessao,
                 exercicios: Object.values(agrupados).map((exercicio) => ({
                     //Sequencia importante para preservar as informações do createdAt, deletedAt, updatedAt
@@ -181,9 +212,9 @@ async function getTreino(req, res) {
                     ...exercicio,
                     sets: exercicio.sets || [], // Garante que o campo exista
                 })),
-            })
-        })
-    }
+            };
+        }),
+    };
 
     res.send({ status: true, treino: treinoOrganizado });
 }
@@ -192,10 +223,15 @@ async function setTreino(req, res) {
     const { treino } = req.body;
     var treinoAtt;
 
-    if (treino.cod_treino) treinoAtt = await tab_treino.findOne({ where: { cod_treino: treino.cod_treino } });
+    if (treino.cod_treino)
+        treinoAtt = await tab_treino.findOne({
+            where: { cod_treino: treino.cod_treino },
+        });
 
     if (treinoAtt) {
-        await tab_treino.update(treino, { where: { cod_treino: treino.cod_treino } });
+        await tab_treino.update(treino, {
+            where: { cod_treino: treino.cod_treino },
+        });
     } else {
         const novoTreino = await tab_treino.create(treino);
         treinoAtt = novoTreino;
@@ -206,7 +242,10 @@ async function setTreino(req, res) {
 
 async function deleteTreino(req, res) {
     const { cod_treino } = req.body;
-    await tab_treino.update({ deletedAt: new Date() }, { where: { cod_treino: cod_treino } });
+    await tab_treino.update(
+        { deletedAt: new Date() },
+        { where: { cod_treino: cod_treino } }
+    );
     res.send({ status: true });
 }
 
@@ -216,18 +255,25 @@ async function getGrupoExercicios(req, res) {
 
     let nomeGroupExercicioColumn;
     switch (locale) {
-        case 'en':
-            nomeGroupExercicioColumn = 'nome_grupo_exercicio_en';
+        case "en":
+            nomeGroupExercicioColumn = "nome_grupo_exercicio_en";
             break;
-        case 'es':
-            nomeGroupExercicioColumn = 'nome_grupo_exercicio_es';
+        case "es":
+            nomeGroupExercicioColumn = "nome_grupo_exercicio_es";
             break;
         default: // 'pt' ou qualquer outro não especificado será o padrão
-            nomeGroupExercicioColumn = 'nome_grupo_exercicio';
+            nomeGroupExercicioColumn = "nome_grupo_exercicio";
             break;
     }
 
-    if (cod_empresa) where = { ...where, [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ] };
+    if (cod_empresa)
+        where = {
+            ...where,
+            [Sequelize.Op.or]: [
+                { cod_empresa: cod_empresa },
+                { cod_empresa: null },
+            ],
+        };
 
     try {
         const grupos = await tab_grupo_exercicio.findAll({
@@ -235,16 +281,22 @@ async function getGrupoExercicios(req, res) {
             paranoid: !deleted,
             attributes: {
                 include: [
-                    [Sequelize.literal(`${nomeGroupExercicioColumn}`), 'nome_grupo_exercicio'],
+                    [
+                        Sequelize.literal(`${nomeGroupExercicioColumn}`),
+                        "nome_grupo_exercicio",
+                    ],
                 ],
-                exclude: ['nome_grupo_exercicio_en', 'nome_grupo_exercicio_es']
+                exclude: ["nome_grupo_exercicio_en", "nome_grupo_exercicio_es"],
             },
-            order: [[Sequelize.literal(`${nomeGroupExercicioColumn}`), 'ASC']]
+            order: [[Sequelize.literal(`${nomeGroupExercicioColumn}`), "ASC"]],
         });
         res.send({ status: true, grupos });
     } catch (error) {
-        console.error('Erro ao buscar exercícios:', error);
-        res.status(500).send({ status: false, message: 'Erro ao buscar exercícios.' });
+        console.error("Erro ao buscar exercícios:", error);
+        res.status(500).send({
+            status: false,
+            message: "Erro ao buscar exercícios.",
+        });
     }
 }
 
@@ -252,10 +304,15 @@ async function setGrupoExercicio(req, res) {
     const { grupo } = req.body;
     var grupoAtt;
 
-    if (grupo.cod_grupo_exercicio) grupoAtt = await tab_grupo_exercicio.findOne({ where: { cod_grupo_exercicio: grupo.cod_grupo_exercicio } });
+    if (grupo.cod_grupo_exercicio)
+        grupoAtt = await tab_grupo_exercicio.findOne({
+            where: { cod_grupo_exercicio: grupo.cod_grupo_exercicio },
+        });
 
     if (grupoAtt) {
-        await tab_grupo_exercicio.update(grupo, { where: { cod_grupo_exercicio: grupo.cod_grupo_exercicio } });
+        await tab_grupo_exercicio.update(grupo, {
+            where: { cod_grupo_exercicio: grupo.cod_grupo_exercicio },
+        });
     } else {
         const novoGrupo = await tab_grupo_exercicio.create(grupo);
         grupoAtt = novoGrupo;
@@ -266,13 +323,19 @@ async function setGrupoExercicio(req, res) {
 
 async function deleteGrupoExercicio(req, res) {
     const { cod_grupo_exercicio } = req.body;
-    await tab_grupo_exercicio.update({ deletedAt: new Date() }, { where: { cod_grupo_exercicio: cod_grupo_exercicio } });
+    await tab_grupo_exercicio.update(
+        { deletedAt: new Date() },
+        { where: { cod_grupo_exercicio: cod_grupo_exercicio } }
+    );
     res.send({ status: true });
 }
 
 async function recoveryGrupoExercicio(req, res) {
     const { cod_grupo_exercicio } = req.body;
-    await tab_grupo_exercicio.update({ deletedAt: null }, { where: { cod_grupo_exercicio: cod_grupo_exercicio }, paranoid: false });
+    await tab_grupo_exercicio.update(
+        { deletedAt: null },
+        { where: { cod_grupo_exercicio: cod_grupo_exercicio }, paranoid: false }
+    );
     res.send({ status: true });
 }
 
@@ -281,49 +344,49 @@ async function getExercicios(req, res) {
     var where = {};
 
     if (deleted) {
-            where.deletedAt = { [Sequelize.Op.ne]: null };
-            if (cod_empresa) {
-                where.cod_empresa = cod_empresa;
-            }
+        where.deletedAt = { [Sequelize.Op.ne]: null };
+        if (cod_empresa) {
+            where.cod_empresa = cod_empresa;
+        }
     } else {
         where.deletedAt = { [Sequelize.Op.eq]: null };
         // Não deletados
         if (cod_empresa) {
-          where[Sequelize.Op.or] = [
-            { cod_empresa: cod_empresa },
-            { cod_empresa: null }
-          ];
+            where[Sequelize.Op.or] = [
+                { cod_empresa: cod_empresa },
+                { cod_empresa: null },
+            ];
         }
     }
 
     let nomeExercicioColumn;
     switch (locale) {
-        case 'en':
-            nomeExercicioColumn = 'nome_exercicio_en';
-            nomeGrupoColumn = 'nome_grupo_exercicio_en';
-            nameJointColumn = 'nome_articulacao_en';
-            nameEquipmentColumn = 'nome_equipamento_en';
-            nameExerciseTypeColumn = 'nome_tipo_exercicio_en';
-            nameExerciseResistenceColumn = 'nome_exercicio_resistencia_en';
-            nameSugestionColumn = 'nome_indicacao_en';
+        case "en":
+            nomeExercicioColumn = "nome_exercicio_en";
+            nomeGrupoColumn = "nome_grupo_exercicio_en";
+            nameJointColumn = "nome_articulacao_en";
+            nameEquipmentColumn = "nome_equipamento_en";
+            nameExerciseTypeColumn = "nome_tipo_exercicio_en";
+            nameExerciseResistenceColumn = "nome_exercicio_resistencia_en";
+            nameSugestionColumn = "nome_indicacao_en";
             break;
-        case 'es':
-            nomeExercicioColumn = 'nome_exercicio_es';
-            nomeGrupoColumn = 'nome_grupo_exercicio_es';
-            nameJointColumn = 'nome_articulacao_es';
-            nameEquipmentColumn = 'nome_equipamento_es';
-            nameExerciseTypeColumn = 'nome_tipo_exercicio_es';
-            nameExerciseResistenceColumn = 'nome_exercicio_resistencia_es';
-            nameSugestionColumn = 'nome_indicacao_es';
+        case "es":
+            nomeExercicioColumn = "nome_exercicio_es";
+            nomeGrupoColumn = "nome_grupo_exercicio_es";
+            nameJointColumn = "nome_articulacao_es";
+            nameEquipmentColumn = "nome_equipamento_es";
+            nameExerciseTypeColumn = "nome_tipo_exercicio_es";
+            nameExerciseResistenceColumn = "nome_exercicio_resistencia_es";
+            nameSugestionColumn = "nome_indicacao_es";
             break;
         default: // 'pt' ou qualquer outro não especificado será o padrão
-            nomeExercicioColumn = 'nome_exercicio';
-            nomeGrupoColumn = 'nome_grupo_exercicio';
-            nameJointColumn = 'nome_articulacao';
-            nameEquipmentColumn = 'nome_equipamento';
-            nameExerciseTypeColumn = 'nome_tipo_exercicio';
-            nameExerciseResistenceColumn = 'nome_exercicio_resistencia';
-            nameSugestionColumn = 'nome_indicacao';
+            nomeExercicioColumn = "nome_exercicio";
+            nomeGrupoColumn = "nome_grupo_exercicio";
+            nameJointColumn = "nome_articulacao";
+            nameEquipmentColumn = "nome_equipamento";
+            nameExerciseTypeColumn = "nome_tipo_exercicio";
+            nameExerciseResistenceColumn = "nome_exercicio_resistencia";
+            nameSugestionColumn = "nome_indicacao";
             break;
     }
 
@@ -331,24 +394,39 @@ async function getExercicios(req, res) {
         model: tab_grupo_exercicio,
         as: `grupo_exercicio_${i + 1}`,
         attributes: [
-            [Sequelize.literal(`\`${`grupo_exercicio_${i + 1}`}\`.\`${nomeGrupoColumn}\``), 'nome_grupo_exercicio']
-        ]
+            [
+                Sequelize.literal(
+                    `\`${`grupo_exercicio_${i + 1}`}\`.\`${nomeGrupoColumn}\``
+                ),
+                "nome_grupo_exercicio",
+            ],
+        ],
     }));
 
     const articulacaoInclude = Array.from({ length: 4 }, (_, i) => ({
         model: tab_articulacao,
         as: `articulacao_${i + 1}`,
         attributes: [
-            [Sequelize.literal(`\`${`articulacao_${i + 1}`}\`.\`${nameJointColumn}\``), 'nome_articulacao']
-        ]
+            [
+                Sequelize.literal(
+                    `\`${`articulacao_${i + 1}`}\`.\`${nameJointColumn}\``
+                ),
+                "nome_articulacao",
+            ],
+        ],
     }));
 
     const equipamentoInclude = Array.from({ length: 3 }, (_, i) => ({
         model: tab_equipamento,
         as: `equipamento_${i + 1}`,
         attributes: [
-            [Sequelize.literal(`\`${`equipamento_${i + 1}`}\`.\`${nameEquipmentColumn}\``), 'nome_equipamento']
-        ]
+            [
+                Sequelize.literal(
+                    `\`${`equipamento_${i + 1}`}\`.\`${nameEquipmentColumn}\``
+                ),
+                "nome_equipamento",
+            ],
+        ],
     }));
 
     try {
@@ -357,25 +435,64 @@ async function getExercicios(req, res) {
             paranoid: cod_empresa ? !deleted : false,
             attributes: {
                 include: [
-                    [Sequelize.literal(`${nomeExercicioColumn}`), 'nome_exercicio'],
+                    [
+                        Sequelize.literal(`${nomeExercicioColumn}`),
+                        "nome_exercicio",
+                    ],
                 ],
-                exclude: ['nome_exercicio_en', 'nome_exercicio_es']
+                exclude: ["nome_exercicio_en", "nome_exercicio_es"],
             },
             include: [
-                { model: tab_usuario, as: 'usuario', },
+                { model: tab_usuario, as: "usuario" },
                 ...grupoExercicioInclude,
                 ...articulacaoInclude,
                 ...equipamentoInclude,
-                { model: tab_tipo_exercicio, as: 'tipo_exercicio', attributes: [[Sequelize.literal(`\`tipo_exercicio\`.\`${nameExerciseTypeColumn}\``), 'nome_tipo_exercicio']] },
-                { model: tab_exercicio_resistencia, as: 'exercicio_resistencia', attributes: [[Sequelize.literal(`\`exercicio_resistencia\`.\`${nameExerciseResistenceColumn}\``), 'nome_exercicio_resistencia']] },
-                { model: tab_indicacao, as: 'indicacao', attributes: [[Sequelize.literal(`\`indicacao\`.\`${nameSugestionColumn}\``), 'nome_indicacao']] },
+                {
+                    model: tab_tipo_exercicio,
+                    as: "tipo_exercicio",
+                    attributes: [
+                        [
+                            Sequelize.literal(
+                                `\`tipo_exercicio\`.\`${nameExerciseTypeColumn}\``
+                            ),
+                            "nome_tipo_exercicio",
+                        ],
+                    ],
+                },
+                {
+                    model: tab_exercicio_resistencia,
+                    as: "exercicio_resistencia",
+                    attributes: [
+                        [
+                            Sequelize.literal(
+                                `\`exercicio_resistencia\`.\`${nameExerciseResistenceColumn}\``
+                            ),
+                            "nome_exercicio_resistencia",
+                        ],
+                    ],
+                },
+                {
+                    model: tab_indicacao,
+                    as: "indicacao",
+                    attributes: [
+                        [
+                            Sequelize.literal(
+                                `\`indicacao\`.\`${nameSugestionColumn}\``
+                            ),
+                            "nome_indicacao",
+                        ],
+                    ],
+                },
             ],
-            order: [[Sequelize.literal(`${nomeExercicioColumn}`), 'ASC']]
+            order: [[Sequelize.literal(`${nomeExercicioColumn}`), "ASC"]],
         });
         res.send({ status: true, exercicios });
     } catch (error) {
-        console.error('Erro ao buscar exercícios:', error);
-        res.status(500).send({ status: false, message: 'Erro ao buscar exercícios.' });
+        console.error("Erro ao buscar exercícios:", error);
+        res.status(500).send({
+            status: false,
+            message: "Erro ao buscar exercícios.",
+        });
     }
 }
 
@@ -383,10 +500,15 @@ async function setExercicio(req, res) {
     const { exercicio } = req.body;
     var exercicioAtt;
 
-    if (exercicio.cod_exercicio) exercicioAtt = await tab_exercicio.findOne({ where: { cod_exercicio: exercicio.cod_exercicio } });
+    if (exercicio.cod_exercicio)
+        exercicioAtt = await tab_exercicio.findOne({
+            where: { cod_exercicio: exercicio.cod_exercicio },
+        });
 
     if (exercicioAtt) {
-        await tab_exercicio.update(exercicio, { where: { cod_exercicio: exercicio.cod_exercicio } });
+        await tab_exercicio.update(exercicio, {
+            where: { cod_exercicio: exercicio.cod_exercicio },
+        });
     } else {
         const novoExercicio = await tab_exercicio.create(exercicio);
         exercicioAtt = novoExercicio;
@@ -397,13 +519,19 @@ async function setExercicio(req, res) {
 
 async function deleteExercicio(req, res) {
     const { cod_exercicio } = req.body;
-    await tab_exercicio.update({ deletedAt: new Date() }, { where: { cod_exercicio: cod_exercicio } });
+    await tab_exercicio.update(
+        { deletedAt: new Date() },
+        { where: { cod_exercicio: cod_exercicio } }
+    );
     res.send({ status: true });
 }
 
 async function recoveryExercicio(req, res) {
     const { cod_exercicio } = req.body;
-    await tab_exercicio.update({ deletedAt: null }, { where: { cod_exercicio: cod_exercicio }, paranoid: false });
+    await tab_exercicio.update(
+        { deletedAt: null },
+        { where: { cod_exercicio: cod_exercicio }, paranoid: false }
+    );
     res.send({ status: true });
 }
 
@@ -418,22 +546,50 @@ async function recoveryExercicio(req, res) {
 // }
 
 async function setSessoes(req, res) {
-    const { sessoes, cod_treino, cod_empresa, cod_usuario, removidos, itensRemovidos = [] } = req.body;
+    const {
+        sessoes,
+        cod_treino,
+        cod_empresa,
+        cod_usuario,
+        removidos,
+        itensRemovidos = [],
+    } = req.body;
     var sessoesAtt = [];
 
     async function setSessaoExercicios(sessao, exercicios) {
         for (const exercicio of exercicios) {
             if (exercicio?.cod_sessao_exercicio) {
-                await tab_sessao_exercicio.update({ ...exercicio, cod_sessao: sessao.cod_sessao }, { where: { cod_sessao_exercicio: exercicio.cod_sessao_exercicio } });
+                await tab_sessao_exercicio.update(
+                    { ...exercicio, cod_sessao: sessao.cod_sessao },
+                    {
+                        where: {
+                            cod_sessao_exercicio:
+                                exercicio.cod_sessao_exercicio,
+                        },
+                    }
+                );
             } else {
-                await tab_sessao_exercicio.create({ ...exercicio, cod_sessao: sessao.cod_sessao });
+                await tab_sessao_exercicio.create({
+                    ...exercicio,
+                    cod_sessao: sessao.cod_sessao,
+                });
             }
-            
+
             for (const set of exercicio?.sets) {
                 if (set?.cod_sessao_exercicio) {
-                    await tab_sessao_exercicio.update({ ...set, cod_sessao: sessao.cod_sessao }, { where: { cod_sessao_exercicio: set.cod_sessao_exercicio } });
+                    await tab_sessao_exercicio.update(
+                        { ...set, cod_sessao: sessao.cod_sessao },
+                        {
+                            where: {
+                                cod_sessao_exercicio: set.cod_sessao_exercicio,
+                            },
+                        }
+                    );
                 } else {
-                    await tab_sessao_exercicio.create({ ...set, cod_sessao: sessao.cod_sessao });
+                    await tab_sessao_exercicio.create({
+                        ...set,
+                        cod_sessao: sessao.cod_sessao,
+                    });
                 }
             }
         }
@@ -441,22 +597,42 @@ async function setSessoes(req, res) {
 
     for (const sessao of sessoes) {
         if (sessao.cod_sessao) {
-            await tab_sessao.update(sessao, { where: { cod_sessao: sessao.cod_sessao } });
+            await tab_sessao.update(sessao, {
+                where: { cod_sessao: sessao.cod_sessao },
+            });
             await setSessaoExercicios(sessao, sessao.exercicios);
             sessoesAtt.push(sessao);
         } else {
-            const resp = await tab_sessao.create({ ...sessao, cod_treino, cod_empresa, cod_usuario });
+            const resp = await tab_sessao.create({
+                ...sessao,
+                cod_treino,
+                cod_empresa,
+                cod_usuario,
+            });
             await setSessaoExercicios(resp, sessao.exercicios);
             sessoesAtt.push(resp);
         }
     }
 
     for (const removido of removidos) {
-        if (removido?.cod_sessao) tab_sessao.update({ deletedAt: new Date() }, { where: { cod_sessao: removido.cod_sessao } });
+        if (removido?.cod_sessao)
+            tab_sessao.update(
+                { deletedAt: new Date() },
+                { where: { cod_sessao: removido.cod_sessao } }
+            );
     }
-    
+
     for (const exercicioRemovido of itensRemovidos) {
-        if (exercicioRemovido?.cod_sessao_exercicio) tab_sessao_exercicio.update({ deletedAt: new Date() }, { where: { cod_sessao_exercicio: exercicioRemovido?.cod_sessao_exercicio } });
+        if (exercicioRemovido?.cod_sessao_exercicio)
+            tab_sessao_exercicio.update(
+                { deletedAt: new Date() },
+                {
+                    where: {
+                        cod_sessao_exercicio:
+                            exercicioRemovido?.cod_sessao_exercicio,
+                    },
+                }
+            );
     }
 
     res.send({ status: true, sessoes: sessoesAtt });
@@ -464,23 +640,32 @@ async function setSessoes(req, res) {
 
 async function deleteSessao(req, res) {
     const { cod_sessao } = req.body;
-    await tab_sessao.update({ deletedAt: new Date() }, { where: { cod_sessao: cod_sessao } });
+    await tab_sessao.update(
+        { deletedAt: new Date() },
+        { where: { cod_sessao: cod_sessao } }
+    );
     res.send({ status: true });
 }
 
 async function recoverySessao(req, res) {
     const { cod_sessao } = req.body;
-    await tab_sessao.update({ deletedAt: null }, { where: { cod_sessao: cod_sessao }, paranoid: false });
+    await tab_sessao.update(
+        { deletedAt: null },
+        { where: { cod_sessao: cod_sessao }, paranoid: false }
+    );
     res.send({ status: true });
 }
 
 async function getEquipamentos(req, res) {
     const { cod_empresa, deleted } = req.body;
     const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
-    const equipamentos = await tab_equipamento.findAll({ where: {
-        // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
-        // ...where
-    }, paranoid: !deleted });
+    const equipamentos = await tab_equipamento.findAll({
+        where: {
+            // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+            // ...where
+        },
+        paranoid: !deleted,
+    });
     res.send({ status: true, equipamentos });
 }
 
@@ -490,76 +675,94 @@ async function getArticulacoes(req, res) {
 
     let nomeArticulacaoColumn;
     switch (locale) {
-        case 'en':
-            nomeArticulacaoColumn = 'nome_articulacao_en';
+        case "en":
+            nomeArticulacaoColumn = "nome_articulacao_en";
             break;
-        case 'es':
-            nomeArticulacaoColumn = 'nome_articulacao_es';
+        case "es":
+            nomeArticulacaoColumn = "nome_articulacao_es";
             break;
         default: // 'pt' ou qualquer outro não especificado será o padrão
-            nomeArticulacaoColumn = 'nome_articulacao';
+            nomeArticulacaoColumn = "nome_articulacao";
             break;
     }
 
     try {
         const articulacoes = await tab_articulacao.findAll({
-        where: {
-            // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
-            // ...where
-        },
-        attributes: {
-            include: [
-                [Sequelize.literal(`${nomeArticulacaoColumn}`), 'nome_articulacao'],
-            ],
-            exclude: ['nome_articulacao_en', 'nome_articulacao_es']
-        },
-        paranoid: !deleted,
-        order: [[Sequelize.literal(`${nomeArticulacaoColumn}`), 'ASC']]
-    });
+            where: {
+                // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+                // ...where
+            },
+            attributes: {
+                include: [
+                    [
+                        Sequelize.literal(`${nomeArticulacaoColumn}`),
+                        "nome_articulacao",
+                    ],
+                ],
+                exclude: ["nome_articulacao_en", "nome_articulacao_es"],
+            },
+            paranoid: !deleted,
+            order: [[Sequelize.literal(`${nomeArticulacaoColumn}`), "ASC"]],
+        });
         res.send({ status: true, articulacoes });
     } catch (error) {
-        console.error('Erro ao buscar articulacoes:', error);
-        res.status(500).send({ status: false, message: 'Erro ao buscar articulacoes.' });
+        console.error("Erro ao buscar articulacoes:", error);
+        res.status(500).send({
+            status: false,
+            message: "Erro ao buscar articulacoes.",
+        });
     }
 }
 
 async function getTipoExercicios(req, res) {
     const { cod_empresa, deleted } = req.body;
     const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
-    const tipo_exercicios = await tab_tipo_exercicio.findAll({ where: {
-        // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
-        // ...where
-    }, paranoid: !deleted });
+    const tipo_exercicios = await tab_tipo_exercicio.findAll({
+        where: {
+            // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+            // ...where
+        },
+        paranoid: !deleted,
+    });
     res.send({ status: true, tipo_exercicios });
 }
 
 async function getExerciciosResistencias(req, res) {
     const { cod_empresa, deleted } = req.body;
     const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
-    const exercicios_resistencias = await tab_exercicio_resistencia.findAll({ where: {
-        // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
-        // ...where
-    }, paranoid: !deleted });
+    const exercicios_resistencias = await tab_exercicio_resistencia.findAll({
+        where: {
+            // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+            // ...where
+        },
+        paranoid: !deleted,
+    });
     res.send({ status: true, exercicios_resistencias });
 }
 
 async function getIndicacoes(req, res) {
     const { cod_empresa, deleted } = req.body;
     const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
-    const indicacoes = await tab_indicacao.findAll({ where: {
-        // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
-        // ...where
-    }, paranoid: !deleted });
+    const indicacoes = await tab_indicacao.findAll({
+        where: {
+            // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+            // ...where
+        },
+        paranoid: !deleted,
+    });
     res.send({ status: true, indicacoes });
 }
 
 async function getPadraoesMovimentos(req, res) {
     const { cod_empresa, deleted } = req.body;
     const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : {};
-    const padraoes_movimentos = await tab_padrao_movimento.findAll({ where: {
-        // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
-        // ...where
-    }, paranoid: !deleted });
+    const padraoes_movimentos = await tab_padrao_movimento.findAll({
+        where: {
+            // [Sequelize.Op.or]: [ { cod_empresa: cod_empresa }, { cod_empresa: null } ],
+            // ...where
+        },
+        paranoid: !deleted,
+    });
     res.send({ status: true, padraoes_movimentos });
 }
 
@@ -586,4 +789,4 @@ module.exports = {
     getExerciciosResistencias,
     getIndicacoes,
     getPadraoesMovimentos,
-}
+};

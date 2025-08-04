@@ -520,8 +520,6 @@ async function getAlunoContrato(req, res) {
             ],
         };
 
-    const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
-
     const alunoContrato = await tab_aluno_contrato.findOne({
         where: where,
         include: [{ model: tab_aluno_contrato_pagamento, as: "pagamentos" }],
