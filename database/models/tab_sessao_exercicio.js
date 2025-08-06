@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false,
             },
             intervalo_sessao_exercicio: {
-                type: DataTypes.STRING,
+                type: DataTypes.INTEGER,
                 allowNull: false,
             },
             observacao_sessao_exercicio: {

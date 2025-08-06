@@ -130,6 +130,20 @@ async function getTreino(req, res) {
     var where;
     if (cod_treino) where = { cod_treino: cod_treino };
     // where = { ...where, deletedAt: { [Sequelize.Op.ne]: null } };
+
+    const equipamentoInclude = Array.from({ length: 3 }, (_, i) => ({
+        model: tab_equipamento,
+        as: `equipamento_${i + 1}`,
+        attributes: [
+            [
+                Sequelize.literal(
+                    `\`${`equipamento_${i + 1}`}\`.\`${"nome_equipamento"}\``
+                ),
+                "nome_equipamento",
+            ],
+        ],
+    }));
+
     const treino = await tab_treino.findOne({
         where: where,
         include: [
@@ -149,6 +163,18 @@ async function getTreino(req, res) {
                                 model: tab_exercicio,
                                 as: "exercicio",
                                 include: [
+                                    {
+                                        model: tab_equipamento,
+                                        as: "equipamento_1",
+                                    },
+                                    {
+                                        model: tab_equipamento,
+                                        as: "equipamento_2",
+                                    },
+                                    {
+                                        model: tab_equipamento,
+                                        as: "equipamento_3",
+                                    },
                                     {
                                         model: tab_grupo_exercicio,
                                         as: "grupo_exercicio_1",

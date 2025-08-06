@@ -44,7 +44,7 @@ module.exports = {
             },
             intervalo_sessao_exercicio: {
                 allowNull: false,
-                type: Sequelize.DataTypes.STRING,
+                type: Sequelize.DataTypes.INTEGER,
             },
             observacao_sessao_exercicio: {
                 allowNull: true,
