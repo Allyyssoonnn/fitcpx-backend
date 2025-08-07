@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
-const env = process.env.NODE_ENV || 'development';
-const dev = env === 'development';
+const jwt = require("jsonwebtoken");
+const env = process.env.NODE_ENV || "development";
+const dev = env === "development";
 const devToken = process.env.DEV_TOKEN;
 
 function verifyToken(req, res, next) {
@@ -8,7 +8,9 @@ function verifyToken(req, res, next) {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-        return res.status(401).send({ status: false, msg: 'Token não fornecido!' });
+        return res
+            .status(401)
+            .send({ status: false, msg: "Token não fornecido!" });
     }
 
     // Remove o prefixo "Bearer" do token, se existir
@@ -16,7 +18,9 @@ function verifyToken(req, res, next) {
     const token = authHeader;
 
     if (!token) {
-        return res.status(401).send({ status: false, msg: 'Token malformado!' });
+        return res
+            .status(401)
+            .send({ status: false, msg: "Token malformado!" });
     }
 
     if (dev && token === devToken) {
@@ -29,21 +33,30 @@ function verifyToken(req, res, next) {
         const decoded = jwt.verify(token, process.env.SECRET);
 
         // Adiciona os dados do token à requisição para uso posterior
-        // 17/02/2025 - Não sei se usa então não vou remover        
+        // 17/02/2025 - Não sei se usa então não vou remover
         req.usuario = decoded;
         req.aluno = decoded;
 
         // Continua para o próximo middleware ou rota
         next();
     } catch (err) {
+        if (!dev && token === devToken) {
+            console.log("Dev token used on production");
+        }
         // Retorna erro se o token for inválido ou expirado
-        if (err.name === 'TokenExpiredError') {
-            return res.status(401).send({ status: false, msg: 'Token expirado!' });
-        } else if (err.name === 'JsonWebTokenError') {
-            return res.status(401).send({ status: false, msg: 'Token inválido!' });
+        if (err.name === "TokenExpiredError") {
+            return res
+                .status(401)
+                .send({ status: false, msg: "Token expirado!" });
+        } else if (err.name === "JsonWebTokenError") {
+            return res
+                .status(401)
+                .send({ status: false, msg: "Token inválido!" });
         }
 
-        return res.status(500).send({ status: false, msg: 'Erro ao validar token!' });
+        return res
+            .status(500)
+            .send({ status: false, msg: "Erro ao validar token!" });
     }
 }
 

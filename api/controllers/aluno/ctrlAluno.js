@@ -501,7 +501,6 @@ async function getAlunoContratos(req, res) {
                 as: "pagamentos",
             },
         ],
-        // paranoid: false,
     });
 
     res.send({ status: true, alunoContratos });
@@ -522,7 +521,14 @@ async function getAlunoContrato(req, res) {
 
     const alunoContrato = await tab_aluno_contrato.findOne({
         where: where,
-        include: [{ model: tab_aluno_contrato_pagamento, as: "pagamentos" }],
+        include: [
+            {
+                model: tab_aluno_contrato_pagamento,
+                as: "pagamentos",
+                separate: true,
+                order: [["expiracao_aluno_contrato_pagamento", "ASC"]],
+            },
+        ],
     });
 
     res.send({ status: true, alunoContrato });

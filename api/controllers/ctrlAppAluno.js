@@ -8,6 +8,8 @@ const {
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { Op } = require("sequelize");
+const env = process.env.NODE_ENV || "development";
+const dev = env === "development";
 
 async function login(req, res) {
     const { login, senha } = req.body;
@@ -57,6 +59,10 @@ async function login(req, res) {
         ip_aluno: ipAddress,
         expiresAt: expiresAt,
     });
+    if (dev) {
+        console.log(`Aluno [${aluno.nome_aluno}] logado com sucesso!`);
+        console.log(`Token ${token}`);
+    }
     res.send({ status: true, token, refreshToken, aluno, empresa });
 }
 
