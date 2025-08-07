@@ -1,6 +1,7 @@
 const {
     tab_aluno,
     tab_avaliacao,
+    tab_avaliacao_imagem,
     tab_usuario,
 } = require("../../database/models");
 const { calcularIdadeDtAvaliacao } = require("../../utils");
@@ -22,6 +23,10 @@ async function getResultPhysicalAssesment(req, res) {
                     as: "aluno",
                     required: true,
                     attributes: ["nome_aluno"],
+                },
+                {
+                    model: tab_avaliacao_imagem,
+                    as: "imagem",
                 },
             ],
             where: {
@@ -95,6 +100,7 @@ async function getResultPhysicalAssesment(req, res) {
 
         result.gordura = compositionPercentage.gordura;
         result.usuario = avaliacao.usuario;
+        result.images = avaliacao.imagem;
 
         if (res) {
             res.send({ status: true, result });
