@@ -15,7 +15,7 @@ const {
 } = require("../../database/models");
 
 async function getTreinos(req, res) {
-    const { cod_empresa, cod_aluno, deleted, activeOnly } = req.body;
+    const { cod_empresa, cod_aluno, deleted, activeOnly, findAll } = req.body;
     var where;
     if (cod_empresa && !findAll)
         where = {
