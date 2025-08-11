@@ -19,7 +19,7 @@ server.use(bodyParser.json({ limit: "50mb" }));
 server.get("/ping", async (req, res) => res.send({ status: true }));
 server.get("/test", async (req, res) => res.send({ status: true }));
 server.get("/fitnessassessmentpdf", (req, res) => {
-    res.sendFile(__dirname + "/templates/fitnessassessmentpdf.html");
+  res.sendFile(__dirname + "/templates/fitnessassessmentpdf.html");
 });
 server.use("/error", require("./api/error"));
 server.use("/usuario", require("./api/routes/routeUsuario"));
@@ -39,21 +39,14 @@ server.use("/avaliacao", require("./api/routes/routeAvaliacao"));
 // ================ Servidor
 
 const serverHttp = http.createServer(server);
-serverHttp.listen(PORT, () =>
-    console.log(`Backend do app está rodando na porta: ${PORT}`)
-);
+serverHttp.listen(PORT, () => console.log(`Backend do app está rodando na porta: ${PORT}`));
 
 // =================== Site
 
 serverSite.use(express.static(path.join(__dirname, "/site")));
-serverSite.get("/politica-privacidade", (req, res) =>
-    res.sendFile(path.join(__dirname, "/site/politica-privacidade.html"))
-);
-serverSite.get("/*", (req, res) =>
-    res.sendFile(path.join(__dirname, "/site/index.html"))
-);
+serverSite.get("/policy-privacy", (req, res) => res.sendFile(path.join(__dirname, "/site/policy-privacy.html")));
+serverSite.get("/terms-conditions", (req, res) => res.sendFile(path.join(__dirname, "/site/terms-conditions.html")));
+serverSite.get("/*", (req, res) => res.sendFile(path.join(__dirname, "/site/index.html")));
 
 const serverWebHttp = http.createServer(serverSite);
-serverWebHttp.listen(PORTSITE, () =>
-    console.log(`WebSite do app está rodando na porta: ${PORTSITE}`)
-);
+serverWebHttp.listen(PORTSITE, () => console.log(`WebSite do app está rodando na porta: ${PORTSITE}`));
