@@ -44,7 +44,8 @@ serverHttp.listen(PORT, () => console.log(`Backend do app está rodando na porta
 // =================== Site
 
 serverSite.use(express.static(path.join(__dirname, "/site")));
-serverSite.get("/policy-privacy", (req, res) => res.sendFile(path.join(__dirname, "/site/policy-privacy.html")));
+serverSite.get("/politica-privacidade", (req, res) => res.sendFile(path.join(__dirname, "/site/privacy-policy.html")));
+serverSite.get("/privacy-policy", (req, res) => res.sendFile(path.join(__dirname, "/site/privacy-policy.html")));
 serverSite.get("/terms-conditions", (req, res) => res.sendFile(path.join(__dirname, "/site/terms-conditions.html")));
 serverSite.get("/*", (req, res) => res.sendFile(path.join(__dirname, "/site/index.html")));
 
