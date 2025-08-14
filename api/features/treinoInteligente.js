@@ -6,20 +6,26 @@ async function generateTreino(req, res) {
 
     const {
         gruposSelecionados,
-        indicacoesSelecionados,
-        equipamentosSelecionados,
-        desenvolvimento,
-        duracao,
+        indicacoesSelecionadas,
+        aquecimento,
+        // equipamentosSelecionados,
+        // desenvolvimento,
+        // duracao,
     } = data;
 
-    const codIndicacoes = indicacoesSelecionados.map(indicacao => indicacao.cod_indicacao);
-    const codEquipamentos = equipamentosSelecionados.map(equipamento => equipamento.cod_equipamento);
+    const codIndicacoes = indicacoesSelecionadas.map(indicacao => indicacao.cod_indicacao);
+    // const codEquipamentos = equipamentosSelecionados.map(equipamento => equipamento.cod_equipamento);
 
     for (const grupo of gruposSelecionados) {
         const whereClause = {};
-    
+        const { value: cod_grupo_exercicio, cod_articulacao, cod_exercicio_resistencia, cod_padrao_movimento, cod_tipo_exercicio } = grupo;
+
         whereClause[Op.or] = [
-            { cod_grupo_exercicio_1: { [Op.in]: [grupo.cod_grupo_exercicio] } },
+            { cod_grupo_exercicio_1: { [Op.in]: [cod_grupo_exercicio] } },
+            { cod_articulacao: { [Op.in]: [cod_articulacao] } },
+            { cod_exercicio_resistencia: { [Op.in]: [cod_exercicio_resistencia] } },
+            { cod_padrao_movimento: { [Op.in]: [cod_padrao_movimento] } },
+            { cod_tipo_exercicio: { [Op.in]: [cod_tipo_exercicio] } },
             // { cod_grupo_exercicio_2: { [Op.in]: [grupo.cod_grupo_exercicio] } },
             // { cod_grupo_exercicio_3: { [Op.in]: [grupo.cod_grupo_exercicio] } },
             // { cod_grupo_exercicio_4: { [Op.in]: [grupo.cod_grupo_exercicio] } },
@@ -29,7 +35,7 @@ async function generateTreino(req, res) {
             // { cod_grupo_exercicio_8: { [Op.in]: [grupo.cod_grupo_exercicio] } }
         ];
         // if (codIndicacoes.length > 0) whereClause.cod_indicacao = { [Op.in]: codIndicacoes };
-        if (codEquipamentos.length > 0) whereClause.cod_equipamento = { [Op.notIn]: codEquipamentos };
+        // if (codEquipamentos.length > 0) whereClause.cod_equipamento = { [Op.notIn]: codEquipamentos };
 
         const exercicios = await tab_exercicio.findAll({
             where: whereClause
@@ -39,7 +45,7 @@ async function generateTreino(req, res) {
         grupo.exercicios = exerciciosArray;
     }
 
-    const gruposComTreino = await generateSessao(gruposSelecionados, codIndicacoes, desenvolvimento, duracao);
+    const gruposComTreino = await generateSessao(gruposSelecionados, codIndicacoes);
 
     var sessao = [];
     for (const grupo of gruposComTreino) sessao = [ ...sessao, ...grupo.treino ];
@@ -64,12 +70,12 @@ function shuffleArray(array) {
     return array.sort(() => Math.random() - 0.5);
 }
 
-async function generateSessao(gruposSelecionados, codIndicacoes, desenvolvimento, duracao) {
+async function generateSessao(gruposSelecionados, codIndicacoes, duracao = "01:00") {
     let tempoTotal = 0; // Tempo total do treino acumulado (em segundos)
     const tempoMaximo = parseDuracao(duracao) * 60; // Converter minutos para segundos
 
     for (const grupo of gruposSelecionados) {
-        const { exercicios, series } = grupo;
+        const { exercicios, volume } = grupo;
         grupo.treino = [];
         grupo.seriesTotais = 0;
 
@@ -86,10 +92,10 @@ async function generateSessao(gruposSelecionados, codIndicacoes, desenvolvimento
         // Criar um array com prioridade para indicados, mas incluindo outros se necessário
         let listaExercicios = [...exerciciosIndicados, ...exerciciosNaoIndicados];
 
-        // Determinar o número ideal de exercícios para atingir exatamente `series`
+        // Determinar o número ideal de exercícios para atingir exatamente `volume`
         let numExercicios = 1;
         while (numExercicios < listaExercicios.length) {
-            const mediaSeries = Math.floor(series / numExercicios);
+            const mediaSeries = Math.floor(volume / numExercicios);
             if (mediaSeries >= ref.minSeries && mediaSeries <= ref.maxSeries) break;
             numExercicios++;
         }
@@ -98,7 +104,7 @@ async function generateSessao(gruposSelecionados, codIndicacoes, desenvolvimento
         listaExercicios = listaExercicios.slice(0, numExercicios);
 
         // Distribuir o total de séries exatamente igual a `series`
-        let seriesRestantes = series;
+        let seriesRestantes = volume;
 
         for (const exercicio of listaExercicios) {
             if (tempoTotal >= tempoMaximo) break; // Parar se já atingiu o tempo máximo
