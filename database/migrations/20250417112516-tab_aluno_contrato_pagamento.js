@@ -1,22 +1,22 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('tab_aluno_contrato_pagamento', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable("tab_aluno_contrato_pagamento", {
       cod_aluno_contrato_pagamento: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.DataTypes.INTEGER
+        type: Sequelize.DataTypes.INTEGER,
       },
       cod_aluno_contrato: {
         allowNull: false,
         type: Sequelize.DataTypes.INTEGER,
         references: {
-          model: 'tab_aluno_contrato',
-          key: 'cod_aluno_contrato'
-        }
+          model: "tab_aluno_contrato",
+          key: "cod_aluno_contrato",
+        },
       },
       data_aluno_contrato_pagamento: {
         allowNull: false,
@@ -25,6 +25,11 @@ module.exports = {
       expiracao_aluno_contrato_pagamento: {
         allowNull: false,
         type: Sequelize.DataTypes.DATEONLY,
+      },
+      repasse_aluno_contrato_pagamento: {
+        allowNull: true,
+        type: Sequelize.DataTypes.DATEONLY,
+        defaultValue: null,
       },
       valor_aluno_contrato_pagamento: {
         allowNull: false,
@@ -114,12 +119,12 @@ module.exports = {
       deletedAt: {
         allowNull: true,
         type: Sequelize.DataTypes.DATE,
-        defaultValue: null
+        defaultValue: null,
       },
-    })
+    });
   },
 
-  async down (queryInterface, Sequelize) {
-    queryInterface.dropTable('tab_aluno_contrato_pagamento')
-  }
+  async down(queryInterface, Sequelize) {
+    queryInterface.dropTable("tab_aluno_contrato_pagamento");
+  },
 };
