@@ -41,14 +41,5 @@ server.use("/avaliacao", require("./api/routes/routeAvaliacao"));
 const serverHttp = http.createServer(server);
 serverHttp.listen(PORT, () => console.log(`Backend do app está rodando na porta: ${PORT}`));
 
-// =================== Site
-
-serverSite.use(express.static(path.join(__dirname, "/site")));
-serverSite.get("/politica-privacidade", (req, res) => res.sendFile(path.join(__dirname, "/site/privacy-policy-pt.html")));
-serverSite.get("/politica-privacidad", (req, res) => res.sendFile(path.join(__dirname, "/site/privacy-policy-es.html")));
-serverSite.get("/privacy-policy", (req, res) => res.sendFile(path.join(__dirname, "/site/privacy-policy.html")));
-serverSite.get("/terms-conditions", (req, res) => res.sendFile(path.join(__dirname, "/site/terms-conditions.html")));
-serverSite.get("/*", (req, res) => res.sendFile(path.join(__dirname, "/site/index.html")));
-
 const serverWebHttp = http.createServer(serverSite);
 serverWebHttp.listen(PORTSITE, () => console.log(`WebSite do app está rodando na porta: ${PORTSITE}`));
