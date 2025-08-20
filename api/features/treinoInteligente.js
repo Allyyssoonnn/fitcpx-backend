@@ -1,151 +1,178 @@
-const { Sequelize, Op } = require('sequelize');
-const { tab_exercicio } = require('../../database/models');
+const { Sequelize, Op } = require("sequelize");
+const { tab_exercicio, tab_aluno, tab_avaliacao } = require("../../database/models");
+const { calcularIdade } = require("../../utils");
+const fs = require("fs");
+
+const OpenAI = require("openai");
+const { getResultPhysicalFunc } = require("../controllers/ctrlAvaliacao");
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 async function generateTreino(req, res) {
-    const { data } = req.body;
+  const { data } = req.body;
 
-    const {
-        gruposSelecionados,
-        indicacoesSelecionadas,
-        aquecimento,
-        // equipamentosSelecionados,
-        // desenvolvimento,
-        // duracao,
-    } = data;
+  const {
+    cod_aluno,
+    gruposSelecionados,
+    indicacoesSelecionadas,
+    aquecimento,
+    // equipamentosSelecionados,
+    // desenvolvimento,
+    // duracao,
+  } = data;
 
-    const codIndicacoes = indicacoesSelecionadas.map(indicacao => indicacao.cod_indicacao);
-    // const codEquipamentos = equipamentosSelecionados.map(equipamento => equipamento.cod_equipamento);
+  const aluno = await tab_aluno.findByPk(cod_aluno);
+  const avaliacao = (await tab_avaliacao.findAll({ where: { cod_aluno } }))[0];
 
-    for (const grupo of gruposSelecionados) {
-        const whereClause = {};
-        const { value: cod_grupo_exercicio, cod_articulacao, cod_exercicio_resistencia, cod_padrao_movimento, cod_tipo_exercicio } = grupo;
+  const resultPhysical = avaliacao ? await getResultPhysicalFunc(aluno, avaliacao) : null;
 
-        whereClause[Op.or] = [
-            { cod_grupo_exercicio_1: { [Op.in]: [cod_grupo_exercicio] } },
-            { cod_articulacao: { [Op.in]: [cod_articulacao] } },
-            { cod_exercicio_resistencia: { [Op.in]: [cod_exercicio_resistencia] } },
-            { cod_padrao_movimento: { [Op.in]: [cod_padrao_movimento] } },
-            { cod_tipo_exercicio: { [Op.in]: [cod_tipo_exercicio] } },
-            // { cod_grupo_exercicio_2: { [Op.in]: [grupo.cod_grupo_exercicio] } },
-            // { cod_grupo_exercicio_3: { [Op.in]: [grupo.cod_grupo_exercicio] } },
-            // { cod_grupo_exercicio_4: { [Op.in]: [grupo.cod_grupo_exercicio] } },
-            // { cod_grupo_exercicio_5: { [Op.in]: [grupo.cod_grupo_exercicio] } },
-            // { cod_grupo_exercicio_6: { [Op.in]: [grupo.cod_grupo_exercicio] } },
-            // { cod_grupo_exercicio_7: { [Op.in]: [grupo.cod_grupo_exercicio] } },
-            // { cod_grupo_exercicio_8: { [Op.in]: [grupo.cod_grupo_exercicio] } }
-        ];
-        // if (codIndicacoes.length > 0) whereClause.cod_indicacao = { [Op.in]: codIndicacoes };
-        // if (codEquipamentos.length > 0) whereClause.cod_equipamento = { [Op.notIn]: codEquipamentos };
+  const codIndicacoes = indicacoesSelecionadas.map((indicacao) => indicacao.cod_indicacao);
+  // const codEquipamentos = equipamentosSelecionados.map(equipamento => equipamento.cod_equipamento);
 
-        const exercicios = await tab_exercicio.findAll({
-            where: whereClause
-        });
-        // Transformando em um array normal
-        const exerciciosArray = exercicios.map(exercicio => exercicio.toJSON());
-        grupo.exercicios = exerciciosArray;
+  for (const grupo of gruposSelecionados) {
+    const whereClause = {};
+    const { value: cod_grupo_exercicio, cod_articulacao, cod_exercicio_resistencia, cod_padrao_movimento, cod_tipo_exercicio } = grupo;
+
+    whereClause[Op.or] = [
+      { cod_grupo_exercicio_1: { [Op.in]: [cod_grupo_exercicio] } },
+      //   { cod_articulacao: { [Op.in]: [cod_articulacao] } },
+      //   { cod_exercicio_resistencia: { [Op.in]: [cod_exercicio_resistencia] } },
+      //   { cod_padrao_movimento: { [Op.in]: [cod_padrao_movimento] } },
+      //   { cod_tipo_exercicio: { [Op.in]: [cod_tipo_exercicio] } },
+      // { cod_grupo_exercicio_2: { [Op.in]: [grupo.cod_grupo_exercicio] } },
+      //....
+    ];
+    // if (codIndicacoes.length > 0) whereClause.cod_indicacao = { [Op.in]: codIndicacoes };
+    // if (codEquipamentos.length > 0) whereClause.cod_equipamento = { [Op.notIn]: codEquipamentos };
+
+    const exercicios = await tab_exercicio.findAll({
+      where: whereClause,
+      attributes: [
+        ["cod_exercicio", "id"],
+        ["nome_exercicio", "name"],
+      ],
+    });
+    // Transformando em um array normal
+    const exerciciosArray = exercicios.map((exercicio) => exercicio.toJSON());
+    grupo.exercicios = exerciciosArray;
+  }
+
+  let exerciseList = [];
+
+  for (const grupo of gruposSelecionados) exerciseList = [...exerciseList, ...grupo.exercicios];
+
+  var sessao = [];
+
+  var prompt = await getPromptAI(aluno, exerciseList, resultPhysical);
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  let content = response.choices[0].message.content;
+
+  // Remove blocos de crase e espaços extras
+  content = content.replace(/```json\n?|```\n?/g, "").trim();
+
+  try {
+    content = JSON.parse(content);
+  } catch (err) {
+    console.error("Erro ao parsear JSON:", err, content);
+  }
+
+  fs.writeFileSync(`prompt_${aluno?.cod_aluno}.txt`, prompt);
+  fs.writeFileSync(`response_${aluno?.cod_aluno}.txt`, JSON.stringify(content));
+
+  for (const exercise of content.session.exercises) {
+    sessao.push({
+      cod_exercicio: exercise.id,
+      sets: exercise.sets.map((set) => ({
+        id: set.id,
+        repeticao_sessao_exercicio: set.repetitions,
+        intervalo_sessao_exercicio: set.interval,
+        carga_sessao_exercicio: set.weight,
+        serie_sessao_exercicio: set.qtdSets,
+      })),
+      carga_sessao_exercicio: exercise.weight,
+      serie_sessao_exercicio: exercise.qtdSets,
+      repeticao_sessao_exercicio: exercise.repetitions,
+      intervalo_sessao_exercicio: exercise.interval,
+    });
+  }
+
+  res.send({ status: true, sessao });
+}
+
+async function getPromptAI(client, exercises, resultPhysical) {
+  const clientJson = JSON.stringify({
+    name: client.nome_aluno,
+    gender: client.sexo_aluno,
+    age: calcularIdade(client.data_nascimento_aluno),
+    objective: "Força",
+  });
+  let physical = null;
+  if (resultPhysical) {
+    physical = {
+      weight: resultPhysical.peso,
+      height: resultPhysical.altura,
+      basalMetabolism: resultPhysical.basal,
+      bodyFatPercentage: resultPhysical.compositionPercentage.gordura,
+      bodyFatWeight: resultPhysical.compositionWeight.gordura,
+      musclePercentage: resultPhysical.compositionPercentage.massa_muscular,
+      muscleWeight: resultPhysical.compositionWeight.massa_muscular,
+      leanMassPercentage: resultPhysical.compositionPercentage.massa_magra,
+      leanMassWeight: resultPhysical.compositionWeight.massa_magra,
+    };
+  }
+
+  let prompt = `
+    Crie um Treino Personalizado
+    Para criar um treino personalizado eficaz, considere vários fatores, incluindo seus objetivos fitness, nível de condicionamento físico atual, preferências de exercícios e limitações físicas (se houver). Por favor, a partir das seguintes informações crie um plano de treino personalizado.
+    Selecione os exercícios com base na tabela de exercícios fornecida
+
+    ${clientJson}
+
+    ${physical ? JSON.stringify(physical) : ""}
+
+    O retorno deve ser um JSON formatado como no exemplo abaixo, o array sets são para exercicios Bi-set, Tri-set etc..., enviar vazio [] quando não existir
+    Retorne apenas o JSON, sem explicações, Somente o JSON
+
+    {
+        "session": {
+            "exercises": [
+                {
+                    "id": "Exercise ID",
+                    "repetitions": "Repetitions - int Field",
+                    "interval": "Interval seconds",
+                    "weight": "Weight - int Field",
+                    "observation": "Observation text",
+                    "qtdSets": "Number of Sets - int Field",
+                    "sets": [
+                        {
+                            "id": "Exercise ID",
+                            "repetitions": "Repetitions - int Field",
+                            "interval": "Interval seconds",
+                            "weight": "Weight - int Field"
+                            "observation": "Observation text",
+                            "qtdSets": "Number of Sets - int Field",
+                        }
+                    ]
+                }
+            ]
+        }
     }
 
-    const gruposComTreino = await generateSessao(gruposSelecionados, codIndicacoes);
+    JSON de Exercícios
 
-    var sessao = [];
-    for (const grupo of gruposComTreino) sessao = [ ...sessao, ...grupo.treino ];
-    sessao = sessao.map((exc, i) => ({ ...exc, sequencia_sessao_exercicio: i + 1 }));
+    ${JSON.stringify(exercises)}
+  `;
 
-    res.send({ status: true, sessao });
-}
-
-const tabReferencia = {
-    "Força": { minSeries: 3, maxSeries: 6, minRep: 1, maxRep: 6, descanso: 120, exerciciosPorGrupo: 3 },
-    "Hipertrofia": { minSeries: 3, maxSeries: 5, minRep: 6, maxRep: 12, descanso: 60, exerciciosPorGrupo: 4 },
-    "Resistência": { minSeries: 2, maxSeries: 4, minRep: 12, maxRep: 20, descanso: 30, exerciciosPorGrupo: 5 },
-};
-
-function parseDuracao(duracao) {
-    const [horas, minutos] = duracao.split(":").map(Number);
-    return horas * 60 + minutos; // Converte para minutos totais
-}
-
-// Função para embaralhar um array (Fisher-Yates Shuffle)
-function shuffleArray(array) {
-    return array.sort(() => Math.random() - 0.5);
-}
-
-async function generateSessao(gruposSelecionados, codIndicacoes, duracao = "01:00") {
-    let tempoTotal = 0; // Tempo total do treino acumulado (em segundos)
-    const tempoMaximo = parseDuracao(duracao) * 60; // Converter minutos para segundos
-
-    for (const grupo of gruposSelecionados) {
-        const { exercicios, volume } = grupo;
-        grupo.treino = [];
-        grupo.seriesTotais = 0;
-
-        const ref = tabReferencia[desenvolvimento];
-
-        // Separar os exercícios indicados e os não indicados
-        let exerciciosIndicados = exercicios.filter(ex => codIndicacoes.includes(ex.cod_indicacao));
-        let exerciciosNaoIndicados = exercicios.filter(ex => !codIndicacoes.includes(ex.cod_indicacao));
-
-        // Embaralhar os arrays para garantir aleatoriedade
-        exerciciosIndicados = shuffleArray(exerciciosIndicados);
-        exerciciosNaoIndicados = shuffleArray(exerciciosNaoIndicados);
-
-        // Criar um array com prioridade para indicados, mas incluindo outros se necessário
-        let listaExercicios = [...exerciciosIndicados, ...exerciciosNaoIndicados];
-
-        // Determinar o número ideal de exercícios para atingir exatamente `volume`
-        let numExercicios = 1;
-        while (numExercicios < listaExercicios.length) {
-            const mediaSeries = Math.floor(volume / numExercicios);
-            if (mediaSeries >= ref.minSeries && mediaSeries <= ref.maxSeries) break;
-            numExercicios++;
-        }
-
-        // Selecionar os exercícios necessários
-        listaExercicios = listaExercicios.slice(0, numExercicios);
-
-        // Distribuir o total de séries exatamente igual a `series`
-        let seriesRestantes = volume;
-
-        for (const exercicio of listaExercicios) {
-            if (tempoTotal >= tempoMaximo) break; // Parar se já atingiu o tempo máximo
-
-            // Definir quantas séries esse exercício terá, garantindo que a soma seja exata
-            let seriesPorExercicio = Math.min(seriesRestantes, ref.maxSeries);
-            // if (seriesPorExercicio < ref.minSeries) continue; // Pular caso fique abaixo do mínimo
-
-            // Determinar o número médio de repetições
-            const numReps = Math.floor((ref.minRep + ref.maxRep) / 2);
-
-            // Calcular tempo necessário para esse exercício (tempo de execução + descanso)
-            const tempoExecucao = exercicio.segundos_execucao * numReps * seriesPorExercicio;
-            const tempoDescanso = ref.descanso * (seriesPorExercicio - 1); // Descanso entre as séries
-
-            const tempoTotalExercicio = tempoExecucao + tempoDescanso;
-
-            // Se adicionar esse exercício estourar o tempo total, sai do loop
-            if (tempoTotal + tempoTotalExercicio > tempoMaximo) continue;
-
-            // Adicionar exercício à sessão
-            grupo.treino.push({
-                ...exercicio,
-                sets: [],
-                carga_sessao_exercicio: 0,
-                serie_sessao_exercicio: seriesPorExercicio,
-                repeticao_sessao_exercicio: numReps,
-                intervalo_sessao_exercicio: ref.descanso,
-                exerciciosFiltros: exercicios,
-                tempo_execucao: tempoTotalExercicio,
-            });
-
-            grupo.seriesTotais += seriesPorExercicio;
-
-            // Atualizar o tempo total do treino
-            tempoTotal += tempoExecucao;
-        }
-    }
-    return gruposSelecionados;
+  return prompt;
 }
 
 module.exports = {
-    generateTreino,
-}
+  generateTreino,
+};
