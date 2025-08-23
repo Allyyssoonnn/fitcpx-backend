@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { Sequelize, where, Op } = require("sequelize");
 const { getURL, connected } = require("../google");
-const { sendEmail, getMsgEmailConfirmation } = require("../sendgrid");
 const { sendConfirmationCode, sendRecoveryPassword } = require("../n8n");
 const env = process.env.NODE_ENV || "development";
 const dev = env === "development";
@@ -79,10 +78,6 @@ async function register(req, res) {
   const novoUsuario = await tab_usuario.create({ ...req.body, cod_empresa: novaEmpresa.cod_empresa, admin_usuario: "S" });
 
   const empresa = await tab_empresa.findOne({ where: { cod_empresa: novaEmpresa.cod_empresa } });
-
-  const msgHtml = await getMsgEmailConfirmation(empresa);
-
-  sendEmail(email_usuario, msgHtml, "FitCpx - E-mail de verificação");
 
   const token = jwt.sign({ email_usuario }, process.env.SECRET);
   const refreshToken = crypto.randomBytes(64).toString("hex");
@@ -263,12 +258,8 @@ async function setEmpresa(req, res) {
 
 async function verifyEmail(req, res, codEmpresa) {
   const { cod_empresa } = req.body;
-
   const empresa = await tab_empresa.findOne({ where: { cod_empresa: cod_empresa || codEmpresa } });
-
-  const msgHtml = await getMsgEmailConfirmation(empresa);
-
-  sendEmail(empresa.email_empresa, msgHtml, "FitCpx - E-mail de verificação");
+  if (!dev) sendConfirmationCode(empresa.email_empresa, empresa.nome_empresa, empresa.email_codigo);
 
   if (res) res.send({ status: true });
 }
