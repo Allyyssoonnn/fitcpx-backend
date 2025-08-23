@@ -14,7 +14,7 @@ const { removeStringVazia, calcularIdadeDtAvaliacao } = require("../../../utils"
 const moment = require("moment-timezone");
 const { sendDocument, deleteDocument, downloadContract } = require("../../autentique");
 const { calculaPorcentagemGordura, calculaPorcentagemMusculo, calculaPorcentagemMassaMagra, getResultPhysicalAssesment } = require("../ctrlAvaliacao");
-const { getTokenCard, criarCliente, removerCobranca, removerAssinatura } = require("../../asaas");
+const { getTokenCard, criarCliente, removerCobranca, removerAssinaturaParcelamento } = require("../../asaas");
 const { default: puppeteer } = require("puppeteer");
 const env = process.env.NODE_ENV || "development";
 const dev = env === "development";
@@ -304,7 +304,7 @@ async function cancelAlunoContrato(req, res) {
    if (alunoContrato?.autentique_aluno_contrato) await deleteDocument(alunoContrato.autentique_aluno_contrato);
 
    //Delete Subscription
-   if (alunoContrato?.asaas_id) await removerAssinatura(alunoContrato?.asaas_id);
+   if (alunoContrato?.asaas_id) await removerAssinaturaParcelamento(alunoContrato?.asaas_id);
 
    //Delete all pending payments
    const payments = await tab_aluno_contrato_pagamento.findAll({

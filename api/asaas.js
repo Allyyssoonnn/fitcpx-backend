@@ -183,6 +183,22 @@ async function buscarAssinatura(id) {
    }
 }
 
+async function buscarParcelamento(id) {
+   try {
+      const url = `${urlBase}/v3/installments/${id}`;
+      const options = {
+         method: "GET",
+         headers: { accept: "application/json", "content-type": "application/json", access_token: token },
+      };
+
+      const resp = await fetchJson(url, options);
+
+      return resp;
+   } catch (error) {
+      return null;
+   }
+}
+
 async function cobrancaRecebida(id) {
    const cobranca = await buscarCobranca(id);
    if (!cobranca) return;
@@ -213,11 +229,38 @@ async function removerCobranca(id) {
    return resp;
 }
 
+async function removerAssinaturaParcelamento(id) {
+   var resp;
+   if (id.substring(0, 4) === "sub_") {
+      resp = await removerAssinatura(id);
+   }
+
+   if (id.substring(0, 4) === "pay_") {
+      return resp;
+   }
+
+   resp = await removerParcelamento(id);
+
+   return resp;
+}
+
 async function removerAssinatura(id) {
-   if (id.substring(0, 4) !== "sub_") return;
    const assinatura = await buscarAssinatura(id);
    if (!assinatura || assinatura?.status !== "ACTIVE") return;
    const url = `${urlBase}/v3/subscriptions/${id}`;
+   const options = {
+      method: "DELETE",
+      headers: { accept: "application/json", "content-type": "application/json", access_token: token },
+   };
+
+   const resp = await fetchJson(url, options);
+   return resp;
+}
+
+async function removerParcelamento(id) {
+   const parcelamento = await buscarParcelamento(id);
+   if (!parcelamento || !parcelamento?.deleted) return;
+   const url = `${urlBase}/v3/installments/${id}`;
    const options = {
       method: "DELETE",
       headers: { accept: "application/json", "content-type": "application/json", access_token: token },
@@ -236,5 +279,5 @@ module.exports = {
    cobrancaRecebida,
    criarAssinatura,
    removerCobranca,
-   removerAssinatura,
+   removerAssinaturaParcelamento,
 };
