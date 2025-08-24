@@ -4,16 +4,14 @@ const { tab_google_token } = require("../database/models");
 const env = process.env.NODE_ENV || "development";
 const urlCallback = env == "development" ? "http://localhost:5173/" : "https://app.fitcpx.com/";
 
-// 514929580528-7g93lf20q5okh6slhrcr3pnpau61aq0u.apps.googleusercontent.com
-// [REDACTED_CREDENTIAL]
+// const secretKey = "[REDACTED_CREDENTIAL]";
+// const clientId = "129544337181-7rr6i6ban2p64sjuub2jd6jpcr6cucnt.apps.googleusercontent.com";
+const secretKey = "[REDACTED_CREDENTIAL]";
+const clientId = "744947823522-tqesrbc87egn9999rq2t5dqghr5s68gs.apps.googleusercontent.com";
 
 function createOauthClient(client, rotaCallback) {
    const urlRedirect = `${urlCallback}${rotaCallback}`;
-   const oauth2Client = new google.auth.OAuth2(
-      "129544337181-7rr6i6ban2p64sjuub2jd6jpcr6cucnt.apps.googleusercontent.com",
-      "[REDACTED_CREDENTIAL]",
-      urlRedirect
-   );
+   const oauth2Client = new google.auth.OAuth2(clientId, secretKey, urlRedirect);
    oauth2Client.setCredentials({
       access_token: client.google_token,
       refresh_token: client.google_refresh_token,
@@ -25,11 +23,7 @@ function createOauthClient(client, rotaCallback) {
 
 async function getURL(rotaCallback) {
    const urlRedirect = `${urlCallback}${rotaCallback}`;
-   const oauth2Client = new google.auth.OAuth2(
-      "744947823522-tqesrbc87egn9999rq2t5dqghr5s68gs.apps.googleusercontent.com",
-      "[REDACTED_CREDENTIAL]",
-      urlRedirect
-   );
+   const oauth2Client = new google.auth.OAuth2(clientId, secretKey, urlRedirect);
 
    var scope = [];
 
@@ -62,11 +56,7 @@ async function getURL(rotaCallback) {
 
 async function connected(code, rotaCallback) {
    const urlRedirect = `${urlCallback}${rotaCallback}`;
-   const oauth2Client = new google.auth.OAuth2(
-      "129544337181-7rr6i6ban2p64sjuub2jd6jpcr6cucnt.apps.googleusercontent.com",
-      "[REDACTED_CREDENTIAL]",
-      urlRedirect
-   );
+   const oauth2Client = new google.auth.OAuth2(clientId, secretKey, urlRedirect);
    const { tokens } = await oauth2Client.getToken(code);
    const access_token = tokens.access_token;
    oauth2Client.setCredentials(tokens);
