@@ -13,8 +13,13 @@ const {
 const { removeStringVazia, calcularIdadeDtAvaliacao } = require("../../../utils");
 const moment = require("moment-timezone");
 const { sendDocument, deleteDocument, downloadContract } = require("../../autentique");
-const { calculaPorcentagemGordura, calculaPorcentagemMusculo, calculaPorcentagemMassaMagra, getResultPhysicalAssesment } = require("../ctrlAvaliacao");
-const { getTokenCard, criarCliente, removerCobranca, removerAssinaturaParcelamento } = require("../../asaas");
+const {
+   calculaPorcentagemGordura,
+   calculaPorcentagemMusculo,
+   calculaPorcentagemMassaMagra,
+   getResultPhysicalAssesment,
+} = require("../ctrlAvaliacao");
+const { criarCliente, removerCobranca, removerAssinaturaParcelamento } = require("../../utils/asaas");
 const { default: puppeteer } = require("puppeteer");
 const env = process.env.NODE_ENV || "development";
 const dev = env === "development";
@@ -23,6 +28,7 @@ async function getAlunos(req, res) {
    const { cod_usuario, cod_empresa, deleted } = req.body;
    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : { deletedAt: null };
    const alunos = await tab_aluno.findAll({
+      limit: req.validLicense ? undefined : 3,
       where: where,
       paranoid: !deleted,
       include: [
@@ -63,50 +69,6 @@ async function getCards(req, res) {
       attributes: { exclude: ["token_aluno_cartao"] },
    });
    res.send({ status: true, cards });
-}
-
-async function createCard(req, res) {
-   const { formCard, cod_aluno } = req.body;
-
-   const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
-   const empresa = await tab_empresa.findOne({
-      where: { cod_empresa: aluno.cod_empresa },
-   });
-   let asaasId = aluno.asaas_id;
-
-   if (!asaasId) {
-      asaasId = await criarCliente(
-         aluno.nome_aluno,
-         aluno.email_aluno,
-         aluno.cpf_aluno,
-         aluno.telefone_aluno,
-         aluno.endereco_aluno,
-         aluno.numero_aluno,
-         aluno.estado_aluno,
-         aluno.cep_aluno,
-         aluno.cod_aluno,
-         empresa.nome_empresa
-      );
-      await tab_aluno.update({ asaas_id: asaasId }, { where: { cod_aluno } });
-   }
-
-   let cardToken;
-   if (formCard) {
-      const { creditCardToken } = await getTokenCard(asaasId, {
-         ...formCard,
-         name: aluno.nome_aluno,
-      });
-      cardToken = creditCardToken;
-   }
-
-   if (cardToken)
-      await tab_aluno_cartao.create({
-         cod_aluno,
-         final_aluno_cartao: formCard.number.slice(-4),
-         expiracao_aluno_cartao: `${formCard.month}/${formCard.year}`,
-         token_aluno_cartao: cardToken,
-      });
-   res.send({ status: true });
 }
 
 async function deleteCard(req, res) {
@@ -267,7 +229,19 @@ async function deleteAvaliacao(req, res) {
 async function setAlunoContrato(req, res) {
    const { plano } = req.body;
 
-   const { modalidades, valor_plano, valor_adesao, contrato, duracao_plano, nome_plano, cod_aluno, cod_usuario, cod_empresa, parcela_plano, pagamentoInicial = new Date() } = plano;
+   const {
+      modalidades,
+      valor_plano,
+      valor_adesao,
+      contrato,
+      duracao_plano,
+      nome_plano,
+      cod_aluno,
+      cod_usuario,
+      cod_empresa,
+      parcela_plano,
+      pagamentoInicial = new Date(),
+   } = plano;
 
    const alunoContrato = await tab_aluno_contrato.create({
       cod_aluno: cod_aluno,
@@ -314,7 +288,10 @@ async function cancelAlunoContrato(req, res) {
       if (payment?.asaas_id) await removerCobranca(payment?.asaas_id);
    }
 
-   await tab_aluno_contrato.update({ deletedAt: new Date(), status_aluno_contrato: "Cancelado" }, { where: { cod_aluno_contrato } });
+   await tab_aluno_contrato.update(
+      { deletedAt: new Date(), status_aluno_contrato: "Cancelado" },
+      { where: { cod_aluno_contrato } }
+   );
 
    res.send({ status: true });
 }
@@ -477,7 +454,6 @@ module.exports = {
    getAlunos,
    getAluno,
    getCards,
-   createCard,
    deleteCard,
    setAluno,
    deleteAluno,

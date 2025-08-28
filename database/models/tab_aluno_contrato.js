@@ -1,178 +1,162 @@
-'use strict';
+"use strict";
 
 module.exports = (sequelize, DataTypes) => {
-    const tab_aluno_contrato = sequelize.define('tab_aluno_contrato', {
-        cod_aluno_contrato: {
+   const tab_aluno_contrato = sequelize.define(
+      "tab_aluno_contrato",
+      {
+         cod_aluno_contrato: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
             allowNull: false,
-        },
-        cod_empresa: {
+         },
+         cod_empresa: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'tab_empresa',
-                key: 'cod_empresa',
+               model: "tab_empresa",
+               key: "cod_empresa",
             },
-        },
-        cod_usuario: {
+         },
+         cod_usuario: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'tab_usuario',
-                key: 'cod_usuario',
+               model: "tab_usuario",
+               key: "cod_usuario",
             },
-        },
-        cod_aluno: {
+         },
+         cod_aluno: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'tab_aluno',
-                key: 'cod_aluno',
+               model: "tab_aluno",
+               key: "cod_aluno",
             },
-        },
-        nome_aluno_contrato: {
+         },
+         nome_aluno_contrato: {
             type: DataTypes.STRING,
             allowNull: false,
-        },
-        descricao_aluno_contrato: {
+         },
+         descricao_aluno_contrato: {
             type: DataTypes.STRING,
             allowNull: true,
             defaultvalue: null,
-        },
-        formapagamento_aluno_contrato: {
+         },
+         formapagamento_aluno_contrato: {
             type: DataTypes.STRING,
             allowNull: true,
             defaultvalue: null,
-        },
-        tipopagamento_aluno_contrato: {
+         },
+         tipopagamento_aluno_contrato: {
             type: DataTypes.STRING,
             allowNull: true,
             defaultvalue: null,
-        },
-        iniciopagamento_aluno_contrato: {
+         },
+         iniciopagamento_aluno_contrato: {
             type: DataTypes.DATEONLY,
             allowNull: true,
             defaultValue: null,
-        },
-        status_aluno_contrato: {
+         },
+         status_aluno_contrato: {
             type: DataTypes.STRING,
             allowNull: true,
             defaultValue: null,
-        },
-        statustexto_aluno_contrato: {
+         },
+         statustexto_aluno_contrato: {
             type: DataTypes.STRING,
             allowNull: true,
             defaultValue: null,
-        },
-        observacao_aluno_contrato: {
+         },
+         observacao_aluno_contrato: {
             type: DataTypes.STRING,
             allowNull: true,
             defaultValue: null,
-        },
-        adesao_aluno_contrato: {
+         },
+         adesao_aluno_contrato: {
             type: DataTypes.DOUBLE(22, 2),
             allowNull: true,
             defaultValue: null,
-        },
-        parcela_aluno_contrato: {
+         },
+         parcela_aluno_contrato: {
             type: DataTypes.TEXT,
             allowNull: true,
             defaultValue: null,
-        },
-        total_aluno_contrato: {
+         },
+         total_aluno_contrato: {
             type: DataTypes.DOUBLE(22, 2),
             allowNull: true,
             defaultValue: null,
-        },
-        duracao_aluno_contrato: {
+         },
+         duracao_aluno_contrato: {
             type: DataTypes.INTEGER,
             allowNull: true,
             defaultValue: null,
-        },
-        expiracao_aluno_contrato: {
+         },
+         expiracao_aluno_contrato: {
             type: DataTypes.DATEONLY,
             allowNull: false,
-        },
-        modalidades_aluno_contrato: {
+         },
+         modalidades_aluno_contrato: {
             type: DataTypes.TEXT,
             allowNull: false,
-        },
-        arquivo_aluno_contrato: {
+         },
+         arquivo_aluno_contrato: {
             type: DataTypes.TEXT,
             allowNull: true,
             defaultValue: null,
-        },
-        id_aluno_contrato: {
+         },
+         id_aluno_contrato: {
             allowNull: true,
             type: DataTypes.STRING,
             defaultValue: null,
-        },
-        autentique_aluno_contrato: {
+         },
+         autentique_aluno_contrato: {
             allowNull: true,
             type: DataTypes.STRING,
             defaultValue: null,
-        },
-        statusautentique_aluno_contrato: {
+         },
+         statusautentique_aluno_contrato: {
             allowNull: true,
             type: DataTypes.STRING,
             defaultValue: null,
-        },
-        ambiente_aluno_contrato: {
+         },
+         ambiente_aluno_contrato: {
             allowNull: true,
             type: DataTypes.STRING,
             defaultValue: null,
-        },
-        stripe_id: {
+         },
+         asaas_id: {
             allowNull: true,
             type: DataTypes.STRING,
             defaultValue: null,
-        },
-        asaas_id: {
-            allowNull: true,
-            type: DataTypes.STRING,
-            defaultValue: null,
-        },
-        dev_stripe_id: {
-            allowNull: true,
-            type: DataTypes.STRING,
-            defaultValue: null,
-        },
-        invoice_stripe_id: {
-            allowNull: true,
-            type: DataTypes.STRING,
-            defaultValue: null,
-        },
-        dev_invoice_stripe_id: {
-            allowNull: true,
-            type: DataTypes.STRING,
-            defaultValue: null,
-        },
-        deletedAt: {
+         },
+         deletedAt: {
             type: DataTypes.DATE,
             allowNull: true,
-        },
-    }, {
-        paranoid: true,
-        freezeTableName: true,
-        timestamps: true,
-    });
+         },
+      },
+      {
+         paranoid: true,
+         freezeTableName: true,
+         timestamps: true,
+      }
+   );
 
-    tab_aluno_contrato.associate = (models) => {
-        tab_aluno_contrato.hasMany(models.tab_aluno_contrato_pagamento, {
-            foreignKey: 'cod_aluno_contrato',
-            as: 'pagamentos',
-        })
-        tab_aluno_contrato.hasMany(models.tab_aluno_contrato_modalidade, {
-            foreignKey: 'cod_aluno_contrato',
-            as: 'modalidades',
-        })
-        tab_aluno_contrato.belongsTo(models.tab_aluno, {
-            foreignKey: 'cod_aluno',
-            as: 'aluno',
-        })
-    };
+   tab_aluno_contrato.associate = (models) => {
+      tab_aluno_contrato.hasMany(models.tab_aluno_contrato_pagamento, {
+         foreignKey: "cod_aluno_contrato",
+         as: "pagamentos",
+      });
+      tab_aluno_contrato.hasMany(models.tab_aluno_contrato_modalidade, {
+         foreignKey: "cod_aluno_contrato",
+         as: "modalidades",
+      });
+      tab_aluno_contrato.belongsTo(models.tab_aluno, {
+         foreignKey: "cod_aluno",
+         as: "aluno",
+      });
+   };
 
-    return tab_aluno_contrato;
+   return tab_aluno_contrato;
 };

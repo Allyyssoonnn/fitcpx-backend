@@ -65,29 +65,6 @@ async function atualizarCliente(customerId, nome, documento, email, telefone, ap
    return;
 }
 
-async function getTokenCard(customerId, cartao, ip) {
-   const url = `${urlBase}/v3/creditCard/tokenizeCreditCard`;
-   const options = {
-      method: "POST",
-      headers: { accept: "application/json", "content-type": "application/json", access_token: token },
-      body: JSON.stringify({
-         creditCard: {
-            number: cartao.number,
-            expiryMonth: cartao.month,
-            expiryYear: cartao.year,
-            ccv: cartao.code,
-            holderName: cartao.name,
-         },
-         customer: customerId,
-         remoteIp: ip,
-      }),
-   };
-
-   const resp = await fetchJson(url, options);
-
-   return resp;
-}
-
 async function criarCobranca(customerId, cod, value, dueDate, tokenCartao, meuip, installments, billingType, name) {
    const url = `${urlBase}/v3/payments/`;
    const body = {
@@ -273,7 +250,6 @@ async function removerParcelamento(id) {
 module.exports = {
    criarCliente,
    atualizarCliente,
-   getTokenCard,
    criarCobranca,
    buscarCobranca,
    cobrancaRecebida,

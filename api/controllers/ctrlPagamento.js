@@ -1,25 +1,21 @@
 const moment = require("moment-timezone");
 const {
-   tab_usuario,
    tab_empresa,
    tab_aluno,
-   tab_empresa_licenca_pagamento,
    tab_aluno_contrato_pagamento,
-   tab_empresa_licenca,
-   tab_aluno_cartao,
    tab_aluno_contrato,
    tab_aluno_contrato_modalidade,
    tab_modalidade_variacao,
    tab_modalidade_variacao_valor,
    tab_modalidade,
 } = require("../../database/models");
-const { criarCliente, getTokenCard, criarCobranca, buscarCobranca, cobrancaRecebida, criarAssinatura } = require("../asaas");
+const { criarCliente, criarCobranca, buscarCobranca, cobrancaRecebida, criarAssinatura } = require("../utils/asaas");
 const env = process.env.NODE_ENV || "development";
 const dev = env === "development";
 
 async function criarPagamentoAluno(req, res) {
    try {
-      const { cod_aluno, cod_empresa, cod_usuario, cod_aluno_contrato, formaPagamento, mensal, paymentId, formCard, typePayment } = req.body;
+      const { cod_aluno, cod_empresa, cod_aluno_contrato, formaPagamento, formCard, typePayment } = req.body;
 
       const empresa = await tab_empresa.findOne({ where: { cod_empresa } });
       const aluno = await tab_aluno.findOne({ where: { cod_aluno } });
@@ -46,9 +42,12 @@ async function criarPagamentoAluno(req, res) {
          : moment.tz(new Date(), "America/Sao_Paulo");
       const resumoParcelas = JSON.parse(aluno_contrato?.parcela_aluno_contrato);
       const duration = resumoParcelas.length;
-      const valor = formaPagamento === "RECORRENTE" && duration > 0 ? resumoParcelas[0] : aluno_contrato.total_aluno_contrato;
+      const valor =
+         formaPagamento === "RECORRENTE" && duration > 0 ? resumoParcelas[0] : aluno_contrato.total_aluno_contrato;
 
-      const name = aluno_contrato.modalidades.map((m) => `${m.modalidade.nome_modalidade} - ${m.variacao.nome_modalidade_variacao}`).join(", ");
+      const name = aluno_contrato.modalidades
+         .map((m) => `${m.modalidade.nome_modalidade} - ${m.variacao.nome_modalidade_variacao}`)
+         .join(", ");
 
       await tab_aluno_contrato.update(
          {
@@ -60,7 +59,7 @@ async function criarPagamentoAluno(req, res) {
          { where: { cod_aluno_contrato } }
       );
 
-      // === MANUAL
+      // * MANUAL
       if (formaPagamento === "MANUAL") {
          const pagamentos = resumoParcelas.slice(1).map((parcela, i) => ({
             cod_aluno_contrato,
@@ -81,13 +80,13 @@ async function criarPagamentoAluno(req, res) {
          return res.send({ status: true });
       }
 
-      // === Definir Getway e billingType
+      // * Definir Getway e billingType
       let getway = "ASAAS";
       let billingType = typePayment;
 
       if (billingType == "CREDIT") billingType = "CREDIT_CARD";
 
-      // === ASAAS
+      // * ASAAS - GERENCIA A COBRANCA
       if (getway === "ASAAS") {
          let asaasId = aluno.asaas_id;
          if (!asaasId) {
@@ -106,12 +105,68 @@ async function criarPagamentoAluno(req, res) {
             await tab_aluno.update({ asaas_id: asaasId }, { where: { cod_aluno } });
          }
 
-         const installments = formaPagamento === "UNICA" || formaPagamento === "PARCELADO" ? formCard?.installments : null;
+         if (aluno_contrato?.adesao_aluno_contrato && aluno_contrato.adesao_aluno_contrato > 0) {
+            // * CRIA A COBRANCA DE ADESAO
 
-         var value = formaPagamento === "UNICA" || formaPagamento === "PARCELADO" ? valor : resumoParcelas[0];
+            const dueDate = moment(dataInicio);
+            const respAsaas = await criarCobranca(
+               asaasId,
+               cod_aluno_contrato,
+               aluno_contrato.adesao_aluno_contrato,
+               dueDate,
+               null,
+               null,
+               null,
+               billingType,
+               `Adesão - ${name}`
+            );
+
+            if (respAsaas.id) {
+               await tab_aluno_contrato.update(
+                  {
+                     asaas_id: respAsaas.installment ?? respAsaas.id,
+                  },
+                  { where: { cod_aluno_contrato } }
+               );
+               let descont = Number((respAsaas?.value * (1 - 4.99 / 100)).toFixed(2));
+
+               if (respAsaas.billingType === "CREDIT_CARD")
+                  descont = Number((respAsaas?.value * (1 - 4.99 / 100)).toFixed(2)); //4,99%
+               if (respAsaas.billingType === "PIX") descont = Number((respAsaas?.value * (1 - 2.19 / 100)).toFixed(2)); //2,19%
+               if (respAsaas.billingType === "BOLETO") descont = Number(respAsaas?.value - 4.0).toFixed(2); //$4,00
+               await tab_aluno_contrato_pagamento.create(
+                  {
+                     cod_aluno_contrato,
+                     asaas_id: respAsaas.id,
+                     asaas_url: respAsaas.invoiceUrl,
+                     json_aluno_contrato_pagamento: JSON.stringify(respAsaas),
+                     jsonwebhook_aluno_contrato_pagamento: JSON.stringify(respAsaas),
+                     status_aluno_contrato_pagamento: "Pending",
+                     valor_aluno_contrato_pagamento: respAsaas.value,
+                     liquido_aluno_contrato_pagamento: descont,
+                     forma_aluno_contrato_pagamento: respAsaas.billingType,
+                     data_aluno_contrato_pagamento: respAsaas.dateCreated,
+                     expiracao_aluno_contrato_pagamento: respAsaas.dueDate,
+                  },
+                  { where: { cod_aluno_contrato } }
+               );
+            }
+         }
+
+         const installments =
+            formaPagamento === "UNICA" || formaPagamento === "PARCELADO" ? formCard?.installments : null;
 
          if (formaPagamento === "RECORRENTE" && billingType === "CREDIT_CARD") {
-            const respAsaas = await criarAssinatura(asaasId, cod_aluno_contrato, valor, dataInicio, installments, billingType, name);
+            // * RECORRÊNCIA - CARTÃO DE CRÉDITO / ASSINATURA
+            const respAsaas = await criarAssinatura(
+               asaasId,
+               cod_aluno_contrato,
+               valor,
+               dataInicio,
+               installments,
+               billingType,
+               name
+            );
             if (respAsaas.id) {
                await tab_aluno_contrato.update(
                   {
@@ -121,15 +176,25 @@ async function criarPagamentoAluno(req, res) {
                );
             }
          } else {
+            // * OUTROS FORMAS DE PAGAMENTO
             resumoParcelas.map(async (parcela, i) => {
                if (i > 0 && (formaPagamento === "UNICA" || formaPagamento === "PARCELADO")) return;
                var value = formaPagamento === "UNICA" || formaPagamento === "PARCELADO" ? valor : parcela;
 
                const dueDate = moment(dataInicio).add(i, "months");
-               const respAsaas = await criarCobranca(asaasId, cod_aluno_contrato, value, dueDate, null, null, installments, billingType, name);
+               const respAsaas = await criarCobranca(
+                  asaasId,
+                  cod_aluno_contrato,
+                  value,
+                  dueDate,
+                  null,
+                  null,
+                  installments,
+                  billingType,
+                  name
+               );
 
                if (respAsaas.id) {
-                  console.log(respAsaas);
                   await tab_aluno_contrato.update(
                      {
                         asaas_id: respAsaas.installment ?? respAsaas.id,
@@ -138,8 +203,10 @@ async function criarPagamentoAluno(req, res) {
                   );
                   let descont = Number((respAsaas?.value * (1 - 4.99 / 100)).toFixed(2));
 
-                  if (respAsaas.billingType === "CREDIT_CARD") descont = Number((respAsaas?.value * (1 - 4.99 / 100)).toFixed(2)); //4,99%
-                  if (respAsaas.billingType === "PIX") descont = Number((respAsaas?.value * (1 - 2.19 / 100)).toFixed(2)); //2,19%
+                  if (respAsaas.billingType === "CREDIT_CARD")
+                     descont = Number((respAsaas?.value * (1 - 4.99 / 100)).toFixed(2)); //4,99%
+                  if (respAsaas.billingType === "PIX")
+                     descont = Number((respAsaas?.value * (1 - 2.19 / 100)).toFixed(2)); //2,19%
                   if (respAsaas.billingType === "BOLETO") descont = Number(respAsaas?.value - 4.0).toFixed(2); //$4,00
                   await tab_aluno_contrato_pagamento.create(
                      {
@@ -160,7 +227,6 @@ async function criarPagamentoAluno(req, res) {
                }
             });
          }
-         // pagamento retornará pelo webhook
       }
 
       res.send({ status: true });

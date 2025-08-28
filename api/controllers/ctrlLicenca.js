@@ -1,7 +1,12 @@
 const moment = require("moment-timezone");
-const { tab_licenca, tab_empresa_licenca, tab_empresa, tab_empresa_licenca_pagamento } = require("../../database/models");
+const {
+   tab_licenca,
+   tab_empresa_licenca,
+   tab_empresa,
+   tab_empresa_licenca_pagamento,
+} = require("../../database/models");
 const env = process.env.NODE_ENV || "development";
-const { criarCliente, criarCobranca } = require("../asaas");
+const { criarCliente, criarCobranca } = require("../utils/asaas");
 
 async function getLicencas(req, res) {
    const licencas = await tab_licenca.findAll({
@@ -76,7 +81,17 @@ async function buyLicenca(req, res) {
    var billingType = "UNDEFINED";
    var dueDate = new Date();
 
-   await criarCobranca(asaas_id, empresa_licenca.cod_empresa_licenca, valor, dueDate, null, null, null, billingType, "Use License");
+   await criarCobranca(
+      asaas_id,
+      empresa_licenca.cod_empresa_licenca,
+      valor,
+      dueDate,
+      null,
+      null,
+      null,
+      billingType,
+      "Use License"
+   );
 
    res.send({ status: true });
    return;
