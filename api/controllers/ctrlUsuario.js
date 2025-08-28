@@ -75,7 +75,11 @@ async function register(req, res) {
    const empresa = await tab_empresa.findOne({ where: { cod_empresa: novaEmpresa.cod_empresa } });
 
    const { token, refreshToken } = await genTokenUserAuth(novoUsuario.cod_usuario, novaEmpresa.cod_empresa, req);
-   res.send({ status: true, token, refreshToken, usuario: novoUsuario, empresa });
+   const {
+      decoded: { status },
+   } = validateToken(token);
+   const validLicense = status !== "Expired" && status !== "Cancelled" && status !== undefined && status !== null;
+   res.send({ status: true, token, refreshToken, usuario: novoUsuario, empresa, validLicense });
 }
 
 async function recovery(req, res) {
@@ -183,7 +187,11 @@ async function refreshToken(req, res) {
    const empresa = await tab_empresa.findOne({ where: { cod_empresa: usuario.cod_empresa } });
 
    const { token } = await genTokenUserAuth(usuario.cod_usuario, empresa.cod_empresa);
-   res.send({ status: true, token, usuario, empresa });
+   const {
+      decoded: { status },
+   } = validateToken(token);
+   const validLicense = status !== "Expired" && status !== "Cancelled" && status !== undefined && status !== null;
+   res.send({ status: true, token, usuario, empresa, validLicense });
 }
 
 async function getProtocolos(req, res) {
