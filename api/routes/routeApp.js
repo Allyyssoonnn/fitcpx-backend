@@ -1,8 +1,9 @@
-const router = require('express').Router();
-const verifyToken = require('../authMiddleware');
-const { getNotifications, sendFeedback } = require('../controllers/ctrlApp');
+const router = require("express").Router();
+const verifyToken = require("../authMiddleware");
+const { getNotifications, sendFeedback, getDashboard } = require("../controllers/ctrlApp");
 
-router.post('/getNotifications', verifyToken, getNotifications);
-router.post('/sendFeedback', verifyToken, sendFeedback);
+router.post("/getNotifications", verifyToken, getNotifications);
+router.post("/sendFeedback", verifyToken, sendFeedback);
+router.get("/getDashboard", verifyToken, getDashboard);
 
 module.exports = router;

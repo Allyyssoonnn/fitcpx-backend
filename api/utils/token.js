@@ -28,7 +28,7 @@ async function genTokenUserAuth(cod_usuario, cod_empresa, req = null) {
    const { status_empresa_licenca: status } = license || {};
    // * Status can be "Active", "Expired", "Cancelled", null (no license)
 
-   const token = jwt.sign({ cod_usuario, status }, process.env.SECRET, { expiresIn: "7h" });
+   const token = jwt.sign({ cod_usuario, status, cod_empresa }, process.env.SECRET, { expiresIn: "7h" });
 
    const refreshToken = crypto.randomBytes(64).toString("hex");
 

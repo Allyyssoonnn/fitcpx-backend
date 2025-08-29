@@ -22,8 +22,14 @@ function verifyToken(req, res, next) {
       // Validate token
       req.validLicense = true;
       const {
-         decoded: { status },
+         decoded: { status, cod_empresa, cod_usuario },
       } = validateToken(token);
+
+      req.cod_empresa = cod_empresa;
+      req.cod_usuario = cod_usuario;
+
+      // If company is not present
+      if (!cod_empresa || !cod_usuario) return res.status(401).send({ status: false, msg: "Token inválido!" });
 
       // ! Check if license expired or cancelled
       if (status === "Expired") {
