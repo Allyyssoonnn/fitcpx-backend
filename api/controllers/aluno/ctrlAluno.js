@@ -27,6 +27,7 @@ const dev = env === "development";
 async function getAlunos(req, res) {
    const { cod_usuario, cod_empresa, deleted } = req.body;
    const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : { deletedAt: null };
+   if (cod_empresa) where.cod_empresa = cod_empresa;
    const alunos = await tab_aluno.findAll({
       limit: req.validLicense ? undefined : 3,
       where: where,

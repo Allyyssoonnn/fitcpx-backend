@@ -1,4 +1,3 @@
-const moment = require("moment-timezone");
 const {
    tab_licenca,
    tab_empresa_licenca,
