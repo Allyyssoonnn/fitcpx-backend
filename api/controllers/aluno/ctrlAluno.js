@@ -97,8 +97,6 @@ async function setAluno(req, res) {
       const empresa = await tab_empresa.findOne({
          where: { cod_empresa: aluno.cod_empresa },
       });
-      const accountId = env === "development" ? empresa.dev_stripe_id : empresa.stripe_id;
-      const customerId = env === "development" ? aluno.dev_stripe_id : aluno.stripe_id;
    } else {
       const novoAluno = await tab_aluno.create(aluno);
       alunoAtt = novoAluno;
