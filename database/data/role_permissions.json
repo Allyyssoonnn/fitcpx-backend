@@ -1,0 +1,62 @@
+[
+    {
+      "role": "admin",
+      "permissions": [
+        { "name": "clients", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "physicalassessments", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "workouts", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "exercises", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "muscles", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "contracts", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "contracttemplates", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "plans", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "users", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "reports", "can_view": true, "can_create": true, "can_update": true, "can_delete": true }
+      ]
+    },
+    {
+      "role": "manager",
+      "permissions": [
+        { "name": "clients", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "physicalassessments", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "workouts", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "exercises", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "muscles", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "contracts", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "contracttemplates", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "plans", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "users", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "reports", "can_view": true, "can_create": true, "can_update": true, "can_delete": true }
+      ]
+    },
+    {
+      "role": "billing",
+      "permissions": [
+        { "name": "clients", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "physicalassessments", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "workouts", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "exercises", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "muscles", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "contracts", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "contracttemplates", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "plans", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "users", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "reports", "can_view": true, "can_create": true, "can_update": true, "can_delete": true }
+      ]
+    },
+    {
+      "role": "member",
+      "permissions": [
+        { "name": "clients", "can_view": true, "can_create": true, "can_update": true, "can_delete": false },
+        { "name": "physicalassessments", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "workouts", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "exercises", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "muscles", "can_view": true, "can_create": true, "can_update": true, "can_delete": true },
+        { "name": "contracts", "can_view": false, "can_create": false, "can_update": false, "can_delete": false },
+        { "name": "contracttemplates", "can_view": false, "can_create": false, "can_update": false, "can_delete": false },
+        { "name": "plans", "can_view": false, "can_create": false, "can_update": false, "can_delete": false },
+        { "name": "users", "can_view": false, "can_create": false, "can_update": false, "can_delete": false },
+        { "name": "reports", "can_view": false, "can_create": false, "can_update": false, "can_delete": false }
+      ]
+    }
+]
