@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const verifyToken = require("../authMiddleware");
+const verifyToken = require("../middlewares/authMiddleware");
 
 const {
    getAlunos,
@@ -23,8 +23,8 @@ const {
    downloadAlunoContrato,
    resendAlunoContrato,
 } = require("../controllers/aluno/ctrlAluno");
-const { uploadIMGAvaliacao, uploadIMGAluno } = require("../aws");
-const { multerAutentique } = require("../autentique");
+const { uploadIMGAvaliacao, uploadIMGAluno } = require("../features/aws");
+const { multerAutentique } = require("../features/autentique");
 
 router.post("/getAlunos", verifyToken, getAlunos);
 router.post("/getAluno", verifyToken, getAluno);

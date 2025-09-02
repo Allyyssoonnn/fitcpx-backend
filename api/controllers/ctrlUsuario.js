@@ -1,8 +1,8 @@
 const { tab_usuario, tab_empresa, tab_protocolo, tab_refreshtoken_usuario } = require("../../database/models");
 const crypto = require("crypto");
 const { Sequelize, where, Op } = require("sequelize");
-const { getURL, connected } = require("../google");
-const { sendConfirmationCode, sendRecoveryPassword } = require("../n8n");
+const { getURL, connected } = require("../features/google");
+const { sendConfirmationCode, sendRecoveryPassword } = require("../features/n8n");
 const { genTokenUserAuth, genTokenUserRecoveryPassword, validateToken } = require("../utils/token");
 const env = process.env.NODE_ENV || "development";
 const dev = env === "development";

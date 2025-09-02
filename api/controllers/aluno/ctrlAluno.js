@@ -12,7 +12,7 @@ const {
 } = require("../../../database/models");
 const { removeStringVazia, calcularIdadeDtAvaliacao } = require("../../../utils");
 const moment = require("moment-timezone");
-const { sendDocument, deleteDocument, downloadContract } = require("../../autentique");
+const { sendDocument, deleteDocument, downloadContract } = require("../../features/autentique");
 const {
    calculaPorcentagemGordura,
    calculaPorcentagemMusculo,
