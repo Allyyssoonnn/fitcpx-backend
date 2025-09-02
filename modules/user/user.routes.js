@@ -11,5 +11,6 @@ const userController = new UserController(userService);
 router.get("/user", verifyToken, userController.getAll);
 router.get("/user/:id", verifyToken, userController.getById);
 router.post("/user", verifyToken, userController.create);
+router.post("/login", userController.login);
 
 module.exports = router;

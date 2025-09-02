@@ -3,8 +3,8 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
-const path = require("path");
 require("dotenv").config();
+const HttpException = require("./core/http-exception");
 
 const server = express();
 const serverSite = express();
@@ -38,6 +38,15 @@ server.use("/avaliacao", require("./api/routes/routeAvaliacao"));
 // New Routes
 
 server.use(require("./modules/user/user.routes"));
+
+// Middleware de erro global
+server.use((err, req, res, next) => {
+   if (err instanceof HttpException) {
+      return res.status(err.status).json({ error: err.message });
+   }
+   console.error(err);
+   return res.status(500).json({ error: "Internal Server Error" });
+});
 
 // ================ Servidor
 

@@ -31,6 +31,16 @@ class UserController {
          next(error);
       }
    };
+
+   login = async (req, res, next) => {
+      try {
+         const { email, password } = req.body;
+         const data = await this.userService.login(email, password);
+         res.json(data);
+      } catch (error) {
+         next(error);
+      }
+   };
 }
 
 module.exports = UserController;
