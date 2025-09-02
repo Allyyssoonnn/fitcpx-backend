@@ -8,38 +8,6 @@ const env = process.env.NODE_ENV || "development";
 const dev = env === "development";
 const devToken = process.env.DEV_TOKEN;
 
-async function login(req, res) {
-   const { email, senha } = req.body;
-
-   const usuario = await tab_usuario.findOne({
-      where: { email_usuario: email.trim() },
-      include: [
-         {
-            model: tab_empresa,
-            as: "empresa",
-         },
-      ],
-   });
-
-   if (!usuario) {
-      res.send({ status: false, msg: "E-mail não cadastrado!" });
-      return;
-   }
-
-   if (usuario.senha_usuario !== senha) {
-      res.send({ status: false, msg: "Senha incorreta!" });
-      return;
-   }
-
-   const empresa = await tab_empresa.findOne({ where: { cod_empresa: usuario.cod_empresa } });
-   const { token, refreshToken } = await genTokenUserAuth(usuario.cod_usuario, empresa.cod_empresa, req);
-   const {
-      decoded: { status },
-   } = validateToken(token);
-   const validLicense = status !== "Expired" && status !== "Cancelled" && status !== undefined && status !== null;
-   res.send({ status: true, token, refreshToken, usuario, empresa, validLicense });
-}
-
 async function register(req, res) {
    const { nome_usuario, email_usuario, senha_usuario, senha_confirma } = req.body;
 
@@ -336,7 +304,6 @@ async function loggedGoogle(req, res) {
 }
 
 module.exports = {
-   login,
    register,
    recovery,
    verifyTokenRecovery,

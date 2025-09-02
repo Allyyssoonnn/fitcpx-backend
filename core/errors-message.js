@@ -9,6 +9,7 @@ function getMessageError(message, lang = "pt") {
          BAD_REQUEST: "Requisição inválida.",
          TOKEN_EXPIRED: "Token expirado.",
          INVALID_TOKEN: "Token inválido.",
+         USER_ALREADY_EXISTS: "Usuário já existe.",
       },
       en: {
          USER_NOT_FOUND: "User not found.",
@@ -19,6 +20,7 @@ function getMessageError(message, lang = "pt") {
          BAD_REQUEST: "Bad request.",
          TOKEN_EXPIRED: "Token expired.",
          INVALID_TOKEN: "Invalid token.",
+         USER_ALREADY_EXISTS: "User already exists.",
       },
    };
 

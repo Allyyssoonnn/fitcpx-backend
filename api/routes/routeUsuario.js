@@ -3,7 +3,6 @@ const router = require("express").Router();
 const verifyToken = require("../middlewares/authMiddleware");
 
 const {
-   login,
    register,
    refreshToken,
    getProtocolos,
@@ -24,7 +23,6 @@ const { uploadIMGUsuario, uploadIMGEmpresa } = require("../features/aws");
 router.get("/loginGoogle", loginGoogle);
 router.post("/loggedGoogle", loggedGoogle);
 
-router.post("/login", login);
 router.post("/register", register);
 router.post("/recovery", recovery);
 router.post("/verifyTokenRecovery", verifyTokenRecovery);

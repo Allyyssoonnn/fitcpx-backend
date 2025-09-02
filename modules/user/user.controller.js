@@ -41,6 +41,16 @@ class UserController {
          next(error);
       }
    };
+
+   register = async (req, res, next) => {
+      try {
+         const { name, email, password } = req.body;
+         const data = await this.userService.register(name, email, password);
+         res.json(data);
+      } catch (error) {
+         next(error);
+      }
+   };
 }
 
 module.exports = UserController;
