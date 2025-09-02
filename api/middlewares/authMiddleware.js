@@ -1,7 +1,9 @@
+const { get } = require("http");
 const { validateToken } = require("../utils/token");
 const env = process.env.NODE_ENV || "development";
 const dev = env === "development";
 const devToken = process.env.DEV_TOKEN;
+const getMessageError = require("../../core/errors-message");
 
 function verifyToken(req, res, next) {
    // Extract token from "Authorization" header
@@ -9,7 +11,7 @@ function verifyToken(req, res, next) {
 
    //If token is not present return error
    if (!token) {
-      return res.status(401).send({ status: false, msg: "Token não fornecido!" });
+      return res.status(401).send({ status: false, msg: getMessageError("INVALID_TOKEN") });
    }
 
    // Allow development token
@@ -32,7 +34,8 @@ function verifyToken(req, res, next) {
       req.cod_usuario = cod_usuario;
 
       // If company is not present
-      if (!cod_empresa || !cod_usuario) return res.status(401).send({ status: false, msg: "Token inválido!" });
+      if (!cod_empresa || !cod_usuario)
+         return res.status(401).send({ status: false, msg: getMessageError("INVALID_TOKEN") });
 
       // ! Check if license expired or cancelled
       if (status === "Expired") {

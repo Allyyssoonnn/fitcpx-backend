@@ -6,7 +6,7 @@ class UserRepository {
    }
 
    async findById(id, companyId) {
-      return await tab_usuario.findOne({ where: { id_usuario: id, cod_empresa: companyId } });
+      return await tab_usuario.findOne({ where: { cod_usuario: id, cod_empresa: companyId } });
    }
 
    async findByEmail(email) {
