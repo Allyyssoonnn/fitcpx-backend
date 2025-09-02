@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const verifyToken = require("../authMiddleware");
+const verifyToken = require("../middlewares/authMiddleware");
 const { login, refreshToken, finishTreino, getTreinosRealizados } = require("../controllers/ctrlAppAluno");
 
 router.post("/login", login);

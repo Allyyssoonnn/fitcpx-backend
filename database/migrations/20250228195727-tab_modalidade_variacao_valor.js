@@ -9,7 +9,6 @@ module.exports = {
             autoIncrement: true,
             primaryKey: true,
             type: Sequelize.DataTypes.INTEGER,
-            defaultValue: null,
          },
          cod_modalidade_variacao: {
             allowNull: false,

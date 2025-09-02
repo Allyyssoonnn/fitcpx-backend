@@ -1,5 +1,5 @@
 const { google } = require("googleapis");
-const { tab_google_token } = require("../database/models");
+const { tab_google_token } = require("../../database/models");
 
 const env = process.env.NODE_ENV || "development";
 const urlCallback = env == "development" ? "http://localhost:5173/" : "https://app.fitcpx.com/";
