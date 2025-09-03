@@ -7,9 +7,7 @@ require("dotenv").config();
 const HttpException = require("./core/http-exception");
 
 const server = express();
-const serverSite = express();
 const PORT = 8070;
-const PORTSITE = 8090;
 
 //cors precisa ser declarado antes das rotas para não ocorrer erro no client
 server.use(cors({ origin: "*", credentials: true }));
@@ -37,9 +35,9 @@ server.use("/avaliacao", require("./api/routes/routeAvaliacao"));
 
 // New Routes
 
-server.use(require("./modules/user/user.routes"));
-server.use(require("./modules/company/company.routes"));
-server.use(require("./modules/student/student.routes"));
+server.use(require("./modules/users/users.routes"));
+server.use(require("./modules/companies/companies.routes"));
+server.use(require("./modules/students/students.routes"));
 
 // Middleware de erro global
 server.use((err, req, res, next) => {
@@ -53,7 +51,4 @@ server.use((err, req, res, next) => {
 // ================ Servidor
 
 const serverHttp = http.createServer(server);
-serverHttp.listen(PORT, () => console.log(`Backend do app está rodando na porta: ${PORT}`));
-
-const serverWebHttp = http.createServer(serverSite);
-serverWebHttp.listen(PORTSITE, () => console.log(`WebSite do app está rodando na porta: ${PORTSITE}`));
+serverHttp.listen(PORT, () => console.info(`\n\n\n *** http://localhost:${PORT}/test *** \n\n\n`));

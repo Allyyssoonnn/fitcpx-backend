@@ -2,7 +2,7 @@ const { genTokenUserAuth, validateToken } = require("../../api/utils/token");
 const HttpException = require("../../core/http-exception");
 const getMessageError = require("../../core/errors-message");
 const crypto = require("crypto");
-const CompanyRepository = require("../company/company.repository");
+const CompanyRepository = require("../companies/companies.repository");
 const { sendConfirmationCode } = require("../../api/features/n8n");
 const dev = (process.env.NODE_ENV || "development") === "development";
 

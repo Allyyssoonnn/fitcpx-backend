@@ -1,3 +1,5 @@
+const Response = require("../../core/response");
+
 class StudentController {
    constructor(studentService) {
       this.studentService = studentService;
@@ -8,7 +10,7 @@ class StudentController {
          const { deleted } = req.query;
          const { cod_empresa } = req;
          const students = await this.studentService.getAll(cod_empresa, deleted == "true");
-         res.json(students);
+         Response.success(res, students);
       } catch (error) {
          next(error);
       }
@@ -19,7 +21,7 @@ class StudentController {
          const { id } = req.params;
          const { cod_empresa } = req;
          const student = await this.studentService.getById(id, cod_empresa);
-         res.json(student);
+         Response.success(res, student);
       } catch (error) {
          next(error);
       }
