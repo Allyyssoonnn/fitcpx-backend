@@ -33,7 +33,7 @@ router.post("/deleteCard", verifyToken, deleteCard);
 router.post("/setAluno", verifyToken, setAluno);
 router.post("/deleteAluno", verifyToken, deleteAluno);
 router.post("/recoveryAluno", verifyToken, recoveryAluno);
-router.post("/getAvaliacoes", verifyToken, getAvaliacoes);
+router.post("/getAvaliacoes", getAvaliacoes);
 router.post("/getAvaliacao", getAvaliacao);
 router.post("/setAvaliacao", verifyToken, setAvaliacao);
 router.post("/deleteAvaliacao", verifyToken, deleteAvaliacao);

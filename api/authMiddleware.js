@@ -51,9 +51,6 @@ function verifyToken(req, res, next) {
          if (routesNotAllowed.includes(req.path)) {
             return res.status(403).send({ status: false, message: req.messageLicense });
          }
-         // if (req.method !== "GET") {
-         //    return res.status(403).send({ status: false, message: req.messageLicense });
-         // }
       }
 
       next();
