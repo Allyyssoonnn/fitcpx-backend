@@ -45,14 +45,6 @@ function verifyToken(req, res, next) {
          req.messageLicense = "Limite de alunos cadastrados atingido!";
       }
 
-      if (!req.validLicense) {
-         // ! Respond with 403 only for non-GET requests
-         const routesNotAllowed = ["/setAluno", "/setAlunoContrato"];
-         if (routesNotAllowed.includes(req.path)) {
-            return res.status(403).send({ status: false, message: req.messageLicense });
-         }
-      }
-
       next();
    } catch (err) {
       if (!dev && token === devToken) {

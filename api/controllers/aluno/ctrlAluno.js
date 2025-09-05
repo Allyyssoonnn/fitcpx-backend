@@ -83,6 +83,12 @@ async function setAluno(req, res) {
    const { aluno } = req.body;
    var alunoAtt;
 
+   if (!aluno.cod_aluno && !req.validLicense) {
+      const qtdAluno = await tab_aluno.count({ where: { cod_empresa: req.cod_empresa } });
+      if (qtdAluno >= 3)
+         return res.status(403).send({ status: false, message: "Limite de alunos cadastrados atingido!" });
+   }
+
    if (aluno?.cod_aluno)
       alunoAtt = await tab_aluno.findOne({
          where: { cod_aluno: aluno.cod_aluno },
