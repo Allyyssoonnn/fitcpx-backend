@@ -14,6 +14,8 @@ function verifyToken(req, res, next) {
 
    // Allow development token
    if (dev && token === devToken) {
+      req.cod_empresa = 1;
+      req.cod_usuario = 1;
       next();
       return;
    }
