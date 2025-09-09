@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
          useragent_usuario: {
             type: DataTypes.STRING,
             allowNull: true,
+            defaultValue: null,
          },
          ip_usuario: {
             type: DataTypes.STRING,
