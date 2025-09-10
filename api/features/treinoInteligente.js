@@ -4,15 +4,12 @@ const { getResultPhysicalFunc } = require("../controllers/ctrlAvaliacao");
 const { calcularIdade, getReferenceWorkout } = require("../../utils");
 const fs = require("fs");
 
-function shuffleArray(array) {
-   for (let i = array.length; i > 0; i--) {
-      const indexRandom = Math.floor(Math.random() * i);
-
-      const element = array[i - 1];
-      array[i - 1] = array[indexRandom];
-      array[indexRandom] = element;
+function shuffleArray(arr) {
+   for (let i = arr.length - 1; i > 0 - 1; i--) {
+      const iRandom = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[iRandom]] = [arr[iRandom], arr[i]];
    }
-   return array;
+   return arr;
 }
 
 async function generateTreino(req, res) {
