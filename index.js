@@ -38,6 +38,7 @@ server.use("/avaliacao", require("./api/routes/routeAvaliacao"));
 server.use(require("./modules/users/users.routes"));
 server.use(require("./modules/companies/companies.routes"));
 server.use(require("./modules/students/students.routes"));
+server.use(require("./modules/mails/mails.routes"));
 
 // Middleware de erro global
 server.use((err, req, res, next) => {
