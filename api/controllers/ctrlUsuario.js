@@ -2,71 +2,11 @@ const { tab_usuario, tab_empresa, tab_protocolo, tab_refreshtoken_usuario } = re
 const crypto = require("crypto");
 const { Sequelize, where, Op } = require("sequelize");
 const { getURL, connected } = require("../features/google");
-const { sendConfirmationCode, sendRecoveryPassword } = require("../features/n8n");
+const { sendConfirmationCode } = require("../features/n8n");
 const { genTokenUserAuth, genTokenUserRecoveryPassword, validateToken } = require("../utils/token");
 const env = process.env.NODE_ENV || "development";
 const dev = env === "development";
 const devToken = process.env.DEV_TOKEN;
-
-async function register(req, res) {
-   const { nome_usuario, email_usuario, senha_usuario, senha_confirma } = req.body;
-
-   const usuario = await tab_usuario.findOne({ where: { email_usuario: email_usuario.trim() } });
-
-   if (usuario) {
-      res.send({ status: false, msg: "E-mail já cadastrado!" });
-      return;
-   }
-
-   if (senha_usuario !== senha_confirma) {
-      res.send({ status: false, msg: "Senhas não correspondem!" });
-      return;
-   }
-   const email_codigo = [...crypto.randomFillSync(Buffer.alloc(4))]
-      .map((n) => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[n % 36])
-      .join("");
-
-   if (!dev) sendConfirmationCode(email_usuario, nome_usuario, email_codigo);
-
-   const novaEmpresa = await tab_empresa.create({
-      nome_empresa: nome_usuario,
-      status_empresa: "Active",
-      email_empresa: email_usuario,
-      email_codigo: dev ? "1234" : email_codigo,
-   });
-   const novoUsuario = await tab_usuario.create({
-      ...req.body,
-      cod_empresa: novaEmpresa.cod_empresa,
-      admin_usuario: "S",
-   });
-
-   const empresa = await tab_empresa.findOne({ where: { cod_empresa: novaEmpresa.cod_empresa } });
-
-   const { token, refreshToken } = await genTokenUserAuth(novoUsuario.cod_usuario, novaEmpresa.cod_empresa, req);
-   const {
-      decoded: { status },
-   } = validateToken(token);
-   const validLicense = status !== "Expired" && status !== "Cancelled" && status !== undefined && status !== null;
-   res.send({ status: true, token, refreshToken, usuario: novoUsuario, empresa, validLicense });
-}
-
-async function recovery(req, res) {
-   const { email } = req.body;
-
-   const usuario = await tab_usuario.findOne({ where: { email_usuario: email.trim() } });
-   const empresa = await tab_empresa.findOne({ where: { cod_empresa: usuario.cod_empresa } });
-
-   if (!usuario) {
-      res.send({ status: false, msg: "E-mail não cadastrado!" });
-      return;
-   }
-
-   const token = genTokenUserRecoveryPassword(usuario.cod_usuario);
-   const url = `https://app.fitcpx.com/recoveryPassword?token=${token}`;
-   await sendRecoveryPassword(email, usuario.nome_usuario, url);
-
-   res.send({ status: true });
-}
 
 async function verifyTokenRecovery(req, res) {
    const { token } = req.body;
@@ -244,14 +184,6 @@ async function setEmpresa(req, res) {
    res.send({ status: true, empresa: empresaAtt });
 }
 
-async function verifyEmail(req, res, codEmpresa) {
-   const { cod_empresa } = req.body;
-   const empresa = await tab_empresa.findOne({ where: { cod_empresa: cod_empresa || codEmpresa } });
-   if (!dev) sendConfirmationCode(empresa.email_empresa, empresa.nome_empresa, empresa.email_codigo);
-
-   if (res) res.send({ status: true });
-}
-
 async function loginGoogle(req, res) {
    const url = await getURL("entrar");
    res.send({ status: true, url });
@@ -304,8 +236,6 @@ async function loggedGoogle(req, res) {
 }
 
 module.exports = {
-   register,
-   recovery,
    verifyTokenRecovery,
    changePassword,
    refreshToken,
@@ -314,7 +244,6 @@ module.exports = {
    setUsuario,
    getEmpresa,
    setEmpresa,
-   verifyEmail,
    loginGoogle,
    loggedGoogle,
 };

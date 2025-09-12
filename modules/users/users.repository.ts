@@ -7,8 +7,8 @@ export class UsersRepository {
       return await db.tab_usuario.findAll();
    }
 
-   async findById(id: string, companyId: string) {
-      return await db.tab_usuario.findOne({ where: { cod_usuario: id, cod_empresa: companyId } });
+   async findById(id: string, companyId?: string) {
+      return await db.tab_usuario.findOne({ where: { cod_usuario: id, ...(companyId && { cod_empresa: companyId }) } });
    }
 
    async findByEmail(email: string) {
@@ -17,5 +17,9 @@ export class UsersRepository {
 
    async create(data: any) {
       return await db.tab_usuario.create(data);
+   }
+
+   async updatePassword(password: string, userId: string) {
+      return await db.tab_usuario.update({ senha_usuario: password }, { where: { cod_usuario: userId } });
    }
 }

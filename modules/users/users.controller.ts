@@ -12,8 +12,8 @@ export class UsersController {
    }
 
    @Get(":id")
-   async getById(@Param("id") id: string, @CompanyId() cod_empresa: string) {
-      return this.usersService.getById(id, cod_empresa);
+   async getById(@Param("id") id: string, @CompanyId() companyId: string) {
+      return this.usersService.getById(id, companyId);
    }
 
    @Post()
@@ -33,23 +33,20 @@ export class UsersController {
       return this.usersService.register(name, email, password);
    }
 
-   // login = async (req, res, next) => {
-   //    try {
-   //       const { email, password } = req.body;
-   //       const data = await this.userService.login(email, password);
-   //       Response.success(res, data);
-   //    } catch (error) {
-   //       next(error);
-   //    }
-   // };
+   @Post("recoveryAccount")
+   async recoveryAccount(@Body() body: { email: string }) {
+      const { email } = body;
+      return this.usersService.recoveryAccount(email);
+   }
 
-   // register = async (req, res, next) => {
-   //    try {
-   //       const { name, email, password } = req.body;
-   //       const data = await this.userService.register(name, email, password);
-   //       Response.created(res, data);
-   //    } catch (error) {
-   //       next(error);
-   //    }
-   // };
+   @Post("updatePassword")
+   async updatePassword(@Body() body: { token: string; password: string }) {
+      const { token, password } = body;
+      return this.usersService.updatePassword(token, password);
+   }
+
+   @Post("resendConfirmationCode")
+   async resendConfirmationCode(@CompanyId() companyId: string) {
+      return await this.usersService.resendConfirmationCode(companyId);
+   }
 }

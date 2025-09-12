@@ -1,5 +1,5 @@
 import { HttpException, Injectable } from "@nestjs/common";
-import { genTokenUserAuth, validateToken } from "../../utils/token";
+import { genTokenUserAuth, genTokenUserRecoveryPassword, validateToken } from "../../utils/token";
 import { CompaniesRepository } from "../companies/companies.repository";
 import { MailsService } from "../mails/mails.service";
 import { UsersRepository } from "./users.repository";
@@ -80,4 +80,39 @@ export class UsersService {
       const validLicense = status !== "Expired" && status !== "Cancelled" && status !== undefined && status !== null;
       return { token, refreshToken, usuario: newUser, empresa: newCompany, validLicense };
    };
+
+   async recoveryAccount(email: string) {
+      const user = (await this.usersRepository.findByEmail(email)) as any;
+
+      if (!user) {
+         throw new HttpException("Usuário não encontrado.", 404);
+      }
+
+      const token = genTokenUserRecoveryPassword(user.cod_usuario);
+      const url = `https://app.fitcpx.com/recoveryPassword?token=${token}`;
+      this.mailsService.recoveryPassword(user.nome_usuario, email, url);
+
+      return;
+   }
+
+   async updatePassword(token: string, password: string) {
+      try {
+         const decoded = validateToken(token);
+         if (!decoded.valid) {
+            throw new HttpException("Token inválido", 401);
+         }
+         const userId = decoded.decoded.cod_usuario;
+         return await this.usersRepository.updatePassword(password, userId);
+      } catch (error) {
+         throw new HttpException("Token inválido", 401);
+      }
+   }
+
+   async resendConfirmationCode(companyId: string) {
+      const companiesRepository = new CompaniesRepository();
+      const company = (await companiesRepository.findById(companyId)) as any;
+
+      if (!company) throw new HttpException("Empresa não encontrada.", 404);
+      return this.mailsService.confirmationCode(company.nome_empresa, company.email_empresa, company.email_codigo);
+   }
 }

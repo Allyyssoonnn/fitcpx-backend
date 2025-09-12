@@ -3,13 +3,11 @@ const router = require("express").Router();
 const verifyToken = require("../middlewares/authMiddleware");
 
 const {
-   register,
    refreshToken,
    getProtocolos,
    changeUsuarioIMG,
    setUsuario,
    getUsuarios,
-   verifyEmail,
    recovery,
    loginGoogle,
    loggedGoogle,
@@ -23,8 +21,6 @@ const { uploadIMGUsuario, uploadIMGEmpresa } = require("../features/aws");
 router.get("/loginGoogle", loginGoogle);
 router.post("/loggedGoogle", loggedGoogle);
 
-router.post("/register", register);
-router.post("/recovery", recovery);
 router.post("/verifyTokenRecovery", verifyTokenRecovery);
 router.post("/changePassword", changePassword);
 router.post("/refreshToken", refreshToken);
@@ -36,6 +32,5 @@ router.post("/setEmpresa", verifyToken, setEmpresa);
 
 router.post("/changeUsuarioIMG", uploadIMGUsuario);
 router.post("/changeEmpresaIMG", uploadIMGEmpresa);
-router.post("/verifyEmail", verifyEmail, setUsuario);
 
 module.exports = router;
