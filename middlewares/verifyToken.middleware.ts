@@ -7,7 +7,14 @@ const dev = env === "development";
 const devToken = process.env.DEV_TOKEN;
 const getMessageError = require("../core/errors-message");
 
-const allowedRoutes = ["/users/login", "/users/register", "/users/updatePassword", "/users/recoveryAccount"];
+const allowedRoutes = [
+   "/users/login",
+   "/users/register",
+   "/users/updatePassword",
+   "/users/recoveryAccount",
+   "/google/getGoogleUrlLogin",
+   "/google/loggedGoogle",
+];
 
 @Injectable()
 export class VerifyTokenMiddleware implements NestMiddleware {
