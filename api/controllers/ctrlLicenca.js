@@ -43,57 +43,61 @@ async function buyLicenca(req, res) {
    const licenca = await tab_licenca.findOne({ where: { cod_licenca } });
    var asaas_id = empresa.asaas_id;
 
-   if (!asaas_id) {
-      asaas_id = await criarCliente(
-         empresa.nome_empresa,
-         empresa.email_empresa,
-         empresa.doc_empresa,
-         empresa.telefone_empresa,
-         empresa.endereco_empresa,
-         empresa.numero_empresa,
-         empresa.estado_empresa,
-         empresa.cep_empresa,
-         empresa.cod_empresa,
-         "Lab Complex Dev LTDA"
+   try {
+      if (!asaas_id) {
+         asaas_id = await criarCliente(
+            empresa.nome_empresa,
+            empresa.email_empresa,
+            empresa.doc_empresa,
+            empresa.telefone_empresa,
+            empresa.endereco_empresa,
+            empresa.numero_empresa,
+            empresa.estado_empresa,
+            empresa.cep_empresa,
+            empresa.cod_empresa,
+            "Lab Complex Dev LTDA"
+         );
+         await tab_empresa.update({ asaas_id: asaas_id }, { where: { cod_empresa } });
+      }
+
+      await tab_empresa_licenca.update(
+         {
+            status_empresa_licenca: "Canceled",
+         },
+         { where: { status_empresa_licenca: "Active" } }
       );
-      await tab_empresa.update({ asaas_id: asaas_id }, { where: { cod_empresa } });
+
+      const empresa_licenca = await tab_empresa_licenca.create({
+         status_empresa_licenca: "Active",
+         cod_licenca,
+         cod_empresa,
+         ambiente_empresa_licenca: env,
+         forma_empresa_licenca: null,
+         tipopagamento_empresa_licenca: null,
+      });
+
+      const valor = licenca.valor_licenca;
+
+      var billingType = "UNDEFINED";
+      var dueDate = new Date();
+
+      await criarCobranca(
+         asaas_id,
+         empresa_licenca.cod_empresa_licenca,
+         valor,
+         dueDate,
+         null,
+         null,
+         null,
+         billingType,
+         "Use License"
+      );
+
+      res.send({ status: true });
+      return;
+   } catch (error) {
+      return res.send({ status: false, message: error.message });
    }
-
-   await tab_empresa_licenca.update(
-      {
-         status_empresa_licenca: "Canceled",
-      },
-      { where: { status_empresa_licenca: "Active" } }
-   );
-
-   const empresa_licenca = await tab_empresa_licenca.create({
-      status_empresa_licenca: "Active",
-      cod_licenca,
-      cod_empresa,
-      ambiente_empresa_licenca: env,
-      forma_empresa_licenca: null,
-      tipopagamento_empresa_licenca: null,
-   });
-
-   const valor = licenca.valor_licenca;
-
-   var billingType = "UNDEFINED";
-   var dueDate = new Date();
-
-   await criarCobranca(
-      asaas_id,
-      empresa_licenca.cod_empresa_licenca,
-      valor,
-      dueDate,
-      null,
-      null,
-      null,
-      billingType,
-      "Use License"
-   );
-
-   res.send({ status: true });
-   return;
 }
 
 async function cancelLicenca(req, res) {
