@@ -12,7 +12,7 @@ async function sendConfirmationCode(email, name, token) {
       body: formData,
    };
 
-   fetch(urlN8N, options)
+   await fetch(urlN8N, options)
       .then((res) => res.json())
       .then((json) => console.log(json))
       .catch((err) => console.error("error:" + err));

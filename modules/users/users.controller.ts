@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { CompanyId } from "../../decorators/companyId.decorator";
 import { UsersService } from "./users.service";
-// const Response = require("../../core/response");
 
 @Controller("users")
 export class UsersController {

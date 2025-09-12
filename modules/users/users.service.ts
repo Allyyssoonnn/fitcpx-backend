@@ -1,29 +1,29 @@
-const { sendConfirmationCode } = require("../../api/features/n8n");
 import { HttpException, Injectable } from "@nestjs/common";
 import { genTokenUserAuth, validateToken } from "../../utils/token";
 import { CompaniesRepository } from "../companies/companies.repository";
+import { MailsService } from "../mails/mails.service";
 import { UsersRepository } from "./users.repository";
 const dev = (process.env.NODE_ENV || "development") === "development";
 const crypto = require("crypto");
 
 @Injectable()
 export class UsersService {
-   constructor(private readonly userRepository: UsersRepository) {}
+   constructor(private readonly usersRepository: UsersRepository, private readonly mailsService: MailsService) {}
 
    async getAll() {
-      return await this.userRepository.findAll();
+      return await this.usersRepository.findAll();
    }
 
    getById = async (id: string, companyId: string) => {
-      return await this.userRepository.findById(id, companyId);
+      return await this.usersRepository.findById(id, companyId);
    };
 
    create = async (data: any) => {
-      return await this.userRepository.create(data);
+      return await this.usersRepository.create(data);
    };
 
    login = async (email: string, password: string) => {
-      const user = (await this.userRepository.findByEmail(email)) as any;
+      const user = (await this.usersRepository.findByEmail(email)) as any;
       const empresa = await new CompaniesRepository().findById(user?.cod_empresa);
 
       if (!user || user?.senha_usuario !== password) {
@@ -44,7 +44,7 @@ export class UsersService {
       const companiesRepository = new CompaniesRepository();
 
       const company = await companiesRepository.findByEmail(email);
-      const user = await this.userRepository.findByEmail(email);
+      const user = await this.usersRepository.findByEmail(email);
 
       if (user || company) {
          throw new HttpException("Usuário já existe.", 406);
@@ -54,7 +54,7 @@ export class UsersService {
          .map((n) => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[n % 36])
          .join("");
 
-      sendConfirmationCode(email, name, emailCode);
+      this.mailsService.confirmationCode(name, email, emailCode);
 
       const newCompany = (await companiesRepository.create({
          nome_empresa: name,
@@ -63,7 +63,7 @@ export class UsersService {
          email_codigo: dev ? "1234" : emailCode,
       })) as any;
 
-      const newUser = (await this.userRepository.create({
+      const newUser = (await this.usersRepository.create({
          nome_usuario: name,
          email_usuario: email,
          senha_usuario: password,

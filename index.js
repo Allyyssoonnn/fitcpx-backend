@@ -33,9 +33,6 @@ server.use("/licenca", require("./api/routes/routeLicenca"));
 server.use("/app", require("./api/routes/routeApp"));
 server.use("/avaliacao", require("./api/routes/routeAvaliacao"));
 
-// New Routes
-server.use(require("./modules/mails/mails.routes"));
-
 // Middleware de erro global
 server.use((err, req, res, next) => {
    if (err instanceof HttpException) {
