@@ -9,6 +9,7 @@
          "request": "launch",
          "name": "Iniciar o Programa",
          "skipFiles": ["<node_internals>/**"],
+         "runtimeArgs": ["-r", "ts-node/register"],
          "program": "${workspaceFolder}/index.js"
       }
    ]

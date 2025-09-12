@@ -34,10 +34,6 @@ server.use("/app", require("./api/routes/routeApp"));
 server.use("/avaliacao", require("./api/routes/routeAvaliacao"));
 
 // New Routes
-
-server.use(require("./modules/users/users.routes"));
-server.use(require("./modules/companies/companies.routes"));
-server.use(require("./modules/students/students.routes"));
 server.use(require("./modules/mails/mails.routes"));
 
 // Middleware de erro global
@@ -53,3 +49,6 @@ server.use((err, req, res, next) => {
 
 const serverHttp = http.createServer(server);
 serverHttp.listen(PORT, () => console.info(`\n\n\n *** http://localhost:${PORT}/test *** \n\n\n`));
+
+// NestJS
+require("./main").bootstrap(server);

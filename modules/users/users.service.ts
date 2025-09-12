@@ -1,34 +1,33 @@
-const { genTokenUserAuth, validateToken } = require("../../api/utils/token");
-const HttpException = require("../../core/http-exception");
-const getMessageError = require("../../core/errors-message");
-const crypto = require("crypto");
-const CompanyRepository = require("../companies/companies.repository");
 const { sendConfirmationCode } = require("../../api/features/n8n");
+import { HttpException, Injectable } from "@nestjs/common";
+import { genTokenUserAuth, validateToken } from "../../utils/token";
+import { CompaniesRepository } from "../companies/companies.repository";
+import { UsersRepository } from "./users.repository";
 const dev = (process.env.NODE_ENV || "development") === "development";
+const crypto = require("crypto");
 
-class UserService {
-   constructor(userRepository) {
-      this.userRepository = userRepository;
+@Injectable()
+export class UsersService {
+   constructor(private readonly userRepository: UsersRepository) {}
+
+   async getAll() {
+      return await this.userRepository.findAll();
    }
 
-   getAll = async () => {
-      return await this.userRepository.findAll();
-   };
-
-   getById = async (id, companyId) => {
+   getById = async (id: string, companyId: string) => {
       return await this.userRepository.findById(id, companyId);
    };
 
-   create = async (data) => {
+   create = async (data: any) => {
       return await this.userRepository.create(data);
    };
 
-   login = async (email, password) => {
-      const user = await this.userRepository.findByEmail(email);
-      const empresa = await new CompanyRepository().findById(user?.cod_empresa);
+   login = async (email: string, password: string) => {
+      const user = (await this.userRepository.findByEmail(email)) as any;
+      const empresa = await new CompaniesRepository().findById(user?.cod_empresa);
 
-      if (!user || user.senha_usuario !== password) {
-         throw new HttpException(406, getMessageError("INVALID_CREDENTIALS"));
+      if (!user || user?.senha_usuario !== password) {
+         throw new HttpException("Credenciais inválidas.", 401);
       }
 
       const { token, refreshToken } = await genTokenUserAuth(user.cod_usuario, user.cod_empresa);
@@ -41,38 +40,38 @@ class UserService {
       return { token, refreshToken, usuario: user, empresa: empresa, validLicense };
    };
 
-   register = async (name, email, password) => {
-      const companyRepository = new CompanyRepository();
+   register = async (name: string, email: string, password: string) => {
+      const companiesRepository = new CompaniesRepository();
 
-      const company = await companyRepository.findByEmail(email);
+      const company = await companiesRepository.findByEmail(email);
       const user = await this.userRepository.findByEmail(email);
 
       if (user || company) {
-         throw new HttpException(406, getMessageError("USER_ALREADY_EXISTS"));
+         throw new HttpException("Usuário já existe.", 406);
       }
 
       const emailCode = [...crypto.randomFillSync(Buffer.alloc(4))]
          .map((n) => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[n % 36])
          .join("");
 
-      if (!dev) sendConfirmationCode(email, name, emailCode);
+      sendConfirmationCode(email, name, emailCode);
 
-      const newCompany = await companyRepository.create({
+      const newCompany = (await companiesRepository.create({
          nome_empresa: name,
          status_empresa: "Active",
          email_empresa: email,
          email_codigo: dev ? "1234" : emailCode,
-      });
+      })) as any;
 
-      const newUser = await this.userRepository.create({
+      const newUser = (await this.userRepository.create({
          nome_usuario: name,
          email_usuario: email,
          senha_usuario: password,
-         cod_empresa: newCompany.cod_empresa,
+         cod_empresa: newCompany?.cod_empresa,
          admin_usuario: "S",
-      });
+      })) as any;
 
-      const { token, refreshToken } = await genTokenUserAuth(newUser.cod_usuario, newCompany.cod_empresa);
+      const { token, refreshToken } = await genTokenUserAuth(newUser?.cod_usuario, newCompany.cod_empresa);
 
       const {
          decoded: { status },
@@ -82,5 +81,3 @@ class UserService {
       return { token, refreshToken, usuario: newUser, empresa: newCompany, validLicense };
    };
 }
-
-module.exports = UserService;
