@@ -7,6 +7,7 @@ interface Db {
    tab_usuario: ModelStatic<Model>;
    tab_empresa: ModelStatic<Model>;
    tab_aluno: ModelStatic<Model>;
+   tab_refreshtoken_usuario: ModelStatic<Model>;
    // demais models
 }
 

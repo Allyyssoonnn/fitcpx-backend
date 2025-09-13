@@ -26,4 +26,16 @@ export class UsersRepository {
    async updateImageUser(userId: string, imageUrl: string) {
       return await db.tab_usuario.update({ imagem_usuario: imageUrl }, { where: { cod_usuario: userId } });
    }
+
+   async findRefreshToken(refreshToken: string) {
+      return await db.tab_refreshtoken_usuario.findOne({
+         where: { refreshtoken_usuario: refreshToken },
+      });
+   }
+
+   async deleteRefreshToken(refreshToken: string) {
+      return await db.tab_refreshtoken_usuario.destroy({
+         where: { refreshtoken_usuario: refreshToken },
+      });
+   }
 }

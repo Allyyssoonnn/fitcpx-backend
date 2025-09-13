@@ -9,6 +9,7 @@ const getMessageError = require("../core/errors-message");
 
 const allowedRoutes = [
    "/users/login",
+   "/users/refreshToken",
    "/users/register",
    "/users/updatePassword",
    "/users/recoveryAccount",
@@ -27,7 +28,7 @@ export class VerifyTokenMiddleware implements NestMiddleware {
       // Extract token from "Authorization" header
       const params = req.headers.authorization?.split(" ");
       //Remove Bearer if exist
-      const token = params[1] ?? (params[0] as string);
+      const token = params ? params[1] ?? (params[0] as string) : null;
 
       //If token is not present return error
       if (!token) {

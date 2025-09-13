@@ -30,6 +30,12 @@ export class UsersController {
       return this.usersService.login(email, password);
    }
 
+   @Post("refreshToken")
+   async refreshToken(@Body() body: { refreshToken: string }) {
+      const { refreshToken } = body;
+      return this.usersService.refreshToken(refreshToken);
+   }
+
    @Post("register")
    async register(@Body() body: { name: string; email: string; password: string }) {
       const { name, email, password } = body;

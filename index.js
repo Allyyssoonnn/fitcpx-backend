@@ -19,7 +19,6 @@ server.get("/test", async (req, res) => res.send({ status: true }));
 server.get("/fitnessassessmentpdf", (req, res) => {
    res.sendFile(__dirname + "/api/utils/templates/fitnessassessmentpdf.html");
 });
-server.use("/usuario", require("./api/routes/routeUsuario"));
 server.use("/aluno", require("./api/routes/routeAluno"));
 server.use("/aluno/sessao", require("./api/routes/aluno/routeSessao"));
 server.use("/agenda", require("./api/routes/routeAgenda"));
