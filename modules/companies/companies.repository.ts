@@ -18,4 +18,8 @@ export class CompaniesRepository {
    async createOrUpdate(data: any) {
       return await db.tab_empresa.upsert(data);
    }
+
+   async updateImageCompany(companyId: string, imageUrl: string) {
+      return await db.tab_empresa.update({ imagem_empresa: imageUrl }, { where: { cod_empresa: companyId } });
+   }
 }

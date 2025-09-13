@@ -1,5 +1,8 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
+import multer from "multer";
 import { CompanyId } from "../../decorators/companyId.decorator";
+import { UserId } from "../../decorators/userId.decorator";
 import { UsersService } from "./users.service";
 
 @Controller("users")
@@ -48,5 +51,15 @@ export class UsersController {
    @Post("resendConfirmationCode")
    async resendConfirmationCode(@CompanyId() companyId: string) {
       return await this.usersService.resendConfirmationCode(companyId);
+   }
+
+   @Post("updateImageUser")
+   @UseInterceptors(
+      FileInterceptor("image", {
+         storage: multer.memoryStorage(),
+      })
+   )
+   async updateImageUser(@UserId() userId: string, @UploadedFile() fileBuffer: Express.Multer.File) {
+      return this.usersService.updateImageUser(userId, fileBuffer);
    }
 }

@@ -22,4 +22,8 @@ export class UsersRepository {
    async updatePassword(password: string, userId: string) {
       return await db.tab_usuario.update({ senha_usuario: password }, { where: { cod_usuario: userId } });
    }
+
+   async updateImageUser(userId: string, imageUrl: string) {
+      return await db.tab_usuario.update({ imagem_usuario: imageUrl }, { where: { cod_usuario: userId } });
+   }
 }

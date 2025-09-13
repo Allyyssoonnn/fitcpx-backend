@@ -2,13 +2,18 @@ import { HttpException, Injectable } from "@nestjs/common";
 import { genTokenUserAuth, genTokenUserRecoveryPassword, validateToken } from "../../utils/token";
 import { CompaniesRepository } from "../companies/companies.repository";
 import { MailsService } from "../mails/mails.service";
+import { StorageService } from "../storage/storage.service";
 import { UsersRepository } from "./users.repository";
 const dev = (process.env.NODE_ENV || "development") === "development";
 const crypto = require("crypto");
 
 @Injectable()
 export class UsersService {
-   constructor(private readonly usersRepository: UsersRepository, private readonly mailsService: MailsService) {}
+   constructor(
+      private readonly usersRepository: UsersRepository,
+      private readonly mailsService: MailsService,
+      private readonly storageService: StorageService
+   ) {}
 
    async getAll() {
       return await this.usersRepository.findAll();
@@ -114,5 +119,15 @@ export class UsersService {
 
       if (!company) throw new HttpException("Empresa não encontrada.", 404);
       return this.mailsService.confirmationCode(company.nome_empresa, company.email_empresa, company.email_codigo);
+   }
+
+   async updateImageUser(userId: string, fileBuffer: Express.Multer.File) {
+      if (!fileBuffer) throw new HttpException("Arquivo não enviado.", 400);
+
+      const key = `${dev ? "developer/" : ""}usuario/perfil/${Date.now()}_${fileBuffer.originalname}`;
+      const url = await this.storageService.uploadFile(fileBuffer, key);
+
+      this.usersRepository.updateImageUser(userId, url);
+      return url;
    }
 }
