@@ -24,92 +24,6 @@ const { default: puppeteer } = require("puppeteer");
 const env = process.env.NODE_ENV || "development";
 const dev = env === "development";
 
-async function getAlunos(req, res) {
-   const { cod_usuario, cod_empresa, deleted } = req.body;
-   const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : { deletedAt: null };
-   if (cod_empresa) where.cod_empresa = cod_empresa;
-   const alunos = await tab_aluno.findAll({
-      limit: req.validLicense ? undefined : 3,
-      where: where,
-      paranoid: !deleted,
-      include: [
-         { model: tab_avaliacao, as: "avaliacao" },
-         { model: tab_usuario, as: "usuario", where: { cod_empresa } },
-      ],
-      attributes: { exclude: ["senha_aluno"] },
-      order: [["nome_aluno", "ASC"]],
-   });
-   res.send({ status: true, alunos });
-}
-
-async function getAluno(req, res) {
-   const { cod_aluno } = req.body;
-   const aluno = await tab_aluno.findOne({
-      where: { cod_aluno: cod_aluno },
-      include: [
-         {
-            model: tab_avaliacao,
-            as: "avaliacao",
-            include: [
-               {
-                  model: tab_avaliacao_imagem,
-                  as: "imagem",
-               },
-            ],
-         },
-      ],
-   });
-   res.send({ status: true, aluno });
-}
-
-async function getCards(req, res) {
-   const { cod_aluno } = req.body;
-
-   const cards = await tab_aluno_cartao.findAll({
-      where: { cod_aluno },
-      attributes: { exclude: ["token_aluno_cartao"] },
-   });
-   res.send({ status: true, cards });
-}
-
-async function deleteCard(req, res) {
-   const { cod_aluno_cartao } = req.body;
-
-   await tab_aluno_cartao.update({ deletedAt: new Date() }, { where: { cod_aluno_cartao } });
-   res.send({ status: true });
-}
-
-async function setAluno(req, res) {
-   const { aluno } = req.body;
-   var alunoAtt;
-
-   if (aluno?.cod_aluno)
-      alunoAtt = await tab_aluno.findOne({
-         where: { cod_aluno: aluno.cod_aluno },
-      });
-
-   if (alunoAtt) {
-      const { asaas_id, ...alunoSemAsaasId } = aluno;
-      await tab_aluno.update(alunoSemAsaasId, {
-         where: { cod_aluno: aluno.cod_aluno },
-      });
-
-      const empresa = await tab_empresa.findOne({
-         where: { cod_empresa: aluno.cod_empresa },
-      });
-   } else {
-      const novoAluno = await tab_aluno.create(aluno);
-      alunoAtt = novoAluno;
-   }
-   res.send({ status: true, aluno: alunoAtt });
-}
-
-async function deleteAluno(req, res) {
-   const { cod_aluno } = req.body;
-   await tab_aluno.update({ deletedAt: new Date() }, { where: { cod_aluno: cod_aluno } });
-   res.send({ status: true });
-}
-
 async function recoveryAluno(req, res) {
    const { cod_aluno } = req.body;
    await tab_aluno.update({ deletedAt: null }, { where: { cod_aluno: cod_aluno }, paranoid: false });
@@ -450,12 +364,6 @@ async function getAlunoContrato(req, res) {
 }
 
 module.exports = {
-   getAlunos,
-   getAluno,
-   getCards,
-   deleteCard,
-   setAluno,
-   deleteAluno,
    recoveryAluno,
    getAvaliacoes,
    getAvaliacao,

@@ -16,4 +16,16 @@ export class StudentsRepository {
    async findById(id: string, companyId: string) {
       return await db.tab_aluno.findOne({ where: { cod_aluno: id, cod_empresa: companyId } });
    }
+
+   async createOrUpdate(data: any) {
+      return await db.tab_aluno.upsert(data);
+   }
+
+   async deleteById(id: string) {
+      return await db.tab_aluno.destroy({ where: { cod_aluno: id } });
+   }
+
+   async updateImageStudent(studentId: string, imageUrl: string) {
+      return await db.tab_aluno.update({ imagem_aluno: imageUrl }, { where: { cod_aluno: studentId } });
+   }
 }

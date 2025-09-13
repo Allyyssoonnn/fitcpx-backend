@@ -2,14 +2,8 @@ const router = require("express").Router();
 const verifyToken = require("../middlewares/authMiddleware");
 
 const {
-   getAlunos,
-   setAluno,
-   getAluno,
    setAvaliacao,
    getAvaliacao,
-   changeAlunoIMG,
-   sendAvaliacaoIMG,
-   deleteAluno,
    recoveryAluno,
    getAvaliacoes,
    deleteAvaliacao,
@@ -17,21 +11,13 @@ const {
    getAlunoContratos,
    getAlunoContrato,
    sendAlunoContrato,
-   getCards,
-   deleteCard,
    cancelAlunoContrato,
    downloadAlunoContrato,
    resendAlunoContrato,
 } = require("../controllers/aluno/ctrlAluno");
-const { uploadIMGAvaliacao, uploadIMGAluno } = require("../features/aws");
+const { uploadIMGAvaliacao } = require("../features/aws");
 const { multerAutentique } = require("../features/autentique");
 
-router.post("/getAlunos", verifyToken, getAlunos);
-router.post("/getAluno", verifyToken, getAluno);
-router.post("/getCards", verifyToken, getCards);
-router.post("/deleteCard", verifyToken, deleteCard);
-router.post("/setAluno", verifyToken, setAluno);
-router.post("/deleteAluno", verifyToken, deleteAluno);
 router.post("/recoveryAluno", verifyToken, recoveryAluno);
 router.post("/getAvaliacoes", getAvaliacoes);
 router.post("/getAvaliacao", getAvaliacao);
@@ -45,7 +31,6 @@ router.post("/downloadAlunoContrato", verifyToken, downloadAlunoContrato);
 router.post("/getAlunoContratos", getAlunoContratos);
 router.post("/getAlunoContrato", getAlunoContrato);
 
-router.post("/changeAlunoIMG", uploadIMGAluno);
 router.post("/sendAvaliacaoIMG", uploadIMGAvaliacao);
 
 module.exports = router;

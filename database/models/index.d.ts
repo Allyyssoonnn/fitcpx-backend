@@ -8,6 +8,8 @@ interface Db {
    tab_empresa: ModelStatic<Model>;
    tab_aluno: ModelStatic<Model>;
    tab_refreshtoken_usuario: ModelStatic<Model>;
+   tab_avaliacao: ModelStatic<Model>;
+   tab_avaliacao_imagem: ModelStatic<Model>;
    // demais models
 }
 
