@@ -15,7 +15,7 @@ export class CompaniesRepository {
       return await db.tab_empresa.findOne({ where: { email_empresa: email.trim() } });
    }
 
-   async create(data: any) {
-      return await db.tab_empresa.create(data);
+   async createOrUpdate(data: any) {
+      return await db.tab_empresa.upsert(data);
    }
 }

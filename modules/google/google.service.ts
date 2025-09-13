@@ -28,13 +28,13 @@ export class GoogleService {
 
       if (!user) {
          //Cria novo usuário com o google
-         const company = (await this.companiesRepository.create({
+         const company = (await this.companiesRepository.createOrUpdate({
             nome_empresa: data?.name,
             email_empresa: data.email.trim(),
             //Id do E-mail do google
             email_codigo: data?.id,
          })) as any;
-         const newUser = (await this.usersRespository.create({
+         const newUser = (await this.usersRespository.createOrUpdate({
             nome_usuario: data?.name,
             email_usuario: data.email.trim(),
             senha_usuario: [...crypto.randomFillSync(Buffer.alloc(8))]

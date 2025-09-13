@@ -24,7 +24,6 @@ server.use("/aluno", require("./api/routes/routeAluno"));
 server.use("/aluno/sessao", require("./api/routes/aluno/routeSessao"));
 server.use("/agenda", require("./api/routes/routeAgenda"));
 server.use("/treino", require("./api/routes/routeTreino"));
-server.use("/cardapio", require("./api/routes/routeCardapio"));
 server.use("/appaluno", require("./api/routes/routeAppAluno"));
 server.use("/appadmin", require("./api/routes/routeAppAdmin"));
 server.use("/plano", require("./api/routes/routePlano"));

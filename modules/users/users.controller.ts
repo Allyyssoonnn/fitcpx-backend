@@ -17,8 +17,8 @@ export class UsersController {
    }
 
    @Post()
-   async create(@Body() body: any) {
-      return this.usersService.create(body);
+   async createOrUpdate(@Body() body: any) {
+      return this.usersService.createOrUpdate(body);
    }
 
    @Post("login")

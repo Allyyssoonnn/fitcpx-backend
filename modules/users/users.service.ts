@@ -18,8 +18,8 @@ export class UsersService {
       return await this.usersRepository.findById(id, companyId);
    };
 
-   create = async (data: any) => {
-      return await this.usersRepository.create(data);
+   createOrUpdate = async (data: any) => {
+      return await this.usersRepository.createOrUpdate(data);
    };
 
    login = async (email: string, password: string) => {
@@ -56,14 +56,14 @@ export class UsersService {
 
       this.mailsService.confirmationCode(name, email, emailCode);
 
-      const newCompany = (await companiesRepository.create({
+      const newCompany = (await companiesRepository.createOrUpdate({
          nome_empresa: name,
          status_empresa: "Active",
          email_empresa: email,
          email_codigo: dev ? "1234" : emailCode,
       })) as any;
 
-      const newUser = (await this.usersRepository.create({
+      const newUser = (await this.usersRepository.createOrUpdate({
          nome_usuario: name,
          email_usuario: email,
          senha_usuario: password,

@@ -15,8 +15,8 @@ export class UsersRepository {
       return await db.tab_usuario.findOne({ where: { email_usuario: email.trim() } });
    }
 
-   async create(data: any) {
-      return await db.tab_usuario.create(data);
+   async createOrUpdate(data: any) {
+      return await db.tab_usuario.upsert(data);
    }
 
    async updatePassword(password: string, userId: string) {
