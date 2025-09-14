@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
@@ -32,5 +32,16 @@ export class StorageAPI {
       const imageUrl = `https://media.fitcpx.com/${key}`;
 
       return imageUrl;
+   }
+
+   //Not used
+   async deleteFile(folder: string, id: string) {
+      const params = {
+         Bucket: "media.fitcpx.com",
+         Key: `${folder}/${id}`,
+      };
+
+      const command = new DeleteObjectCommand(params);
+      return this.s3Client.send(command);
    }
 }

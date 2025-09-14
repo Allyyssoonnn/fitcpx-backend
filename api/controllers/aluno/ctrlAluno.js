@@ -1,7 +1,6 @@
 const { Sequelize } = require("sequelize");
 const {
    tab_aluno,
-   tab_aluno_cartao,
    tab_avaliacao,
    tab_avaliacao_imagem,
    tab_usuario,
@@ -19,10 +18,9 @@ const {
    calculaPorcentagemMassaMagra,
    getResultPhysicalAssesment,
 } = require("../ctrlAvaliacao");
-const { criarCliente, removerCobranca, removerAssinaturaParcelamento } = require("../../utils/asaas");
+const { removerCobranca, removerAssinaturaParcelamento } = require("../../utils/asaas");
 const { default: puppeteer } = require("puppeteer");
 const env = process.env.NODE_ENV || "development";
-const dev = env === "development";
 
 async function recoveryAluno(req, res) {
    const { cod_aluno } = req.body;

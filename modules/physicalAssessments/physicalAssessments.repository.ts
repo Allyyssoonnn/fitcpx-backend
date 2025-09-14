@@ -43,4 +43,12 @@ export class PhysicalAssessmentsRepository {
 
       return physicalAssesmentsWithResult;
    }
+
+   async addImages(images: any[]) {
+      return db.tab_avaliacao_imagem.bulkCreate(images);
+   }
+
+   async deleteImage(url: string) {
+      return db.tab_avaliacao_imagem.destroy({ where: { url_imagem: url } });
+   }
 }

@@ -15,7 +15,6 @@ const {
    downloadAlunoContrato,
    resendAlunoContrato,
 } = require("../controllers/aluno/ctrlAluno");
-const { uploadIMGAvaliacao } = require("../features/aws");
 const { multerAutentique } = require("../features/autentique");
 
 router.post("/recoveryAluno", verifyToken, recoveryAluno);
@@ -30,7 +29,5 @@ router.post("/resendAlunoContrato", verifyToken, multerAutentique(), resendAluno
 router.post("/downloadAlunoContrato", verifyToken, downloadAlunoContrato);
 router.post("/getAlunoContratos", getAlunoContratos);
 router.post("/getAlunoContrato", getAlunoContrato);
-
-router.post("/sendAvaliacaoIMG", uploadIMGAvaliacao);
 
 module.exports = router;
