@@ -14,6 +14,14 @@ export class PhysicalAssessmentsService {
       return this.physicalAssessmentsRepository.findAll(companyId, deleted, studentId);
    }
 
+   createOrUpdate = async (data: any) => {
+      return await this.physicalAssessmentsRepository.createOrUpdate(data);
+   };
+
+   delete = async (id: string) => {
+      return await this.physicalAssessmentsRepository.deleteById(id);
+   };
+
    async updateImagePhysicalAssessment(
       physicalAssessmentId: string,
       filesBuffer: Express.Multer.File[],

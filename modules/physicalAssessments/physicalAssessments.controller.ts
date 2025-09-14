@@ -1,4 +1,15 @@
-import { Controller, Get, Headers, Post, Query, UploadedFiles, UseInterceptors } from "@nestjs/common";
+import {
+   Body,
+   Controller,
+   Delete,
+   Get,
+   Headers,
+   Param,
+   Post,
+   Query,
+   UploadedFiles,
+   UseInterceptors,
+} from "@nestjs/common";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import multer from "multer";
 import { CompanyId } from "../../decorators/companyId.decorator";
@@ -15,6 +26,16 @@ export class PhysicalAssessmentsController {
       @Query("deleted") deleted?: string
    ) {
       return this.physicalAssessmentsService.getAll(companyId, deleted == "true", studentId);
+   }
+
+   @Post()
+   async createOrUpdate(@Body() body: any) {
+      return this.physicalAssessmentsService.createOrUpdate(body);
+   }
+
+   @Delete(":id")
+   async delete(@Param("id") id: string) {
+      return this.physicalAssessmentsService.delete(id);
    }
 
    @Post("updateImagePhysicalAssessment")
