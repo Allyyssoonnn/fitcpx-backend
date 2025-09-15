@@ -17,6 +17,14 @@ export class ContractsService {
       private readonly companiesRepository: CompaniesRepository
    ) {}
 
+   async getContracts(companyId: string, studentId?: string) {
+      return this.contractsRepository.findAll(companyId, studentId);
+   }
+
+   async getContract(contractId: string) {
+      return this.contractsRepository.findById(contractId);
+   }
+
    async newContract(companyId: string, userId: string, plano: any) {
       const {
          modalidades,
@@ -137,5 +145,24 @@ export class ContractsService {
          valor_adesao,
          `${companyId}_${company.nome_empresa}`
       );
+   }
+
+   async downloadContract(documentId: string, signed: boolean) {
+      return this.contractsAPI.downloadContract(documentId, signed);
+   }
+
+   async cancelContract(contractId: string) {
+      const contract = (await this.contractsRepository.findById(contractId)) as any;
+
+      if (contract?.autentique_aluno_contrato)
+         await this.contractsAPI.deleteContract(contract.autentique_aluno_contrato);
+
+      if (contract.asaas_id) await this.paymentsService.deleteSignatureOrInstallment(contract.asaas_id);
+
+      for (const payment of contract.pagamentos) {
+         if (payment.asaas_id) await this.paymentsService.deleteInvoice(payment.asaas_id);
+      }
+
+      return this.contractsRepository.deleteById(contractId);
    }
 }

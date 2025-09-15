@@ -11,6 +11,36 @@ export class ContractsRepository {
       return contract;
    }
 
+   async findAll(companyId: string, studentId?: string) {
+      let where = { cod_empresa: companyId } as any;
+      if (studentId) where.cod_aluno = Number(studentId);
+      return await db.tab_aluno_contrato.findAll({
+         where: where,
+         include: [
+            {
+               model: db.tab_aluno_contrato_modalidade,
+               as: "modalidades",
+               include: [
+                  { model: db.tab_modalidade_variacao, as: "variacao" },
+                  {
+                     model: db.tab_modalidade_variacao_valor,
+                     as: "variacaoValor",
+                  },
+                  { model: db.tab_modalidade, as: "modalidade" },
+               ],
+            },
+            {
+               model: db.tab_aluno_contrato_pagamento,
+               as: "pagamentos",
+            },
+            {
+               model: db.tab_aluno,
+               as: "aluno",
+            },
+         ],
+      });
+   }
+
    async findById(contractId: string) {
       return await db.tab_aluno_contrato.findOne({
          where: { cod_aluno_contrato: contractId },
@@ -27,6 +57,14 @@ export class ContractsRepository {
                   { model: db.tab_modalidade, as: "modalidade" },
                ],
             },
+            {
+               model: db.tab_aluno_contrato_pagamento,
+               as: "pagamentos",
+            },
+            {
+               model: db.tab_aluno,
+               as: "aluno",
+            },
          ],
       });
    }
@@ -40,5 +78,9 @@ export class ContractsRepository {
          { autentique_aluno_contrato: apiId },
          { where: { cod_aluno_contrato: contractId } }
       );
+   }
+
+   async deleteById(id: string) {
+      return await db.tab_aluno_contrato.destroy({ where: { cod_aluno_contrato: id } });
    }
 }

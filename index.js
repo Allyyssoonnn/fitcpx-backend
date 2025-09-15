@@ -4,7 +4,6 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 require("dotenv").config();
-const HttpException = require("./core/http-exception");
 
 const server = express();
 const PORT = 8070;
@@ -19,24 +18,10 @@ server.get("/test", async (req, res) => res.send({ status: true }));
 server.get("/fitnessassessmentpdf", (req, res) => {
    res.sendFile(__dirname + "/api/utils/templates/fitnessassessmentpdf.html");
 });
-server.use("/aluno", require("./api/routes/routeAluno"));
-server.use("/aluno/sessao", require("./api/routes/aluno/routeSessao"));
-server.use("/agenda", require("./api/routes/routeAgenda"));
 server.use("/treino", require("./api/routes/routeTreino"));
 server.use("/appaluno", require("./api/routes/routeAppAluno"));
-server.use("/appadmin", require("./api/routes/routeAppAdmin"));
 server.use("/plano", require("./api/routes/routePlano"));
-server.use("/licenca", require("./api/routes/routeLicenca"));
 server.use("/app", require("./api/routes/routeApp"));
-
-// Middleware de erro global
-server.use((err, req, res, next) => {
-   if (err instanceof HttpException) {
-      return res.status(err.status).json({ error: err.message });
-   }
-   console.error(err);
-   return res.status(500).json({ error: "Internal Server Error" });
-});
 
 // ================ Servidor
 

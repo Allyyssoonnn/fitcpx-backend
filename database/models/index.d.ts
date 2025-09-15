@@ -16,7 +16,10 @@ interface Db {
    tab_modalidade_variacao_valor: ModelStatic<Model>;
    tab_modalidade: ModelStatic<Model>;
    tab_aluno_contrato_pagamento: ModelStatic<Model>;
-   // demais models
+   tab_agenda: ModelStatic<Model>;
+   tab_licenca: ModelStatic<Model>;
+   tab_empresa_licenca: ModelStatic<Model>;
+   tab_empresa_licenca_pagamento: ModelStatic<Model>;
 }
 
 declare const db: Db;

@@ -29,8 +29,8 @@ export class PaymentService {
 
    async createPayment(
       customer: CustomerPaymentService,
-      paymentMethod: "MANUAL" | "UNICA" | "PARCELADO" | "RECORRENTE",
-      billingType: "CREDIT_CARD" | "PIX" | "BOLETO",
+      paymentMethod: "MANUAL" | "UNICA" | "PARCELADO" | "RECORRENTE" | null,
+      billingType: "CREDIT_CARD" | "PIX" | "BOLETO" | "UNDEFINED",
       externalId: string,
       value: number,
       installmentsCount: number | null,
@@ -118,6 +118,19 @@ export class PaymentService {
          }
       }
 
+      if (billingType === "UNDEFINED") {
+         const respAsaas = await this.paymentAPI.createPayment(
+            apiId ?? null,
+            externalId,
+            value,
+            String(dueDate),
+            null,
+            billingType,
+            description
+         );
+         return respAsaas.id;
+      }
+
       if (paymentMethod === "RECORRENTE" && billingType === "CREDIT_CARD") {
          // * RECORRÊNCIA - CARTÃO DE CRÉDITO / ASSINATURA
          const respAsaas = await this.paymentAPI.createSignature(
@@ -178,5 +191,13 @@ export class PaymentService {
 
    async markPaymentReceived(paymentId: string) {
       return this.paymentAPI.markPaymentReceived(paymentId);
+   }
+
+   async deleteSignatureOrInstallment(paymentId: string) {
+      return this.paymentAPI.deleteSignatureOrInstallment(paymentId);
+   }
+
+   async deleteInvoice(paymentId: string) {
+      return this.paymentAPI.deleteInoice(paymentId);
    }
 }

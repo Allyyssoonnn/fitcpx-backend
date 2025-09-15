@@ -1,4 +1,5 @@
 import { HttpException, Injectable } from "@nestjs/common";
+import { PaymentService } from "../payments/payment.service";
 import { StorageService } from "../storage/storage.service";
 import { CompaniesRepository } from "./companies.repository";
 const dev = process.env.NODE_ENV !== "development";
@@ -7,7 +8,8 @@ const dev = process.env.NODE_ENV !== "development";
 export class CompaniesService {
    constructor(
       private readonly companiesRepository: CompaniesRepository,
-      private readonly storageService: StorageService
+      private readonly storageService: StorageService,
+      private readonly paymentService: PaymentService
    ) {}
 
    async getAll() {
@@ -34,5 +36,32 @@ export class CompaniesService {
 
       this.companiesRepository.updateImageCompany(companyId, url);
       return url;
+   }
+
+   async createOrUpdateCompanyLicense(
+      companyId: string,
+      licenseId: string,
+      paymentId?: string,
+      companyLicenseId?: string
+   ) {
+      return this.companiesRepository.createOrUpdateCompanyLicense(companyId, licenseId, paymentId, companyLicenseId);
+   }
+
+   async cancelAllCompanyLicenses(companyId: string) {
+      return this.companiesRepository.cancelAllCompanyLicenses(companyId);
+   }
+
+   async getAllCompaniesLicenses(companyId: string) {
+      return await this.companiesRepository.findAllCompaniesLicenses(companyId);
+   }
+
+   async cancelCompanyLicense(companyId: string, companyLicenseId: string) {
+      const companyLicense = (await this.companiesRepository.findCompanyLicenseById(companyLicenseId)) as any;
+      if (companyLicense.asaas_id) await this.paymentService.deleteInvoice(companyLicense.asaas_id);
+      return this.companiesRepository.cancelAllCompanyLicenses(companyId);
+   }
+
+   async getCompanyLicense(companyId: string) {
+      return await this.companiesRepository.findCompanyLicenseActive(companyId);
    }
 }

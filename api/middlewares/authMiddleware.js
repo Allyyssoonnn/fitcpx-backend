@@ -3,7 +3,7 @@ const { validateToken } = require("../utils/token");
 const env = process.env.NODE_ENV || "development";
 const dev = env === "development";
 const devToken = process.env.DEV_TOKEN;
-const getMessageError = require("../../core/errors-message");
+const getMessageError = require("../../utils/errors-message");
 
 function verifyToken(req, res, next) {
    // Extract token from "Authorization" header

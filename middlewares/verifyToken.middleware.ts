@@ -5,7 +5,7 @@ const { validateToken } = require("../api/utils/token");
 const env = process.env.NODE_ENV || "development";
 const dev = env === "development";
 const devToken = process.env.DEV_TOKEN;
-const getMessageError = require("../core/errors-message");
+const getMessageError = require("../utils/errors-message");
 
 const allowedRoutes = [
    "/users/login",

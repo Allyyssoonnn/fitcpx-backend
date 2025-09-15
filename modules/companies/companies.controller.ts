@@ -27,4 +27,19 @@ export class CompaniesController {
    async updateImageCompany(@CompanyId() companyId: string, @UploadedFile() fileBuffer: Express.Multer.File) {
       return this.companiesService.updateImageCompany(companyId, fileBuffer);
    }
+
+   @Get("getAllCompanyLicenses")
+   async getAllCompanyLicenses(@CompanyId() companyId: string) {
+      return await this.companiesService.getAllCompaniesLicenses(companyId);
+   }
+
+   @Get("getCompanyLicense")
+   async getAllCompanyLicense(@CompanyId() companyId: string) {
+      return await this.companiesService.getCompanyLicense(companyId);
+   }
+
+   @Post("cancelCompanyLicense")
+   async cancelLicense(@CompanyId() companyId: string, @Body("licenseId") licenseId: string) {
+      return this.companiesService.cancelCompanyLicense(companyId, licenseId);
+   }
 }
