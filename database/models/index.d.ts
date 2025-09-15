@@ -10,6 +10,12 @@ interface Db {
    tab_refreshtoken_usuario: ModelStatic<Model>;
    tab_avaliacao: ModelStatic<Model>;
    tab_avaliacao_imagem: ModelStatic<Model>;
+   tab_aluno_contrato: ModelStatic<Model>;
+   tab_aluno_contrato_modalidade: ModelStatic<Model>;
+   tab_modalidade_variacao: ModelStatic<Model>;
+   tab_modalidade_variacao_valor: ModelStatic<Model>;
+   tab_modalidade: ModelStatic<Model>;
+   tab_aluno_contrato_pagamento: ModelStatic<Model>;
    // demais models
 }
 

@@ -24,29 +24,6 @@ async function getAgenda(req, res) {
    res.send({ status: true, agenda });
 }
 
-async function getAvaliableEvents(req, res) {
-   const { cod_empresa } = req.body;
-
-   const startDate = new Date();
-   startDate.setHours(0, 0, 0, 0); // Hoje às 00:00:00
-   const endDate = new Date();
-   endDate.setDate(startDate.getDate() + 30);
-   endDate.setHours(23, 59, 59, 999); // Daqui 30 dias às 23:59:59
-
-   var avaliableEvents = await tab_agenda.findAll({
-      include: [
-         { model: tab_modalidade, as: "modalidade" },
-         { model: tab_usuario, as: "usuario" },
-      ],
-      where: {
-         cod_empresa: cod_empresa,
-         tipo_evento: "Disponibilidade",
-         data_inicio: { [Op.between]: [startDate, endDate] },
-      },
-   });
-   res.send({ status: true, avaliableEvents });
-}
-
 async function setAgenda(req, res) {
    const { evento } = req.body;
    var agendaAtt;
@@ -66,6 +43,5 @@ async function setAgenda(req, res) {
 
 module.exports = {
    getAgenda,
-   getAvaliableEvents,
    setAgenda,
 };

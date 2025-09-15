@@ -28,4 +28,8 @@ export class StudentsRepository {
    async updateImageStudent(studentId: string, imageUrl: string) {
       return await db.tab_aluno.update({ imagem_aluno: imageUrl }, { where: { cod_aluno: studentId } });
    }
+
+   async updateApiId(studentId: string, apiId: string | null) {
+      return await db.tab_aluno.update({ asaas_id: apiId }, { where: { cod_aluno: studentId } });
+   }
 }

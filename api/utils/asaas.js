@@ -47,24 +47,6 @@ async function criarCliente(nome, email, documento, telefone, endereco, numero, 
    return resp.id;
 }
 
-async function atualizarCliente(customerId, nome, documento, email, telefone, apikey) {
-   const url = `${urlBase}/v3/customers/${customerId}`;
-   const options = {
-      method: "PUT",
-      headers: { accept: "application/json", "content-type": "application/json", access_token: apikey ?? token },
-      body: JSON.stringify({
-         name: nome,
-         cpfCnpj: documento.replace(/[^\d]+/g, ""),
-         email: email,
-         phone: telefone,
-      }),
-   };
-
-   const response = await fetchJson(url, options);
-
-   return;
-}
-
 async function criarCobranca(customerId, cod, value, dueDate, tokenCartao, meuip, installments, billingType, name) {
    const url = `${urlBase}/v3/payments/`;
    const body = {
@@ -249,7 +231,6 @@ async function removerParcelamento(id) {
 
 module.exports = {
    criarCliente,
-   atualizarCliente,
    criarCobranca,
    buscarCobranca,
    cobrancaRecebida,

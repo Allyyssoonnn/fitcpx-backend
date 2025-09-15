@@ -26,10 +26,8 @@ server.use("/treino", require("./api/routes/routeTreino"));
 server.use("/appaluno", require("./api/routes/routeAppAluno"));
 server.use("/appadmin", require("./api/routes/routeAppAdmin"));
 server.use("/plano", require("./api/routes/routePlano"));
-server.use("/pagamento", require("./api/routes/routePagamento"));
 server.use("/licenca", require("./api/routes/routeLicenca"));
 server.use("/app", require("./api/routes/routeApp"));
-server.use("/avaliacao", require("./api/routes/routeAvaliacao"));
 
 // Middleware de erro global
 server.use((err, req, res, next) => {
