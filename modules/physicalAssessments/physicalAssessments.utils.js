@@ -1,5 +1,5 @@
 const { tab_aluno, tab_avaliacao, tab_avaliacao_imagem, tab_usuario } = require("../../database/models");
-const { getAgeFromPhysicalAssessmentDate } = require("../../utils/functions");
+const { getAgeFromPhysicalAssessmentDate } = require("../../shared/utils/functions");
 
 async function getResultPhysicalAssesment(req, res) {
    try {

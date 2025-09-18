@@ -105,4 +105,40 @@ export class CompaniesRepository {
          order: [["cod_empresa_licenca", "DESC"]],
       });
    }
+
+   async getDashboardInfo(companyId: string) {
+      const clientsLength = await db.tab_aluno.count({ where: { cod_empresa: companyId, status_aluno: "A" } });
+      const usersLength = await db.tab_usuario.count({ where: { cod_empresa: companyId } });
+      const physicalAssessmentsLength = await db.tab_avaliacao.count({
+         include: [{ model: db.tab_usuario, as: "usuario", where: { cod_empresa: companyId } }],
+      });
+      const workoutLength = await db.tab_treino.count({ where: { cod_empresa: companyId } });
+
+      const lastPhysicalAssessments = await db.tab_avaliacao.findAll({
+         include: [
+            { model: db.tab_usuario, as: "usuario", where: { cod_empresa: companyId } },
+            { model: db.tab_aluno, as: "aluno" },
+         ],
+         order: [["data_avaliacao", "DESC"]],
+         limit: 5,
+      });
+
+      return {
+         lengths: {
+            clients: clientsLength,
+            users: usersLength,
+            physicalAssessments: physicalAssessmentsLength,
+            workouts: workoutLength,
+         },
+         lastPhysicalAssessments,
+      };
+   }
+
+   async createFeedback(companyId: string, type: string, message: string) {
+      return db.feedbacks.create({
+         company_id: companyId,
+         type,
+         message,
+      });
+   }
 }

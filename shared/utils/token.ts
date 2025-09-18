@@ -1,9 +1,4 @@
-const {
-   tab_refreshtoken_usuario,
-   tab_empresa_licenca,
-   tab_empresa,
-   tab_empresa_licenca_pagamento,
-} = require("../database/models");
+const { tab_refreshtoken_usuario, tab_empresa_licenca, tab_empresa } = require("../../database/models");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 

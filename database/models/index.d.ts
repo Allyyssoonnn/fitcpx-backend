@@ -34,6 +34,7 @@ interface Db {
    tab_exercicio_resistencia: ModelStatic<Model>;
    tab_indicacao: ModelStatic<Model>;
    tab_padrao_movimento: ModelStatic<Model>;
+   feedbacks: ModelStatic<Model>;
 }
 
 declare const db: Db;

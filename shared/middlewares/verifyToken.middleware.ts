@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware } from "@nestjs/common";
 import { NextFunction, Request, Response } from "express";
+import { validateToken } from "../utils/token";
 
-const { validateToken } = require("../api/utils/token");
 const env = process.env.NODE_ENV || "development";
 const dev = env === "development";
 const devToken = process.env.DEV_TOKEN;

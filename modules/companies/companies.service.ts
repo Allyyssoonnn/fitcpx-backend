@@ -64,4 +64,36 @@ export class CompaniesService {
    async getCompanyLicense(companyId: string) {
       return await this.companiesRepository.findCompanyLicenseActive(companyId);
    }
+
+   async getDashboardInfo(companyId: string) {
+      return await this.companiesRepository.getDashboardInfo(companyId);
+   }
+
+   async sendFeedback(companyId: string, type: string, message: string) {
+      return await this.companiesRepository.createFeedback(companyId, type, message);
+   }
+
+   async getNotifications(companyId: string) {
+      let notifications = [];
+      let companyLicenses = (await this.companiesRepository.findAllCompaniesLicenses(companyId))[0] as any;
+
+      let paymentPending = companyLicenses?.payments.filter(
+         (p: any) => p.status_empresa_licenca_pagamento == "Pending"
+      );
+
+      for (const payment of paymentPending) {
+         notifications.push({
+            title: "Você tem uma fatura vencida",
+            content: `Fatura ${payment.empresaLicenca?.licenca?.nome_licenca} ${new Intl.NumberFormat("pt-BR", {
+               style: "currency",
+               currency: "BRL",
+            }).format(payment.valor_empresa_licenca_pagamento)} aguardando pagamento`,
+            type: "Licença",
+            icon: "bi bi-cash",
+            color: "danger",
+         });
+      }
+
+      return notifications;
+   }
 }

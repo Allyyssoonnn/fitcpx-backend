@@ -1,5 +1,5 @@
 import { HttpException, Injectable } from "@nestjs/common";
-import { genTokenUserAuth, genTokenUserRecoveryPassword, validateToken } from "../../utils/token";
+import { genTokenUserAuth, genTokenUserRecoveryPassword, validateToken } from "../../shared/utils/token";
 import { CompaniesRepository } from "../companies/companies.repository";
 import { MailsService } from "../mails/mails.service";
 import { StorageService } from "../storage/storage.service";

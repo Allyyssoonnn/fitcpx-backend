@@ -3,7 +3,7 @@ import { NestFactory } from "@nestjs/core";
 import { ExpressAdapter } from "@nestjs/platform-express";
 import { Express } from "express";
 import { AppModule } from "./app.module";
-import { VerifyTokenMiddleware } from "./middlewares/verifyToken.middleware";
+import { VerifyTokenMiddleware } from "./shared/middlewares/verifyToken.middleware";
 
 export async function bootstrap(expressApp?: Express): Promise<INestApplication> {
    if (expressApp) {

@@ -42,4 +42,20 @@ export class CompaniesController {
    async cancelLicense(@CompanyId() companyId: string, @Body("licenseId") licenseId: string) {
       return this.companiesService.cancelCompanyLicense(companyId, licenseId);
    }
+
+   @Get("getDashboardInfo")
+   async getDashboardInfo(@CompanyId() companyId: string) {
+      return this.companiesService.getDashboardInfo(companyId);
+   }
+
+   @Post("sendFeedback")
+   async sendFeedback(@CompanyId() companyId: string, @Body() body: any) {
+      const { type, message } = body;
+      return this.companiesService.sendFeedback(companyId, type, message);
+   }
+
+   @Get("getNotifications")
+   async getNotifications(@CompanyId() companyId: string) {
+      return this.companiesService.getNotifications(companyId);
+   }
 }

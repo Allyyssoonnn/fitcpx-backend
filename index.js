@@ -17,7 +17,6 @@ server.get("/ping", async (req, res) => res.send({ status: true }));
 server.get("/test", async (req, res) => res.send({ status: true }));
 
 server.use("/appaluno", require("./api/routes/routeAppAluno"));
-server.use("/app", require("./api/routes/routeApp"));
 
 // ================ Servidor
 
