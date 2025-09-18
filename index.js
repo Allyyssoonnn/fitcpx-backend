@@ -15,12 +15,8 @@ server.use(bodyParser.json({ limit: "50mb" }));
 
 server.get("/ping", async (req, res) => res.send({ status: true }));
 server.get("/test", async (req, res) => res.send({ status: true }));
-server.get("/fitnessassessmentpdf", (req, res) => {
-   res.sendFile(__dirname + "/api/utils/templates/fitnessassessmentpdf.html");
-});
-server.use("/treino", require("./api/routes/routeTreino"));
+
 server.use("/appaluno", require("./api/routes/routeAppAluno"));
-server.use("/plano", require("./api/routes/routePlano"));
 server.use("/app", require("./api/routes/routeApp"));
 
 // ================ Servidor

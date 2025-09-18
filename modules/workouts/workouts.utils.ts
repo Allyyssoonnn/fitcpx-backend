@@ -1,12 +1,9 @@
-const { Sequelize, Op } = require("sequelize");
-const { tab_exercicio, tab_aluno, tab_avaliacao } = require("../../database/models");
-const { calcularIdade, getReferenceWorkout } = require("../../utils");
-const fs = require("fs");
+const { Op } = require("sequelize");
+const { tab_exercicio } = require("../../database/models");
+const { getReferenceWorkout } = require("../../utils");
 
-async function generateTreino(req, res) {
-   const { data } = req.body;
-
-   function dividirComSobra(total, partes) {
+export async function generateWorkoutTemplate(data: any) {
+   function dividirComSobra(total: any, partes: any) {
       const resultado = [];
       const base = Math.ceil(total / partes);
 
@@ -24,41 +21,19 @@ async function generateTreino(req, res) {
       return resultado;
    }
 
-   const {
-      cod_aluno,
-      gruposSelecionados,
-      indicacoesSelecionadas,
-      aquecimento,
-      // equipamentosSelecionados,
-      // desenvolvimento,
-      // duracao,
-      volume_treino,
-      nivel_treino,
-      desenvolvimento_treino,
-   } = data;
+   const { gruposSelecionados, volume_treino, nivel_treino, desenvolvimento_treino } = data;
 
    var sessao = [];
 
-   const aluno = await tab_aluno.findByPk(cod_aluno);
-   const avaliacao = (await tab_avaliacao.findAll({ where: { cod_aluno } }))[0];
    const referenceWorkout = getReferenceWorkout(nivel_treino, desenvolvimento_treino, volume_treino);
    const { repeticoes, series, intervalo, tempo, nExercicios } = referenceWorkout || {};
 
    const divisaoExercicios = dividirComSobra(nExercicios, gruposSelecionados.length);
 
-   const codIndicacoes = indicacoesSelecionadas.map((indicacao) => indicacao.cod_indicacao);
-   // const codEquipamentos = equipamentosSelecionados.map(equipamento => equipamento.cod_equipamento);
-
    for (let i = 0; i < gruposSelecionados.length; i++) {
       const grupo = gruposSelecionados[i];
-      const whereClause = {};
-      const {
-         value: cod_grupo_exercicio,
-         cod_articulacao,
-         cod_exercicio_resistencia,
-         cod_padrao_movimento,
-         cod_tipo_exercicio,
-      } = grupo;
+      const whereClause = {} as any;
+      const { value: cod_grupo_exercicio } = grupo;
 
       whereClause[Op.or] = [{ cod_grupo_exercicio_1: { [Op.in]: [cod_grupo_exercicio] } }];
 
@@ -82,7 +57,7 @@ async function generateTreino(req, res) {
          attributes: ["cod_exercicio", "nome_exercicio"],
       });
       // Transformando em um array normal
-      const exerciciosArray = exercicios.map((exercicio) => exercicio.toJSON());
+      const exerciciosArray = exercicios.map((exercicio: any) => exercicio.toJSON());
       grupo.exercicios = exerciciosArray;
 
       for (let ii = 0; ii < divisaoExercicios[i]; ii++) {
@@ -101,15 +76,12 @@ async function generateTreino(req, res) {
             // })),
             carga_sessao_exercicio: 0,
             serie_sessao_exercicio: series,
+            sequencia_sessao_exercicio: i + 1,
             repeticao_sessao_exercicio: repeticoes,
             intervalo_sessao_exercicio: intervalo,
          });
       }
    }
 
-   res.send({ status: true, sessao });
+   return sessao;
 }
-
-module.exports = {
-   generateTreino,
-};

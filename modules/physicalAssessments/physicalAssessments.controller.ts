@@ -7,17 +7,23 @@ import {
    Param,
    Post,
    Query,
+   Response,
    UploadedFiles,
    UseInterceptors,
 } from "@nestjs/common";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import multer from "multer";
-import { CompanyId } from "../../decorators/companyId.decorator";
+import { CompanyId } from "../../shared/decorators/companyId.decorator";
 import { PhysicalAssessmentsService } from "./physicalAssessments.service";
 
 @Controller("physicalAssessments")
 export class PhysicalAssessmentsController {
    constructor(private readonly physicalAssessmentsService: PhysicalAssessmentsService) {}
+
+   @Get("fitnessassessmentpdf")
+   async getTemplatePrint(@Response() res: any) {
+      return res.sendFile(__dirname + "/templates/fitnessassessmentpdf.html");
+   }
 
    @Get()
    async getAll(

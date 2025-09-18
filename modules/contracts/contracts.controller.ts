@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Query } from "@nestjs/common";
-import { CompanyId } from "../../decorators/companyId.decorator";
-import { UserId } from "../../decorators/userId.decorator";
+import { CompanyId } from "../../shared/decorators/companyId.decorator";
+import { UserId } from "../../shared/decorators/userId.decorator";
 import { ContractsService } from "./contracts.service";
 
 @Controller("contracts")

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
-import { CompanyId } from "../../decorators/companyId.decorator";
+import { CompanyId } from "../../shared/decorators/companyId.decorator";
 import { CalendarService } from "./calendar.service";
 
 @Controller("calendar")

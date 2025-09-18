@@ -12,7 +12,7 @@ import {
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import multer from "multer";
-import { CompanyId } from "../../decorators/companyId.decorator";
+import { CompanyId } from "../../shared/decorators/companyId.decorator";
 import { StudentsService } from "./students.service";
 
 @Controller("students")

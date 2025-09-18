@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post } from "@nestjs/common";
-import { CompanyId } from "../../decorators/companyId.decorator";
+import { CompanyId } from "../../shared/decorators/companyId.decorator";
 import { LicensesService } from "./licenses.service";
 
 @Controller("licenses")

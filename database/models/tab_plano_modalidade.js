@@ -28,7 +28,8 @@ module.exports = (sequelize, DataTypes) => {
          },
          cod_modalidade_variacao: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
+            defaultValue: null,
             references: {
                model: "tab_modalidade_variacao",
                key: "cod_modalidade_variacao",
@@ -36,8 +37,8 @@ module.exports = (sequelize, DataTypes) => {
          },
          cod_modalidade_variacao_valor: {
             type: DataTypes.INTEGER,
+            allowNull: true,
             defaultValue: null,
-            allowNull: false,
             references: {
                model: "tab_modalidade_variacao_valor",
                key: "cod_modalidade_variacao_valor",

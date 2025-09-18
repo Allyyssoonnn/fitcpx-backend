@@ -15,6 +15,7 @@ const allowedRoutes = [
    "/users/recoveryAccount",
    "/google/getGoogleUrlLogin",
    "/google/loggedGoogle",
+   "/physicalAssessments/fitnessassessmentpdf",
 ];
 
 @Injectable()

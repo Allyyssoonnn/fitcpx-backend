@@ -22,9 +22,9 @@ export class StudentsService {
       return await this.studentsRepository.createOrUpdate(data);
    };
 
-   delete = async (id: string) => {
+   async delete(id: string) {
       return await this.studentsRepository.deleteById(id);
-   };
+   }
 
    async updateImageUser(studentId: string, fileBuffer: Express.Multer.File) {
       if (!fileBuffer) throw new HttpException("Arquivo não enviado.", 400);

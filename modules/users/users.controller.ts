@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import multer from "multer";
-import { CompanyId } from "../../decorators/companyId.decorator";
-import { UserId } from "../../decorators/userId.decorator";
+import { CompanyId } from "../../shared/decorators/companyId.decorator";
+import { UserId } from "../../shared/decorators/userId.decorator";
 import { UsersService } from "./users.service";
 
 @Controller("users")
