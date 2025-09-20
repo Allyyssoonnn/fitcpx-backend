@@ -5,7 +5,7 @@ import { ExercisesRepository } from "./exercises.repository";
 export class ExercisesService {
    constructor(private readonly exercisesRepository: ExercisesRepository) {}
 
-   async getAll(companyId: string, onlyDeleted: boolean, lang: string) {
+   async getAll(companyId: string | null, onlyDeleted: boolean, lang: string) {
       return await this.exercisesRepository.findAll(companyId, onlyDeleted, lang);
    }
 

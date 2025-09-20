@@ -14,6 +14,10 @@ export class PhysicalAssessmentsService {
       return this.physicalAssessmentsRepository.findAll(companyId, deleted, studentId);
    }
 
+   async getById(studentId: string, physicalAssessmentId: string) {
+      return this.physicalAssessmentsRepository.findById(studentId, physicalAssessmentId);
+   }
+
    createOrUpdate = async (data: any) => {
       return await this.physicalAssessmentsRepository.createOrUpdate(data);
    };

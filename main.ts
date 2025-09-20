@@ -17,7 +17,9 @@ export async function bootstrap(expressApp?: Express): Promise<INestApplication>
       return app;
    } else {
       // fallback -> Nest cria seu próprio express
-      const app = await NestFactory.create(AppModule);
+      const app = await NestFactory.create(AppModule, {
+         cors: true,
+      });
       app.use(new VerifyTokenMiddleware().use);
       await app.listen(8071);
       console.log("NestJS | rodando sozinho em http://localhost:8071");

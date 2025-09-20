@@ -49,4 +49,8 @@ export class WorkoutsService {
    async getMovementPatterns(lang: string) {
       return this.workoutsRepository.getMovementPatterns(lang);
    }
+
+   async registerWorkoutStudent(session: any, time: string, studentId: string) {
+      return this.workoutsRepository.registerWorkoutStudent(session, time, studentId);
+   }
 }

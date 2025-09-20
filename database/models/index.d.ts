@@ -8,6 +8,7 @@ interface Db {
    tab_empresa: ModelStatic<Model>;
    tab_aluno: ModelStatic<Model>;
    tab_refreshtoken_usuario: ModelStatic<Model>;
+   tab_refreshtoken_aluno: ModelStatic<Model>;
    tab_avaliacao: ModelStatic<Model>;
    tab_avaliacao_imagem: ModelStatic<Model>;
    tab_aluno_contrato: ModelStatic<Model>;
@@ -35,6 +36,8 @@ interface Db {
    tab_indicacao: ModelStatic<Model>;
    tab_padrao_movimento: ModelStatic<Model>;
    feedbacks: ModelStatic<Model>;
+   tab_treino_execucao: ModelStatic<Model>;
+   tab_treino_execucao_exercicio: ModelStatic<Model>;
 }
 
 declare const db: Db;

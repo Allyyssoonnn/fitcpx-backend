@@ -13,11 +13,6 @@ server.use(cors({ origin: "*", credentials: true }));
 server.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 server.use(bodyParser.json({ limit: "50mb" }));
 
-server.get("/ping", async (req, res) => res.send({ status: true }));
-server.get("/test", async (req, res) => res.send({ status: true }));
-
-server.use("/appaluno", require("./api/routes/routeAppAluno"));
-
 // ================ Servidor
 
 const serverHttp = http.createServer(server);

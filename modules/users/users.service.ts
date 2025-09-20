@@ -46,33 +46,33 @@ export class UsersService {
       return { token, refreshToken, usuario: user, empresa: empresa, validLicense };
    };
 
-   async refreshToken(refreshToken: string) {
+   async refreshToken(refreshTokenReq: string) {
       //if development mode
-      if (dev && refreshToken === process.env.DEV_TOKEN) {
+      if (dev && refreshTokenReq === process.env.DEV_TOKEN) {
          const userOne = (await this.usersRepository.findById("1")) as any;
          const company = (await this.companiesRepository.findById(userOne?.cod_empresa)) as any;
 
-         return { token: refreshToken, usuario: userOne, empresa: company, validLicense: true };
+         return { token: refreshTokenReq, usuario: userOne, empresa: company, validLicense: true };
       }
 
-      if (!refreshToken) throw new HttpException("Token inválido", 401);
-      const refreshTokenDB = (await this.usersRepository.findRefreshToken(refreshToken)) as any;
+      if (!refreshTokenReq) throw new HttpException("Token inválido", 401);
+      const refreshTokenDB = (await this.usersRepository.findRefreshToken(refreshTokenReq)) as any;
       if (!refreshTokenDB) throw new HttpException("Token inválido", 401);
 
       if (refreshTokenDB.expiresAt < new Date()) {
-         await this.usersRepository.deleteRefreshToken(refreshToken);
+         await this.usersRepository.deleteRefreshToken(refreshTokenReq);
          throw new HttpException("Token expirado", 401);
       }
 
       const user = (await this.usersRepository.findById(refreshTokenDB?.cod_usuario)) as any;
       const company = (await this.companiesRepository.findById(user?.cod_empresa)) as any;
 
-      const { token } = await genTokenUserAuth(user.cod_usuario, user.cod_empresa);
+      const { token, refreshToken } = await genTokenUserAuth(user.cod_usuario, user.cod_empresa);
       const {
          decoded: { status },
       } = validateToken(token);
       const validLicense = status !== "Expired" && status !== "Cancelled" && status !== undefined && status !== null;
-      return { status: true, token, usuario: user, empresa: company, validLicense };
+      return { status: true, token, refreshToken, usuario: user, empresa: company, validLicense };
    }
 
    register = async (name: string, email: string, password: string) => {

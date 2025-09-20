@@ -27,11 +27,12 @@ export class PhysicalAssessmentsRepository {
                as: "imagem",
             },
          ],
+         order: [["data_avaliacao", "DESC"]],
       });
 
       const physicalsFlat = physicals.map((physicalAsse) => physicalAsse.toJSON());
 
-      const physicalAssesmentsWithResult = await Promise.all(
+      const physicalAssesmentsWithResult = (await Promise.all(
          physicalsFlat.map(async (v) => ({
             ...v,
             nome_aluno: v.aluno?.nome_aluno,
@@ -39,7 +40,41 @@ export class PhysicalAssessmentsRepository {
                body: { avaliacao: v },
             }),
          }))
-      );
+      )) as any;
+
+      return physicalAssesmentsWithResult;
+   }
+
+   async findById(studentId: string, physicalAssessmentId: string) {
+      const physical = (await db.tab_avaliacao.findByPk(physicalAssessmentId, {
+         include: [
+            {
+               model: db.tab_aluno,
+               as: "aluno",
+               required: true,
+               where: studentId ? { cod_aluno: studentId } : {},
+            },
+            {
+               model: db.tab_usuario,
+               as: "usuario",
+               required: true,
+            },
+            {
+               model: db.tab_avaliacao_imagem,
+               as: "imagem",
+            },
+         ],
+      })) as any;
+
+      const physicalFlat = physical.toJSON();
+
+      const physicalAssesmentsWithResult = {
+         ...physicalFlat,
+         nome_aluno: physicalFlat.aluno?.nome_aluno,
+         result: await getResultPhysicalAssesment({
+            body: { avaliacao: physicalFlat },
+         }),
+      };
 
       return physicalAssesmentsWithResult;
    }

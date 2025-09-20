@@ -4,7 +4,7 @@ import db from "../../database/models";
 
 @Injectable()
 export class ExercisesRepository {
-   async findAll(companyId: string, onlyDeleted: boolean = false, lang: string = "pt") {
+   async findAll(companyId: string | null, onlyDeleted: boolean = false, lang: string = "pt") {
       const where: any = onlyDeleted ? { deletedAt: { [Op.ne]: null } } : {};
       where.cod_empresa = {
          [Op.or]: [companyId, null],

@@ -230,4 +230,44 @@ export class WorkoutsRepository {
          attributes: ["cod_padrao_movimento", [Sequelize.col(nameMovementPatternsColumn), "nome_padrao_movimento"]],
       });
    }
+
+   async registerWorkoutStudent(session: any, time: string, studentId: string) {
+      const treino_execucao = (await db.tab_treino_execucao.create({
+         cod_treino: session.cod_treino,
+         cod_sessao: session.cod_sessao,
+         cod_aluno: session.cod_aluno ?? studentId,
+         duracao_treino_execucao: time,
+         data_treino_execucao: new Date(),
+      })) as any;
+
+      for (const exercicio of session.exercicios) {
+         await db.tab_treino_execucao_exercicio.create({
+            cod_treino_execucao: treino_execucao.cod_treino_execucao,
+            cod_exercicio: exercicio?.cod_exercicio,
+            treino_exercicio_executado:
+               exercicio.feito != undefined
+                  ? exercicio.feito
+                     ? "S"
+                     : "N"
+                  : exercicio?.setsInfo?.every((set: any) => set.checked)
+                  ? "S"
+                  : "N",
+            execucao_treino_execucao_exercicio: exercicio?.execucoes
+               ? JSON.stringify(exercicio?.execucoes)
+               : JSON.stringify(exercicio.setsInfo),
+
+            sequencia_treino_execucao_exercicio: exercicio?.sequencia_sessao_exercicio,
+            serie_treino_execucao_exercicio: exercicio?.serie_sessao_exercicio,
+            repeticao_treino_execucao_exercicio: exercicio?.repeticao_sessao_exercicio,
+            carga_treino_execucao_exercicio: exercicio?.carga_sessao_exercicio,
+            observacao_treino_execucao_exercicio: exercicio?.observacao_sessao_exercicio ?? "",
+            // intervalo_treino_execucao_exercicio:
+            //     exercicio?.intervalo_sessao_exercicio,
+            //Não estou salvando
+            intervalo_treino_execucao_exercicio: 0,
+         });
+      }
+
+      return;
+   }
 }

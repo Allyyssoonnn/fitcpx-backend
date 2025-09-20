@@ -13,8 +13,17 @@ export class StudentsRepository {
       });
    }
 
-   async findById(id: string, companyId: string) {
-      return await db.tab_aluno.findOne({ where: { cod_aluno: id, cod_empresa: companyId } });
+   async findById(id: string, companyId?: string) {
+      let where = companyId ? { cod_empresa: companyId } : {};
+      return await db.tab_aluno.findOne({ where: { cod_aluno: id, ...where } });
+   }
+
+   async findByEmail(email: string) {
+      return await db.tab_aluno.findOne({ where: { email_aluno: email } });
+   }
+
+   async findByCPF(cpf: string) {
+      return await db.tab_aluno.findOne({ where: { cpf_aluno: cpf } });
    }
 
    async createOrUpdate(data: any) {
@@ -31,5 +40,17 @@ export class StudentsRepository {
 
    async updateApiId(studentId: string, apiId: string | null) {
       return await db.tab_aluno.update({ asaas_id: apiId }, { where: { cod_aluno: studentId } });
+   }
+
+   async findRefreshToken(refreshToken: string) {
+      return await db.tab_refreshtoken_aluno.findOne({
+         where: { refreshtoken_aluno: refreshToken },
+      });
+   }
+
+   async deleteRefreshToken(refreshToken: string) {
+      return await db.tab_refreshtoken_aluno.destroy({
+         where: { refreshtoken_aluno: refreshToken },
+      });
    }
 }

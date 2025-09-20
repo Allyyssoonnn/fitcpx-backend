@@ -1,6 +1,7 @@
-import { Injectable, NestMiddleware } from "@nestjs/common";
+import { HttpException, Injectable, NestMiddleware } from "@nestjs/common";
 import { NextFunction, Request, Response } from "express";
 import { validateToken } from "../utils/token";
+import { validateStudentToken } from "../utils/token.mobile";
 
 const env = process.env.NODE_ENV || "development";
 const dev = env === "development";
@@ -8,6 +9,8 @@ const devToken = process.env.DEV_TOKEN;
 const getMessageError = require("../utils/errors-message");
 
 const allowedRoutes = [
+   "/mobile/login",
+   "/mobile/refreshToken",
    "/users/login",
    "/users/refreshToken",
    "/users/register",
@@ -41,8 +44,21 @@ export class VerifyTokenMiddleware implements NestMiddleware {
          req.cod_empresa = 1;
          req.cod_usuario = 1;
 
-         next();
-         return;
+         return next();
+      }
+
+      //Verify Mobile app
+      if (req.path.split("/")[1] === "mobile") {
+         const {
+            decoded: { cod_empresa, cod_aluno },
+         } = validateStudentToken(token);
+
+         req.cod_empresa = cod_empresa;
+         req.cod_aluno = cod_aluno;
+
+         if (!cod_empresa || !cod_aluno) throw new HttpException(getMessageError("INVALID_TOKEN"), 401);
+
+         return next();
       }
 
       try {
@@ -56,8 +72,7 @@ export class VerifyTokenMiddleware implements NestMiddleware {
          req.cod_usuario = cod_usuario;
 
          // If company is not present
-         if (!cod_empresa || !cod_usuario)
-            return res.status(401).send({ status: false, msg: getMessageError("INVALID_TOKEN") });
+         if (!cod_empresa || !cod_usuario) throw new HttpException(getMessageError("INVALID_TOKEN"), 401);
 
          // ! Check if license expired or cancelled
          if (status === "Expired") {

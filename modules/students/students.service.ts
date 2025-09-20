@@ -14,8 +14,16 @@ export class StudentsService {
       return await this.studentsRepository.findAll(companyId, onlyDeleted);
    }
 
-   async getById(id: string, companyId: string) {
+   async getById(id: string, companyId?: string) {
       return await this.studentsRepository.findById(id, companyId);
+   }
+
+   async getByEmail(cpf: string) {
+      return await this.studentsRepository.findByEmail(cpf);
+   }
+
+   async getByCPF(cpf: string) {
+      return await this.studentsRepository.findByCPF(cpf);
    }
 
    createOrUpdate = async (data: any) => {
@@ -34,5 +42,13 @@ export class StudentsService {
 
       this.studentsRepository.updateImageStudent(studentId, url);
       return url;
+   }
+
+   async findRefreshToken(refreshToken: string) {
+      return this.studentsRepository.findRefreshToken(refreshToken);
+   }
+
+   async deleteRefreshToken(refreshToken: string) {
+      return this.studentsRepository.deleteRefreshToken(refreshToken);
    }
 }
