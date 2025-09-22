@@ -26,7 +26,25 @@ export class ServicesRepository {
    }
 
    async createOrUpdate(data: any) {
-      return (await db.tab_modalidade.upsert(data))[0];
+      const { variacoes = [] } = data;
+      const service = (await db.tab_modalidade.upsert(data))[0] as any;
+
+      for (const variacao of variacoes) {
+         let serviceVar = (
+            await db.tab_modalidade_variacao.upsert({ ...variacao, cod_modalidade: service.cod_modalidade })
+         )[0] as any;
+
+         for (const valor of variacao?.valores ?? []) {
+            let serviceValueVar = (
+               await db.tab_modalidade_variacao_valor.upsert({
+                  ...valor,
+                  cod_modalidade_variacao: serviceVar.cod_modalidade_variacao,
+               })
+            )[0];
+         }
+      }
+
+      return service;
    }
 
    async findById(serviceId: string) {

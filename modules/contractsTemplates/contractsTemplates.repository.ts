@@ -14,7 +14,7 @@ export class ContractsTemplatesRepository {
    }
 
    async createOrUpdate(data: any) {
-      return (await db.tab_plano.upsert(data))[0];
+      return (await db.tab_contrato.upsert(data))[0];
    }
 
    async findById(contractTemplateId: string) {
