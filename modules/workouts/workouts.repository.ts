@@ -92,22 +92,22 @@ export class WorkoutsRepository {
       return await db.tab_treino.destroy({ where: { cod_treino: id } });
    }
 
-   async createOrUpdate(companyId: string, workout: any, sessions?: any[]) {
+   async createOrUpdate(userId: string, companyId: string, workout: any, sessions?: any[]) {
       let workoutDB = (await db.tab_treino.upsert(workout))[0] as any;
 
       if (sessions) {
          for (const session of sessions) {
             const { exercicios } = session;
             let sessionDB = (
-               await db.tab_sessao.upsert({ ...session, cod_treino: workoutDB.cod_treino, cod_empresa: companyId })
+               await db.tab_sessao.upsert({
+                  ...session,
+                  cod_treino: workoutDB.cod_treino,
+                  cod_empresa: companyId,
+                  cod_usuario: userId,
+               })
             )[0] as any;
 
             for (const exercicio of exercicios) {
-               await db.tab_sessao_exercicio.upsert({
-                  ...exercicio,
-                  cod_sessao: sessionDB.cod_sessao,
-               });
-
                let exercisesId = exercicios.map((e: any) => e.cod_sessao_exercicio);
                let exercisesDBId = (
                   await db.tab_sessao_exercicio.findAll({ where: { cod_sessao: sessionDB.cod_sessao } })
@@ -118,16 +118,20 @@ export class WorkoutsRepository {
                   where: { cod_sessao: sessionDB.cod_sessao, cod_sessao_exercicio: toRemove },
                });
 
-               for (const set of exercicio?.sets) {
-                  await db.tab_sessao_exercicio.upsert({
-                     ...set,
-                     cod_sessao: sessionDB.cod_sessao,
-                  });
+               await db.tab_sessao_exercicio.upsert({
+                  ...exercicio,
+                  cod_sessao: sessionDB.cod_sessao,
+               });
 
+               for (const set of exercicio?.sets) {
                   let exercisesId = exercicios.map((e: any) => e.cod_sessao_exercicio);
                   let toRemove = exercisesDBId.filter((id) => !exercisesId.includes(id)) as [];
                   await db.tab_sessao_exercicio.destroy({
                      where: { cod_sessao: sessionDB.cod_sessao, cod_sessao_exercicio: toRemove },
+                  });
+                  await db.tab_sessao_exercicio.upsert({
+                     ...set,
+                     cod_sessao: sessionDB.cod_sessao,
                   });
                }
             }

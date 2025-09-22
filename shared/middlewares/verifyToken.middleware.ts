@@ -49,16 +49,28 @@ export class VerifyTokenMiddleware implements NestMiddleware {
 
       //Verify Mobile app
       if (req.path.split("/")[1] === "mobile") {
-         const {
-            decoded: { cod_empresa, cod_aluno },
-         } = validateStudentToken(token);
+         try {
+            const {
+               decoded: { cod_empresa, cod_aluno },
+            } = validateStudentToken(token);
 
-         req.cod_empresa = cod_empresa;
-         req.cod_aluno = cod_aluno;
+            req.cod_empresa = cod_empresa;
+            req.cod_aluno = cod_aluno;
 
-         if (!cod_empresa || !cod_aluno) throw new HttpException(getMessageError("INVALID_TOKEN"), 401);
+            if (!cod_empresa || !cod_aluno) throw new HttpException(getMessageError("INVALID_TOKEN"), 401);
 
-         return next();
+            return next();
+         } catch (err: any) {
+            console.log(err);
+
+            if (err.name === "TokenExpiredError") {
+               throw new HttpException("Token expirado", 401);
+            } else if (err.name === "JsonWebTokenError") {
+               throw new HttpException("Token inválido", 401);
+            }
+
+            return res.status(500).send({ status: false, msg: "Erro ao validar token!" });
+         }
       }
 
       try {
@@ -95,9 +107,9 @@ export class VerifyTokenMiddleware implements NestMiddleware {
          }
          // Retorna erro se o token for inválido ou expirado
          if (err.name === "TokenExpiredError") {
-            return res.status(401).send({ status: false, msg: "Token expirado!" });
+            throw new HttpException("Token expirado", 401);
          } else if (err.name === "JsonWebTokenError") {
-            return res.status(401).send({ status: false, msg: "Token inválido!" });
+            throw new HttpException("Token inválido", 401);
          }
 
          return res.status(500).send({ status: false, msg: "Erro ao validar token!" });

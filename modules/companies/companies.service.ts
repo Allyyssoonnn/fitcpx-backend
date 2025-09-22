@@ -77,9 +77,8 @@ export class CompaniesService {
       let notifications = [];
       let companyLicenses = (await this.companiesRepository.findAllCompaniesLicenses(companyId))[0] as any;
 
-      let paymentPending = companyLicenses?.payments.filter(
-         (p: any) => p.status_empresa_licenca_pagamento == "Pending"
-      );
+      let paymentPending =
+         companyLicenses?.payments.filter((p: any) => p.status_empresa_licenca_pagamento == "Pending") ?? [];
 
       for (const payment of paymentPending) {
          notifications.push({

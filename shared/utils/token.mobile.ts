@@ -25,10 +25,6 @@ export async function genTokenStudentAuth(cod_aluno: string, cod_empresa: string
 
 // * Validate Token
 export function validateStudentToken(token: string) {
-   try {
-      const decoded = jwt.verify(token, process.env.SECRET);
-      return { valid: true, decoded };
-   } catch (error) {
-      return { valid: false, error };
-   }
+   const decoded = jwt.verify(token, process.env.SECRET);
+   return { valid: true, decoded };
 }

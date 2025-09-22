@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Query } from "@nestjs/common";
 import { CompanyId } from "../../shared/decorators/companyId.decorator";
+import { UserId } from "../../shared/decorators/userId.decorator";
 import { WorkoutsService } from "./workouts.service";
 
 @Controller("workouts")
@@ -7,9 +8,9 @@ export class WorkoutsController {
    constructor(private readonly workoutsService: WorkoutsService) {}
 
    @Post()
-   async create(@CompanyId() companyId: string, @Body() body: any) {
+   async create(@UserId() userId: string, @CompanyId() companyId: string, @Body() body: any) {
       const { treino, sessoes } = body;
-      return this.workoutsService.createOrUpdate(companyId, treino, sessoes);
+      return this.workoutsService.createOrUpdate(userId, companyId, treino, sessoes);
    }
 
    @Post("generateWorkout")

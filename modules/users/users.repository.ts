@@ -16,7 +16,7 @@ export class UsersRepository {
    }
 
    async createOrUpdate(data: any) {
-      return await db.tab_usuario.upsert(data);
+      return (await db.tab_usuario.upsert(data))[0];
    }
 
    async updatePassword(password: string, userId: string) {

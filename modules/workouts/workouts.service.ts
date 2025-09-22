@@ -18,8 +18,8 @@ export class WorkoutsService {
       return this.workoutsRepository.deleteById(id);
    }
 
-   async createOrUpdate(companyId: string, workout: any, sessions: any[]) {
-      return this.workoutsRepository.createOrUpdate(companyId, workout, sessions);
+   async createOrUpdate(userId: string, companyId: string, workout: any, sessions: any[]) {
+      return this.workoutsRepository.createOrUpdate(userId, companyId, workout, sessions);
    }
 
    async getJoints(lang: string) {

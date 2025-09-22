@@ -51,10 +51,6 @@ export function genTokenUserRecoveryPassword(cod_usuario: string) {
 
 // * Validate Token
 export function validateToken(token: string) {
-   try {
-      const decoded = jwt.verify(token, process.env.SECRET);
-      return { valid: true, decoded };
-   } catch (error) {
-      return { valid: false, error };
-   }
+   const decoded = jwt.verify(token, process.env.SECRET);
+   return { valid: true, decoded };
 }
