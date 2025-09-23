@@ -8,9 +8,10 @@ import { VerifyTokenMiddleware } from "./shared/middlewares/verifyToken.middlewa
 export async function bootstrap(expressApp?: Express): Promise<INestApplication> {
    if (expressApp) {
       // usar Express já existente
-      const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp), {
-         cors: true,
-      });
+      // const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp), {
+      //    cors: true,
+      // });
+      const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
       app.use(new VerifyTokenMiddleware().use);
       await app.init();
       console.log("NestJS | montado junto do Express");
