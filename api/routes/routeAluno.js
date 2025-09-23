@@ -1,51 +1,23 @@
 const router = require("express").Router();
-const verifyToken = require("../authMiddleware");
 
 const {
-   getAlunos,
-   setAluno,
-   getAluno,
    setAvaliacao,
    getAvaliacao,
-   changeAlunoIMG,
-   sendAvaliacaoIMG,
-   deleteAluno,
    recoveryAluno,
    getAvaliacoes,
    deleteAvaliacao,
    setAlunoContrato,
    getAlunoContratos,
    getAlunoContrato,
-   sendAlunoContrato,
-   getCards,
-   deleteCard,
-   cancelAlunoContrato,
-   downloadAlunoContrato,
-   resendAlunoContrato,
 } = require("../controllers/aluno/ctrlAluno");
-const { uploadIMGAvaliacao, uploadIMGAluno } = require("../aws");
-const { multerAutentique } = require("../autentique");
 
-router.post("/getAlunos", verifyToken, getAlunos);
-router.post("/getAluno", verifyToken, getAluno);
-router.post("/getCards", verifyToken, getCards);
-router.post("/deleteCard", verifyToken, deleteCard);
-router.post("/setAluno", verifyToken, setAluno);
-router.post("/deleteAluno", verifyToken, deleteAluno);
-router.post("/recoveryAluno", verifyToken, recoveryAluno);
+router.post("/recoveryAluno", recoveryAluno);
 router.post("/getAvaliacoes", getAvaliacoes);
 router.post("/getAvaliacao", getAvaliacao);
-router.post("/setAvaliacao", verifyToken, setAvaliacao);
-router.post("/deleteAvaliacao", verifyToken, deleteAvaliacao);
-router.post("/setAlunoContrato", verifyToken, setAlunoContrato);
-router.post("/cancelAlunoContrato", verifyToken, cancelAlunoContrato);
-router.post("/sendAlunoContrato", verifyToken, multerAutentique(), sendAlunoContrato);
-router.post("/resendAlunoContrato", verifyToken, multerAutentique(), resendAlunoContrato);
-router.post("/downloadAlunoContrato", verifyToken, downloadAlunoContrato);
+router.post("/setAvaliacao", setAvaliacao);
+router.post("/deleteAvaliacao", deleteAvaliacao);
+router.post("/setAlunoContrato", setAlunoContrato);
 router.post("/getAlunoContratos", getAlunoContratos);
 router.post("/getAlunoContrato", getAlunoContrato);
-
-router.post("/changeAlunoIMG", uploadIMGAluno);
-router.post("/sendAvaliacaoIMG", uploadIMGAvaliacao);
 
 module.exports = router;

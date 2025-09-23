@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+   <head>
+      <meta charset="UTF-8" />
+      <title>Código de confirmação</title>
+      <style>
+         /* Reset básico */
+         body,
+         html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #f5f7f6;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            color: #333333;
+         }
+
+         .alert-bar {
+            height: 6px;
+            background: #f39c12;
+            width: 100%;
+         }
+
+         .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #ffffff;
+            margin: 40px auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(39, 174, 96, 0.2);
+            overflow: hidden;
+            border: 1px solid #d1e7d6;
+            border-top: none;
+            box-sizing: border-box;
+            padding: 0;
+         }
+
+         .header {
+            background-color: #27ae60;
+            padding: 24px 20px;
+            text-align: center;
+            color: white;
+            font-weight: 700;
+            font-size: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+         }
+
+         .header .icon {
+            font-size: 32px;
+            line-height: 1;
+         }
+
+         .content {
+            padding: 32px 24px;
+            box-sizing: border-box;
+         }
+
+         h2 {
+            color: #d35400;
+            font-weight: 700;
+            font-size: 28px;
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+         }
+
+         h2 .icon {
+            font-size: 32px;
+            line-height: 1;
+         }
+
+         p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0 0 20px 0;
+            color: #444444;
+            word-break: break-word;
+         }
+
+         .highlight {
+            font-weight: 700;
+            color: #2c6f2f;
+         }
+
+         .details {
+            background-color: #f6f9f7;
+            border-left: 4px solid #27ae60;
+            padding: 20px 24px;
+            border-radius: 6px;
+            margin-bottom: 32px;
+            font-size: 15px;
+            color: #2f4f2f;
+            word-break: break-word;
+         }
+
+         .details p {
+            margin: 10px 0;
+         }
+
+         .details strong {
+            display: inline-block;
+            width: 130px;
+            word-wrap: normal;
+         }
+
+         .button {
+            display: block;
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto 36px auto;
+            background-color: #27ae60;
+            color: #fff !important;
+            text-decoration: none;
+            padding: 14px 0;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 6px 12px rgba(39, 174, 96, 0.4);
+            transition: background-color 0.3s ease;
+            text-align: center;
+            -webkit-text-size-adjust: none;
+            -moz-text-size-adjust: none;
+            text-size-adjust: none;
+            word-break: keep-all;
+         }
+
+         .button:hover {
+            background-color: #1e7d34;
+         }
+
+         .footer {
+            text-align: center;
+            padding: 20px 24px;
+            font-size: 13px;
+            color: #7a7a7a;
+            border-top: 1px solid #e2f0e4;
+            background-color: #f9fdf9;
+            word-break: break-word;
+         }
+
+         .footer a {
+            color: #27ae60;
+            text-decoration: none;
+            word-break: break-word;
+         }
+
+         @media (max-width: 620px) {
+            .container {
+               margin: 20px 12px;
+               border-radius: 10px;
+            }
+            .content {
+               padding: 24px 20px;
+            }
+            h2 {
+               font-size: 24px;
+            }
+            .button {
+               font-size: 16px;
+               max-width: 100%;
+            }
+         }
+      </style>
+   </head>
+   <body>
+      <div class="alert-bar"></div>
+      <div class="container" role="main" aria-label="Notificação de pagamento pendente">
+         <div class="header" role="banner" aria-label="Cabeçalho do email">
+            <span class="icon" aria-hidden="true">✅</span> Código de confirmação
+         </div>
+         <div class="content">
+            <p>Olá <span class="highlight">{{name}}</span>,</p>
+            <p>Seja bem vindo(a), <span class="highlight">Copie o código de confirmação</span> e confirme sua conta.</p>
+            <div class="details" role="region" aria-label="Detalhes do pagamento pendente">
+               <p><strong>Código:</strong> {{code}}</p>
+            </div>
+            <p style="text-align: center; font-size: 14px; color: #666">
+               Caso já tenha efetuado a confirmação, por favor desconsidere esta mensagem.
+            </p>
+         </div>
+         <div class="footer">
+            © FitCpx - <a href="https://fitcpx.com" target="_blank" rel="noopener noreferrer">https://fitcpx.com</a>
+         </div>
+      </div>
+   </body>
+</html>

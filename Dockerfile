@@ -37,6 +37,9 @@ RUN npm install
 # Instala o PM2 globalmente apenas no container
 RUN npm install -g pm2
 
+# Compila TypeScript (se aplicável)
+RUN npm run build
+
 # Copia o restante dos arquivos do projeto
 COPY . .
 

@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const verifyToken = require("../authMiddleware");
 const {
    getTreinos,
    getGrupoExercicios,
@@ -23,29 +22,26 @@ const {
    deleteTreino,
    getTreino,
 } = require("../controllers/ctrlTreino");
-const { generateTreino } = require("../features/treinoInteligente");
-
-router.post("/generateTreino", verifyToken, generateTreino);
 
 router.post("/getTreinos", getTreinos);
 router.post("/getTreino", getTreino);
-router.post("/setTreino", verifyToken, setTreino);
-router.post("/deleteTreino", verifyToken, deleteTreino);
+router.post("/setTreino", setTreino);
+router.post("/deleteTreino", deleteTreino);
 
 router.post("/getGrupoExercicios", getGrupoExercicios);
-router.post("/setGrupoExercicio", verifyToken, setGrupoExercicio);
-router.post("/deleteGrupoExercicio", verifyToken, deleteGrupoExercicio);
-router.post("/recoveryGrupoExercicio", verifyToken, recoveryGrupoExercicio);
+router.post("/setGrupoExercicio", setGrupoExercicio);
+router.post("/deleteGrupoExercicio", deleteGrupoExercicio);
+router.post("/recoveryGrupoExercicio", recoveryGrupoExercicio);
 
 router.post("/getExercicios", getExercicios);
-router.post("/setExercicio", verifyToken, setExercicio);
-router.post("/deleteExercicio", verifyToken, deleteExercicio);
-router.post("/recoveryExercicio", verifyToken, recoveryExercicio);
+router.post("/setExercicio", setExercicio);
+router.post("/deleteExercicio", deleteExercicio);
+router.post("/recoveryExercicio", recoveryExercicio);
 
-// router.post('/getSessoes', verifyToken, getSessoes);
-router.post("/setSessoes", verifyToken, setSessoes);
-router.post("/deleteSessao", verifyToken, deleteSessao);
-router.post("/recoverySessao", verifyToken, recoverySessao);
+// router.post('/getSessoes', getSessoes);
+router.post("/setSessoes", setSessoes);
+router.post("/deleteSessao", deleteSessao);
+router.post("/recoverySessao", recoverySessao);
 
 router.post("/getEquipamentos", getEquipamentos);
 router.post("/getArticulacoes", getArticulacoes);

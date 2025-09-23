@@ -1,0 +1,56 @@
+import { Injectable } from "@nestjs/common";
+import { Op } from "sequelize";
+import db from "../../database/models";
+
+@Injectable()
+export class StudentsRepository {
+   async findAll(companyId: string, onlyDeleted: boolean = false) {
+      const where: any = onlyDeleted ? { deletedAt: { [Op.ne]: null } } : {};
+      if (companyId) where.cod_empresa = companyId;
+      return db.tab_aluno.findAll({
+         paranoid: !onlyDeleted,
+         where: where,
+      });
+   }
+
+   async findById(id: string, companyId?: string) {
+      let where = companyId ? { cod_empresa: companyId } : {};
+      return await db.tab_aluno.findOne({ where: { cod_aluno: id, ...where } });
+   }
+
+   async findByEmail(email: string) {
+      return await db.tab_aluno.findOne({ where: { email_aluno: email } });
+   }
+
+   async findByCPF(cpf: string) {
+      return await db.tab_aluno.findOne({ where: { cpf_aluno: cpf } });
+   }
+
+   async createOrUpdate(data: any) {
+      return await db.tab_aluno.upsert(data);
+   }
+
+   async deleteById(id: string) {
+      return await db.tab_aluno.destroy({ where: { cod_aluno: id } });
+   }
+
+   async updateImageStudent(studentId: string, imageUrl: string) {
+      return await db.tab_aluno.update({ imagem_aluno: imageUrl }, { where: { cod_aluno: studentId } });
+   }
+
+   async updateApiId(studentId: string, apiId: string | null) {
+      return await db.tab_aluno.update({ asaas_id: apiId }, { where: { cod_aluno: studentId } });
+   }
+
+   async findRefreshToken(refreshToken: string) {
+      return await db.tab_refreshtoken_aluno.findOne({
+         where: { refreshtoken_aluno: refreshToken },
+      });
+   }
+
+   async deleteRefreshToken(refreshToken: string) {
+      return await db.tab_refreshtoken_aluno.destroy({
+         where: { refreshtoken_aluno: refreshToken },
+      });
+   }
+}

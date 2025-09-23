@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
    const tab_usuario = sequelize.define(
       "tab_usuario",
       {
-         cod_usuario: { type: DataTypes.INTEGER, primaryKey: true },
+         cod_usuario: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
          cod_empresa: DataTypes.INTEGER,
          nome_usuario: DataTypes.STRING,
          email_usuario: DataTypes.STRING,

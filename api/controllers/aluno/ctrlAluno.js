@@ -1,7 +1,6 @@
 const { Sequelize } = require("sequelize");
 const {
    tab_aluno,
-   tab_aluno_cartao,
    tab_avaliacao,
    tab_avaliacao_imagem,
    tab_usuario,
@@ -12,109 +11,14 @@ const {
 } = require("../../../database/models");
 const { removeStringVazia, calcularIdadeDtAvaliacao } = require("../../../utils");
 const moment = require("moment-timezone");
-const { sendDocument, deleteDocument, downloadContract } = require("../../autentique");
 const {
    calculaPorcentagemGordura,
    calculaPorcentagemMusculo,
    calculaPorcentagemMassaMagra,
    getResultPhysicalAssesment,
 } = require("../ctrlAvaliacao");
-const { criarCliente, removerCobranca, removerAssinaturaParcelamento } = require("../../utils/asaas");
 const { default: puppeteer } = require("puppeteer");
 const env = process.env.NODE_ENV || "development";
-const dev = env === "development";
-
-async function getAlunos(req, res) {
-   const { cod_usuario, cod_empresa, deleted } = req.body;
-   const where = deleted ? { deletedAt: { [Sequelize.Op.ne]: null } } : { deletedAt: null };
-   if (cod_empresa) where.cod_empresa = cod_empresa;
-   const alunos = await tab_aluno.findAll({
-      limit: req.validLicense ? undefined : 3,
-      where: where,
-      paranoid: !deleted,
-      include: [
-         { model: tab_avaliacao, as: "avaliacao" },
-         { model: tab_usuario, as: "usuario", where: { cod_empresa } },
-      ],
-      attributes: { exclude: ["senha_aluno"] },
-      order: [["nome_aluno", "ASC"]],
-   });
-   res.send({ status: true, alunos });
-}
-
-async function getAluno(req, res) {
-   const { cod_aluno } = req.body;
-   const aluno = await tab_aluno.findOne({
-      where: { cod_aluno: cod_aluno },
-      include: [
-         {
-            model: tab_avaliacao,
-            as: "avaliacao",
-            include: [
-               {
-                  model: tab_avaliacao_imagem,
-                  as: "imagem",
-               },
-            ],
-         },
-      ],
-   });
-   res.send({ status: true, aluno });
-}
-
-async function getCards(req, res) {
-   const { cod_aluno } = req.body;
-
-   const cards = await tab_aluno_cartao.findAll({
-      where: { cod_aluno },
-      attributes: { exclude: ["token_aluno_cartao"] },
-   });
-   res.send({ status: true, cards });
-}
-
-async function deleteCard(req, res) {
-   const { cod_aluno_cartao } = req.body;
-
-   await tab_aluno_cartao.update({ deletedAt: new Date() }, { where: { cod_aluno_cartao } });
-   res.send({ status: true });
-}
-
-async function setAluno(req, res) {
-   const { aluno } = req.body;
-   var alunoAtt;
-
-   if (!aluno.cod_aluno && !req.validLicense) {
-      const qtdAluno = await tab_aluno.count({ where: { cod_empresa: req.cod_empresa } });
-      if (qtdAluno >= 3)
-         return res.status(403).send({ status: false, message: "Limite de alunos cadastrados atingido!" });
-   }
-
-   if (aluno?.cod_aluno)
-      alunoAtt = await tab_aluno.findOne({
-         where: { cod_aluno: aluno.cod_aluno },
-      });
-
-   if (alunoAtt) {
-      const { asaas_id, ...alunoSemAsaasId } = aluno;
-      await tab_aluno.update(alunoSemAsaasId, {
-         where: { cod_aluno: aluno.cod_aluno },
-      });
-
-      const empresa = await tab_empresa.findOne({
-         where: { cod_empresa: aluno.cod_empresa },
-      });
-   } else {
-      const novoAluno = await tab_aluno.create(aluno);
-      alunoAtt = novoAluno;
-   }
-   res.send({ status: true, aluno: alunoAtt });
-}
-
-async function deleteAluno(req, res) {
-   const { cod_aluno } = req.body;
-   await tab_aluno.update({ deletedAt: new Date() }, { where: { cod_aluno: cod_aluno } });
-   res.send({ status: true });
-}
 
 async function recoveryAluno(req, res) {
    const { cod_aluno } = req.body;
@@ -274,136 +178,6 @@ async function setAlunoContrato(req, res) {
    res.send({ status: true, alunoContrato });
 }
 
-async function cancelAlunoContrato(req, res) {
-   const { cod_aluno_contrato } = req.body;
-
-   const alunoContrato = await tab_aluno_contrato.findOne({
-      where: { cod_aluno_contrato },
-   });
-   if (alunoContrato?.autentique_aluno_contrato) await deleteDocument(alunoContrato.autentique_aluno_contrato);
-
-   //Delete Subscription
-   if (alunoContrato?.asaas_id) await removerAssinaturaParcelamento(alunoContrato?.asaas_id);
-
-   //Delete all pending payments
-   const payments = await tab_aluno_contrato_pagamento.findAll({
-      where: { cod_aluno_contrato },
-   });
-   for (const payment of payments) {
-      if (payment?.asaas_id) await removerCobranca(payment?.asaas_id);
-   }
-
-   await tab_aluno_contrato.update(
-      { deletedAt: new Date(), status_aluno_contrato: "Cancelado" },
-      { where: { cod_aluno_contrato } }
-   );
-
-   res.send({ status: true });
-}
-
-async function resendAlunoContrato(req, res) {
-   const { cod_aluno_contrato } = req.body;
-   const contratoPDF = req.file;
-
-   const alunoContrato = await tab_aluno_contrato.findOne({
-      where: { cod_aluno_contrato },
-   });
-   const aluno = await tab_aluno.findOne({
-      where: { cod_aluno: alunoContrato.cod_aluno },
-   });
-
-   if (alunoContrato.autentique_aluno_contrato) {
-      await deleteDocument(alunoContrato.autentique_aluno_contrato);
-   }
-
-   if (alunoContrato.arquivo_aluno_contrato) {
-      const respAutentique = await sendDocument(contratoPDF, aluno.email_aluno);
-      if (respAutentique)
-         tab_aluno_contrato.update(
-            {
-               autentique_aluno_contrato: respAutentique,
-               statusautentique_aluno_contrato: "Contrato enviado.",
-            },
-            { where: { cod_aluno_contrato } }
-         );
-      res.send({ status: true });
-      return;
-   }
-
-   res.send({ status: true });
-}
-
-async function sendAlunoContrato(req, res) {
-   try {
-      const { cod_aluno_contrato } = req.body;
-
-      const alunoContrato = await tab_aluno_contrato.findOne({
-         where: { cod_aluno_contrato },
-      });
-      const aluno = await tab_aluno.findOne({
-         where: { cod_aluno: alunoContrato.cod_aluno },
-      });
-
-      if (alunoContrato.arquivo_aluno_contrato) {
-         const browser = await puppeteer.launch({
-            headless: "new",
-            args: ["--no-sandbox"],
-         });
-         const page = await browser.newPage();
-         await page.setContent(alunoContrato?.arquivo_aluno_contrato, {
-            waitUntil: "networkidle0",
-         });
-
-         const pdfBuffer = await page.pdf({
-            format: "A4",
-            printBackground: true,
-            margin: {
-               top: "40px",
-               bottom: "40px",
-               left: "40px",
-               right: "40px",
-            },
-         });
-
-         await browser.close();
-
-         const respAutentique = await sendDocument(pdfBuffer, aluno.email_aluno);
-         if (respAutentique)
-            tab_aluno_contrato.update(
-               {
-                  autentique_aluno_contrato: respAutentique,
-                  statusautentique_aluno_contrato: "Contrato enviado.",
-               },
-               { where: { cod_aluno_contrato } }
-            );
-         res.send({ status: true });
-         return;
-      }
-
-      res.send({ status: true });
-   } catch (e) {
-      console.log(e);
-      res.send({ status: false });
-   }
-}
-
-async function downloadAlunoContrato(req, res) {
-   const { cod_aluno_contrato, signed } = req.body;
-   const alunoContrato = await tab_aluno_contrato.findOne({
-      where: { cod_aluno_contrato },
-   });
-
-   if (alunoContrato?.autentique_aluno_contrato) {
-      const resp = await downloadContract(alunoContrato.autentique_aluno_contrato, signed);
-      if (resp) {
-         res.send({ status: true, url: resp });
-      } else res.send({ status: false });
-      return;
-   }
-
-   res.send({ status: true });
-}
-
 async function getAlunoContratos(req, res) {
    const { cod_aluno, cod_empresa } = req.body;
 
@@ -456,22 +230,12 @@ async function getAlunoContrato(req, res) {
 }
 
 module.exports = {
-   getAlunos,
-   getAluno,
-   getCards,
-   deleteCard,
-   setAluno,
-   deleteAluno,
    recoveryAluno,
    getAvaliacoes,
    getAvaliacao,
    setAvaliacao,
    deleteAvaliacao,
    setAlunoContrato,
-   cancelAlunoContrato,
-   sendAlunoContrato,
-   resendAlunoContrato,
-   downloadAlunoContrato,
    getAlunoContratos,
    getAlunoContrato,
 };
