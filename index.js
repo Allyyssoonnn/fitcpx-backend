@@ -13,6 +13,15 @@ server.use(cors({ origin: "*", credentials: true }));
 server.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 server.use(bodyParser.json({ limit: "50mb" }));
 
+//Remove after update
+server.get("/fitnessassessmentpdf", (req, res) => {
+   res.sendFile(__dirname + "/api/utils/templates/fitnessassessmentpdf.html");
+});
+server.use("/appaluno", require("./api/routes/routeAppAluno"));
+server.use("/treino", require("./api/routes/routeTreino"));
+server.use("/aluno", require("./api/routes/routeAluno"));
+server.use("/avaliacao", require("./api/routes/routeAvaliacao"));
+
 // ================ Servidor
 
 const serverHttp = http.createServer(server);
