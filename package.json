@@ -9,7 +9,8 @@
       "test:watch": "jest --watch",
       "test:cov": "jest --coverage",
       "reset": "MYSQL_PWD='[REDACTED_CREDENTIAL]' mysql -u root -h localhost -e \"DROP DATABASE IF EXISTS educapp; CREATE DATABASE educapp;\" && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
-      "build": "tsc",
+      "build": "tsc && npm run copy-js",
+      "copy-js": "cpx \"src/**/*.js\" dist && cpx \"*.js\" dist",
       "start": "node dist/index.js",
       "dev": "ts-node-dev index.js"
    },
@@ -53,6 +54,7 @@
       "@types/jest": "^30.0.0",
       "@types/multer": "^2.0.0",
       "@types/node": "^24.3.0",
+      "cpx": "^1.5.0",
       "jest": "^30.1.3",
       "sequelize-cli": "^6.6.2",
       "ts-jest": "^29.4.1",
