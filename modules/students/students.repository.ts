@@ -10,6 +10,7 @@ export class StudentsRepository {
       return db.tab_aluno.findAll({
          paranoid: !onlyDeleted,
          where: where,
+         order: [["nome_aluno", "ASC"]],
       });
    }
 
