@@ -9,7 +9,7 @@
       "test:watch": "jest --watch",
       "test:cov": "jest --coverage",
       "reset": "MYSQL_PWD='[REDACTED_CREDENTIAL]' mysql -u root -h localhost -e \"DROP DATABASE IF EXISTS educapp; CREATE DATABASE educapp;\" && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
-      "build": "tsc && cpx 'src/**/{!(node_modules),*}/*.{js,json}' dist",
+      "build": "tsc && cpx '{*.{js,json},!(node_modules)/**/*.{js,json}}' dist",
       "start": "node dist/index.js",
       "dev": "ts-node-dev index.js"
    },
