@@ -10,7 +10,7 @@
       "test:cov": "jest --coverage",
       "reset": "MYSQL_PWD='[REDACTED_CREDENTIAL]' mysql -u root -h localhost -e \"DROP DATABASE IF EXISTS educapp; CREATE DATABASE educapp;\" && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
       "build": "npm run copy && tsc",
-      "copy": "rm -rf dist && cpx '{*.{js,json},!(node_modules)/**/*.{js,json}}' dist",
+      "copy": "rm -rf dist && cpx '{*.{js,json, html},!(node_modules)/**/*.{js,json, html}}' dist",
       "start": "node dist/index.js",
       "dev": "ts-node-dev index.js"
    },
