@@ -265,11 +265,22 @@ export class WorkoutsRepository {
             repeticao_treino_execucao_exercicio: exercicio?.repeticao_sessao_exercicio,
             carga_treino_execucao_exercicio: exercicio?.carga_sessao_exercicio,
             observacao_treino_execucao_exercicio: exercicio?.observacao_sessao_exercicio ?? "",
-            // intervalo_treino_execucao_exercicio:
-            //     exercicio?.intervalo_sessao_exercicio,
-            //Não estou salvando
-            intervalo_treino_execucao_exercicio: 0,
+            intervalo_treino_execucao_exercicio: exercicio?.intervalo_sessao_exercicio,
          });
+
+         const exec = exercicio?.execucoes ?? exercicio.setsInfo;
+
+         await db.tab_sessao_exercicio.update(
+            {
+               // serie_sessao_exercicio: exercicio?.serie_sessao_exercicio,
+               repeticao_sessao_exercicio: exec[exec.length - 1]?.repetition ?? exercicio?.repeticao_sessao_exercicio,
+               carga_sessao_exercicio: exec[exec.length - 1]?.weight ?? exercicio?.carga_sessao_exercicio,
+               // intervalo_sessao_exercicio: exercicio?.intervalo_sessao_exercicio,
+            },
+            {
+               where: { cod_sessao: session.cod_sessao, cod_exercicio: exercicio.cod_exercicio },
+            }
+         );
       }
 
       return;
