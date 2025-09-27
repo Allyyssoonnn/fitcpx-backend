@@ -16,8 +16,8 @@ export class UsersService {
       private readonly storageService: StorageService
    ) {}
 
-   async getAll() {
-      return await this.usersRepository.findAll();
+   async getAll(companyId: string) {
+      return await this.usersRepository.findAll(companyId);
    }
 
    getById = async (id: string, companyId: string) => {

@@ -10,8 +10,8 @@ export class UsersController {
    constructor(private readonly usersService: UsersService) {}
 
    @Get()
-   async getAll() {
-      return this.usersService.getAll();
+   async getAll(@CompanyId() companyId: string) {
+      return this.usersService.getAll(companyId);
    }
 
    @Get(":id")

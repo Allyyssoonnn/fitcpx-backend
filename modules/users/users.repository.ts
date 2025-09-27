@@ -3,8 +3,10 @@ import db from "../../database/models";
 
 @Injectable()
 export class UsersRepository {
-   async findAll() {
-      return await db.tab_usuario.findAll();
+   async findAll(companyId: string) {
+      return await db.tab_usuario.findAll({
+         where: { cod_empresa: companyId },
+      });
    }
 
    async findById(id: string, companyId?: string) {
