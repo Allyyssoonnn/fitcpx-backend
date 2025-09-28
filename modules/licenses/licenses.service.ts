@@ -45,7 +45,7 @@ export class LicensesService {
          license.valor_licenca,
          null,
          "",
-         moment.tz(new Date(), "America/Sao_Paulo").format("YYYY/MM/DD"),
+         moment(new Date()).format("YYYY/MM/DD"),
          "Use License",
          null,
          "Lab Complex Dev LTDA"

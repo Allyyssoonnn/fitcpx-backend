@@ -44,7 +44,7 @@ export class PaymentAPI {
          billingType, // 'CREDIT_CARD', 'PIX', 'BOLETO'
          customer: customerId,
          value: value,
-         dueDate: moment(dueDate).tz("America/Sao_Paulo").format("YYYY-MM-DD"),
+         dueDate: moment(dueDate).format("YYYY-MM-DD"),
          description: name || "FitCpx",
          externalReference: cod,
          postalService: false,
