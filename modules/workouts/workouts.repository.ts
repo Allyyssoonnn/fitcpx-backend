@@ -107,28 +107,26 @@ export class WorkoutsRepository {
                })
             )[0] as any;
 
+            let exercisesId = [] as string[];
+            exercicios.map((e: any) => {
+               exercisesId.push(e.cod_sessao_exercicio);
+               e?.sets.map((e: any) => exercisesId.push(e.cod_sessao_exercicio));
+            });
+            let exercisesDBId = (
+               await db.tab_sessao_exercicio.findAll({ where: { cod_sessao: sessionDB.cod_sessao } })
+            ).map((e: any) => e.cod_sessao_exercicio);
+            let toRemove = exercisesDBId.filter((id) => !exercisesId.includes(id)) as [];
+            await db.tab_sessao_exercicio.destroy({
+               where: { cod_sessao: sessionDB.cod_sessao, cod_sessao_exercicio: toRemove },
+            });
+
             for (const exercicio of exercicios) {
-               let exercisesId = exercicios.map((e: any) => e.cod_sessao_exercicio);
-               let exercisesDBId = (
-                  await db.tab_sessao_exercicio.findAll({ where: { cod_sessao: sessionDB.cod_sessao } })
-               ).map((e: any) => e.cod_sessao_exercicio);
-
-               let toRemove = exercisesDBId.filter((id) => !exercisesId.includes(id)) as [];
-               await db.tab_sessao_exercicio.destroy({
-                  where: { cod_sessao: sessionDB.cod_sessao, cod_sessao_exercicio: toRemove },
-               });
-
                await db.tab_sessao_exercicio.upsert({
                   ...exercicio,
                   cod_sessao: sessionDB.cod_sessao,
                });
 
                for (const set of exercicio?.sets) {
-                  let exercisesId = exercicios.map((e: any) => e.cod_sessao_exercicio);
-                  let toRemove = exercisesDBId.filter((id) => !exercisesId.includes(id)) as [];
-                  await db.tab_sessao_exercicio.destroy({
-                     where: { cod_sessao: sessionDB.cod_sessao, cod_sessao_exercicio: toRemove },
-                  });
                   await db.tab_sessao_exercicio.upsert({
                      ...set,
                      cod_sessao: sessionDB.cod_sessao,
