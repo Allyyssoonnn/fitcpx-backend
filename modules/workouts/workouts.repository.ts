@@ -6,7 +6,9 @@ import db from "../../database/models";
 export class WorkoutsRepository {
    async findAll(companyId: string, onlyDeleted: boolean = false, studentId?: string) {
       const where: any = onlyDeleted ? { deletedAt: { [Op.ne]: null } } : {};
-      if (companyId) where.cod_empresa = companyId;
+      where.cod_empresa = {
+         [Op.or]: [companyId, null],
+      };
       studentId ? (where.cod_aluno = studentId) : (where.cod_aluno = null);
       const workouts = await db.tab_treino.findAll({
          paranoid: !onlyDeleted,
