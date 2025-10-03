@@ -36,14 +36,9 @@ export class UsersService {
          throw new HttpException("Credenciais inválidas.", 401);
       }
 
-      const { token, refreshToken } = await genTokenUserAuth(user.cod_usuario, user.cod_empresa);
+      const { token, refreshToken, license } = await genTokenUserAuth(user.cod_usuario, user.cod_empresa);
 
-      const {
-         decoded: { status },
-      } = validateToken(token);
-
-      const validLicense = status !== "Expired" && status !== "Cancelled" && status !== undefined && status !== null;
-      return { token, refreshToken, usuario: user, empresa: empresa, validLicense };
+      return { token, refreshToken, usuario: user, empresa: empresa, license };
    };
 
    async refreshToken(refreshTokenReq: string) {
@@ -52,7 +47,7 @@ export class UsersService {
          const userOne = (await this.usersRepository.findById("1")) as any;
          const company = (await this.companiesRepository.findById(userOne?.cod_empresa)) as any;
 
-         return { token: refreshTokenReq, usuario: userOne, empresa: company, validLicense: true };
+         return { token: refreshTokenReq, usuario: userOne, empresa: company };
       }
 
       if (!refreshTokenReq) throw new HttpException("Token inválido", 401);
@@ -67,12 +62,9 @@ export class UsersService {
       const user = (await this.usersRepository.findById(refreshTokenDB?.cod_usuario)) as any;
       const company = (await this.companiesRepository.findById(user?.cod_empresa)) as any;
 
-      const { token, refreshToken } = await genTokenUserAuth(user.cod_usuario, user.cod_empresa);
-      const {
-         decoded: { status },
-      } = validateToken(token);
-      const validLicense = status !== "Expired" && status !== "Cancelled" && status !== undefined && status !== null;
-      return { status: true, token, refreshToken, usuario: user, empresa: company, validLicense };
+      const { token, refreshToken, license } = await genTokenUserAuth(user.cod_usuario, user.cod_empresa);
+
+      return { license, token, refreshToken, usuario: user, empresa: company };
    }
 
    register = async (name: string, email: string, password: string) => {
@@ -106,14 +98,9 @@ export class UsersService {
          admin_usuario: "S",
       })) as any;
 
-      const { token, refreshToken } = await genTokenUserAuth(newUser?.cod_usuario, newCompany.cod_empresa);
+      const { token, refreshToken, license } = await genTokenUserAuth(newUser?.cod_usuario, newCompany.cod_empresa);
 
-      const {
-         decoded: { status },
-      } = validateToken(token);
-
-      const validLicense = status !== "Expired" && status !== "Cancelled" && status !== undefined && status !== null;
-      return { token, refreshToken, usuario: newUser, empresa: newCompany, validLicense };
+      return { token, refreshToken, usuario: newUser, empresa: newCompany, license };
    };
 
    async recoveryAccount(email: string) {

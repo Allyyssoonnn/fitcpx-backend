@@ -74,8 +74,6 @@ export class VerifyTokenMiddleware implements NestMiddleware {
       }
 
       try {
-         // Validate token
-         req.validLicense = true;
          const {
             decoded: { status, cod_empresa, cod_usuario },
          } = validateToken(token);
@@ -88,16 +86,14 @@ export class VerifyTokenMiddleware implements NestMiddleware {
 
          // ! Check if license expired or cancelled
          if (status === "Expired") {
-            req.validLicense = false;
-            req.messageLicense = "Licença expirada.";
-            // return res.status(403).send({ status: false, message: "Licença expirada." });
+            if (req.method === "POST") return res.status(403).send({ status: false, message: "Licença expirada." });
          } else if (status === "Cancelled") {
-            req.validLicense = false;
-            req.messageLicense = "Licença cancelada.";
-            // return res.status(403).send({ status: false, message: "Licença cancelada." });
+            if (req.method === "POST") return res.status(403).send({ status: false, message: "Licença cancelada." });
+         } else if (status === "Trial Expired") {
+            if (req.method === "POST")
+               return res.status(403).send({ status: false, message: "Teste gratuito expirado." });
          } else if (!status) {
-            req.validLicense = false;
-            req.messageLicense = "Limite de alunos cadastrados atingido!";
+            return res.status(401).send({ status: false, message: "Licença inválida." });
          }
 
          next();

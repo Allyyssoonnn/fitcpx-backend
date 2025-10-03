@@ -23,7 +23,30 @@ export async function genTokenUserAuth(cod_usuario: string, cod_empresa: string,
    const { status_empresa_licenca: status } = license || {};
    // * Status can be "Active", "Expired", "Cancelled", null (no license)
 
-   const token = jwt.sign({ cod_usuario, status, cod_empresa }, process.env.SECRET, { expiresIn: "7h" });
+   var authorizedStatus = status;
+   var trialDaysLeft = null;
+
+   if (!status) {
+      var created = new Date(company.createdAt);
+      var today = new Date();
+
+      created.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+
+      var diffTime = today.getTime() - created.getTime();
+      var diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 7) {
+         authorizedStatus = "Trial Expired";
+      } else {
+         authorizedStatus = "Trial Active";
+         trialDaysLeft = 7 - diffDays;
+      }
+   }
+
+   const token = jwt.sign({ cod_usuario, status: authorizedStatus, cod_empresa }, process.env.SECRET, {
+      expiresIn: "7h",
+   });
 
    const refreshToken = crypto.randomBytes(64).toString("hex");
 
@@ -39,7 +62,7 @@ export async function genTokenUserAuth(cod_usuario: string, cod_empresa: string,
       expiresAt: expiresAt,
    });
 
-   return { token, refreshToken };
+   return { token, refreshToken, license: { status: authorizedStatus, trialDaysLeft } };
 }
 
 // * Generate Token for Password Recovery url

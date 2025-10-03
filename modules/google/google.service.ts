@@ -45,8 +45,8 @@ export class GoogleService {
             admin_usuario: "S",
          })) as any;
 
-         const { token, refreshToken } = await genTokenUserAuth(newUser.cod_usuario, company.cod_empresa);
-         return { status: true, token, refreshToken, usuario: newUser };
+         const { token, refreshToken, license } = await genTokenUserAuth(newUser.cod_usuario, company.cod_empresa);
+         return { license, token, refreshToken, usuario: newUser };
       } else {
          //Faz login do usuário com o google
          const empresa = (await this.companiesRepository.findById(user.cod_empresa)) as any;
