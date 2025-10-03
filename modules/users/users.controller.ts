@@ -54,11 +54,6 @@ export class UsersController {
       return this.usersService.updatePassword(token, password);
    }
 
-   @Post("resendConfirmationCode")
-   async resendConfirmationCode(@CompanyId() companyId: string) {
-      return await this.usersService.resendConfirmationCode(companyId);
-   }
-
    @Post("updateImageUser")
    @UseInterceptors(
       FileInterceptor("image", {

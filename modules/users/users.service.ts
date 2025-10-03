@@ -130,14 +130,6 @@ export class UsersService {
       }
    }
 
-   async resendConfirmationCode(companyId: string) {
-      const companiesRepository = new CompaniesRepository();
-      const company = (await companiesRepository.findById(companyId)) as any;
-
-      if (!company) throw new HttpException("Empresa não encontrada.", 404);
-      return this.mailsService.confirmationCode(company.nome_empresa, company.email_empresa, company.email_codigo);
-   }
-
    async updateImageUser(userId: string, fileBuffer: Express.Multer.File) {
       if (!fileBuffer) throw new HttpException("Arquivo não enviado.", 400);
 
