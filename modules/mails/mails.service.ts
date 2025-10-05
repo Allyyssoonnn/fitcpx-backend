@@ -2,13 +2,51 @@ import { Injectable } from "@nestjs/common";
 import fstat from "fs/promises";
 import path from "path";
 import { MailsAPI } from "./mails.api";
+import { MailsRepository } from "./mails.repository";
 
 @Injectable()
 export class MailsService {
-   constructor(private readonly mailsAPI: MailsAPI) {}
+   constructor(private readonly mailsAPI: MailsAPI, private readonly mailsRepository: MailsRepository) {}
 
    async test(email: string) {
-      return this.mailsAPI.sendMail(email);
+      try {
+         const resp = await this.mailsAPI.sendMail(email, "Test mail", "Testing...");
+         return this.mailsRepository.createOrUpdate({
+            content: "Test mail",
+            subject: "Testing...",
+            status: resp.success ? "sent" : null,
+            email,
+         });
+      } catch (e: any) {
+         return this.mailsRepository.createOrUpdate({
+            content: "Test mail",
+            subject: "Testing...",
+            errorMessage: e.message,
+            email,
+         });
+      }
+   }
+
+   async sendMail(email: string, templateName: string, subject: string, payload: Record<string, any>) {
+      const htmlTemplate = await fstat.readFile(path.join(__dirname, "templates", templateName), "utf-8");
+      const html = this.renderTemplate(htmlTemplate, payload);
+      try {
+         const resp = await this.mailsAPI.sendMail(email, html, subject);
+         return this.mailsRepository.createOrUpdate({
+            content: html,
+            subject: subject,
+            status: resp.success ? "sent" : null,
+            email,
+         });
+      } catch (e: any) {
+         return this.mailsRepository.createOrUpdate({
+            content: html,
+            subject: subject,
+            errorMessage: e.message,
+            status: "failed",
+            email,
+         });
+      }
    }
 
    private renderTemplate(template: string, variables: any) {
@@ -50,20 +88,6 @@ export class MailsService {
             content: proof,
          },
       ]);
-   }
-
-   async confirmationCode(name: string, email: string, code: string) {
-      const htmlTemplate = await fstat.readFile(path.join(__dirname, "templates", "confirmationCode.html"), "utf-8");
-      const htmlBody = this.renderTemplate(htmlTemplate, { name, code });
-
-      return this.mailsAPI.sendMail(email, htmlBody, "Código de confirmação");
-   }
-
-   async recoveryPassword(name: string, email: string, url: string) {
-      const htmlTemplate = await fstat.readFile(path.join(__dirname, "templates", "recoveryPassword.html"), "utf-8");
-      const htmlBody = this.renderTemplate(htmlTemplate, { name, email, url });
-
-      return this.mailsAPI.sendMail(email, htmlBody, "Recuperação de senha");
    }
 
    async dueInvoice(

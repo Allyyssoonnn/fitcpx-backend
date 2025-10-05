@@ -18,7 +18,7 @@ export class MobileService {
       private readonly contractsService: ContractsService
    ) {}
 
-   async login(login: string, password: string) {
+   async login(login: string, password: string, deviceToken: string, platform: string) {
       let student = (await this.studentsService.getByEmail(login)) as any;
       if (!student) student = (await this.studentsService.getByCPF(login)) as any;
 
@@ -29,10 +29,12 @@ export class MobileService {
 
       const { token, refreshToken } = await genTokenStudentAuth(student.cod_aluno, company.cod_empresa);
 
+      if (deviceToken && platform) this.studentsService.saveDeviceTokenId(student.cod_aluno, deviceToken, platform);
+
       return { student, company, token, refreshToken };
    }
 
-   async refreshToken(refreshTokenReq: string) {
+   async refreshToken(refreshTokenReq: string, deviceToken: string, platform: string) {
       if (!refreshTokenReq) throw new HttpException("Token não informado!", 401);
       const refreshTokenDB = (await this.studentsService.findRefreshToken(refreshTokenReq)) as any;
       if (!refreshTokenDB) throw new HttpException("Token inválido", 401);
@@ -46,6 +48,8 @@ export class MobileService {
       const company = (await this.companiesService.getById(student?.cod_empresa)) as any;
 
       const { token, refreshToken } = await genTokenStudentAuth(student.cod_aluno, company.cod_empresa);
+
+      if (deviceToken && platform) this.studentsService.saveDeviceTokenId(student.cod_aluno, deviceToken, platform);
 
       return { student, company, token, refreshToken };
    }

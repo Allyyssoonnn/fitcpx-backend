@@ -54,4 +54,10 @@ export class StudentsRepository {
          where: { refreshtoken_aluno: refreshToken },
       });
    }
+
+   async saveDeviceTokenId(studentId: string, token: string, platform: string) {
+      let exist = await db.device_tokens.findOne({ where: { token, studentId } });
+      if (exist) return;
+      return (await db.device_tokens.upsert({ studentId, token, platform }))[0];
+   }
 }

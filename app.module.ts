@@ -3,11 +3,13 @@ import { CalendarModule } from "./modules/calendar/calendar.module";
 import { CompaniesModule } from "./modules/companies/companies.module";
 import { ContractsModule } from "./modules/contracts/contracts.module";
 import { ContractsTemplatesModule } from "./modules/contractsTemplates/contractsTemplates.module";
+import { EventsModule } from "./modules/events/events.module";
 import { ExercisesModule } from "./modules/exercises/exercises.module";
 import { GoogleModule } from "./modules/google/google.module";
 import { LicensesModules } from "./modules/licenses/licenses.module";
 import { MailsModule } from "./modules/mails/mails.module";
 import { MobileModule } from "./modules/mobile/mobile.module";
+import { NotificationsModule } from "./modules/notifications/notifications.module";
 import { PaymentsModule } from "./modules/payments/payments.module";
 import { PhysicalAssessmentsModule } from "./modules/physicalAssessments/physicalAssessments.module";
 import { PlansModule } from "./modules/plans/plans.module";
@@ -34,6 +36,8 @@ import { WorkoutsModule } from "./modules/workouts/workouts.module";
       WorkoutsModule,
       ExercisesModule,
       MobileModule,
+      NotificationsModule,
+      EventsModule,
    ],
 })
 export class AppModule {}

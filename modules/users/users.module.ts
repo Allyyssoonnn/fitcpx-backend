@@ -1,6 +1,8 @@
 import { Module } from "@nestjs/common";
 import { CompaniesRepository } from "../companies/companies.repository";
+import { EventsService } from "../events/events.service";
 import { MailsAPI } from "../mails/mails.api";
+import { MailsRepository } from "../mails/mails.repository";
 import { MailsService } from "../mails/mails.service";
 import { StorageAPI } from "../storage/storage.api";
 import { StorageService } from "../storage/storage.service";
@@ -10,6 +12,16 @@ import { UsersService } from "./users.service";
 
 @Module({
    controllers: [UsersController],
-   providers: [UsersRepository, UsersService, MailsService, MailsAPI, StorageService, StorageAPI, CompaniesRepository],
+   providers: [
+      UsersRepository,
+      UsersService,
+      MailsService,
+      MailsAPI,
+      StorageService,
+      StorageAPI,
+      CompaniesRepository,
+      MailsRepository,
+      EventsService,
+   ],
 })
 export class UsersModule {}

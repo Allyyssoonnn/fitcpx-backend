@@ -9,8 +9,8 @@ export class MobileController {
 
    @Post("login")
    async login(@Body() body: any) {
-      const { login, password } = body;
-      return this.mobileService.login(login, password);
+      const { login, password, deviceToken, platform } = body;
+      return this.mobileService.login(login, password, deviceToken, platform);
    }
 
    @Get("getExercises")
@@ -42,8 +42,9 @@ export class MobileController {
    }
 
    @Post("refreshToken")
-   async refreshToken(@Body("refreshToken") refreshToken: string) {
-      return this.mobileService.refreshToken(refreshToken);
+   async refreshToken(@Body() body: any) {
+      const { refreshToken, deviceToken, platform } = body;
+      return this.mobileService.refreshToken(refreshToken, deviceToken, platform);
    }
 
    @Post("finishTreino")

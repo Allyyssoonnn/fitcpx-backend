@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { genTokenUserAuth, genTokenUserRecoveryPassword, validateToken } from "../../shared/utils/token";
 import { CompaniesRepository } from "../companies/companies.repository";
-import { MailsService } from "../mails/mails.service";
+import { EventsService } from "../events/events.service";
 import { StorageService } from "../storage/storage.service";
 import { UsersRepository } from "./users.repository";
 const dev = (process.env.NODE_ENV || "development") === "development";
@@ -12,7 +12,7 @@ export class UsersService {
    constructor(
       private readonly usersRepository: UsersRepository,
       private readonly companiesRepository: CompaniesRepository,
-      private readonly mailsService: MailsService,
+      private readonly eventsService: EventsService,
       private readonly storageService: StorageService
    ) {}
 
@@ -81,7 +81,7 @@ export class UsersService {
          .map((n) => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[n % 36])
          .join("");
 
-      this.mailsService.confirmationCode(name, email, emailCode);
+      // this.mailsService.confirmationCode(name, email, emailCode);
 
       const newCompany = (await companiesRepository.createOrUpdate({
          nome_empresa: name,
@@ -112,9 +112,7 @@ export class UsersService {
 
       const token = genTokenUserRecoveryPassword(user.cod_usuario);
       const url = `https://app.fitcpx.com/recoveryPassword?token=${token}`;
-      this.mailsService.recoveryPassword(user.nome_usuario, email, url);
-
-      return;
+      return this.eventsService.recoveryPasswordUser(user.nome_usuario, email, url);
    }
 
    async updatePassword(token: string, password: string) {

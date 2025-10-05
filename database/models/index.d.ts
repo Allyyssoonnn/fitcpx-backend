@@ -38,6 +38,9 @@ interface Db {
    feedbacks: ModelStatic<Model>;
    tab_treino_execucao: ModelStatic<Model>;
    tab_treino_execucao_exercicio: ModelStatic<Model>;
+   mails: ModelStatic<Model>;
+   notifications: ModelStatic<Model>;
+   device_tokens: ModelStatic<Model>;
 }
 
 declare const db: Db;

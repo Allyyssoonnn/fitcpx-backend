@@ -51,4 +51,8 @@ export class StudentsService {
    async deleteRefreshToken(refreshToken: string) {
       return this.studentsRepository.deleteRefreshToken(refreshToken);
    }
+
+   async saveDeviceTokenId(studentId: string, token: string, platform: string) {
+      return this.studentsRepository.saveDeviceTokenId(studentId, token, platform);
+   }
 }

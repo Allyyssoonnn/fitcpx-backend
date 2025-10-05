@@ -9,6 +9,8 @@ const devToken = process.env.DEV_TOKEN;
 const getMessageError = require("../utils/errors-message");
 
 const allowedRoutes = [
+   "/notifications",
+   "/mails",
    "/mobile/login",
    "/mobile/refreshToken",
    "/users/login",
