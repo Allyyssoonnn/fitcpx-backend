@@ -39,10 +39,11 @@ export class NotificationsService {
    async sendPushNotification(title: string, message: string, event: string, studentId: string) {
       const devices = await this.notificationsRepository.getDeviceTokens(studentId);
       const tokens = devices.map((d: any) => d.token);
+      const sendTokens = tokens.filter((token: any, i: number) => tokens.indexOf(token) === i) as any;
 
       try {
-         const response = await this.notificationsAPI.sendPushNotification(tokens, title, message);
-         for (let i = 0; i < tokens.length; i++) {
+         const response = await this.notificationsAPI.sendPushNotification(sendTokens, title, message);
+         for (let i = 0; i < sendTokens.length; i++) {
             const token = tokens[i];
             const result = response.responses[i];
 
