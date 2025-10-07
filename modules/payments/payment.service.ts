@@ -38,7 +38,9 @@ export class PaymentService {
       dueDate: string,
       description: string,
       initialPayment: number | null,
-      companyName: string
+      companyName: string,
+      interestPercentage: string,
+      finePercentage: string
    ) {
       // * MANUAL
       if (paymentMethod === "MANUAL") {
@@ -90,7 +92,9 @@ export class PaymentService {
             String(dueDateHiring),
             null,
             billingType,
-            `Adesão - ${description}`
+            `Adesão - ${description}`,
+            interestPercentage,
+            finePercentage
          );
 
          if (respAsaas.id) {
@@ -126,7 +130,9 @@ export class PaymentService {
             String(dueDate),
             null,
             billingType,
-            description
+            description,
+            interestPercentage,
+            finePercentage
          );
          return respAsaas.id;
       }
@@ -140,7 +146,9 @@ export class PaymentService {
             String(moment(dueDate).format("YYYY-MM-DD")),
             Number(JSON.parse(installments).lenght) ?? null,
             billingType,
-            description
+            description,
+            interestPercentage,
+            finePercentage
          );
          if (respAsaas.id) await this.contractsRepository.updateApiId(externalId, respAsaas.id);
       } else {
@@ -157,7 +165,9 @@ export class PaymentService {
                String(dueDateInstallment),
                installmentsCount ?? null,
                billingType,
-               description
+               description,
+               interestPercentage,
+               finePercentage
             );
 
             if (respAsaas.id) {

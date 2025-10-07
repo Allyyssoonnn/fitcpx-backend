@@ -37,7 +37,9 @@ export class PaymentAPI {
       dueDate: string | null,
       installments: number | null,
       billingType: string,
-      name: string
+      name: string,
+      interestPercentage: string,
+      finePercentage: string
    ) {
       const url = `${this.coreURL}/v3/payments/`;
       const body = {
@@ -49,8 +51,8 @@ export class PaymentAPI {
          externalReference: cod,
          postalService: false,
          discount: { type: "PERCENTAGE", value: 0 },
-         interest: { value: 0 },
-         fine: { value: 0, type: "FIXED" },
+         interest: { value: interestPercentage },
+         fine: { value: finePercentage, type: "PERCENTAGE" },
       } as any;
 
       if (billingType === "CREDIT_CARD") {
@@ -87,7 +89,9 @@ export class PaymentAPI {
       dueDate: string | null,
       installments: number | null,
       billingType: string,
-      name: string
+      name: string,
+      interestPercentage: string,
+      finePercentage: string
    ) {
       const url = `${urlBase}/v3/subscriptions`;
       const options = {
@@ -102,6 +106,13 @@ export class PaymentAPI {
             value: value,
             nextDueDate: dueDate,
             maxPayments: installments,
+            interest: {
+               value: interestPercentage || 0,
+            },
+            fine: {
+               type: "PERCENTAGE",
+               value: finePercentage || 0,
+            },
          }),
       };
 

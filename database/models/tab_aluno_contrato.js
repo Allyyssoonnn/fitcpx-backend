@@ -78,6 +78,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: null,
          },
+         multa_compensatoria: {
+            type: DataTypes.DOUBLE(22, 1),
+            allowNull: true,
+            defaultValue: null,
+         },
          parcela_aluno_contrato: {
             type: DataTypes.TEXT,
             allowNull: true,

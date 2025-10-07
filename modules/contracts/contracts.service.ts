@@ -39,6 +39,9 @@ export class ContractsService {
          formaPagamento,
          typePayment,
          installments,
+         multa_compensatoria,
+         multa_moratoria,
+         juros_atraso,
       } = plano;
       let company = (await this.companiesRepository.findById(companyId)) as any;
 
@@ -60,6 +63,7 @@ export class ContractsService {
                .format("YYYY-MM-DD"),
             modalidades_aluno_contrato: JSON.stringify(modalidades),
             ambiente_aluno_contrato: process.env.NODE_ENV,
+            multa_compensatoria,
          },
          modalidades
       );
@@ -143,7 +147,9 @@ export class ContractsService {
          String(initialDate),
          description,
          valor_adesao,
-         `${companyId}_${company.nome_empresa}`
+         `${companyId}_${company.nome_empresa}`,
+         juros_atraso,
+         multa_moratoria
       );
    }
 
