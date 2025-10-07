@@ -45,21 +45,6 @@ module.exports = {
             type: Sequelize.DataTypes.DOUBLE(22, 1),
             defaultValue: null,
          },
-         multa_compensatoria: {
-            allowNull: true,
-            type: Sequelize.DataTypes.DOUBLE(22, 1),
-            defaultValue: null,
-         },
-         multa_moratoria: {
-            allowNull: true,
-            type: Sequelize.DataTypes.DOUBLE(22, 1),
-            defaultValue: null,
-         },
-         juros_atraso: {
-            allowNull: true,
-            type: Sequelize.DataTypes.DOUBLE(22, 1),
-            defaultValue: null,
-         },
          createdAt: {
             allowNull: false,
             type: Sequelize.DataTypes.DATE,
