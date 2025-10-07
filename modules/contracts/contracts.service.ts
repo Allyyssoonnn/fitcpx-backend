@@ -75,7 +75,7 @@ export class ContractsService {
       const installmentsCount = formaPagamento === "UNICA" || formaPagamento === "PARCELADO" ? installments : null;
 
       const description = contract.modalidades
-         .map((m: any) => `${m.modalidade.nome_modalidade} - ${m.variacao.nome_modalidade_variacao}`)
+         .map((m: any) => `${m.modalidade.nome_modalidade} - ${m.variacao?.nome_modalidade_variacao}`)
          .join(", ");
 
       await this.contractsRepository.createOrUpdateContract(
