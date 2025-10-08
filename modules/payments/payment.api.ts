@@ -26,7 +26,7 @@ export class PaymentAPI {
          return await response.json();
       } catch (error: any) {
          console.error("Erro fetchJson:", error.message);
-         throw error;
+         return error;
       }
    }
 
@@ -188,15 +188,19 @@ export class PaymentAPI {
    }
 
    private async findSignature(SignatureId: string) {
-      const url = `${this.coreURL}/v3/subscriptions/${SignatureId}`;
-      const options = {
-         method: "POST",
-         headers: { accept: "application/json", "content-type": "application/json", access_token: this.token },
-      };
+      try {
+         const url = `${this.coreURL}/v3/subscriptions/${SignatureId}`;
+         const options = {
+            method: "POST",
+            headers: { accept: "application/json", "content-type": "application/json", access_token: this.token },
+         };
 
-      const resp = await this.fetchJson(url, options);
+         const resp = await this.fetchJson(url, options);
 
-      return resp;
+         return resp;
+      } catch (error) {
+         return null;
+      }
    }
 
    private async findInstallment(installmentId: string) {
