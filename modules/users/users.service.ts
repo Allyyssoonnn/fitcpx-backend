@@ -67,7 +67,7 @@ export class UsersService {
       return { license, token, refreshToken, usuario: user, empresa: company };
    }
 
-   register = async (name: string, email: string, password: string) => {
+   register = async (name: string, email: string, password: string, phone: string) => {
       const companiesRepository = new CompaniesRepository();
 
       const company = await companiesRepository.findByEmail(email);
@@ -85,6 +85,7 @@ export class UsersService {
 
       const newCompany = (await companiesRepository.createOrUpdate({
          nome_empresa: name,
+         telefone_empresa: phone,
          status_empresa: "Active",
          email_empresa: email,
          email_codigo: dev ? "1234" : emailCode,
@@ -92,6 +93,7 @@ export class UsersService {
 
       const newUser = (await this.usersRepository.createOrUpdate({
          nome_usuario: name,
+         celular_usuario: phone,
          email_usuario: email,
          senha_usuario: password,
          cod_empresa: newCompany?.cod_empresa,

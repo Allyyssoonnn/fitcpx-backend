@@ -37,9 +37,9 @@ export class UsersController {
    }
 
    @Post("register")
-   async register(@Body() body: { name: string; email: string; password: string }) {
-      const { name, email, password } = body;
-      return this.usersService.register(name, email, password);
+   async register(@Body() body: { name: string; email: string; password: string; phone: string }) {
+      const { name, email, password, phone } = body;
+      return this.usersService.register(name, email, password, phone);
    }
 
    @Post("recoveryAccount")

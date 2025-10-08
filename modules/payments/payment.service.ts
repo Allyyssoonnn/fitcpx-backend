@@ -39,8 +39,8 @@ export class PaymentService {
       description: string,
       initialPayment: number | null,
       companyName: string,
-      interestPercentage: string,
-      finePercentage: string
+      interestPercentage?: string,
+      finePercentage?: string
    ) {
       // * MANUAL
       if (paymentMethod === "MANUAL") {

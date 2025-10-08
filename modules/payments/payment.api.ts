@@ -38,8 +38,8 @@ export class PaymentAPI {
       installments: number | null,
       billingType: string,
       name: string,
-      interestPercentage: string,
-      finePercentage: string
+      interestPercentage?: string,
+      finePercentage?: string
    ) {
       const url = `${this.coreURL}/v3/payments/`;
       const body = {
@@ -90,8 +90,8 @@ export class PaymentAPI {
       installments: number | null,
       billingType: string,
       name: string,
-      interestPercentage: string,
-      finePercentage: string
+      interestPercentage?: string,
+      finePercentage?: string
    ) {
       const url = `${urlBase}/v3/subscriptions`;
       const options = {
