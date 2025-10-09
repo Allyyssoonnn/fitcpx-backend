@@ -73,6 +73,13 @@ export class ExercisesRepository {
          paranoid: !onlyDeleted,
          where: where,
          include: [
+            {
+               model: db.tab_exercicios_empresa,
+               as: "exercicio_empresa",
+               required: false,
+               where: { cod_empresa: companyId },
+               attributes: ["url_exercicio_empresa"],
+            },
             { model: db.tab_usuario, as: "usuario" },
             ...muscleGroupInclude,
             ...jointInclude,
@@ -100,6 +107,17 @@ export class ExercisesRepository {
                attributes: [[Sequelize.literal(`\`indicacao\`.\`${nameSugestionColumn}\``), "nome_indicacao"]],
             },
          ],
+         attributes: {
+            include: [
+               [
+                  Sequelize.literal(
+                     `COALESCE(\`exercicio_empresa\`.\`url_exercicio_empresa\`, \`tab_exercicio\`.\`url_exercicio\`)`
+                  ),
+                  "url_exercicio",
+               ],
+               [Sequelize.literal(`\`exercicio_empresa\`.\`url_exercicio_empresa\``), "url_exercicio_empresa"],
+            ],
+         },
          order: [[Sequelize.literal(`${nameExercicioColumn}`), "ASC"]],
       });
    }
@@ -108,7 +126,31 @@ export class ExercisesRepository {
       return await db.tab_exercicio.destroy({ where: { cod_exercicio: id } });
    }
 
-   async createOrUpdate(data: any) {
+   async createOrUpdate(data: any, companyId: string) {
+      if (data.base_exercicio == "S") {
+         if (!data.url_exercicio_empresa) {
+            return await db.tab_exercicios_empresa.destroy({
+               where: { cod_exercicio: data.cod_exercicio, cod_empresa: companyId },
+            });
+         }
+
+         const empresa_exercicio = await db.tab_exercicios_empresa.findOne({
+            where: { cod_exercicio: data.cod_exercicio, cod_empresa: companyId },
+         });
+         if (empresa_exercicio) {
+            return await db.tab_exercicios_empresa.update(
+               { url_exercicio_empresa: data.url_exercicio_empresa },
+               { where: { cod_exercicio: data.cod_exercicio, cod_empresa: companyId } }
+            );
+         } else {
+            return await db.tab_exercicios_empresa.create({
+               cod_exercicio: data.cod_exercicio,
+               cod_empresa: companyId,
+               url_exercicio_empresa: data.url_exercicio_empresa,
+            });
+         }
+      }
+
       return await db.tab_exercicio.upsert(data);
    }
 }

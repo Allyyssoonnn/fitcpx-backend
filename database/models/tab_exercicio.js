@@ -170,6 +170,10 @@ module.exports = (sequelize, DataTypes) => {
    );
 
    tab_exercicio.associate = (models) => {
+      tab_exercicio.hasOne(models.tab_exercicios_empresa, {
+         foreignKey: "cod_exercicio",
+         as: "exercicio_empresa",
+      });
       tab_exercicio.belongsTo(models.tab_empresa, {
          foreignKey: "cod_empresa",
          as: "empresa",

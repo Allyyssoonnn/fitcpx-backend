@@ -41,6 +41,7 @@ interface Db {
    mails: ModelStatic<Model>;
    notifications: ModelStatic<Model>;
    device_tokens: ModelStatic<Model>;
+   tab_exercicios_empresa: ModelStatic<Model>;
 }
 
 declare const db: Db;

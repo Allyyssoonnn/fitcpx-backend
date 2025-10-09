@@ -17,7 +17,7 @@ export class ExercisesController {
    }
 
    @Post()
-   async createOrUpdate(@Body() body: any) {
-      return this.exercisesService.createOrUpdate(body);
+   async createOrUpdate(@Body() body: any, @CompanyId() companyId: string) {
+      return this.exercisesService.createOrUpdate(body, companyId);
    }
 }

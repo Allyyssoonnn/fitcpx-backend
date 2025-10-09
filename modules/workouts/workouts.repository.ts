@@ -31,10 +31,27 @@ export class WorkoutsRepository {
                            as: "exercicio",
                            include: [
                               {
+                                 model: db.tab_exercicios_empresa,
+                                 as: "exercicio_empresa",
+                                 required: false,
+                                 where: { cod_empresa: companyId },
+                                 attributes: [],
+                              },
+                              {
                                  model: db.tab_grupo_exercicio,
                                  as: "grupo_exercicio_1",
                               },
                            ],
+                           attributes: {
+                              include: [
+                                 [
+                                    Sequelize.literal(
+                                       `COALESCE(\`sessoes->exercicios->exercicio->exercicio_empresa\`.\`url_exercicio_empresa\`, \`sessoes->exercicios->exercicio\`.\`url_exercicio\`)`
+                                    ),
+                                    "url_exercicio",
+                                 ],
+                              ],
+                           },
                         },
                      ],
                      order: [["sequencia_sessao_exercicio", "ASC"]],

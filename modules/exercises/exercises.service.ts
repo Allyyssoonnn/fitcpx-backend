@@ -13,7 +13,7 @@ export class ExercisesService {
       return await this.exercisesRepository.deleteById(id);
    }
 
-   async createOrUpdate(data: any) {
-      return await this.exercisesRepository.createOrUpdate(data);
+   async createOrUpdate(data: any, companyId: string) {
+      return await this.exercisesRepository.createOrUpdate(data, companyId);
    }
 }
