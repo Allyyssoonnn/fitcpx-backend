@@ -53,6 +53,11 @@ export class CompaniesService {
    async cancelCompanyLicense(companyId: string, companyLicenseId: string) {
       const companyLicense = (await this.companiesRepository.findCompanyLicenseById(companyLicenseId)) as any;
       if (companyLicense.asaas_id) await this.paymentService.deleteSignatureOrInstallment(companyLicense.asaas_id);
+      if (companyLicense?.payments && companyLicense.payments.length > 0) {
+         for (const payment of companyLicense.payments) {
+            if (payment.asaas_id) await this.paymentService.deleteInvoice(payment.asaas_id);
+         }
+      }
       return this.companiesRepository.cancelAllCompanyLicenses(companyId);
    }
 
