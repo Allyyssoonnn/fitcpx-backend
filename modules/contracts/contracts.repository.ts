@@ -15,7 +15,6 @@ export class ContractsRepository {
       let where = { cod_empresa: companyId } as any;
       if (studentId) where.cod_aluno = Number(studentId);
       return await db.tab_aluno_contrato.findAll({
-         paranoid: false,
          where: where,
          include: [
             {
