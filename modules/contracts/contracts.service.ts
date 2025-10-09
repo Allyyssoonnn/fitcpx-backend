@@ -169,6 +169,6 @@ export class ContractsService {
          if (payment.asaas_id) await this.paymentsService.deleteInvoice(payment.asaas_id);
       }
 
-      return this.contractsRepository.deleteById(contractId);
+      return this.contractsRepository.cancelById(contractId);
    }
 }
