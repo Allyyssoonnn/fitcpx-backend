@@ -38,13 +38,8 @@ export class CompaniesService {
       return url;
    }
 
-   async createOrUpdateCompanyLicense(
-      companyId: string,
-      licenseId: string,
-      paymentId?: string,
-      companyLicenseId?: string
-   ) {
-      return this.companiesRepository.createOrUpdateCompanyLicense(companyId, licenseId, paymentId, companyLicenseId);
+   async createOrUpdateCompanyLicense(data: any) {
+      return this.companiesRepository.createOrUpdateCompanyLicense(data);
    }
 
    async cancelAllCompanyLicenses(companyId: string) {
@@ -57,7 +52,7 @@ export class CompaniesService {
 
    async cancelCompanyLicense(companyId: string, companyLicenseId: string) {
       const companyLicense = (await this.companiesRepository.findCompanyLicenseById(companyLicenseId)) as any;
-      if (companyLicense.asaas_id) await this.paymentService.deleteInvoice(companyLicense.asaas_id);
+      if (companyLicense.asaas_id) await this.paymentService.deleteSignatureOrInstallment(companyLicense.asaas_id);
       return this.companiesRepository.cancelAllCompanyLicenses(companyId);
    }
 

@@ -123,11 +123,11 @@ export class PaymentService {
       }
 
       if (billingType === "UNDEFINED") {
-         const respAsaas = await this.paymentAPI.createPayment(
+         const respAsaas = await this.paymentAPI.createSignature(
             apiId ?? null,
             externalId,
             value,
-            String(dueDate),
+            String(moment(dueDate).format("YYYY-MM-DD")),
             null,
             billingType,
             description,

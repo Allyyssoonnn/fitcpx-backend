@@ -1,5 +1,4 @@
-import { Injectable } from "@nestjs/common";
-import moment from "moment-timezone";
+import { HttpException, Injectable } from "@nestjs/common";
 import { CompaniesService } from "../companies/companies.service";
 import { CustomerPaymentService, PaymentService } from "../payments/payment.service";
 import { LicensesRepository } from "./licenses.repository";
@@ -35,27 +34,37 @@ export class LicensesService {
 
       await this.companiesService.cancelAllCompanyLicenses(companyId);
 
-      const companyLicense = (await this.companiesService.createOrUpdateCompanyLicense(companyId, licenseId)) as any;
+      const companyLicense = (await this.companiesService.createOrUpdateCompanyLicense({
+         cod_empresa: companyId,
+         cod_licenca: licenseId,
+      })) as any;
 
       const paymentId = await this.paymentService.createPayment(
          customer,
-         null,
+         "RECORRENTE",
          "UNDEFINED",
          companyLicense.cod_empresa_licenca,
          license.valor_licenca,
          null,
          "",
-         moment(new Date()).format("YYYY/MM/DD"),
+         String(new Date()),
          "Use License",
          null,
          "Lab Complex Dev LTDA"
       );
 
-      return await this.companiesService.createOrUpdateCompanyLicense(
-         companyId,
-         licenseId,
-         paymentId,
-         companyLicense.cod_empresa_licenca
-      );
+      if (!paymentId) {
+         await this.companiesService.createOrUpdateCompanyLicense({
+            ...companyLicense.dataValues,
+            status_empresa_licenca: "Failed",
+         });
+         await this.companiesService.cancelCompanyLicense(companyId, companyLicense.cod_empresa_licenca);
+         return new HttpException("Error to process the payment", 403);
+      } else {
+         return await this.companiesService.createOrUpdateCompanyLicense({
+            ...companyLicense.dataValues,
+            asaas_id: paymentId,
+         });
+      }
    }
 }

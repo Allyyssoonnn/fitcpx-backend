@@ -23,20 +23,8 @@ export class CompaniesRepository {
       return await db.tab_empresa.update({ imagem_empresa: imageUrl }, { where: { cod_empresa: companyId } });
    }
 
-   async createOrUpdateCompanyLicense(
-      companyId: string,
-      licenseId: string,
-      paymentId?: string,
-      companyLicenseId?: string
-   ) {
-      return (
-         await db.tab_empresa_licenca.upsert({
-            cod_empresa: companyId,
-            cod_licenca: licenseId,
-            asaas_id: paymentId,
-            cod_empresa_licenca: companyLicenseId,
-         })
-      )[0];
+   async createOrUpdateCompanyLicense(data: any) {
+      return (await db.tab_empresa_licenca.upsert(data))[0];
    }
 
    async cancelAllCompanyLicenses(companyId: string) {
