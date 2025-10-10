@@ -80,7 +80,7 @@ export class PhysicalAssessmentsRepository {
    }
 
    async createOrUpdate(data: any) {
-      return await db.tab_avaliacao.upsert(data);
+      return (await db.tab_avaliacao.upsert(data))[0];
    }
 
    async addImages(images: any[]) {

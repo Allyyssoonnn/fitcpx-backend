@@ -30,8 +30,8 @@ export class StudentsController {
    }
 
    @Post()
-   async createOrUpdate(@Body() body: any) {
-      return this.studentsService.createOrUpdate(body);
+   async createOrUpdate(@Body() body: any, @CompanyId() companyId: string) {
+      return this.studentsService.createOrUpdate(body, companyId);
    }
 
    @Delete(":id")

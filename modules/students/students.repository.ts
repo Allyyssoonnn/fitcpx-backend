@@ -28,7 +28,7 @@ export class StudentsRepository {
    }
 
    async createOrUpdate(data: any) {
-      return await db.tab_aluno.upsert(data);
+      return ((await db.tab_aluno.upsert(data)) as any)[0];
    }
 
    async deleteById(id: string) {

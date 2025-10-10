@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import moment from "moment-timezone";
 import puppeteer from "puppeteer";
 import { CompaniesRepository } from "../companies/companies.repository";
+import { EventsService } from "../events/events.service";
 import { CustomerPaymentService, PaymentService } from "../payments/payment.service";
 import { StudentsRepository } from "../students/students.repository";
 import { ContractsAPI } from "./contracts.api";
@@ -14,7 +15,8 @@ export class ContractsService {
       private readonly contractsAPI: ContractsAPI,
       private readonly paymentsService: PaymentService,
       private readonly studentsService: StudentsRepository,
-      private readonly companiesRepository: CompaniesRepository
+      private readonly companiesRepository: CompaniesRepository,
+      private readonly eventsService: EventsService
    ) {}
 
    async getContracts(companyId: string, studentId?: string) {
@@ -134,6 +136,10 @@ export class ContractsService {
 
          const contractApi = await this.contractsAPI.createContract(pdfBuffer, customer.email);
          await this.contractsRepository.updateContractApi(contractDB.cod_aluno_contrato, contractApi);
+      }
+
+      if (student?.cod_aluno) {
+         await this.eventsService.newContract(student.cod_aluno);
       }
 
       return this.paymentsService.createPayment(

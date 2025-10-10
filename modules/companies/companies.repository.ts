@@ -94,6 +94,17 @@ export class CompaniesRepository {
       });
    }
 
+   async findCompanyPaymentLicenseById(id: string) {
+      return await db.tab_empresa_licenca_pagamento.findByPk(id, {
+         include: [
+            {
+               model: db.tab_empresa_licenca,
+               as: "empresaLicenca",
+            },
+         ],
+      });
+   }
+
    async getDashboardInfo(companyId: string) {
       const clientsLength = await db.tab_aluno.count({ where: { cod_empresa: companyId, status_aluno: "A" } });
       const usersLength = await db.tab_usuario.count({ where: { cod_empresa: companyId } });

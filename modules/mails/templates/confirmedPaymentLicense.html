@@ -2,7 +2,7 @@
 <html lang="pt-BR">
    <head>
       <meta charset="UTF-8" />
-      <title>Código de confirmação</title>
+      <title>Pagamento Pendente</title>
       <style>
          /* Reset básico */
          body,
@@ -173,16 +173,28 @@
       <div class="alert-bar"></div>
       <div class="container" role="main" aria-label="Notificação de pagamento pendente">
          <div class="header" role="banner" aria-label="Cabeçalho do email">
-            <span class="icon" aria-hidden="true">✅</span> Código de confirmação
+            <span class="icon" aria-hidden="true">✅</span> Pagamento Confirmado
          </div>
          <div class="content">
             <p>Olá <span class="highlight">{{name}}</span>,</p>
-            <p>Seja bem vindo(a), <span class="highlight">Copie o código de confirmação</span> e confirme sua conta.</p>
+            <p>Recebemos seu pagamento referente à licença do FitCpx.</p>
             <div class="details" role="region" aria-label="Detalhes do pagamento pendente">
-               <p><strong>Código:</strong> {{code}}</p>
+               <p><strong>Valor:</strong> R$ {{amount}}</p>
+               <p><strong>Vencimento:</strong> {{dueDate}}</p>
+               <p><strong>ID:</strong> {{id}}</p>
             </div>
+            <a
+               href="https://app.fitcpx.com"
+               class="button"
+               target="_blank"
+               rel="noopener noreferrer"
+               role="button"
+               aria-label="Realizar pagamento"
+               >Acessar App</a
+            >
             <p style="text-align: center; font-size: 14px; color: #666">
-               Caso já tenha efetuado a confirmação, por favor desconsidere esta mensagem.
+               Agradecemos por escolher nossa plataforma para gerenciar suas atividades físicas. Seu acesso foi
+               confirmado e você já pode aproveitar todos os recursos disponíveis.
             </p>
          </div>
          <div class="footer">

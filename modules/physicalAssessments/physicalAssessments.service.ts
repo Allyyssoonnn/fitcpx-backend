@@ -1,4 +1,5 @@
-import { HttpException, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import { EventsService } from "../events/events.service";
 import { StorageService } from "../storage/storage.service";
 import { PhysicalAssessmentsRepository } from "./physicalAssessments.repository";
 const dev = (process.env.NODE_ENV || "development") === "development";
@@ -7,7 +8,8 @@ const dev = (process.env.NODE_ENV || "development") === "development";
 export class PhysicalAssessmentsService {
    constructor(
       private readonly physicalAssessmentsRepository: PhysicalAssessmentsRepository,
-      private readonly storageService: StorageService
+      private readonly storageService: StorageService,
+      private readonly eventsService: EventsService
    ) {}
 
    async getAll(companyId: string, deleted: boolean, studentId?: string) {
@@ -19,7 +21,12 @@ export class PhysicalAssessmentsService {
    }
 
    createOrUpdate = async (data: any) => {
-      return await this.physicalAssessmentsRepository.createOrUpdate(data);
+      const dataCleaned = Object.fromEntries(Object.entries(data).filter(([_, v]) => v != null && v !== "")) as any;
+      const response = (await this.physicalAssessmentsRepository.createOrUpdate(dataCleaned)) as any;
+      if (!dataCleaned?.cod_avaliacao && dataCleaned?.cod_aluno && response?.cod_avaliacao) {
+         await this.eventsService.newPhysicalAssessment(dataCleaned.cod_aluno);
+      }
+      return response;
    };
 
    delete = async (id: string) => {
@@ -31,7 +38,7 @@ export class PhysicalAssessmentsService {
       filesBuffer: Express.Multer.File[],
       deletedImages?: string[]
    ) {
-      if (!filesBuffer.length) throw new HttpException("Arquivo não enviado.", 400);
+      if (!filesBuffer.length) return;
 
       if (Array.isArray(deletedImages)) {
          for (const imageData of deletedImages) {

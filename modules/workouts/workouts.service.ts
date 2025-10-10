@@ -1,10 +1,14 @@
 import { Injectable } from "@nestjs/common";
+import { EventsService } from "../events/events.service";
 import { WorkoutsRepository } from "./workouts.repository";
 import { generateWorkoutTemplate } from "./workouts.utils";
 
 @Injectable()
 export class WorkoutsService {
-   constructor(private readonly workoutsRepository: WorkoutsRepository) {}
+   constructor(
+      private readonly workoutsRepository: WorkoutsRepository,
+      private readonly eventsService: EventsService
+   ) {}
 
    async getAllWorkouts(companyId: string, deleted: boolean, studentId?: string) {
       return this.workoutsRepository.findAll(companyId, deleted, studentId);
@@ -19,7 +23,11 @@ export class WorkoutsService {
    }
 
    async createOrUpdate(userId: string, companyId: string, workout: any, sessions: any[]) {
-      return this.workoutsRepository.createOrUpdate(userId, companyId, workout, sessions);
+      const response = await this.workoutsRepository.createOrUpdate(userId, companyId, workout, sessions);
+      if (workout?.cod_aluno && !workout?.cod_treino && response?.cod_aluno) {
+         await this.eventsService.newWorkout(workout.cod_aluno);
+      }
+      return response;
    }
 
    async getJoints(lang: string) {

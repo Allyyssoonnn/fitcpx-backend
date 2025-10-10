@@ -1,4 +1,6 @@
 import { HttpException, Injectable } from "@nestjs/common";
+import { CompaniesService } from "../companies/companies.service";
+import { EventsService } from "../events/events.service";
 import { StorageService } from "../storage/storage.service";
 import { StudentsRepository } from "./students.repository";
 const dev = process.env.NODE_ENV !== "production";
@@ -7,7 +9,9 @@ const dev = process.env.NODE_ENV !== "production";
 export class StudentsService {
    constructor(
       private readonly studentsRepository: StudentsRepository,
-      private readonly storageService: StorageService
+      private readonly storageService: StorageService,
+      private readonly eventsService: EventsService,
+      private readonly comapniesService: CompaniesService
    ) {}
 
    async getAll(companyId: string, onlyDeleted: boolean) {
@@ -26,8 +30,13 @@ export class StudentsService {
       return await this.studentsRepository.findByCPF(cpf);
    }
 
-   createOrUpdate = async (data: any) => {
-      return await this.studentsRepository.createOrUpdate(data);
+   createOrUpdate = async (data: any, companyId: string) => {
+      const response = await this.studentsRepository.createOrUpdate(data);
+      if (!data.cod_aluno && response.cod_aluno) {
+         const company = (await this.comapniesService.getById(companyId)) as any;
+         if (!company) throw new HttpException("Empresa não encontrada.", 404);
+         return this.eventsService.welcomeStudent(response.nome_aluno, response.email_aluno, company.nome_empresa);
+      } else return response;
    };
 
    async delete(id: string) {

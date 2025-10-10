@@ -9,6 +9,12 @@ const devToken = process.env.DEV_TOKEN;
 const getMessageError = require("../utils/errors-message");
 
 const allowedRoutes = [
+   "/events/confirmedPayment",
+   "/events/createdPayment",
+   "/events/overduePayment",
+   "/events/license/confirmedPayment",
+   "/events/license/createdPayment",
+   "/events/license/overduePayment",
    "/notifications",
    "/mails",
    "/mobile/login",

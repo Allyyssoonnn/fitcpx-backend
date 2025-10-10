@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import moment from "moment-timezone";
 import { ContractsRepository } from "../contracts/contracts.repository";
+import { EventsService } from "../events/events.service";
 import { StudentsRepository } from "../students/students.repository";
 import { PaymentAPI } from "./payment.api";
 import { PaymentsRepository } from "./payments.repository";
@@ -24,7 +25,8 @@ export class PaymentService {
       private readonly paymentAPI: PaymentAPI,
       private readonly paymentsRepository: PaymentsRepository,
       private readonly studentsRepository: StudentsRepository,
-      private readonly contractsRepository: ContractsRepository
+      private readonly contractsRepository: ContractsRepository,
+      private readonly eventsService: EventsService
    ) {}
 
    async createPayment(
@@ -200,7 +202,14 @@ export class PaymentService {
    }
 
    async markPaymentReceived(paymentId: string) {
-      return this.paymentAPI.markPaymentReceived(paymentId);
+      const response = await this.paymentAPI.markPaymentReceived(paymentId);
+      if (response) {
+         let payment = (await this.paymentsRepository.findByPaymentId(paymentId)) as any;
+         let contract = (await this.contractsRepository.findById(payment.cod_aluno_contrato)) as any;
+
+         if (contract?.cod_aluno) await this.eventsService.confirmedPayment(contract?.cod_aluno);
+      }
+      return response;
    }
 
    async deleteSignatureOrInstallment(paymentId: string) {
