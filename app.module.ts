@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { AdminModule } from "./modules/admin/admin.module";
 import { CalendarModule } from "./modules/calendar/calendar.module";
 import { CompaniesModule } from "./modules/companies/companies.module";
 import { ContractsModule } from "./modules/contracts/contracts.module";
@@ -38,6 +39,7 @@ import { WorkoutsModule } from "./modules/workouts/workouts.module";
       MobileModule,
       NotificationsModule,
       EventsModule,
+      AdminModule,
    ],
 })
 export class AppModule {}
