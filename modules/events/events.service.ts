@@ -31,6 +31,15 @@ export class EventsService {
       );
    }
 
+   async newEvent(studentId: string) {
+      return await this.notificationsService.sendPushNotification(
+         "Novo Evento Agendado",
+         "Seu treinador acabou de agendar um evento para você",
+         "calendar",
+         studentId
+      );
+   }
+
    async newPhysicalAssessment(studentId: string) {
       await this.notificationsService.sendPushNotification(
          "Nova Avaliação Física",
@@ -116,7 +125,7 @@ export class EventsService {
       const company = (await this.companiesRepository.findById(payment?.empresaLicenca?.cod_empresa)) as any;
       if (!company) return;
 
-      return this.mailsService.sendMail(company.email_empresa, "overduePaymentLicense.html", "Pagamento vencido", {
+      return this.mailsService.sendMail(company.email_empresa, "overduePaymentLicense.html", "Fatura vencida", {
          name: company.nome_empresa,
          amount: payment.valor_empresa_licenca_pagamento,
          dueDate: moment(payment.expiracao_empresa_licenca_pagamento).format("DD/MM/YYYY"),

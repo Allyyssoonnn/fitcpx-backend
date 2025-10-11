@@ -36,36 +36,37 @@ export class PlansRepository {
          ],
       })) as any;
 
-      function groupServicesInPlans(array: []) {
-         for (const plan of array as any)
-            plan.modalidades = plan.modalidades.map((s: any) => ({ ...s.modalidade, ...s.modalidade.modalidade }));
-         return array;
-      }
-
-      return groupServicesInPlans(plans.map((p: any) => p.get({ plain: true })));
+      return plans.map((plan: any) => {
+         const plainPlan = plan.get({ plain: true }); // remove referências do Sequelize
+         plainPlan.modalidades = plainPlan.modalidades.map((mod: any) => ({
+            ...mod.modalidade,
+            ...mod,
+         }));
+         return plainPlan;
+      });
    }
 
    async createOrUpdate(data: any, services: any) {
       let plan = (await db.tab_plano.upsert(data))[0] as any;
       const servicesDB = (await db.tab_plano_modalidade.findAll({ where: { cod_plano: plan.cod_plano } })) as [];
-      const servicesDBIds = servicesDB.map((s: any) => s.cod_modalidade);
-      const servicesId = services.map((s: any) => s.cod_modalidade);
+      const servicesDBIds = servicesDB.map((s: any) => s.cod_plano_modalidade);
+      const servicesId = services.map((s: any) => s.cod_plano_modalidade);
 
       const servicesToDelete = servicesDBIds.filter((id) => !servicesId.includes(id)) as [];
       if (servicesToDelete.length) {
          await db.tab_plano_modalidade.destroy({
-            where: { cod_plano: plan.cod_plano, cod_modalidade: servicesToDelete },
+            where: { cod_plano: plan.cod_plano, cod_plano_modalidade: servicesToDelete },
          });
       }
 
-      const servicesToAdd = servicesId.filter((id: string) => !servicesDBIds.includes(id));
-      if (servicesToAdd.length) {
-         const newServices = servicesToAdd.map((id: string) => ({
-            cod_plano: plan.cod_plano,
-            cod_modalidade: id,
-         }));
-         await db.tab_plano_modalidade.bulkCreate(newServices);
+      for (const service of services) {
+         await db.tab_plano_modalidade.upsert({
+            ...service,
+            cod_plano: data?.cod_plano || plan.cod_plano,
+            nome_plano_modalidade: service.nome_modalidade,
+         });
       }
+
       return plan;
    }
 
