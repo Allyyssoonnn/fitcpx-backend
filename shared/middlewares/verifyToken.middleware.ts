@@ -33,7 +33,6 @@ const allowedRoutes = [
 export class VerifyTokenMiddleware implements NestMiddleware {
    use(req: Request & any, res: Response, next: NextFunction) {
       // Allow access to certain routes without token
-      console.log(req.path);
       if (allowedRoutes.includes(req.path)) {
          return next();
       }
