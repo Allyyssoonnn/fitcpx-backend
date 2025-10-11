@@ -26,6 +26,10 @@ module.exports = {
                key: "cod_modalidade",
             },
          },
+         nome_plano_modalidade: {
+            allowNull: true,
+            type: Sequelize.DataTypes.STRING,
+         },
          cod_modalidade_variacao: {
             allowNull: true,
             defaultValue: null,
@@ -43,6 +47,11 @@ module.exports = {
                model: "tab_modalidade_variacao_valor",
                key: "cod_modalidade_variacao_valor",
             },
+         },
+         valor_modalidade_alterado: {
+            allowNull: true,
+            type: Sequelize.DataTypes.FLOAT(22, 2),
+            defaultValue: null,
          },
          createdAt: {
             allowNull: false,
