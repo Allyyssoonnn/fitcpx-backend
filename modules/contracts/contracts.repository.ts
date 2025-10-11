@@ -62,6 +62,8 @@ export class ContractsRepository {
             {
                model: db.tab_aluno_contrato_pagamento,
                as: "pagamentos",
+               separate: true,
+               order: [["expiracao_aluno_contrato_pagamento", "ASC"]],
             },
             {
                model: db.tab_aluno,
