@@ -60,4 +60,8 @@ export class StudentsRepository {
       if (exist) return;
       return (await db.device_tokens.upsert({ studentId, token, platform }))[0];
    }
+
+   async updatePassword(password: string, userId: string) {
+      return await db.tab_aluno.update({ senha_aluno: password }, { where: { cod_aluno: userId } });
+   }
 }

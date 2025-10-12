@@ -72,6 +72,11 @@ export function genTokenUserRecoveryPassword(cod_usuario: string) {
    return token;
 }
 
+export function genTokenStudentRecoveryPassword(cod_aluno: string) {
+   const token = jwt.sign({ cod_aluno }, process.env.SECRET, { expiresIn: "1h" });
+   return token;
+}
+
 // * Validate Token
 export function validateToken(token: string) {
    const decoded = jwt.verify(token, process.env.SECRET);

@@ -1,7 +1,9 @@
 import { HttpException, Injectable } from "@nestjs/common";
+import { genTokenStudentRecoveryPassword } from "../../shared/utils/token";
 import { genTokenStudentAuth } from "../../shared/utils/token.mobile";
 import { CompaniesService } from "../companies/companies.service";
 import { ContractsService } from "../contracts/contracts.service";
+import { EventsService } from "../events/events.service";
 import { ExercisesService } from "../exercises/exercises.service";
 import { PhysicalAssessmentsService } from "../physicalAssessments/physicalAssessments.service";
 import { StudentsService } from "../students/students.service";
@@ -15,8 +17,22 @@ export class MobileService {
       private readonly exercisesService: ExercisesService,
       private readonly physicalAssessmentsService: PhysicalAssessmentsService,
       private readonly workoutsService: WorkoutsService,
-      private readonly contractsService: ContractsService
+      private readonly contractsService: ContractsService,
+      private readonly eventsService: EventsService
    ) {}
+
+   async recoveryPassword(login: string) {
+      let student = (await this.studentsService.getByEmail(login)) as any;
+      if (!student) student = (await this.studentsService.getByCPF(login)) as any;
+
+      if (!student) throw new HttpException("Usuário não encontrado!", 401);
+
+      if (student.email_aluno) {
+         const token = genTokenStudentRecoveryPassword(student.cod_aluno);
+         const url = `https://app.fitcpx.com/recoveryPassword?student=true&token=${token}`;
+         return this.eventsService.recoveryPasswordStudent(student.nome_aluno, student.email_aluno, url);
+      }
+   }
 
    async verifyAccount(login: string) {
       let student = (await this.studentsService.getByEmail(login)) as any;

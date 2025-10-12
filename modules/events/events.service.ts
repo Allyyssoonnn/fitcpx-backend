@@ -14,6 +14,14 @@ export class EventsService {
       private readonly paymentsRepository: PaymentsRepository
    ) {}
 
+   async recoveryPasswordStudent(name: string, email: string, url: string) {
+      return this.mailsService.sendMail(email, "recoveryPassword.html", "Recuperação de senha", {
+         name,
+         url,
+         email,
+      });
+   }
+
    async recoveryPasswordUser(name: string, email: string, url: string) {
       return this.mailsService.sendMail(email, "recoveryPassword.html", "Recuperação de senha", {
          name,

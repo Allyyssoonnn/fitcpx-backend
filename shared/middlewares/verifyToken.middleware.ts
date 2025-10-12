@@ -20,6 +20,7 @@ const allowedRoutes = [
    "/mails",
    "/mails/payout",
    "/mobile/verifyAccount",
+   "/mobile/recoveryPassword",
    "/mobile/login",
    "/mobile/refreshToken",
    "/users/login",

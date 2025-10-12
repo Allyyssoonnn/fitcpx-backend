@@ -1,4 +1,5 @@
 import { HttpException, Injectable } from "@nestjs/common";
+import { validateToken } from "../../shared/utils/token";
 import { CompaniesService } from "../companies/companies.service";
 import { EventsService } from "../events/events.service";
 import { StorageService } from "../storage/storage.service";
@@ -63,5 +64,18 @@ export class StudentsService {
 
    async saveDeviceTokenId(studentId: string, token: string, platform: string) {
       return this.studentsRepository.saveDeviceTokenId(studentId, token, platform);
+   }
+
+   async updatePassword(token: string, password: string) {
+      try {
+         const decoded = validateToken(token);
+         if (!decoded.valid) {
+            throw new HttpException("Token inválido", 401);
+         }
+         const studentId = decoded.decoded.cod_aluno;
+         return await this.studentsRepository.updatePassword(password, studentId);
+      } catch (error) {
+         throw new HttpException("Token inválido", 401);
+      }
    }
 }

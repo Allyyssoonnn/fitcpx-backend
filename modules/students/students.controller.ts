@@ -49,4 +49,10 @@ export class StudentsController {
       const { cod_aluno } = header;
       return this.studentsService.updateImageUser(cod_aluno, fileBuffer);
    }
+
+   @Post("updatePassword")
+   async updatePassword(@Body() body: { token: string; password: string }) {
+      const { token, password } = body;
+      return this.studentsService.updatePassword(token, password);
+   }
 }
