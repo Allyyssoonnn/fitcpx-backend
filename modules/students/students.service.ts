@@ -69,6 +69,8 @@ export class StudentsService {
    async updatePassword(token: string, password: string) {
       try {
          const decoded = validateToken(token);
+         console.log(token);
+         console.log(decoded);
          if (!decoded.valid) {
             throw new HttpException("Token inválido", 401);
          }
