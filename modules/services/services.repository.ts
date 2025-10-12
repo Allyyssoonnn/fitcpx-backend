@@ -29,10 +29,41 @@ export class ServicesRepository {
       const { variacoes = [] } = data;
       const service = (await db.tab_modalidade.upsert(data))[0] as any;
 
+      const servicesDB = (await db.tab_modalidade_variacao.findAll({
+         where: { cod_modalidade: service.cod_modalidade },
+      })) as [];
+      const servicesDBIds = servicesDB.map((s: any) => s.cod_modalidade_variacao);
+      const servicesId = variacoes.map((s: any) => s.cod_modalidade_variacao);
+
+      //Remover variacoes que foram excluidas
+      const servicesToDelete = servicesDBIds.filter((id) => !servicesId.includes(id)) as [];
+      if (servicesToDelete.length) {
+         await db.tab_modalidade_variacao.destroy({
+            where: { cod_modalidade: service.cod_modalidade, cod_modalidade_variacao: servicesToDelete },
+         });
+      }
+
       for (const variacao of variacoes) {
          let serviceVar = (
             await db.tab_modalidade_variacao.upsert({ ...variacao, cod_modalidade: service.cod_modalidade })
          )[0] as any;
+
+         const servicesDB = (await db.tab_modalidade_variacao_valor.findAll({
+            where: { cod_modalidade_variacao: serviceVar.cod_modalidade_variacao },
+         })) as [];
+         const servicesDBIds = servicesDB.map((s: any) => s.cod_modalidade_variacao_valor);
+         const servicesId = variacoes.map((s: any) => s.cod_modalidade_variacao_valor);
+
+         //Remover variacoes de valor que foram excluidas
+         const servicesToDelete = servicesDBIds.filter((id) => !servicesId.includes(id)) as [];
+         if (servicesToDelete.length) {
+            await db.tab_modalidade_variacao_valor.destroy({
+               where: {
+                  cod_modalidade_variacao: serviceVar.cod_modalidade_variacao,
+                  cod_modalidade_variacao_valor: servicesToDelete,
+               },
+            });
+         }
 
          for (const valor of variacao?.valores ?? []) {
             let serviceValueVar = (
