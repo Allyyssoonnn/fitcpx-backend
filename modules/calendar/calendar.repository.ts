@@ -25,6 +25,6 @@ export class CalendarRepository {
    }
 
    async createEvent(data: any) {
-      return db.tab_agenda.upsert(data);
+      return (await db.tab_agenda.upsert(data))[0];
    }
 }
