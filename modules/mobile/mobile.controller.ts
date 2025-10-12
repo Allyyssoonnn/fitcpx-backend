@@ -7,10 +7,16 @@ import { MobileService } from "./mobile.service";
 export class MobileController {
    constructor(private readonly mobileService: MobileService) {}
 
+   @Post("verifyAccount")
+   async verifyAccount(@Body() body: any) {
+      const { login } = body;
+      return this.mobileService.verifyAccount(login);
+   }
+
    @Post("login")
    async login(@Body() body: any) {
-      const { login, password, deviceToken, platform } = body;
-      return this.mobileService.login(login, password, deviceToken, platform);
+      const { login, password, deviceToken, platform, firstAccess } = body;
+      return this.mobileService.login(login, password, deviceToken, platform, firstAccess);
    }
 
    @Get("getExercises")

@@ -19,6 +19,7 @@ const allowedRoutes = [
    "/notifications",
    "/mails",
    "/mails/payout",
+   "/mobile/verifyAccount",
    "/mobile/login",
    "/mobile/refreshToken",
    "/users/login",

@@ -18,12 +18,30 @@ export class MobileService {
       private readonly contractsService: ContractsService
    ) {}
 
-   async login(login: string, password: string, deviceToken: string, platform: string) {
+   async verifyAccount(login: string) {
       let student = (await this.studentsService.getByEmail(login)) as any;
       if (!student) student = (await this.studentsService.getByCPF(login)) as any;
 
       if (!student) throw new HttpException("Usuário não encontrado!", 401);
-      if (student.senha_aluno != password) throw new HttpException("Senha incorreta!", 401);
+
+      if (student?.nome_aluno) {
+         return { name: student.nome_aluno, firstAccess: !student?.senha_aluno };
+      } else return;
+   }
+
+   async login(login: string, password: string, deviceToken: string, platform: string, firstAccess: boolean) {
+      let student = (await this.studentsService.getByEmail(login)) as any;
+      if (!student) student = (await this.studentsService.getByCPF(login)) as any;
+
+      if (!student) throw new HttpException("Usuário não encontrado!", 401);
+
+      if (firstAccess) {
+         if (password.length < 5) throw new HttpException("Senha muito curta", 401);
+         student.senha_aluno = password;
+         student.save();
+      } else {
+         if (student.senha_aluno != password) throw new HttpException("Senha incorreta!", 401);
+      }
 
       let company = (await this.companiesService.getById(student.cod_empresa)) as any;
 
