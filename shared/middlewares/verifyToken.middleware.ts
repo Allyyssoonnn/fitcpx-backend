@@ -27,6 +27,7 @@ const allowedRoutes = [
    "/users/refreshToken",
    "/users/register",
    "/users/updatePassword",
+   "/students/updatePassword",
    "/users/recoveryAccount",
    "/google/getGoogleUrlLogin",
    "/google/loggedGoogle",
