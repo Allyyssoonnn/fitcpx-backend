@@ -35,7 +35,7 @@ export class MobileService {
    }
 
    async verifyAccount(login: string) {
-      let student = (await this.studentsService.getByEmail(login)) as any;
+      let student = (await this.studentsService.getByEmail(login.toLowerCase())) as any;
       if (!student) student = (await this.studentsService.getByCPF(login)) as any;
 
       if (!student) throw new HttpException("Usuário não encontrado!", 401);
