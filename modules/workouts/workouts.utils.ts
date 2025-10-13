@@ -10,7 +10,6 @@ export async function generateWorkoutTemplate(data: any) {
       let acumulado = 0;
       for (let i = 0; i < partes; i++) {
          if (i === partes - 1) {
-            // último elemento recebe o que sobrou
             resultado.push(total - acumulado);
          } else {
             resultado.push(base);
@@ -32,37 +31,28 @@ export async function generateWorkoutTemplate(data: any) {
 
    for (let i = 0; i < gruposSelecionados.length; i++) {
       const grupo = gruposSelecionados[i];
-      const whereClause = {} as any;
       const { value: cod_grupo_exercicio } = grupo;
 
-      whereClause[Op.or] = [{ cod_grupo_exercicio_1: { [Op.in]: [cod_grupo_exercicio] } }];
-
-      //Filtrar assimetria
-      //Havendo assimetria nessas regiões, optar por exercícios unilaterais para:
-      // Braço / Braço Contraído: Latíssimo, Peitoral, Deltoide, Bíceps, Tríceps
-      // Antebraço: Latíssimo, Deltoide, Bíceps, Tríceps, Antebraço
-      // Coxa: Quadríceps, Isquiossurais
-      // Panturrilha: Panturrilha
-
-      //Filtro cenário
-
-      // Outra limitação que tem que acontecer e futuramente dá para colocar como algo a ser preenchido é limitar a
-      // parte do treino principal, apenas exercícios de força, posteriormente daria para colocar potência como algo selecionável,
-      // mas só para rodar, dá para ser força. Eu tomei o cuidado para nas colunas que tinham duas valências como força e estabilidade,
-      // quando eram exercício que serviam mais para estabilidade, ele ficasse na primeira coluna, e exercício de força comum,
-      // a força estar no primeiro, assim tem como fazer um filtro mais fácil.
+      const whereClause = {
+         [Op.and]: [
+            {
+               [Op.or]: [{ cod_grupo_exercicio_1: cod_grupo_exercicio }],
+            },
+            { cod_tipo_exercicio: 5 },
+         ],
+      };
 
       const exercicios = await tab_exercicio.findAll({
          where: whereClause,
-         attributes: ["cod_exercicio", "nome_exercicio"],
+         attributes: ["cod_exercicio", "nome_exercicio", "cod_grupo_exercicio_1", "cod_tipo_exercicio"],
       });
       // Transformando em um array normal
       const exerciciosArray = exercicios.map((exercicio: any) => exercicio.toJSON());
       grupo.exercicios = exerciciosArray;
 
+      const shuffled = exerciciosArray.sort(() => 0.5 - Math.random());
       for (let ii = 0; ii < divisaoExercicios[i]; ii++) {
-         const exercicio = exerciciosArray[i];
-
+         const exercicio = shuffled[ii % shuffled.length];
          sessao.push({
             ...exercicio,
             cod_exercicio: exercicio.cod_exercicio,
@@ -82,6 +72,18 @@ export async function generateWorkoutTemplate(data: any) {
          });
       }
    }
+
+   console.log(
+      sessao.map((s) => ({
+         Exercicio: s.nome_exercicio,
+         Series: s.serie_sessao_exercicio,
+         Repeticao: s.repeticao_sessao_exercicio,
+         Intervalo: s.intervalo_sessao_exercicio,
+      }))
+   );
+   console.log(`Nível: ${nivel_treino}`);
+   console.log(`Volume: ${volume_treino}`);
+   console.log(`Desenvolvimento: ${desenvolvimento_treino}`);
 
    return sessao;
 }
