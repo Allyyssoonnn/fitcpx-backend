@@ -66,24 +66,12 @@ export async function generateWorkoutTemplate(data: any) {
             // })),
             carga_sessao_exercicio: 0,
             serie_sessao_exercicio: series,
-            sequencia_sessao_exercicio: i + 1,
+            sequencia_sessao_exercicio: ii + 1,
             repeticao_sessao_exercicio: repeticoes,
             intervalo_sessao_exercicio: intervalo,
          });
       }
    }
-
-   console.log(
-      sessao.map((s) => ({
-         Exercicio: s.nome_exercicio,
-         Series: s.serie_sessao_exercicio,
-         Repeticao: s.repeticao_sessao_exercicio,
-         Intervalo: s.intervalo_sessao_exercicio,
-      }))
-   );
-   console.log(`Nível: ${nivel_treino}`);
-   console.log(`Volume: ${volume_treino}`);
-   console.log(`Desenvolvimento: ${desenvolvimento_treino}`);
 
    return sessao;
 }
