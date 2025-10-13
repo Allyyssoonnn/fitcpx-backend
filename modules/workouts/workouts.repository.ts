@@ -298,6 +298,23 @@ export class WorkoutsRepository {
                where: { cod_sessao: session.cod_sessao, cod_exercicio: exercicio.cod_exercicio },
             }
          );
+
+         for (const set of exercicio.sets) {
+            const execSet = set?.execucoes ?? set.setsInfo;
+
+            await db.tab_sessao_exercicio.update(
+               {
+                  // serie_sessao_exercicio: exercicio?.serie_sessao_exercicio,
+                  repeticao_sessao_exercicio:
+                     execSet[execSet.length - 1]?.repetition ?? set?.repeticao_sessao_exercicio,
+                  carga_sessao_exercicio: execSet[execSet.length - 1]?.weight ?? set?.carga_sessao_exercicio,
+                  // intervalo_sessao_exercicio: exercicio?.intervalo_sessao_exercicio,
+               },
+               {
+                  where: { cod_sessao: session.cod_sessao, cod_exercicio: set.cod_exercicio },
+               }
+            );
+         }
       }
 
       return;
