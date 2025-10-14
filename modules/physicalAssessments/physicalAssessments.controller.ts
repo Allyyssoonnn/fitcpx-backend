@@ -46,7 +46,7 @@ export class PhysicalAssessmentsController {
 
    @Post("updateImagePhysicalAssessment")
    @UseInterceptors(
-      FilesInterceptor("image", 10, {
+      FilesInterceptor("image", 30, {
          storage: multer.memoryStorage(),
       })
    )
