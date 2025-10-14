@@ -36,16 +36,19 @@ export class PhysicalAssessmentsService {
    async updateImagePhysicalAssessment(
       physicalAssessmentId: string,
       filesBuffer: Express.Multer.File[],
-      deletedImages?: string[]
+      deletedImages?: string
    ) {
-      if (!filesBuffer.length) return;
-
-      if (Array.isArray(deletedImages)) {
-         for (const imageData of deletedImages) {
-            const id = imageData.split("/")[imageData.split("/").length - 1];
-            this.physicalAssessmentsRepository.deleteImage(imageData);
+      if (deletedImages) {
+         const array = JSON.parse(deletedImages);
+         if (Array.isArray(array)) {
+            for (const imageData of array) {
+               const id = imageData.split("/")[imageData.split("/").length - 1];
+               this.physicalAssessmentsRepository.deleteImage(imageData);
+            }
          }
       }
+
+      if (!filesBuffer.length) return;
 
       const images = [];
 

@@ -51,7 +51,7 @@ export class PhysicalAssessmentsController {
       })
    )
    async updateImageUser(@Headers() headers: any, @UploadedFiles() filesBuffer: Express.Multer.File[]) {
-      const { cod_avaliacao, deletedImages } = headers;
-      return this.physicalAssessmentsService.updateImagePhysicalAssessment(cod_avaliacao, filesBuffer, deletedImages);
+      const { cod_avaliacao, deletedimages } = headers;
+      return this.physicalAssessmentsService.updateImagePhysicalAssessment(cod_avaliacao, filesBuffer, deletedimages);
    }
 }
