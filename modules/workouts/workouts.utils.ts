@@ -66,7 +66,7 @@ export async function generateWorkoutTemplate(data: any) {
             // })),
             carga_sessao_exercicio: 0,
             serie_sessao_exercicio: series,
-            sequencia_sessao_exercicio: ii + 1,
+            sequencia_sessao_exercicio: sessao.length + 1,
             repeticao_sessao_exercicio: repeticoes,
             intervalo_sessao_exercicio: intervalo,
          });
