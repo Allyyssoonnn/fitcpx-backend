@@ -1,12 +1,18 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  fitcpx:
-    build: .
-    image: fitcpx
-    env_file:
-      - .env
-    ports:
-      - "8070:8070"
-      - "8090:8090"
-    restart: unless-stopped
+   fitcpx1:
+      build: .
+      image: fitcpx
+      env_file:
+         - .env
+      ports:
+         - "8070:8070" # contêiner 1
+
+   fitcpx2:
+      build: .
+      image: fitcpx
+      env_file:
+         - .env
+      ports:
+         - "8071:8070" # contêiner 2, interna 8070, externa 8071
