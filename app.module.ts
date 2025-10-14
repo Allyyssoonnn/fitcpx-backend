@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { PrometheusModule } from "@willsoto/nestjs-prometheus";
 import { AdminModule } from "./modules/admin/admin.module";
 import { CalendarModule } from "./modules/calendar/calendar.module";
 import { CompaniesModule } from "./modules/companies/companies.module";
@@ -21,6 +22,7 @@ import { WorkoutsModule } from "./modules/workouts/workouts.module";
 
 @Module({
    imports: [
+      PrometheusModule.register(),
       UsersModule,
       CompaniesModule,
       StudentsModule,
