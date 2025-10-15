@@ -148,7 +148,7 @@ export class EventsService {
       const company = (await this.companiesRepository.findById(payment?.empresaLicenca?.cod_empresa)) as any;
       if (!company) return;
 
-      return this.mailsService.sendMail(company.email_empresa, "createdPaymentLicense.html", "Pagamento vencido", {
+      return this.mailsService.sendMail(company.email_empresa, "createdPaymentLicense.html", "Fatura Disponível", {
          name: company.nome_empresa,
          amount: payment.valor_empresa_licenca_pagamento,
          dueDate: moment(payment.expiracao_empresa_licenca_pagamento).format("DD/MM/YYYY"),
