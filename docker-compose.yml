@@ -29,7 +29,6 @@ services:
       ports:
          - "5432:5432"
       volumes:
-         - /home/admin/data/postgres-data:/var/lib/postgresql/data
          - ./devops/sql/ddl.sql:/docker-entrypoint-initdb.d/script.sql
       # deploy:
       #   resources:
