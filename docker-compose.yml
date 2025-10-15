@@ -86,4 +86,4 @@ services:
          - /etc/localtime:/etc/localtime:ro
          - ./data/prometheus-data:/prometheus
       ports:
-         - "9090:9090"
+         - "9091:9090"
