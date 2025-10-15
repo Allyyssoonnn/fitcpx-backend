@@ -19,23 +19,6 @@ services:
       depends_on:
          - fitcpx1
 
-   db:
-      image: postgres:latest
-      hostname: db
-      environment:
-         - POSTGRES_PASSWORD=2025@Admin
-         - POSTGRES_USER=admin
-         - POSTGRES_DB=metric
-      ports:
-         - "5432:5432"
-      volumes:
-         - ./devops/sql/ddl.sql:/docker-entrypoint-initdb.d/script.sql
-      # deploy:
-      #   resources:
-      #     limits:
-      #       cpus: "0.56"
-      #       memory: "410MB"
-
       # ------ monitoring services -------
    opentelemetry-collector:
       hostname: opentelemetry-collector
