@@ -4,6 +4,7 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 require("dotenv").config();
+require("./infra/monitoring/otel");
 
 const server = express();
 const PORT = 8070;
