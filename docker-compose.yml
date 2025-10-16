@@ -9,27 +9,17 @@ services:
       ports:
          - "8070:8070" # contêiner 1
 
-   fitcpx2:
-      build: .
-      image: fitcpx
-      env_file:
-         - .env
-      ports:
-         - "8071:8070" # contêiner 2, interna 8070, externa 8071
-      depends_on:
-         - fitcpx1
+   # fitcpx2:
+   #    build: .
+   #    image: fitcpx
+   #    env_file:
+   #       - .env
+   #    ports:
+   #       - "8071:8070" # contêiner 2, interna 8070, externa 8071
+   #    depends_on:
+   #       - fitcpx1
 
-   fitcpx3:
-      build: .
-      image: fitcpx
-      env_file:
-         - .env
-      ports:
-         - "8072:8070" # contêiner 2, interna 8070, externa 8071
-      depends_on:
-         - fitcpx1
-
-      # ------ monitoring services -------
+   # ------ monitoring services -------
    opentelemetry-collector:
       hostname: opentelemetry-collector
       image: otel/opentelemetry-collector:latest
