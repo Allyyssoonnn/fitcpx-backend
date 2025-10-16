@@ -68,7 +68,7 @@ export class PaymentService {
       let apiId = customer.customerId;
 
       if (!apiId) {
-         apiId = await this.paymentAPI.newClient(
+         let clientAsaas = (await this.paymentAPI.newClient(
             customer.name,
             customer.email,
             customer.doc,
@@ -79,8 +79,14 @@ export class PaymentService {
             customer.cep,
             customer.externalId,
             companyName
-         );
-         this.studentsRepository.updateApiId(customer.externalId, apiId ?? null);
+         )) as any;
+
+         if (clientAsaas.id) {
+            apiId = clientAsaas.id;
+            this.studentsRepository.updateApiId(customer.externalId, apiId ?? null);
+         } else {
+            return clientAsaas;
+         }
       }
 
       if (initialPayment && initialPayment > 0) {
@@ -125,7 +131,7 @@ export class PaymentService {
       }
 
       if (billingType === "UNDEFINED") {
-         const respAsaas = await this.paymentAPI.createSignature(
+         return await this.paymentAPI.createSignature(
             apiId ?? null,
             externalId,
             value,
@@ -136,7 +142,6 @@ export class PaymentService {
             interestPercentage,
             finePercentage
          );
-         return respAsaas.id;
       }
 
       if (paymentMethod === "RECORRENTE" && billingType === "CREDIT_CARD") {

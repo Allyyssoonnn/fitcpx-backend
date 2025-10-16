@@ -21,7 +21,7 @@ export class PaymentAPI {
          const response = await fetch(url, options);
          if (!response.ok) {
             const errorBody = await response.text();
-            throw new Error(`Erro na requisição: ${response.status} ${response.statusText} - ${errorBody}`);
+            return JSON.parse(errorBody);
          }
          return await response.json();
       } catch (error: any) {
@@ -154,7 +154,7 @@ export class PaymentAPI {
 
       const resp = await this.fetchJson(url, options);
 
-      return resp.id;
+      return resp;
    }
 
    async updateClient(customerId: string, nome: string, documento: string, email: string, telefone: string) {

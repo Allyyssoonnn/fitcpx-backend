@@ -10,4 +10,8 @@ export class LicensesRepository {
    async findById(licenseId: string) {
       return db.tab_licenca.findByPk(licenseId);
    }
+
+   async deleteById(id: string) {
+      return await db.tab_empresa_licenca.destroy({ where: { cod_empresa_licenca: id } });
+   }
 }
