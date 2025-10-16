@@ -9,6 +9,8 @@ const devToken = process.env.DEV_TOKEN;
 const getMessageError = require("../utils/errors-message");
 
 const allowedRoutes = [
+   "/admin/clients",
+   "/admin/test",
    "/metrics",
    "/admin/printPayout",
    "/events/confirmedPayment",

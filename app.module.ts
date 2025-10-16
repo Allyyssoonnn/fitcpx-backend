@@ -1,4 +1,6 @@
 import { Module } from "@nestjs/common";
+import { APP_GUARD } from "@nestjs/core";
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { AdminModule } from "./modules/admin/admin.module";
 import { CalendarModule } from "./modules/calendar/calendar.module";
 import { CompaniesModule } from "./modules/companies/companies.module";
@@ -20,7 +22,20 @@ import { UsersModule } from "./modules/users/users.module";
 import { WorkoutsModule } from "./modules/workouts/workouts.module";
 
 @Module({
+   providers: [
+      {
+         provide: APP_GUARD,
+         useClass: ThrottlerGuard,
+      },
+   ],
    imports: [
+      ThrottlerModule.forRoot([
+         {
+            ttl: 60 * 1000, // tempo em milissegundos
+            limit: 10,
+            name: "default",
+         },
+      ]),
       UsersModule,
       CompaniesModule,
       StudentsModule,

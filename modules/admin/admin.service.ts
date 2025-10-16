@@ -1,10 +1,18 @@
 import { Injectable } from "@nestjs/common";
 import moment from "moment-timezone";
+import { CompaniesRepository } from "../companies/companies.repository";
 import { AdminRepository } from "./admin.repository";
 
 @Injectable()
 export class AdminService {
-   constructor(private readonly adminRepository: AdminRepository) {}
+   constructor(
+      private readonly adminRepository: AdminRepository,
+      private readonly companiesRepository: CompaniesRepository
+   ) {}
+
+   async getClients() {
+      return this.companiesRepository.findAll();
+   }
 
    async printPayout(companyId: string) {
       function getPayoutDay(day: number) {
