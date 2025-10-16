@@ -19,6 +19,16 @@ services:
       depends_on:
          - fitcpx1
 
+   fitcpx3:
+      build: .
+      image: fitcpx
+      env_file:
+         - .env
+      ports:
+         - "8072:8070" # contêiner 2, interna 8070, externa 8071
+      depends_on:
+         - fitcpx1
+
       # ------ monitoring services -------
    opentelemetry-collector:
       hostname: opentelemetry-collector
