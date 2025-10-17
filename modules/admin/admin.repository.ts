@@ -8,6 +8,7 @@ export class AdminRepository {
       return db.tab_aluno_contrato_pagamento.findAll({
          include: [
             {
+               paranoid: false,
                model: db.tab_aluno_contrato,
                as: "contract",
                where: { cod_empresa: companyId },
