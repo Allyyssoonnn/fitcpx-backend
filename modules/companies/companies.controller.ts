@@ -40,7 +40,7 @@ export class CompaniesController {
 
    @Post("cancelCompanyLicense")
    async cancelLicense(@CompanyId() companyId: string, @Body("licenseId") licenseId: string) {
-      return this.companiesService.cancelCompanyLicense(companyId, licenseId);
+      return this.companiesService.cancelAllCompanyLicenses(companyId);
    }
 
    @Get("getDashboardInfo")

@@ -107,30 +107,6 @@ INSTALAR MYSQL CASO ESTEJA NO MESMO SERVIDOR DA APLICAÇÃO
 
 - apt install wget -y
 
-2. Baixar MYSQL
-
-- wget https://repo.mysql.com//mysql-apt-config_0.8.29-1_all.deb
-
-- apt install ./mysql-apt-config_0.8.29-1_all.deb -y
-
-- apt update
-
-3. Instalar MYSQL
-
-- apt update
-
-- apt install mysql-server -y
-
-4. Alterar permissões
-
-- mysql -p
-
-- UPDATE mysql.user SET host='%' WHERE user='root';
-
-- exit
-
-- sudo systemctl restart mysql
-
 -- INSTALAR PORTAINER
 
 docker volume create portainer_data

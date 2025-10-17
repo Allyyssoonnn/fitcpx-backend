@@ -103,7 +103,7 @@ export class VerifyTokenMiddleware implements NestMiddleware {
          // ! Check if license expired or cancelled
          if (status === "Expired") {
             if (req.method === "POST") return res.status(403).send({ status: false, message: "Licença expirada." });
-         } else if (status === "Cancelled") {
+         } else if (status === "Canceled") {
             if (req.method === "POST") return res.status(403).send({ status: false, message: "Licença cancelada." });
          } else if (status === "Trial Expired") {
             if (req.method === "POST")

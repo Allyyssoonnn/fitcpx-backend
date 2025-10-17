@@ -21,7 +21,7 @@ export async function genTokenUserAuth(cod_usuario: string, cod_empresa: string,
    const license = company?.licenses[0];
 
    const { status_empresa_licenca: status } = license || {};
-   // * Status can be "Active", "Expired", "Cancelled", null (no license)
+   // * Status can be "Active", "Expired", "Canceled", null (no license)
 
    var authorizedStatus = status;
    var trialDaysLeft = null;
