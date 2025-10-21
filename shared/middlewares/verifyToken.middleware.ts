@@ -37,20 +37,22 @@ const allowedRoutes = [
    "/google/getGoogleUrlLogin",
    "/google/loggedGoogle",
    "/physicalAssessments/fitnessassessmentpdf",
+   "/licenses/buyLicense",
+   "/companies",
 ];
 
 @Injectable()
 export class VerifyTokenMiddleware implements NestMiddleware {
    use(req: Request & any, res: Response, next: NextFunction) {
-      // Allow access to certain routes without token
-      if (allowedRoutes.includes(req.path)) {
-         return next();
-      }
-
       // Extract token from "Authorization" header
       const params = req.headers.authorization?.split(" ");
       //Remove Bearer if exist
       const token = params ? params[1] ?? (params[0] as string) : null;
+
+      // Allow access to certain routes without token
+      if (allowedRoutes.includes(req.path) && !token) {
+         return next();
+      }
 
       //If token is not present return error
       if (!token) {
@@ -101,6 +103,8 @@ export class VerifyTokenMiddleware implements NestMiddleware {
 
          // If company is not present
          if (!cod_empresa || !cod_usuario) throw new HttpException(getMessageError("INVALID_TOKEN"), 401);
+
+         if (allowedRoutes.includes(req.path)) return next();
 
          // ! Check if license expired or cancelled
          if (status === "Expired") {

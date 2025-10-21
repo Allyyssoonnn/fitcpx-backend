@@ -32,7 +32,7 @@ import { WorkoutsModule } from "./modules/workouts/workouts.module";
       ThrottlerModule.forRoot([
          {
             ttl: 60 * 1000, // tempo em milissegundos
-            limit: 10,
+            limit: 30,
             name: "default",
          },
       ]),
