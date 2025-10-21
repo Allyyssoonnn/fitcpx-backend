@@ -1,14 +1,24 @@
 import { Injectable } from "@nestjs/common";
 import moment from "moment-timezone";
 import { CompaniesRepository } from "../companies/companies.repository";
+import { PaymentsRepository } from "../payments/payments.repository";
 import { AdminRepository } from "./admin.repository";
 
 @Injectable()
 export class AdminService {
    constructor(
       private readonly adminRepository: AdminRepository,
-      private readonly companiesRepository: CompaniesRepository
+      private readonly companiesRepository: CompaniesRepository,
+      private readonly paymentsRepository: PaymentsRepository
    ) {}
+
+   async getNewClientsDashboard() {
+      return this.companiesRepository.getNewClientsDashboardByMonth();
+   }
+
+   async getFinanceDashboard() {
+      return this.paymentsRepository.getFinanceDashboard();
+   }
 
    async getClients() {
       return this.companiesRepository.findAll();
@@ -45,7 +55,10 @@ export class AdminService {
          date: moment(JSON.parse(v.jsonwebhook_aluno_contrato_pagamento).paymentDate).format("DD/MM/YYYY"),
          amount: `R$ ${String(v.liquido_aluno_contrato_pagamento).replace(".", ",")}`,
       }));
-      console.log(formatedPayments);
-      console.log(JSON.stringify(formatedPayments));
+
+      // console.log(formatedPayments);
+      // console.log(JSON.stringify(formatedPayments));
+
+      return formatedPayments;
    }
 }

@@ -11,6 +11,16 @@ export class AdminController {
       return this.adminService.printPayout(companyId);
    }
 
+   @Get("getFinanceDashboard")
+   async getFinanceDashboard() {
+      return this.adminService.getFinanceDashboard();
+   }
+
+   @Get("getNewClientsDashboard")
+   async getNewClientsDashboard() {
+      return this.adminService.getNewClientsDashboard();
+   }
+
    @SkipThrottle()
    @Get("clients")
    async getClients() {
