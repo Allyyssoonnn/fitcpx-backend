@@ -69,6 +69,8 @@ export class CompaniesRepository {
                [db.Sequelize.col("licenca.nome_licenca"), "nome_licenca"],
                [db.Sequelize.col("licenca.valor_licenca"), "valor_licenca"],
                [db.Sequelize.col("licenca.descricao_licenca"), "descricao_licenca"],
+               [db.Sequelize.col("licenca.mensal_licenca"), "mensal_licenca"],
+               [db.Sequelize.col("licenca.prefix_licenca"), "prefix_licenca"],
             ],
          },
          where: { cod_empresa: companyId, status_empresa_licenca: "Active" },

@@ -24,7 +24,17 @@ module.exports = {
             type: Sequelize.DataTypes.STRING,
             defaultValue: null,
          },
+         cycle_licenca: {
+            allowNull: true,
+            type: Sequelize.DataTypes.INTEGER,
+            defaultValue: 1,
+         },
          valor_licenca: {
+            type: Sequelize.DataTypes.DOUBLE(22, 2),
+            allowNull: true,
+            defaultValue: 0,
+         },
+         mensal_licenca: {
             type: Sequelize.DataTypes.DOUBLE(22, 2),
             allowNull: true,
             defaultValue: 0,
