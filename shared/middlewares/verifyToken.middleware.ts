@@ -60,7 +60,7 @@ export class VerifyTokenMiddleware implements NestMiddleware {
       }
 
       // Allow development token
-      if (token === devToken) {
+      if (dev && token === devToken) {
          req.cod_empresa = 1;
          req.cod_usuario = 1;
 
