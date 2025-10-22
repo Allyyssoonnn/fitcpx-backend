@@ -46,7 +46,7 @@ export class MobileService {
    }
 
    async login(login: string, password: string, deviceToken: string, platform: string, firstAccess: boolean) {
-      let student = (await this.studentsService.getByEmail(login)) as any;
+      let student = (await this.studentsService.getByEmail(login.toLowerCase())) as any;
       if (!student) student = (await this.studentsService.getByCPF(login)) as any;
 
       if (!student) throw new HttpException("Usuário não encontrado!", 401);
