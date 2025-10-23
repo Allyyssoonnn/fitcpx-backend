@@ -63,5 +63,31 @@
       "dev_stripe_price_id": "NULL",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"
+   },
+   {
+      "cod_licenca": 6,
+      "nome_licenca": "Pro - 6 Meses",
+      "descricao_licenca": "Plano com cadastros ilimitados para gestão com todas funções.",
+      "valor_licenca": 139.9,
+      "visivel_licenca": "N",
+      "stripe_product_id": "NULL",
+      "stripe_price_id": "NULL",
+      "dev_stripe_product_id": "NULL",
+      "dev_stripe_price_id": "NULL",
+      "createdAt": "2025-05-07 21:21:43",
+      "updatedAt": "2025-05-07 21:21:43"
+   },
+   {
+      "cod_licenca": 7,
+      "nome_licenca": "Pro - 12 Meses",
+      "descricao_licenca": "Plano com cadastros ilimitados para gestão com todas funções.",
+      "valor_licenca": 139.9,
+      "visivel_licenca": "N",
+      "stripe_product_id": "NULL",
+      "stripe_price_id": "NULL",
+      "dev_stripe_product_id": "NULL",
+      "dev_stripe_price_id": "NULL",
+      "createdAt": "2025-05-07 21:21:43",
+      "updatedAt": "2025-05-07 21:21:43"
    }
 ]
