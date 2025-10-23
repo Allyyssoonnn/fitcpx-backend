@@ -48,6 +48,11 @@ export class CompaniesController {
       return this.companiesService.getDashboardInfo(companyId);
    }
 
+   @Get("getToursInfo")
+   async getToursInfo(@CompanyId() companyId: string) {
+      return this.companiesService.getToursInfo(companyId);
+   }
+
    @Post("sendFeedback")
    async sendFeedback(@CompanyId() companyId: string, @Body() body: any) {
       const { type, message } = body;

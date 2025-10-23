@@ -68,6 +68,28 @@ export class CompaniesService {
       return await this.companiesRepository.getDashboardInfo(companyId);
    }
 
+   async getToursInfo(companyId: string) {
+      const tours = [];
+      const fieldsValidation = [
+         "doc_empresa",
+         "pix_empresa",
+         "telefone_empresa",
+         "email_empresa",
+         "cep_empresa",
+         "numero_empresa",
+      ];
+      const company = (await this.companiesRepository.findById(companyId)) as any;
+
+      tours.push({
+         title: "Configuração inicial",
+         description: "Conclua a Configuração inicial para aproveitar todo sistema",
+         complete: fieldsValidation.every((element: any) => company?.[element]),
+         tourName: "config",
+      });
+
+      return tours;
+   }
+
    async sendFeedback(companyId: string, type: string, message: string) {
       return await this.companiesRepository.createFeedback(companyId, type, message);
    }
