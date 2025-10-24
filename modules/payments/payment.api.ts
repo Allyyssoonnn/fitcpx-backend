@@ -91,15 +91,23 @@ export class PaymentAPI {
       billingType: string,
       name: string,
       interestPercentage?: string,
-      finePercentage?: string
+      finePercentage?: string,
+      cycle?: 1 | 6 | 12 | null
    ) {
+      const cycleMap = {
+         1: "MONTHLY",
+         6: "SEMIANNUALLY",
+         12: "YEARLY",
+      };
+      const cycleText = cycleMap[cycle ?? 1] ?? "MONTHLY";
+
       const url = `${urlBase}/v3/subscriptions`;
       const options = {
          method: "POST",
          headers: { accept: "application/json", "content-type": "application/json", access_token: this.token },
          body: JSON.stringify({
             billingType: billingType,
-            cycle: "MONTHLY",
+            cycle: cycleText,
             description: name || "FitCpx",
             externalReference: cod,
             customer: customerId,

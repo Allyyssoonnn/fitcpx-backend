@@ -67,7 +67,10 @@ export class LicensesService {
          String(new Date()),
          "Use License",
          null,
-         "Lab Complex Dev LTDA"
+         "Lab Complex Dev LTDA",
+         undefined,
+         undefined,
+         license.cycle_licenca
       );
 
       if (!paymentId?.id) {

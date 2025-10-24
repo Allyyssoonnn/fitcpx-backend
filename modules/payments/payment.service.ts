@@ -42,7 +42,8 @@ export class PaymentService {
       initialPayment: number | null,
       companyName: string,
       interestPercentage?: string,
-      finePercentage?: string
+      finePercentage?: string,
+      cycle?: 1 | 6 | 12 | null
    ) {
       // * MANUAL
       if (paymentMethod === "MANUAL") {
@@ -140,7 +141,8 @@ export class PaymentService {
             billingType,
             description,
             interestPercentage,
-            finePercentage
+            finePercentage,
+            cycle
          );
       }
 

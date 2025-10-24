@@ -9,6 +9,7 @@ const devToken = process.env.DEV_TOKEN;
 const getMessageError = require("../utils/errors-message");
 
 const allowedRoutes = [
+   "/companies/cancelCompanyLicense",
    "/admin/clients",
    "/admin/test",
    "/metrics",
