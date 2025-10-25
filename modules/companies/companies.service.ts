@@ -68,6 +68,10 @@ export class CompaniesService {
       return await this.companiesRepository.getDashboardInfo(companyId);
    }
 
+   async getOlderPhysicalAssessments(companyId: string) {
+      return await this.companiesRepository.getOlderPhysicalAssessments(companyId);
+   }
+
    async getToursInfo(companyId: string) {
       const tours = [];
       const fieldsValidation = [

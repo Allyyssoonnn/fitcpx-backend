@@ -7,6 +7,21 @@ export class PaymentsRepository {
       return db.tab_aluno_contrato_pagamento.bulkCreate(payments);
    }
 
+   async getDuePayments(companyId: string) {
+      return db.tab_aluno_contrato_pagamento.findAll({
+         where: { status_aluno_contrato_pagamento: "overdue" },
+         include: [
+            {
+               model: db.tab_aluno_contrato,
+               as: "contract",
+               where: { cod_empresa: companyId },
+               include: [{ model: db.tab_aluno, as: "aluno" }],
+            },
+         ],
+         limit: 5,
+      });
+   }
+
    async getFinanceDashboard() {
       // Consulta única agrupando por status
       const totals = await db.tab_aluno_contrato_pagamento.findAll({

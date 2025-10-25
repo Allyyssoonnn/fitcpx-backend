@@ -4,6 +4,7 @@ import puppeteer from "puppeteer";
 import { CompaniesRepository } from "../companies/companies.repository";
 import { EventsService } from "../events/events.service";
 import { CustomerPaymentService, PaymentService } from "../payments/payment.service";
+import { PaymentsRepository } from "../payments/payments.repository";
 import { StudentsRepository } from "../students/students.repository";
 import { ContractsAPI } from "./contracts.api";
 import { ContractsRepository } from "./contracts.repository";
@@ -14,10 +15,15 @@ export class ContractsService {
       private readonly contractsRepository: ContractsRepository,
       private readonly contractsAPI: ContractsAPI,
       private readonly paymentsService: PaymentService,
+      private readonly paymentsRepository: PaymentsRepository,
       private readonly studentsService: StudentsRepository,
       private readonly companiesRepository: CompaniesRepository,
       private readonly eventsService: EventsService
    ) {}
+
+   async getDuePayments(companyId: string) {
+      return this.paymentsRepository.getDuePayments(companyId);
+   }
 
    async getContracts(companyId: string, studentId?: string) {
       return this.contractsRepository.findAll(companyId, studentId);

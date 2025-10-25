@@ -107,6 +107,20 @@ export class CompaniesRepository {
       });
    }
 
+   async getOlderPhysicalAssessments(companyId: string) {
+      return db.tab_avaliacao.findAll({
+         attributes: [
+            "cod_aluno",
+            [db.sequelize.fn("MAX", db.sequelize.col("data_avaliacao")), "ultima_avaliacao"],
+            [db.sequelize.literal(`DATEDIFF(NOW(), MAX(data_avaliacao))`), "dias_sem_avaliacao"],
+         ],
+         include: [{ model: db.tab_aluno, as: "aluno", where: { status_aluno: "A", cod_empresa: companyId } }],
+         group: ["tab_avaliacao.cod_aluno", "aluno.cod_aluno"],
+         order: [[db.sequelize.literal("dias_sem_avaliacao"), "DESC"]],
+         limit: 5,
+      });
+   }
+
    async getDashboardInfo(companyId: string) {
       const clientsLength = await db.tab_aluno.count({ where: { cod_empresa: companyId, status_aluno: "A" } });
       const usersLength = await db.tab_usuario.count({ where: { cod_empresa: companyId } });
@@ -115,15 +129,6 @@ export class CompaniesRepository {
       });
       const workoutLength = await db.tab_treino.count({ where: { cod_empresa: companyId } });
 
-      const lastPhysicalAssessments = await db.tab_avaliacao.findAll({
-         include: [
-            { model: db.tab_usuario, as: "usuario", where: { cod_empresa: companyId } },
-            { model: db.tab_aluno, as: "aluno" },
-         ],
-         order: [["data_avaliacao", "DESC"]],
-         limit: 5,
-      });
-
       return {
          lengths: {
             clients: clientsLength,
@@ -131,7 +136,6 @@ export class CompaniesRepository {
             physicalAssessments: physicalAssessmentsLength,
             workouts: workoutLength,
          },
-         lastPhysicalAssessments,
       };
    }
 

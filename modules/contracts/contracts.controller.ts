@@ -12,6 +12,11 @@ export class ContractsController {
       return this.contractsService.getContracts(companyId, studentId);
    }
 
+   @Get("getDuePayments")
+   async getDuePaymentsDash(@CompanyId() companyId: string) {
+      return this.contractsService.getDuePayments(companyId);
+   }
+
    @Get(":id")
    async getContract(@Param("id") id: string) {
       return this.contractsService.getContract(id);
