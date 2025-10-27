@@ -54,6 +54,12 @@ export class UsersController {
       return this.usersService.updatePassword(token, password);
    }
 
+   @Post("onError")
+   async onError(@UserId() userId: string, @Body() body: { error: any; info: any }) {
+      const { error, info } = body;
+      return this.usersService.onError(userId, error, info);
+   }
+
    @Post("updateImageUser")
    @UseInterceptors(
       FileInterceptor("image", {

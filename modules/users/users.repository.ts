@@ -40,4 +40,8 @@ export class UsersRepository {
          where: { refreshtoken_usuario: refreshToken },
       });
    }
+
+   async onError(userId: string, error: string, info: string) {
+      return db.errors.create({ userId, error, info });
+   }
 }

@@ -139,4 +139,8 @@ export class UsersService {
       this.usersRepository.updateImageUser(userId, url);
       return url;
    }
+
+   async onError(userId: string, error: string, info: string) {
+      return this.usersRepository.onError(userId, error, info);
+   }
 }
