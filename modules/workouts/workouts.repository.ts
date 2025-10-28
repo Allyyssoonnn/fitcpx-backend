@@ -9,7 +9,11 @@ export class WorkoutsRepository {
       where.cod_empresa = {
          [Op.or]: [companyId, null],
       };
-      studentId ? (where.cod_aluno = studentId) : (where.cod_aluno = null);
+      if (studentId) {
+         where.cod_aluno = studentId;
+         where.status_treino = "A";
+      } else where.cod_aluno = null;
+
       const workouts = await db.tab_treino.findAll({
          paranoid: !onlyDeleted,
          where: where,
