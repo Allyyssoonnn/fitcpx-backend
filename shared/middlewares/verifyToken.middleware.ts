@@ -82,8 +82,6 @@ export class VerifyTokenMiddleware implements NestMiddleware {
 
             return next();
          } catch (err: any) {
-            console.log(err);
-
             if (err.name === "TokenExpiredError") {
                throw new HttpException("Token expirado", 401);
             } else if (err.name === "JsonWebTokenError") {
