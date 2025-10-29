@@ -210,7 +210,6 @@ export class CompaniesRepository {
          newsClients[companyMonth].noPayments++;
       });
 
-      console.log(newsClients);
       return newsClients;
    }
 }
