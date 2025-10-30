@@ -71,6 +71,12 @@ export class PaymentAPI {
          };
       }
 
+      if (billingType === "UNDEFINED" && installments && installments > 1) {
+         body.billingType = "CREDIT_CARD";
+         body.installmentCount = installments;
+         body.totalValue = value;
+      }
+
       const options = {
          method: "POST",
          headers: { accept: "application/json", "content-type": "application/json", access_token: this.token },
