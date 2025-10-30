@@ -118,6 +118,6 @@ export class CompaniesService {
          });
       }
 
-      return notifications;
+      return [];
    }
 }
