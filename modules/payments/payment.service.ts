@@ -132,18 +132,32 @@ export class PaymentService {
       }
 
       if (billingType === "UNDEFINED") {
-         return await this.paymentAPI.createSignature(
-            apiId ?? null,
-            externalId,
-            value,
-            String(moment(dueDate).format("YYYY-MM-DD")),
-            null,
-            billingType,
-            description,
-            interestPercentage,
-            finePercentage,
-            cycle
-         );
+         if (cycle && cycle > 1) {
+            return await this.paymentAPI.createPayment(
+               apiId ?? null,
+               externalId,
+               value,
+               String(moment(dueDate).format("YYYY-MM-DD")),
+               cycle,
+               billingType,
+               description,
+               interestPercentage,
+               finePercentage
+            );
+         } else {
+            return await this.paymentAPI.createSignature(
+               apiId ?? null,
+               externalId,
+               value,
+               String(moment(dueDate).format("YYYY-MM-DD")),
+               null,
+               billingType,
+               description,
+               interestPercentage,
+               finePercentage,
+               cycle
+            );
+         }
       }
 
       if (paymentMethod === "RECORRENTE" && billingType === "CREDIT_CARD") {
