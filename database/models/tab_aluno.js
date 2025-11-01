@@ -25,11 +25,7 @@ module.exports = (sequelize, DataTypes) => {
          observacao_aluno: DataTypes.TEXT,
          senha_aluno: DataTypes.STRING,
          imagem_aluno: DataTypes.STRING,
-         dev_stripe_id: DataTypes.STRING,
-         stripe_id: DataTypes.STRING,
          asaas_id: DataTypes.STRING,
-         payment_stripe_id: DataTypes.STRING,
-         dev_payment_stripe_id: DataTypes.STRING,
          deletedAt: {
             type: DataTypes.DATE,
             allowNull: true,

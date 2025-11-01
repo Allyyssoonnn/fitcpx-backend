@@ -78,26 +78,6 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: null,
          },
-         dev_stripe_payment_id: {
-            type: DataTypes.STRING,
-            allowNull: true,
-            defaultValue: null,
-         },
-         stripe_payment_id: {
-            type: DataTypes.STRING,
-            allowNull: true,
-            defaultValue: null,
-         },
-         dev_stripe_refund_id: {
-            type: DataTypes.STRING,
-            allowNull: true,
-            defaultValue: null,
-         },
-         stripe_refund_id: {
-            type: DataTypes.STRING,
-            allowNull: true,
-            defaultValue: null,
-         },
          asaas_id: {
             type: DataTypes.STRING,
             allowNull: true,

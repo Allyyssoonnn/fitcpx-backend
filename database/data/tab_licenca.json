@@ -5,10 +5,6 @@
       "descricao_licenca": "Plano básico com 3 Alunos e 1 Usuário para uso gratuito.",
       "valor_licenca": 0,
       "visivel_licenca": "N",
-      "stripe_product_id": "NULL",
-      "stripe_price_id": "NULL",
-      "dev_stripe_product_id": "NULL",
-      "dev_stripe_price_id": "NULL",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"
    },
@@ -18,10 +14,6 @@
       "descricao_licenca": "Plano com cadastros ilimitados para gestão permitindo a compra de funções individuais.",
       "valor_licenca": 79.9,
       "visivel_licenca": "S",
-      "stripe_product_id": "NULL",
-      "stripe_price_id": "NULL",
-      "dev_stripe_product_id": "NULL",
-      "dev_stripe_price_id": "NULL",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"
    },
@@ -31,10 +23,6 @@
       "descricao_licenca": "Plano com cadastros ilimitados para gestão com todas funções.",
       "valor_licenca": 139.9,
       "visivel_licenca": "N",
-      "stripe_product_id": "NULL",
-      "stripe_price_id": "NULL",
-      "dev_stripe_product_id": "NULL",
-      "dev_stripe_price_id": "NULL",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"
    },
@@ -44,10 +32,6 @@
       "descricao_licenca": "Plano beta para clientes selecionados.",
       "valor_licenca": 79.9,
       "visivel_licenca": "N",
-      "stripe_product_id": "NULL",
-      "stripe_price_id": "NULL",
-      "dev_stripe_product_id": "NULL",
-      "dev_stripe_price_id": "NULL",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"
    },
@@ -57,10 +41,6 @@
       "descricao_licenca": "Plano com tudo liberado para testes.",
       "valor_licenca": 0,
       "visivel_licenca": "N",
-      "stripe_product_id": "NULL",
-      "stripe_price_id": "NULL",
-      "dev_stripe_product_id": "NULL",
-      "dev_stripe_price_id": "NULL",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"
    },
@@ -70,10 +50,6 @@
       "descricao_licenca": "Plano com cadastros ilimitados para gestão com todas funções.",
       "valor_licenca": 139.9,
       "visivel_licenca": "N",
-      "stripe_product_id": "NULL",
-      "stripe_price_id": "NULL",
-      "dev_stripe_product_id": "NULL",
-      "dev_stripe_price_id": "NULL",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"
    },
@@ -83,10 +59,6 @@
       "descricao_licenca": "Plano com cadastros ilimitados para gestão com todas funções.",
       "valor_licenca": 139.9,
       "visivel_licenca": "N",
-      "stripe_product_id": "NULL",
-      "stripe_price_id": "NULL",
-      "dev_stripe_product_id": "NULL",
-      "dev_stripe_price_id": "NULL",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"
    }
