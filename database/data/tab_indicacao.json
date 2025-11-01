@@ -1,51 +1,51 @@
 [
- {
-   "cod_indicacao": 1,
-   "nome_indicacao": "Dores Lombares\n",
-   "createdAt": "2025-01-07 15:04:50",
-   "updatedAt": "2025-01-07 15:04:51",
-   "deletedAt": null
- },
- {
-   "cod_indicacao": 2,
-   "nome_indicacao": "Dores nos Joelhos\n",
-   "createdAt": "2025-01-07 15:04:50",
-   "updatedAt": "2025-01-07 15:04:51",
-   "deletedAt": null
- },
- {
-   "cod_indicacao": 3,
-   "nome_indicacao": "Dores nos Ombros\n",
-   "createdAt": "2025-01-07 15:04:50",
-   "updatedAt": "2025-01-07 15:04:51",
-   "deletedAt": null
- },
- {
-   "cod_indicacao": 4,
-   "nome_indicacao": "Dores nos Punhos\n",
-   "createdAt": "2025-01-07 15:04:50",
-   "updatedAt": "2025-01-07 15:04:51",
-   "deletedAt": null
- },
- {
-   "cod_indicacao": 5,
-   "nome_indicacao": "Dores nos Tornozelos\n",
-   "createdAt": "2025-01-07 15:04:50",
-   "updatedAt": "2025-01-07 15:04:51",
-   "deletedAt": null
- },
- {
-   "cod_indicacao": 6,
-   "nome_indicacao": "Melhorar o OHS\n",
-   "createdAt": "2025-01-07 15:04:50",
-   "updatedAt": "2025-01-07 15:04:51",
-   "deletedAt": null
- },
- {
-   "cod_indicacao": 7,
-   "nome_indicacao": "Dores nos Cotovelos",
-   "createdAt": "2025-01-07 15:04:50",
-   "updatedAt": "2025-01-07 15:04:51",
-   "deletedAt": null
- }
+   {
+      "cod_indicacao": 1,
+      "nome_indicacao": "Dores Lombares",
+      "createdAt": "2025-01-07 15:04:50",
+      "updatedAt": "2025-01-07 15:04:51",
+      "deletedAt": null
+   },
+   {
+      "cod_indicacao": 2,
+      "nome_indicacao": "Dores nos Joelhos",
+      "createdAt": "2025-01-07 15:04:50",
+      "updatedAt": "2025-01-07 15:04:51",
+      "deletedAt": null
+   },
+   {
+      "cod_indicacao": 3,
+      "nome_indicacao": "Dores nos Ombros",
+      "createdAt": "2025-01-07 15:04:50",
+      "updatedAt": "2025-01-07 15:04:51",
+      "deletedAt": null
+   },
+   {
+      "cod_indicacao": 4,
+      "nome_indicacao": "Dores nos Punhos",
+      "createdAt": "2025-01-07 15:04:50",
+      "updatedAt": "2025-01-07 15:04:51",
+      "deletedAt": null
+   },
+   {
+      "cod_indicacao": 5,
+      "nome_indicacao": "Dores nos Tornozelos",
+      "createdAt": "2025-01-07 15:04:50",
+      "updatedAt": "2025-01-07 15:04:51",
+      "deletedAt": null
+   },
+   {
+      "cod_indicacao": 6,
+      "nome_indicacao": "Melhorar o OHS",
+      "createdAt": "2025-01-07 15:04:50",
+      "updatedAt": "2025-01-07 15:04:51",
+      "deletedAt": null
+   },
+   {
+      "cod_indicacao": 7,
+      "nome_indicacao": "Dores nos Cotovelos",
+      "createdAt": "2025-01-07 15:04:50",
+      "updatedAt": "2025-01-07 15:04:51",
+      "deletedAt": null
+   }
 ]
