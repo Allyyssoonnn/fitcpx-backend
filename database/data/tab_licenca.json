@@ -13,6 +13,7 @@
       "nome_licenca": "Básico",
       "descricao_licenca": "Plano com cadastros ilimitados para gestão permitindo a compra de funções individuais.",
       "valor_licenca": 79.9,
+      "mensal_licenca": null,
       "visivel_licenca": "S",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"
@@ -22,7 +23,8 @@
       "nome_licenca": "Pro",
       "descricao_licenca": "Plano com cadastros ilimitados para gestão com todas funções.",
       "valor_licenca": 139.9,
-      "visivel_licenca": "N",
+      "mensal_licenca": null,
+      "visivel_licenca": "S",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"
    },
@@ -31,7 +33,8 @@
       "nome_licenca": "Beta",
       "descricao_licenca": "Plano beta para clientes selecionados.",
       "valor_licenca": 79.9,
-      "visivel_licenca": "N",
+      "mensal_licenca": null,
+      "visivel_licenca": "S",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"
    },
@@ -40,6 +43,7 @@
       "nome_licenca": "Cortesia",
       "descricao_licenca": "Plano com tudo liberado para testes.",
       "valor_licenca": 0,
+      "mensal_licenca": null,
       "visivel_licenca": "N",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"
@@ -49,7 +53,8 @@
       "nome_licenca": "Pro - 6 Meses",
       "descricao_licenca": "Plano com cadastros ilimitados para gestão com todas funções.",
       "valor_licenca": 139.9,
-      "visivel_licenca": "N",
+      "mensal_licenca": null,
+      "visivel_licenca": "S",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"
    },
@@ -58,6 +63,7 @@
       "nome_licenca": "Pro - 12 Meses",
       "descricao_licenca": "Plano com cadastros ilimitados para gestão com todas funções.",
       "valor_licenca": 139.9,
+      "mensal_licenca": null,
       "visivel_licenca": "N",
       "createdAt": "2025-05-07 21:21:43",
       "updatedAt": "2025-05-07 21:21:43"

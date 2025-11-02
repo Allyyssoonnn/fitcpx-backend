@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import moment from "moment-timezone";
+import { CompaniesRepository } from "../companies/companies.repository";
 import { ContractsRepository } from "../contracts/contracts.repository";
 import { EventsService } from "../events/events.service";
 import { StudentsRepository } from "../students/students.repository";
@@ -25,6 +26,7 @@ export class PaymentService {
       private readonly paymentAPI: PaymentAPI,
       private readonly paymentsRepository: PaymentsRepository,
       private readonly studentsRepository: StudentsRepository,
+      private readonly companiesRepository: CompaniesRepository,
       private readonly contractsRepository: ContractsRepository,
       private readonly eventsService: EventsService
    ) {}
@@ -84,7 +86,11 @@ export class PaymentService {
 
          if (clientAsaas.id) {
             apiId = clientAsaas.id;
-            this.studentsRepository.updateApiId(customer.externalId, apiId ?? null);
+            if (description == "Use License") {
+               this.companiesRepository.updateApiId(customer.externalId, apiId ?? null);
+            } else {
+               this.studentsRepository.updateApiId(customer.externalId, apiId ?? null);
+            }
          } else {
             return clientAsaas;
          }
