@@ -117,7 +117,7 @@ export class PaymentService {
 
             if (respAsaas.billingType === "CREDIT_CARD")
                descont = Number((respAsaas?.value * (1 - 4.99 / 100)).toFixed(2)); //4,99%
-            if (respAsaas.billingType === "PIX") descont = Number((respAsaas?.value * (1 - 2.19 / 100)).toFixed(2)); //2,19%
+            if (respAsaas.billingType === "PIX") descont = Number((respAsaas?.value - 4.0).toFixed(2)); //$4,00
             if (respAsaas.billingType === "BOLETO") descont = Number((respAsaas?.value - 4.0).toFixed(2)); //$4,00
             await this.paymentsRepository.createPaymentsStudents([
                {
@@ -204,7 +204,7 @@ export class PaymentService {
 
                if (respAsaas.billingType === "CREDIT_CARD")
                   descont = Number((respAsaas?.value * (1 - 4.99 / 100)).toFixed(2)); //4,99%
-               if (respAsaas.billingType === "PIX") descont = Number((respAsaas?.value * (1 - 2.19 / 100)).toFixed(2)); //2,19%
+               if (respAsaas.billingType === "PIX") descont = Number((respAsaas?.value - 4.0).toFixed(2)); //$4,00
                if (respAsaas.billingType === "BOLETO") descont = Number((respAsaas?.value - 4.0).toFixed(2)); //$4,00
                await this.paymentsRepository.createPaymentsStudents([
                   {
