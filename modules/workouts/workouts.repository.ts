@@ -111,6 +111,10 @@ export class WorkoutsRepository {
       });
    }
 
+   async count(companyId: string) {
+      return await db.tab_treino.count({ where: { cod_empresa: companyId } });
+   }
+
    async deleteById(id: string) {
       return await db.tab_treino.destroy({ where: { cod_treino: id } });
    }

@@ -6,6 +6,11 @@ import { AdminService } from "./admin.service";
 export class AdminController {
    constructor(private readonly adminService: AdminService) {}
 
+   @Get("getClientInfo")
+   async getClientInfo(@Query("companyId") companyId: string) {
+      return this.adminService.getClientInfo(companyId);
+   }
+
    @Get("printPayout")
    async printPayout(@Query("companyId") companyId: string) {
       return this.adminService.printPayout(companyId);
@@ -19,6 +24,11 @@ export class AdminController {
    @Get("getNewClientsDashboard")
    async getNewClientsDashboard() {
       return this.adminService.getNewClientsDashboard();
+   }
+
+   @Get("getLicensesClients")
+   async getLicenseClients(@Query("companyId") companyId: string) {
+      return this.adminService.getLicensesClients(companyId);
    }
 
    @SkipThrottle()

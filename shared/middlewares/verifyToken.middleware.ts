@@ -10,11 +10,13 @@ const getMessageError = require("../utils/errors-message");
 
 const allowedRoutes = [
    "/companies/cancelCompanyLicense",
+   "/admin/getClientInfo",
    "/admin/clients",
    "/admin/test",
    "/metrics",
    "/admin/getNewClientsDashboard",
    "/admin/getFinanceDashboard",
+   "/admin/getLicensesClients",
    "/admin/printPayout",
    "/events/confirmedPayment",
    "/events/createdPayment",

@@ -79,6 +79,20 @@ export class PhysicalAssessmentsRepository {
       return physicalAssesmentsWithResult;
    }
 
+   async count(companyId: string) {
+      return await db.tab_avaliacao.count({
+         include: [
+            {
+               model: db.tab_usuario,
+               as: "usuario",
+               where: {
+                  cod_empresa: companyId,
+               },
+            },
+         ],
+      });
+   }
+
    async createOrUpdate(data: any) {
       return (await db.tab_avaliacao.upsert(data))[0];
    }

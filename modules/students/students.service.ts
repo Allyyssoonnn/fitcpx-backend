@@ -32,6 +32,15 @@ export class StudentsService {
    }
 
    createOrUpdate = async (data: any, companyId: string) => {
+      if (!data.cod_aluno) {
+         //Verify student exist
+         if (
+            (data?.email_aluno && (await this.studentsRepository.findByEmail(data.email_aluno))) ||
+            (data?.cpf_aluno && (await this.studentsRepository.findByCPF(data.cpf_aluno)))
+         ) {
+            throw new HttpException("Já existe um aluno com esse E-mail ou CPF", 403);
+         }
+      }
       const response = await this.studentsRepository.createOrUpdate(data);
       if (!data.cod_aluno && response.cod_aluno) {
          const company = (await this.comapniesService.getById(companyId)) as any;

@@ -43,6 +43,10 @@ export class ContractsRepository {
       });
    }
 
+   async count(companyId: string) {
+      return await db.tab_aluno_contrato.count({ where: { cod_empresa: companyId } });
+   }
+
    async findById(contractId: string) {
       return await db.tab_aluno_contrato.findOne({
          where: { cod_aluno_contrato: contractId },

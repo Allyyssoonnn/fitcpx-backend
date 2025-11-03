@@ -27,6 +27,10 @@ export class StudentsRepository {
       return await db.tab_aluno.findOne({ where: { cpf_aluno: cpf } });
    }
 
+   async count(companyId: string) {
+      return await db.tab_aluno.count({ where: { cod_empresa: companyId } });
+   }
+
    async createOrUpdate(data: any) {
       return ((await db.tab_aluno.upsert(data)) as any)[0];
    }

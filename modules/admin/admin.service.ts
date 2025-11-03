@@ -1,7 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import moment from "moment-timezone";
 import { CompaniesRepository } from "../companies/companies.repository";
+import { ContractsRepository } from "../contracts/contracts.repository";
 import { PaymentsRepository } from "../payments/payments.repository";
+import { PhysicalAssessmentsRepository } from "../physicalAssessments/physicalAssessments.repository";
+import { StudentsRepository } from "../students/students.repository";
+import { WorkoutsRepository } from "../workouts/workouts.repository";
 import { AdminRepository } from "./admin.repository";
 
 @Injectable()
@@ -9,7 +13,11 @@ export class AdminService {
    constructor(
       private readonly adminRepository: AdminRepository,
       private readonly companiesRepository: CompaniesRepository,
-      private readonly paymentsRepository: PaymentsRepository
+      private readonly paymentsRepository: PaymentsRepository,
+      private readonly studentsRepository: StudentsRepository,
+      private readonly physicalAssessmentsRepository: PhysicalAssessmentsRepository,
+      private readonly workoutsRepository: WorkoutsRepository,
+      private readonly contractsRepository: ContractsRepository
    ) {}
 
    async getNewClientsDashboard() {
@@ -22,6 +30,24 @@ export class AdminService {
 
    async getClients() {
       return this.companiesRepository.findAll();
+   }
+
+   async getClientInfo(companyId: string) {
+      const qtdStudents = await this.studentsRepository.count(companyId);
+      const qtdPhysicalAssessments = await this.physicalAssessmentsRepository.count(companyId);
+      const qtdWorkouts = await this.workoutsRepository.count(companyId);
+      const qtdContracts = await this.contractsRepository.count(companyId);
+
+      return {
+         qtdStudents,
+         qtdPhysicalAssessments,
+         qtdWorkouts,
+         qtdContracts,
+      };
+   }
+
+   async getLicensesClients(companyId: string) {
+      return this.companiesRepository.findAllCompaniesLicenses(companyId);
    }
 
    async printPayout(companyId: string) {
@@ -55,9 +81,6 @@ export class AdminService {
          date: moment(JSON.parse(v.jsonwebhook_aluno_contrato_pagamento).paymentDate).format("DD/MM/YYYY"),
          amount: `R$ ${String(v.liquido_aluno_contrato_pagamento).replace(".", ",")}`,
       }));
-
-      // console.log(formatedPayments);
-      // console.log(JSON.stringify(formatedPayments));
 
       return formatedPayments;
    }
