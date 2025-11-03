@@ -1,4 +1,6 @@
 import { HttpException, Injectable } from "@nestjs/common";
+import moment from "moment-timezone";
+import { CompaniesRepository } from "../companies/companies.repository";
 import { CompaniesService } from "../companies/companies.service";
 import { CustomerPaymentService, PaymentService } from "../payments/payment.service";
 import { LicensesRepository } from "./licenses.repository";
@@ -8,11 +10,31 @@ export class LicensesService {
    constructor(
       private readonly licensesRepository: LicensesRepository,
       private readonly companiesService: CompaniesService,
+      private readonly companiesRepository: CompaniesRepository,
       private readonly paymentService: PaymentService
    ) {}
 
-   async getLicensesAvaliables() {
-      return this.licensesRepository.findAll();
+   async getLicensesAvaliables(companyId: string) {
+      const company = (await this.companiesRepository.findById(companyId)) as any;
+      const daysDiff = moment(new Date()).diff(moment(company.createdAt), "days");
+
+      var coupon = company.cupom_empresa_licenca;
+      const dueCoupon = moment(company.expiracaocupom_empresa_licenca).format("DD/MM/YYYY");
+      if (moment(new Date()) > moment(company.expiracaocupom_empresa_licenca)) {
+         coupon = null;
+      }
+
+      return this.licensesRepository.findAll(daysDiff, coupon, dueCoupon);
+   }
+
+   async sendCoupon(companyId: string, coupon: string) {
+      const license = (await this.licensesRepository.findByCoupon(coupon)) as any;
+      if (!license) throw new HttpException("Cupom inválido", 403);
+      var dueDate = moment(new Date()).add(5, "day").format("YYYY-MM-DD");
+      if (license.daysleft_activate_licenca) {
+         dueDate = moment(new Date()).add(license.daysleft_activate_licenca, "day").format("YYYY-MM-DD");
+      }
+      return this.companiesRepository.applyCoupon(companyId, coupon, dueDate);
    }
 
    async buyLicense(companyId: string, licenseId: string) {

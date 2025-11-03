@@ -7,12 +7,17 @@ export class LicensesController {
    constructor(private readonly licensesService: LicensesService) {}
 
    @Get()
-   async getLicenses() {
-      return this.licensesService.getLicensesAvaliables();
+   async getLicenses(@CompanyId() companyId: string) {
+      return this.licensesService.getLicensesAvaliables(companyId);
    }
 
    @Post("buyLicense")
    async buyLicense(@CompanyId() companyId: string, @Body("licenseId") licenseId: string) {
       return this.licensesService.buyLicense(companyId, licenseId);
+   }
+
+   @Post("sendCoupon")
+   async sendCoupon(@CompanyId() companyId: string, @Body("coupon") coupon: string) {
+      return this.licensesService.sendCoupon(companyId, coupon);
    }
 }

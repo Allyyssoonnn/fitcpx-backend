@@ -39,6 +39,26 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: 0,
          },
+         visivel_licenca: {
+            type: DataTypes.ENUM("S", "N"),
+            allowNull: true,
+            defaultValue: "S",
+         },
+         daysleft_register_licenca: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: null,
+         },
+         daysleft_activate_licenca: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: null,
+         },
+         cupom_licenca: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null,
+         },
          deletedAt: {
             type: DataTypes.DATE,
             allowNull: true,

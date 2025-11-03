@@ -33,6 +33,8 @@ module.exports = (sequelize, DataTypes) => {
          agencia_banco_conta: DataTypes.STRING,
          numero_banco_conta: DataTypes.STRING,
          presets_treino_inteligente: DataTypes.TEXT,
+         cupom_empresa_licenca: DataTypes.STRING,
+         expiracaocupom_empresa_licenca: DataTypes.DATEONLY,
       },
       {
          freezeTableName: true,

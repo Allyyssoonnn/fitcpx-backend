@@ -27,6 +27,14 @@ export class CompaniesRepository {
       return await db.tab_empresa.update({ asaas_id: apiId }, { where: { cod_empresa: companyId } });
    }
 
+   async applyCoupon(companyId: string, coupon: string | null, dueDate?: string) {
+      var dueDateInsert = dueDate ? dueDate : null;
+      return await db.tab_empresa.update(
+         { cupom_empresa_licenca: coupon, expiracaocupom_empresa_licenca: dueDateInsert },
+         { where: { cod_empresa: companyId } }
+      );
+   }
+
    async createOrUpdateCompanyLicense(data: any) {
       return (await db.tab_empresa_licenca.upsert(data))[0];
    }
