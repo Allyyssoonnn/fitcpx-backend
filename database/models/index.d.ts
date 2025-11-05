@@ -43,6 +43,7 @@ interface Db {
    device_tokens: ModelStatic<Model>;
    tab_exercicios_empresa: ModelStatic<Model>;
    errors: ModelStatic<Model>;
+   chat: ModelStatic<Model>;
 }
 
 declare const db: Db;

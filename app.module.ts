@@ -3,6 +3,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { AdminModule } from "./modules/admin/admin.module";
 import { CalendarModule } from "./modules/calendar/calendar.module";
+import { ChatModule } from "./modules/chat/chat.module";
 import { CompaniesModule } from "./modules/companies/companies.module";
 import { ContractsModule } from "./modules/contracts/contracts.module";
 import { ContractsTemplatesModule } from "./modules/contractsTemplates/contractsTemplates.module";
@@ -55,6 +56,7 @@ import { WorkoutsModule } from "./modules/workouts/workouts.module";
       NotificationsModule,
       EventsModule,
       AdminModule,
+      ChatModule,
    ],
 })
 export class AppModule {}

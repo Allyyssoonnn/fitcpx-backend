@@ -64,4 +64,23 @@ export class MobileController {
       const { sessao, tempo, cod_aluno } = body;
       return this.mobileService.finishTreino(sessao, tempo, cod_aluno);
    }
+
+   @Post("sendStudentMessage")
+   async sendStudentMessage(
+      @CompanyId() companyId: string,
+      @StudentId() studentId: string,
+      @Body("message") message: string
+   ) {
+      return this.mobileService.registerStudentMessage(studentId, companyId, message);
+   }
+
+   @Get("getMessages")
+   async getMessages(@StudentId() studentId: string) {
+      return this.mobileService.getMessages(studentId);
+   }
+
+   @Get("getUnreadMessages")
+   async getUnreadMessages(@StudentId() studentId: string) {
+      return this.mobileService.getUnreadMessages(studentId);
+   }
 }

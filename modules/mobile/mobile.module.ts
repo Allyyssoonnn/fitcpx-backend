@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { ChatRepository } from "../chat/chat.repository";
 import { CompaniesRepository } from "../companies/companies.repository";
 import { CompaniesService } from "../companies/companies.service";
 import { ContractsAPI } from "../contracts/contracts.api";
@@ -57,6 +58,7 @@ import { MobileService } from "./mobile.service";
       NotificationsService,
       NotificationsAPI,
       NotificationsRepository,
+      ChatRepository,
    ],
 })
 export class MobileModule {}

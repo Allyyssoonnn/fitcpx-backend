@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { genTokenStudentRecoveryPassword } from "../../shared/utils/token";
 import { genTokenStudentAuth } from "../../shared/utils/token.mobile";
+import { ChatRepository } from "../chat/chat.repository";
 import { CompaniesService } from "../companies/companies.service";
 import { ContractsService } from "../contracts/contracts.service";
 import { EventsService } from "../events/events.service";
@@ -18,7 +19,8 @@ export class MobileService {
       private readonly physicalAssessmentsService: PhysicalAssessmentsService,
       private readonly workoutsService: WorkoutsService,
       private readonly contractsService: ContractsService,
-      private readonly eventsService: EventsService
+      private readonly eventsService: EventsService,
+      private readonly chatRepository: ChatRepository
    ) {}
 
    async recoveryPassword(login: string) {
@@ -110,5 +112,18 @@ export class MobileService {
 
    async finishTreino(session: any, time: string, studentId: string) {
       return this.workoutsService.registerWorkoutStudent(session, time, studentId);
+   }
+
+   async registerStudentMessage(studentId: string, companyId: string, message: string) {
+      return this.chatRepository.create(message, companyId, studentId, "student");
+   }
+
+   async getMessages(studentId: string) {
+      await this.chatRepository.markReadStudent(studentId);
+      return this.chatRepository.findAll();
+   }
+
+   async getUnreadMessages(studentId: string) {
+      return this.chatRepository.countUnreadMessages(studentId);
    }
 }
