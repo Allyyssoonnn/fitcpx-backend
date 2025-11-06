@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { CompanyId } from "../../shared/decorators/companyId.decorator";
 import { UserId } from "../../shared/decorators/userId.decorator";
 import { ChatService } from "./chat.service";
@@ -7,9 +7,14 @@ import { ChatService } from "./chat.service";
 export class ChatController {
    constructor(private readonly chatService: ChatService) {}
 
-   @Get()
-   async getMessages() {
-      return this.chatService.findAll();
+   @Get("getMessages")
+   async getMessages(@Query("studentId") studentId: string) {
+      return this.chatService.getMessages(studentId);
+   }
+
+   @Get("getPreviewMessages")
+   async getPreviewMessages(@CompanyId() companyId: string) {
+      return this.chatService.getPreviewMessages(companyId);
    }
 
    @Post("sendUserMessage")

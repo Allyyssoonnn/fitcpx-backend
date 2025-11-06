@@ -5,8 +5,13 @@ import { ChatRepository } from "./chat.repository";
 export class ChatService {
    constructor(private readonly chatRepository: ChatRepository) {}
 
-   async findAll() {
-      return this.chatRepository.findAll();
+   async getMessages(studentId: string) {
+      await this.chatRepository.markReadCompany(studentId);
+      return this.chatRepository.getMessages(studentId);
+   }
+
+   async getPreviewMessages(companyId: string) {
+      return this.chatRepository.getPreviewMessages(companyId);
    }
 
    async registerUserMessage(userId: string, companyId: string, message: string, studentId: string) {
