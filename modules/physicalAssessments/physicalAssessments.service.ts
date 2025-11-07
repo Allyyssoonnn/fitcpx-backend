@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { EventsService } from "../events/events.service";
 import { StorageService } from "../storage/storage.service";
 import { PhysicalAssessmentsRepository } from "./physicalAssessments.repository";
-const dev = (process.env.NODE_ENV || "development") === "development";
+const dev = process.env.NODE_ENV !== "production";
 
 @Injectable()
 export class PhysicalAssessmentsService {

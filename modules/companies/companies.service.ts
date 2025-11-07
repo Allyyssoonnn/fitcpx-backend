@@ -2,7 +2,7 @@ import { HttpException, Injectable } from "@nestjs/common";
 import { PaymentService } from "../payments/payment.service";
 import { StorageService } from "../storage/storage.service";
 import { CompaniesRepository } from "./companies.repository";
-const dev = process.env.NODE_ENV !== "development";
+const dev = process.env.NODE_ENV !== "production";
 
 @Injectable()
 export class CompaniesService {

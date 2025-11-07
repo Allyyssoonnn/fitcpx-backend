@@ -4,7 +4,7 @@ import { CompaniesRepository } from "../companies/companies.repository";
 import { EventsService } from "../events/events.service";
 import { StorageService } from "../storage/storage.service";
 import { UsersRepository } from "./users.repository";
-const dev = (process.env.NODE_ENV || "development") === "development";
+const dev = process.env.NODE_ENV !== "production";
 const crypto = require("crypto");
 
 @Injectable()
