@@ -5,10 +5,11 @@ const http = require("http");
 const cors = require("cors");
 require("dotenv").config();
 const dev = process.env.NODE_ENV != "production";
+const port = process.env.NODE_ENV == "test" ? 8071 : 8070;
 if (!dev) require("./infra/monitoring/otel");
 
 const server = express();
-const PORT = 8070;
+const PORT = port;
 
 //cors precisa ser declarado antes das rotas para não ocorrer erro no client
 server.use(cors({ origin: "*", credentials: true }));
