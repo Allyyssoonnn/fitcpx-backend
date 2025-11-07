@@ -4,9 +4,8 @@ import db from "../../database/models";
 
 @Injectable()
 export class ChatRepository {
-   async findAll(studentId?: string) {
-      var where = {} as any;
-      if (studentId) where.studentId = studentId;
+   async findAll(studentId: string) {
+      var where = { studentId } as any;
       return await db.chat.findAll({
          where,
          include: [

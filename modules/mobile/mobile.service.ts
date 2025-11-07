@@ -120,7 +120,7 @@ export class MobileService {
 
    async getMessages(studentId: string) {
       await this.chatRepository.markReadStudent(studentId);
-      return this.chatRepository.findAll();
+      return this.chatRepository.findAll(studentId);
    }
 
    async getUnreadMessages(studentId: string) {
