@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-   fitcpx1:
+   fitcpxtest:
       build: .
       image: fitcpxtest
       env_file:
