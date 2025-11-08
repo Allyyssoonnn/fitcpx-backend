@@ -51,12 +51,15 @@ export class PhysicalAssessmentsController {
          storage: multer.memoryStorage(),
       })
    )
-   async updateImageUser(@Headers() headers: any, @UploadedFiles() filesBuffer: Express.Multer.File[]) {
-      const { cod_avaliacao, deletedimages } = headers;
-      console.log(headers);
-      if (!cod_avaliacao) {
+   async updateImageUser(
+      @Headers() headers: any,
+      @UploadedFiles() filesBuffer: Express.Multer.File[],
+      @Query("physicalId") physicalId: string
+   ) {
+      const { deletedimages } = headers;
+      if (!physicalId) {
          throw new HttpException("Erro - ID da avaliação não recebido", 403);
       }
-      return this.physicalAssessmentsService.updateImagePhysicalAssessment(cod_avaliacao, filesBuffer, deletedimages);
+      return this.physicalAssessmentsService.updateImagePhysicalAssessment(physicalId, filesBuffer, deletedimages);
    }
 }
