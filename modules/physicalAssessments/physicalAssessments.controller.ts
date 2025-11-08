@@ -53,12 +53,9 @@ export class PhysicalAssessmentsController {
    )
    async updateImageUser(@Headers() headers: any, @UploadedFiles() filesBuffer: Express.Multer.File[]) {
       const { cod_avaliacao, deletedimages } = headers;
-      console.log(cod_avaliacao);
-
       if (!cod_avaliacao) {
          throw new HttpException("Erro - ID da avaliação não recebido", 403);
       }
-
       return this.physicalAssessmentsService.updateImagePhysicalAssessment(cod_avaliacao, filesBuffer, deletedimages);
    }
 }
