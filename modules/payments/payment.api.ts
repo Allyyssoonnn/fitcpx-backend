@@ -3,7 +3,7 @@ import moment from "moment-timezone";
 const dev = process.env.NODE_ENV != "production";
 
 const tokenAPI = dev
-   ? process.env.ASAAS_KEY_DEVELOPMENT
+   ? "[REDACTED_CREDENTIAL]"
    : "[REDACTED_CREDENTIAL]";
 const urlBase = dev ? "https://api-sandbox.asaas.com/" : "https://api.asaas.com/";
 
