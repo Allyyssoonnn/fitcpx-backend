@@ -54,6 +54,7 @@ RUN chmod +x /app/entrypoint.sh
 
 # Expõe as portas em que a aplicação irá rodar
 EXPOSE 8070
+EXPOSE 8071
 EXPOSE 8090
 
 # Define o entrypoint para executar migrações e subir a app
