@@ -22,4 +22,4 @@ jobs:
                  git fetch origin test
                  git reset --hard origin/test
                  docker compose -p fitcpx_test -f docker-compose.test.yml pull
-                 docker compose -p fitcpx_test -f docker-compose.test.yml up -d --remove-orphans --build
+                 docker compose -p fitcpx_test -f docker-compose.test.yml up -d --remove-orphans --build --no-cache
