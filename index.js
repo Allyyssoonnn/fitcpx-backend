@@ -7,7 +7,13 @@ require("dotenv").config();
 const dev = process.env.NODE_ENV != "production";
 const prod = process.env.NODE_ENV == "production";
 const port = process.env.NODE_ENV == "test" ? 8071 : 8070;
-if (prod) require("./infra/monitoring/otel");
+// if (prod) require("./infra/monitoring/otel");
+if (prod) {
+   console.log("✅ carregando otel");
+   require("./infra/monitoring/otel");
+} else {
+   console.log("❌ não carregando otel");
+}
 
 const server = express();
 const PORT = port;
