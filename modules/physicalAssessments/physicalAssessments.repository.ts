@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { Op } from "sequelize";
 import db from "../../database/models";
-const { getResultPhysicalAssesment } = require("./physicalAssessments.utils");
+// const { getResultPhysicalAssesment } = require("./physicalAssessments.utils");
+const { getResultPhysicalAssesment } = require("./physicalAssessments.funcs");
 
 @Injectable()
 export class PhysicalAssessmentsRepository {
