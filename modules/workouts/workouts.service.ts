@@ -14,6 +14,10 @@ export class WorkoutsService {
       return this.workoutsRepository.findAll(companyId, deleted, studentId);
    }
 
+   async getWorkout(workoutId: string) {
+      return this.workoutsRepository.findOne(workoutId);
+   }
+
    async generateWorkout(body: any) {
       return generateWorkoutTemplate(body);
    }

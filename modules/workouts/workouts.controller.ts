@@ -18,6 +18,11 @@ export class WorkoutsController {
       return this.workoutsService.generateWorkout(body);
    }
 
+   @Get(":id")
+   async getOne(@Param("id") id: string) {
+      return this.workoutsService.getWorkout(id);
+   }
+
    @Get()
    async getAll(
       @CompanyId() companyId: string,
