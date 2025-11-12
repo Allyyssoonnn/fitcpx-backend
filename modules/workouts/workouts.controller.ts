@@ -18,11 +18,6 @@ export class WorkoutsController {
       return this.workoutsService.generateWorkout(body);
    }
 
-   @Get(":id")
-   async getOne(@Param("id") id: string) {
-      return this.workoutsService.getWorkout(id);
-   }
-
    @Get()
    async getAll(
       @CompanyId() companyId: string,
@@ -70,5 +65,10 @@ export class WorkoutsController {
    @Get("getMovementPatterns")
    async getMovementPatterns(@Query("lang") lang: string) {
       return this.workoutsService.getMovementPatterns(lang);
+   }
+
+   @Get(":id")
+   async getOne(@Param("id") id: string) {
+      return this.workoutsService.getWorkout(id);
    }
 }
