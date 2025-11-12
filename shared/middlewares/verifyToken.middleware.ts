@@ -41,6 +41,7 @@ const allowedRoutes = [
    "/google/loggedGoogle",
    "/physicalAssessments/fitnessassessmentpdf",
    "/licenses/buyLicense",
+   "/licenses/sendCoupon",
    "/companies",
 ];
 
