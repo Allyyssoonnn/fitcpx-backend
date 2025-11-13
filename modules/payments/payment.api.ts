@@ -257,7 +257,7 @@ export class PaymentAPI {
 
    async deleteInstallment(installmentId: string) {
       const parcelamento = await this.findInstallment(installmentId);
-      if (!parcelamento || !parcelamento?.deleted) return;
+      if (!parcelamento || parcelamento?.deleted) return;
       const url = `${this.coreURL}/v3/installments/${installmentId}`;
       const options = {
          method: "DELETE",
