@@ -26,4 +26,9 @@ export class ChatController {
    ) {
       return this.chatService.registerUserMessage(userId, companyId, message, studentId);
    }
+
+   @Get("getUnreadMessages")
+   async getUnreadMessages(@CompanyId() companyId: string, @Query("studentId") studentId: string) {
+      return this.chatService.getUnreadMessages(companyId, studentId);
+   }
 }
