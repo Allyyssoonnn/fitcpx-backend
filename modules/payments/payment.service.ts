@@ -246,4 +246,8 @@ export class PaymentService {
    async deleteInvoice(paymentId: string) {
       return this.paymentAPI.deleteInoice(paymentId);
    }
+
+   async findInovicesSignature(subscriptionId: string) {
+      return this.paymentAPI.findInovicesSignature(subscriptionId);
+   }
 }

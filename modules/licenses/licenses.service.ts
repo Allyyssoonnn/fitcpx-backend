@@ -108,10 +108,18 @@ export class LicensesService {
 
          throw new HttpException("Error to process the payment", 403);
       } else {
-         return await this.companiesService.createOrUpdateCompanyLicense({
+         await this.companiesService.createOrUpdateCompanyLicense({
             ...companyLicense.dataValues,
-            asaas_id: paymentId.id,
+            asaas_id: paymentId?.installment ?? paymentId?.id,
          });
+
+         if (paymentId?.object === "subscription") {
+            const payments = await this.paymentService.findInovicesSignature(paymentId?.id);
+            const data = payments.data;
+            if (data[0] && data[0]?.invoiceUrl) return data[0]?.invoiceUrl;
+         }
+
+         return paymentId.invoiceUrl;
       }
    }
 }

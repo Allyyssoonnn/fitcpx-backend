@@ -25,7 +25,7 @@ export class PaymentAPI {
          }
          return await response.json();
       } catch (error: any) {
-         console.error("Erro fetchJson:", error.message);
+         console.error(`Erro fetchJson: ${url}`, error.message);
          return error;
       }
    }
@@ -192,7 +192,7 @@ export class PaymentAPI {
    async findInvoice(id: string) {
       const url = `${this.coreURL}/v3/payments/${id}`;
       const options = {
-         method: "POST",
+         method: "GET",
          headers: { accept: "application/json", "content-type": "application/json", access_token: this.token },
       };
 
@@ -205,7 +205,23 @@ export class PaymentAPI {
       try {
          const url = `${this.coreURL}/v3/subscriptions/${SignatureId}`;
          const options = {
-            method: "POST",
+            method: "GET",
+            headers: { accept: "application/json", "content-type": "application/json", access_token: this.token },
+         };
+
+         const resp = await this.fetchJson(url, options);
+
+         return resp;
+      } catch (error) {
+         return null;
+      }
+   }
+
+   async findInovicesSignature(SignatureId: string) {
+      try {
+         const url = `${this.coreURL}/v3/subscriptions/${SignatureId}/payments`;
+         const options = {
+            method: "GET",
             headers: { accept: "application/json", "content-type": "application/json", access_token: this.token },
          };
 
@@ -278,7 +294,9 @@ export class PaymentAPI {
          return resp;
       }
 
-      resp = await this.deleteInstallment(id);
+      if (id.substring(0, 4) !== "pay_" && id.substring(0, 4) !== "sub_") {
+         resp = await this.deleteInstallment(id);
+      }
 
       return resp;
    }
