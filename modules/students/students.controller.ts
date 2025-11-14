@@ -45,9 +45,12 @@ export class StudentsController {
          storage: multer.memoryStorage(),
       })
    )
-   async updateImageUser(@Headers() header: any, @UploadedFile() fileBuffer: Express.Multer.File) {
-      const { cod_aluno } = header;
-      return this.studentsService.updateImageUser(cod_aluno, fileBuffer);
+   async updateImageUser(
+      @Headers() header: any,
+      @UploadedFile() fileBuffer: Express.Multer.File,
+      @Query("studentId") studentId: string
+   ) {
+      return this.studentsService.updateImageUser(studentId, fileBuffer);
    }
 
    @Post("updatePassword")
