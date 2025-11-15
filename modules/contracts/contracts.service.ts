@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, Injectable } from "@nestjs/common";
 import moment from "moment-timezone";
 import puppeteer from "puppeteer";
 import { CompaniesRepository } from "../companies/companies.repository";
@@ -53,12 +53,47 @@ export class ContractsService {
       } = plano;
       let company = (await this.companiesRepository.findById(companyId)) as any;
 
+      // *** INICIALIZA AS VARIAVEIS
+
+      const initialDate = pagamentoInicial
+         ? moment.tz(pagamentoInicial, "America/Sao_Paulo")
+         : moment.tz(new Date(), "America/Sao_Paulo");
+      const resumoParcelas = JSON.parse(parcela_plano);
+      const duration = resumoParcelas.length;
+      const value = formaPagamento === "RECORRENTE" && duration > 0 ? resumoParcelas[0] : valor_plano;
+      const installmentsCount = formaPagamento === "UNICA" || formaPagamento === "PARCELADO" ? installments : null;
+
+      const description = modalidades
+         .map(
+            (m: any) =>
+               `${m.modalidade?.nome_modalidade}${
+                  m.variacao?.nome_modalidade_variacao ? ` - ${m.variacao?.nome_modalidade_variacao}` : ""
+               }`
+         )
+         .join(", ");
+
+      // *** REUNE INFORMACOES DO ALUNO
+      let student = (await this.studentsService.findById(cod_aluno, companyId)) as any;
+
+      const customer: CustomerPaymentService = {
+         name: student.nome_aluno,
+         address: student.endereco_aluno,
+         cep: student.cep_aluno,
+         doc: student.cpf_aluno,
+         email: student.email_aluno,
+         externalId: cod_aluno,
+         number: student.numero_aluno,
+         phone: student.telefone_aluno,
+         state: student.estado_aluno,
+         customerId: student.asaas_id,
+      };
+
       let contractDB = await this.contractsRepository.createOrUpdateContract(
          {
             cod_aluno: cod_aluno,
             cod_usuario: userId,
             cod_empresa: companyId,
-            nome_aluno_contrato: nome_plano ?? `Contrato ${moment().format("DD/MM/YYYY")}`,
+            nome_aluno_contrato: nome_plano ?? description ?? `Contrato ${moment().format("DD/MM/YYYY")}`,
             iniciopagamento_aluno_contrato: pagamentoInicial,
             adesao_aluno_contrato: valor_adesao,
             parcela_aluno_contrato: parcela_plano,
@@ -76,24 +111,40 @@ export class ContractsService {
          modalidades
       );
 
+      const response = await this.paymentsService.createPayment(
+         customer,
+         formaPagamento,
+         typePayment == "CREDIT" ? "CREDIT_CARD" : typePayment,
+         contractDB.cod_aluno_contrato,
+         value,
+         installmentsCount != null ? Number(installmentsCount) : null,
+         parcela_plano,
+         String(initialDate),
+         description,
+         valor_adesao,
+         `${companyId}_${company.nome_empresa}`,
+         juros_atraso,
+         multa_moratoria
+      );
+
+      if (response?.errors) {
+         this.contractsRepository.deleteById(contractDB.cod_aluno_contrato);
+         let concatError = "";
+         for (const error of response?.errors) {
+            concatError = concatError + `${error.description}\n`;
+         }
+         throw new HttpException(concatError, 403);
+      }
+
+      // *** ATUALIZA EXTERNALREFERENCE PARA O WORKER UTILIZAR
+      if (contractDB.cod_aluno_contrato && response) {
+         await this.contractsRepository.createOrUpdateContract(
+            { asaas_id: response, cod_aluno_contrato: contractDB.cod_aluno_contrato },
+            []
+         );
+      }
+
       const contract = (await this.contractsRepository.findById(contractDB.cod_aluno_contrato)) as any;
-
-      const initialDate = contract.iniciopagamento_aluno_contrato
-         ? moment.tz(contract.iniciopagamento_aluno_contrato, "America/Sao_Paulo")
-         : moment.tz(new Date(), "America/Sao_Paulo");
-      const resumoParcelas = JSON.parse(contract?.parcela_aluno_contrato);
-      const duration = resumoParcelas.length;
-      const value = formaPagamento === "RECORRENTE" && duration > 0 ? resumoParcelas[0] : contract.total_aluno_contrato;
-      const installmentsCount = formaPagamento === "UNICA" || formaPagamento === "PARCELADO" ? installments : null;
-
-      const description = contract.modalidades
-         .map(
-            (m: any) =>
-               `${m.modalidade.nome_modalidade}${
-                  m.variacao?.nome_modalidade_variacao ? ` - ${m.variacao?.nome_modalidade_variacao}` : ""
-               }`
-         )
-         .join(", ");
 
       await this.contractsRepository.createOrUpdateContract(
          {
@@ -107,20 +158,7 @@ export class ContractsService {
          []
       );
 
-      let student = (await this.studentsService.findById(cod_aluno, companyId)) as any;
-
-      const customer: CustomerPaymentService = {
-         name: student.nome_aluno,
-         address: student.endereco_aluno,
-         cep: student.cep_aluno,
-         doc: student.cpf_aluno,
-         email: student.email_aluno,
-         externalId: cod_aluno,
-         number: student.numero_aluno,
-         phone: student.telefone_aluno,
-         state: student.estado_aluno,
-         customerId: student.asaas_id,
-      };
+      // *** CRIA CONTRATO NO AUTENTIQUE
 
       if (contrato) {
          const browser = await puppeteer.launch({
@@ -153,21 +191,7 @@ export class ContractsService {
          await this.eventsService.newContract(student.cod_aluno);
       }
 
-      return this.paymentsService.createPayment(
-         customer,
-         formaPagamento,
-         typePayment == "CREDIT" ? "CREDIT_CARD" : typePayment,
-         contractDB.cod_aluno_contrato,
-         value,
-         installmentsCount != null ? Number(installmentsCount) : null,
-         parcela_plano,
-         String(initialDate),
-         description,
-         valor_adesao,
-         `${companyId}_${company.nome_empresa}`,
-         juros_atraso,
-         multa_moratoria
-      );
+      return response;
    }
 
    async downloadContract(documentId: string, signed: boolean) {
