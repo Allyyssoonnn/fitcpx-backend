@@ -2,6 +2,8 @@ import { Body, Controller, Get, Post, UploadedFile, UseInterceptors } from "@nes
 import { FileInterceptor } from "@nestjs/platform-express";
 import multer from "multer";
 import { CompanyId } from "../../shared/decorators/companyId.decorator";
+import { UserId } from "../../shared/decorators/userId.decorator";
+import { genTokenUserAuth } from "../../shared/utils/token";
 import { CompaniesService } from "./companies.service";
 
 @Controller("companies")
@@ -39,8 +41,10 @@ export class CompaniesController {
    }
 
    @Post("cancelCompanyLicense")
-   async cancelLicense(@CompanyId() companyId: string, @Body("licenseId") licenseId: string) {
-      return this.companiesService.cancelAllCompanyLicenses(companyId);
+   async cancelLicense(@CompanyId() companyId: string, @Body("licenseId") licenseId: string, @UserId() userId: string) {
+      await this.companiesService.cancelAllCompanyLicenses(companyId);
+      const { token, refreshToken, license } = await genTokenUserAuth(userId, companyId);
+      return { token, refreshToken, license };
    }
 
    @Get("getDashboardInfo")

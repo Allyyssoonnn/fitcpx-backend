@@ -111,6 +111,106 @@ export class WorkoutsRepository {
       });
    }
 
+   async findOne(workoutId: string) {
+      const workout = await db.tab_treino.findOne({
+         where: { cod_treino: workoutId },
+         include: [
+            {
+               model: db.tab_usuario,
+               as: "usuario",
+            },
+            {
+               model: db.tab_aluno,
+               as: "aluno",
+            },
+            {
+               model: db.tab_sessao,
+               as: "sessoes",
+               include: [
+                  {
+                     model: db.tab_sessao_exercicio,
+                     as: "exercicios",
+                     include: [
+                        {
+                           model: db.tab_exercicio,
+                           as: "exercicio",
+                           include: [
+                              {
+                                 model: db.tab_exercicios_empresa,
+                                 as: "exercicio_empresa",
+                                 required: false,
+                                 attributes: [],
+                              },
+                              {
+                                 model: db.tab_grupo_exercicio,
+                                 as: "grupo_exercicio_1",
+                              },
+                           ],
+                           attributes: {
+                              include: [
+                                 [
+                                    Sequelize.literal(
+                                       `COALESCE(\`sessoes->exercicios->exercicio->exercicio_empresa\`.\`url_exercicio_empresa\`, \`sessoes->exercicios->exercicio\`.\`url_exercicio\`)`
+                                    ),
+                                    "url_exercicio",
+                                 ],
+                              ],
+                           },
+                        },
+                     ],
+                     order: [["sequencia_sessao_exercicio", "ASC"]],
+                  },
+               ],
+               order: [["sequencia_sessao", "ASC"]],
+            },
+         ],
+      });
+
+      if (!workout) return;
+
+      let workoutFlat = workout.toJSON();
+
+      let sessionSorted = [...workoutFlat.sessoes].sort((a, b) => a.sequencia_sessao - b.sequencia_sessao);
+
+      return {
+         ...workoutFlat,
+         qtd_sessoes: sessionSorted?.length ?? 0,
+         sessoes: sessionSorted.map((session) => {
+            const exercisesSorted = [...session.exercicios].sort(
+               (a, b) => a.sequencia_sessao_exercicios - b.sequencia_sessao_exercicios
+            );
+
+            const grouped = {} as any;
+
+            exercisesSorted.forEach((exercise: any) => {
+               const sequencia = exercise.sequencia_sessao_exercicio as any;
+
+               if (!grouped[sequencia]) {
+                  grouped[sequencia] = {
+                     ...exercise.exercicio,
+                     ...exercise,
+                     sets: [],
+                  };
+               } else {
+                  grouped[sequencia].sets.push({
+                     ...exercise.exercicio,
+                     ...exercise,
+                  });
+               }
+            });
+
+            return {
+               ...session,
+               exercicios: Object.values(grouped).map((exercise: any) => ({
+                  ...exercise.exercicio,
+                  ...exercise,
+                  sets: exercise.sets || [],
+               })),
+            };
+         }),
+      };
+   }
+
    async count(companyId: string) {
       return await db.tab_treino.count({ where: { cod_empresa: companyId } });
    }

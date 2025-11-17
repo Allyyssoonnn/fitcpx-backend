@@ -151,29 +151,8 @@ function formulaGordura_Siri(densidade: number): number {
 /**
  * Protocolo 2: 18-55 anos - Jackson, Pollock e Ward - (1980)
  */
-function calculaDensidade_Petroski_2(avaliacao: IAvaliacao, idade: number): number {
-   const alturaCm = Number(avaliacao.altura) <= 3 ? Number(avaliacao.altura) * 100 : Number(avaliacao.altura);
+function calculaDensidade_Jackson_Pollock_Ward_2(avaliacao: IAvaliacao, idade: number): number {
    const somaCampos =
-      Number(avaliacao.subescapular) +
-      Number(avaliacao.triciptal) +
-      Number(avaliacao.supra_iliaca) +
-      Number(avaliacao.coxa);
-
-   return (
-      1.02902361 -
-      0.00067159 * somaCampos +
-      0.00000242 * Math.pow(somaCampos, 2) -
-      0.00026073 * Number(idade) -
-      0.00056009 * avaliacao.peso +
-      0.00054649 * alturaCm
-   );
-}
-
-/**
- * Protocolo 4: 18-61 anos - Jackson e Pollock - (1978)
- */
-function calculaDensidade_JacksonPollock_4(avaliacao: IAvaliacao): number {
-   const soma =
       Number(avaliacao.subescapular) +
       Number(avaliacao.triciptal) +
       Number(avaliacao.peitoral) +
@@ -182,10 +161,23 @@ function calculaDensidade_JacksonPollock_4(avaliacao: IAvaliacao): number {
       Number(avaliacao.abdominal) +
       Number(avaliacao.coxa);
 
-   const pAbdomen = Number(avaliacao.abdomen);
-   const pAntebraco = Number(avaliacao.antebraco_direito);
+   return 1.097 - 0.00046971 * somaCampos + 0.00000056 * somaCampos ** 2 - 0.00012828 * Number(idade);
+}
 
-   return 1.101 - 0.0004115 * soma - 0.00000069 * Math.pow(soma, 2) - 0.00059239 * pAbdomen + 0.000190631 * pAntebraco;
+/**
+ * Protocolo 4: 18-61 anos - Jackson e Pollock - (1978)
+ */
+function calculaDensidade_JacksonPollock_4(avaliacao: IAvaliacao, idade: number): number {
+   const soma =
+      Number(avaliacao.peitoral) +
+      Number(avaliacao.axilar_media) +
+      Number(avaliacao.triciptal) +
+      Number(avaliacao.subescapular) +
+      Number(avaliacao.abdominal) +
+      Number(avaliacao.supra_iliaca) +
+      Number(avaliacao.coxa);
+
+   return 1.112 - 0.00043499 * soma + 0.00000055 * Math.pow(soma, 2) - 0.00028826 * idade;
 }
 
 /**
@@ -197,10 +189,10 @@ function calculaDensidade(aluno: IAluno, avaliacao: IAvaliacao): number {
 
    switch (avaliacao.cod_protocolo) {
       case 2:
-         densidade = calculaDensidade_Petroski_2(avaliacao, idade);
+         densidade = calculaDensidade_Jackson_Pollock_Ward_2(avaliacao, idade);
          break;
       case 4:
-         densidade = calculaDensidade_JacksonPollock_4(avaliacao);
+         densidade = calculaDensidade_JacksonPollock_4(avaliacao, idade);
          break;
       default:
          // Protocolos 3, 5 e Default não usam densidade,
@@ -221,7 +213,7 @@ function calculaDensidade(aluno: IAluno, avaliacao: IAvaliacao): number {
 function protocoloGordura_RechSantosSilva_3(avaliacao: IAvaliacao, idade: number): number {
    const soma = Number(avaliacao.supra_iliaca) + Number(avaliacao.peitoral) + Number(avaliacao.coxa);
    const primeiroTermo = 0.368352 * soma;
-   const segundoTermo = Math.pow(0.001153 * soma, 2);
+   const segundoTermo = 0.001153 * Math.pow(soma, 2);
    const terceiroTermo = 0.153198 * idade;
    return 10.927073 + primeiroTermo - segundoTermo + terceiroTermo;
 }

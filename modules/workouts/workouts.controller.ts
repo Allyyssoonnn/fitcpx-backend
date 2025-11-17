@@ -66,4 +66,9 @@ export class WorkoutsController {
    async getMovementPatterns(@Query("lang") lang: string) {
       return this.workoutsService.getMovementPatterns(lang);
    }
+
+   @Get(":id")
+   async getOne(@Param("id") id: string) {
+      return this.workoutsService.getWorkout(id);
+   }
 }

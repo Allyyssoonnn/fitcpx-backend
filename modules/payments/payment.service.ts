@@ -67,6 +67,7 @@ export class PaymentService {
 
          return this.paymentsRepository.createPaymentsStudents(payments);
       }
+      let asaasId = null;
 
       let apiId = customer.customerId;
 
@@ -100,7 +101,7 @@ export class PaymentService {
          // * CRIA A COBRANCA DE ADESAO
 
          const dueDateHiring = moment(dueDate);
-         const respAsaas = await this.paymentAPI.createPayment(
+         await this.paymentAPI.createPayment(
             apiId ?? null,
             externalId,
             initialPayment,
@@ -111,32 +112,9 @@ export class PaymentService {
             interestPercentage,
             finePercentage
          );
-
-         if (respAsaas.id) {
-            let descont = Number((respAsaas?.value * (1 - 4.99 / 100)).toFixed(2));
-
-            if (respAsaas.billingType === "CREDIT_CARD")
-               descont = Number((respAsaas?.value * (1 - 4.99 / 100)).toFixed(2)); //4,99%
-            if (respAsaas.billingType === "PIX") descont = Number((respAsaas?.value - 4.0).toFixed(2)); //$4,00
-            if (respAsaas.billingType === "BOLETO") descont = Number((respAsaas?.value - 4.0).toFixed(2)); //$4,00
-            await this.paymentsRepository.createPaymentsStudents([
-               {
-                  cod_aluno_contrato: externalId,
-                  asaas_id: respAsaas.id,
-                  asaas_url: respAsaas.invoiceUrl,
-                  json_aluno_contrato_pagamento: JSON.stringify(respAsaas),
-                  jsonwebhook_aluno_contrato_pagamento: JSON.stringify(respAsaas),
-                  status_aluno_contrato_pagamento: "Pending",
-                  valor_aluno_contrato_pagamento: respAsaas.value,
-                  liquido_aluno_contrato_pagamento: descont,
-                  forma_aluno_contrato_pagamento: respAsaas.billingType,
-                  data_aluno_contrato_pagamento: respAsaas.dateCreated,
-                  expiracao_aluno_contrato_pagamento: respAsaas.dueDate,
-               },
-            ]);
-         }
       }
 
+      // *** SOMENTE LICENCA
       if (billingType === "UNDEFINED") {
          if (cycle && cycle > 1) {
             return await this.paymentAPI.createPayment(
@@ -179,7 +157,7 @@ export class PaymentService {
             interestPercentage,
             finePercentage
          );
-         if (respAsaas.id) await this.contractsRepository.updateApiId(externalId, respAsaas.id);
+         if (respAsaas.id) asaasId = respAsaas.id;
       } else {
          // * OUTROS FORMAS DE PAGAMENTO
          JSON.parse(installments).map(async (parcela: number, i: number) => {
@@ -198,34 +176,11 @@ export class PaymentService {
                interestPercentage,
                finePercentage
             );
-
-            if (respAsaas.id) {
-               let descont = Number((respAsaas?.value * (1 - 4.99 / 100)).toFixed(2)) as number;
-
-               if (respAsaas.billingType === "CREDIT_CARD")
-                  descont = Number((respAsaas?.value * (1 - 4.99 / 100)).toFixed(2)); //4,99%
-               if (respAsaas.billingType === "PIX") descont = Number((respAsaas?.value - 4.0).toFixed(2)); //$4,00
-               if (respAsaas.billingType === "BOLETO") descont = Number((respAsaas?.value - 4.0).toFixed(2)); //$4,00
-               await this.paymentsRepository.createPaymentsStudents([
-                  {
-                     cod_aluno_contrato: externalId,
-                     asaas_id: respAsaas.id,
-                     asaas_url: respAsaas.invoiceUrl,
-                     json_aluno_contrato_pagamento: JSON.stringify(respAsaas),
-                     jsonwebhook_aluno_contrato_pagamento: JSON.stringify(respAsaas),
-                     status_aluno_contrato_pagamento: "Pending",
-                     valor_aluno_contrato_pagamento: respAsaas.value,
-                     liquido_aluno_contrato_pagamento: descont,
-                     forma_aluno_contrato_pagamento: respAsaas.billingType,
-                     data_aluno_contrato_pagamento: respAsaas.dateCreated,
-                     expiracao_aluno_contrato_pagamento: respAsaas.dueDate,
-                  },
-               ]);
-            }
+            if (respAsaas.id) asaasId = respAsaas.id;
          });
       }
 
-      return apiId;
+      return asaasId;
    }
 
    async markPaymentReceived(paymentId: string) {
@@ -245,5 +200,9 @@ export class PaymentService {
 
    async deleteInvoice(paymentId: string) {
       return this.paymentAPI.deleteInoice(paymentId);
+   }
+
+   async findInovicesSignature(subscriptionId: string) {
+      return this.paymentAPI.findInovicesSignature(subscriptionId);
    }
 }

@@ -50,7 +50,21 @@ export class ChatRepository {
          replacements: { companyId },
          include: [{ model: db.tab_aluno, as: "student", attributes: ["nome_aluno"] }],
          attributes: {
-            include: [[db.Sequelize.col("student.nome_aluno"), "studentName"]],
+            include: [
+               [db.Sequelize.col("student.nome_aluno"), "studentName"],
+               [
+                  db.Sequelize.literal(`(
+                  SELECT COUNT(*)
+                  FROM \`${chatTable}\` AS c2
+                  WHERE 
+                     c2.\`studentId\` = \`${chatTable}\`.\`studentId\`
+                     AND c2.\`companyId\` = :companyId
+                     AND c2.\`from\` = 'student'
+                     AND c2.\`status\` = 'unread'
+               )`),
+                  "unreadCount",
+               ],
+            ],
          },
          group: ["chat.studentId", "student.nome_aluno"],
          raw: true,
@@ -58,11 +72,15 @@ export class ChatRepository {
       });
    }
 
-   async countUnreadMessages(studentId?: string) {
+   async countUnreadMessages(studentId?: string, companyId?: string) {
       var where = { status: "unread" } as any;
       if (studentId) {
          where.studentId = studentId;
          where.from = "company";
+      }
+      if (companyId) {
+         where.companyId = companyId;
+         where.from = "student";
       }
       return await db.chat.count({ where });
    }

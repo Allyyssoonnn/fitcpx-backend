@@ -17,4 +17,8 @@ export class ChatService {
    async registerUserMessage(userId: string, companyId: string, message: string, studentId: string) {
       return this.chatRepository.create(message, companyId, studentId, "company", userId);
    }
+
+   async getUnreadMessages(companyId: string, studentId: string) {
+      return this.chatRepository.countUnreadMessages(studentId, companyId);
+   }
 }

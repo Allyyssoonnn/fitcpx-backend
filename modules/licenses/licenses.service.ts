@@ -1,5 +1,6 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import moment from "moment-timezone";
+import { genTokenUserAuth } from "../../shared/utils/token";
 import { CompaniesRepository } from "../companies/companies.repository";
 import { CompaniesService } from "../companies/companies.service";
 import { CustomerPaymentService, PaymentService } from "../payments/payment.service";
@@ -37,7 +38,7 @@ export class LicensesService {
       return this.companiesRepository.applyCoupon(companyId, coupon, dueDate);
    }
 
-   async buyLicense(companyId: string, licenseId: string) {
+   async buyLicense(companyId: string, licenseId: string, userId: string) {
       const company = (await this.companiesService.getById(companyId)) as any;
       const license = (await this.licensesRepository.findById(licenseId)) as any;
 
@@ -108,10 +109,24 @@ export class LicensesService {
 
          throw new HttpException("Error to process the payment", 403);
       } else {
-         return await this.companiesService.createOrUpdateCompanyLicense({
+         await this.companiesService.createOrUpdateCompanyLicense({
             ...companyLicense.dataValues,
-            asaas_id: paymentId.id,
+            asaas_id: paymentId?.installment ?? paymentId?.id,
          });
+
+         var url;
+
+         if (paymentId?.object === "subscription") {
+            const payments = await this.paymentService.findInovicesSignature(paymentId?.id);
+            const data = payments.data;
+            if (data[0] && data[0]?.invoiceUrl) url = data[0]?.invoiceUrl;
+         }
+
+         url = paymentId.invoiceUrl;
+
+         const { token, refreshToken, license } = await genTokenUserAuth(userId, companyId);
+
+         return { token, refreshToken, license, url };
       }
    }
 }
