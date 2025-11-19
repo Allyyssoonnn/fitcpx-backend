@@ -21,10 +21,11 @@ export class PhysicalAssessmentsService {
    }
 
    createOrUpdate = async (data: any) => {
-      const dataCleaned = Object.fromEntries(Object.entries(data).filter(([_, v]) => v != null && v !== "")) as any;
-      const response = (await this.physicalAssessmentsRepository.createOrUpdate(dataCleaned)) as any;
-      if (!dataCleaned?.cod_avaliacao && dataCleaned?.cod_aluno && response?.cod_avaliacao) {
-         await this.eventsService.newPhysicalAssessment(dataCleaned.cod_aluno);
+      // *** ESTAVA REMOVENDO DADOS, NÃO APAGAVA NADA NA EDIÇÃO
+      // const dataCleaned = Object.fromEntries(Object.entries(data).filter(([_, v]) => v != null && v !== "")) as any;
+      const response = (await this.physicalAssessmentsRepository.createOrUpdate(data)) as any;
+      if (!data?.cod_avaliacao && data?.cod_aluno && response?.cod_avaliacao) {
+         await this.eventsService.newPhysicalAssessment(data.cod_aluno);
       }
       return response;
    };
