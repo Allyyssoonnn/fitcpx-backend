@@ -13,6 +13,7 @@ import { PaymentsRepository } from "../payments/payments.repository";
 import { StorageAPI } from "../storage/storage.api";
 import { StorageService } from "../storage/storage.service";
 import { StudentsRepository } from "../students/students.repository";
+import { WorkoutsRepository } from "../workouts/workouts.repository";
 import { CompaniesController } from "./companies.controller";
 import { CompaniesRepository } from "./companies.repository";
 import { CompaniesService } from "./companies.service";
@@ -28,6 +29,7 @@ import { CompaniesService } from "./companies.service";
       PaymentAPI,
       PaymentsRepository,
       StudentsRepository,
+      WorkoutsRepository,
       ContractsRepository,
       NotificationsService,
       NotificationsAPI,

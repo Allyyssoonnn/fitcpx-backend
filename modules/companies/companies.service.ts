@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { PaymentService } from "../payments/payment.service";
 import { StorageService } from "../storage/storage.service";
+import { WorkoutsRepository } from "../workouts/workouts.repository";
 import { CompaniesRepository } from "./companies.repository";
 const dev = process.env.NODE_ENV !== "production";
 
@@ -8,6 +9,7 @@ const dev = process.env.NODE_ENV !== "production";
 export class CompaniesService {
    constructor(
       private readonly companiesRepository: CompaniesRepository,
+      private readonly workoutsRepository: WorkoutsRepository,
       private readonly storageService: StorageService,
       private readonly paymentService: PaymentService
    ) {}
@@ -83,12 +85,20 @@ export class CompaniesService {
          "numero_empresa",
       ];
       const company = (await this.companiesRepository.findById(companyId)) as any;
+      const workouts = await this.workoutsRepository.count(companyId);
 
       tours.push({
          title: "Configuração inicial",
          description: "Conclua a Configuração inicial para aproveitar todo sistema",
          complete: fieldsValidation.every((element: any) => company?.[element]),
          tourName: "config",
+      });
+
+      tours.push({
+         title: "Cadastre um treino",
+         description: "Cadastre seu primeiro treino de base",
+         complete: !!workouts,
+         tourName: "workout",
       });
 
       return tours;

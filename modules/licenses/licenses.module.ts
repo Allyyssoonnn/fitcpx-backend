@@ -15,6 +15,7 @@ import { PaymentsRepository } from "../payments/payments.repository";
 import { StorageAPI } from "../storage/storage.api";
 import { StorageService } from "../storage/storage.service";
 import { StudentsRepository } from "../students/students.repository";
+import { WorkoutsRepository } from "../workouts/workouts.repository";
 import { LicensesController } from "./licenses.controller";
 import { LicensesRepository } from "./licenses.repository";
 import { LicensesService } from "./licenses.service";
@@ -26,6 +27,7 @@ import { LicensesService } from "./licenses.service";
       LicensesService,
       CompaniesService,
       CompaniesRepository,
+      WorkoutsRepository,
       PaymentService,
       PaymentAPI,
       StorageService,
