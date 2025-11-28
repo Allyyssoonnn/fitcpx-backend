@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { EventsService } from "../events/events.service";
 import { StorageService } from "../storage/storage.service";
 import { PhysicalAssessmentsRepository } from "./physicalAssessments.repository";
-const dev = process.env.NODE_ENV !== "production";
 
 @Injectable()
 export class PhysicalAssessmentsService {
@@ -53,14 +52,15 @@ export class PhysicalAssessmentsService {
 
       const images = [];
 
-      for (const fileBuffer of filesBuffer) {
-         const key = `${dev ? "developer/" : ""}aluno/avaliacao/${Date.now()}_${fileBuffer.originalname}`;
-         const url = await this.storageService.uploadFile(fileBuffer, key);
+      //Apenas salva pois o controller envia direto para o S3
+      for (const file of filesBuffer as any[]) {
+         const url = file.location;
+
          if (url) {
             images.push({
                url_imagem: url,
-               descricao_imagem: fileBuffer.originalname.split("[")[1].split("]")[0],
-               tamanho_imagem: fileBuffer.originalname.split("(")[1].split(")")[0],
+               descricao_imagem: file.originalname.split("[")[1].split("]")[0],
+               tamanho_imagem: file.originalname.split("(")[1].split(")")[0],
                cod_avaliacao: physicalAssessmentId,
             });
          }
