@@ -116,13 +116,13 @@ export class LicensesService {
 
          var url;
 
+         url = paymentId.invoiceUrl;
+
          if (paymentId?.object === "subscription") {
             const payments = await this.paymentService.findInovicesSignature(paymentId?.id);
             const data = payments.data;
             if (data[0] && data[0]?.invoiceUrl) url = data[0]?.invoiceUrl;
          }
-
-         url = paymentId.invoiceUrl;
 
          const { token, refreshToken, license } = await genTokenUserAuth(userId, companyId);
 
