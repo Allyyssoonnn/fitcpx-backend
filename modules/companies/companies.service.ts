@@ -47,10 +47,13 @@ export class CompaniesService {
    async cancelAllCompanyLicenses(companyId: string) {
       const companyLicenses = await this.companiesRepository.findAllCompaniesLicenses(companyId);
       for (const companyLicense of companyLicenses as any) {
-         if (companyLicense.asaas_id) await this.paymentService.deleteSignatureOrInstallment(companyLicense.asaas_id);
-         if (companyLicense?.payments && companyLicense.payments.length > 0) {
-            for (const payment of companyLicense.payments) {
-               if (payment.asaas_id) await this.paymentService.deleteInvoice(payment.asaas_id);
+         if (companyLicense.status_empresa_licenca === "Active") {
+            if (companyLicense.asaas_id)
+               await this.paymentService.deleteSignatureOrInstallment(companyLicense.asaas_id);
+            if (companyLicense?.payments && companyLicense.payments.length > 0) {
+               for (const payment of companyLicense.payments) {
+                  if (payment.asaas_id) await this.paymentService.deleteInvoice(payment.asaas_id);
+               }
             }
          }
       }
