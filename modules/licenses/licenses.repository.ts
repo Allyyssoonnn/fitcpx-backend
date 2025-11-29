@@ -10,10 +10,18 @@ export class LicensesRepository {
             include: [[Sequelize.literal(`daysleft_register_licenca - ${daysAfterCompanyCreated}`), "daysLeft"]],
          },
          where: {
-            [Op.or]: [
-               { visivel_licenca: "S" },
-               { daysleft_register_licenca: { [Op.gte]: daysAfterCompanyCreated } },
-               coupon ? { cupom_licenca: coupon } : {},
+            [Op.and]: [
+               // due_licenca não venceu OU é null
+               {
+                  [Op.or]: [{ due_licenca: { [Op.gte]: Sequelize.fn("NOW") } }, { due_licenca: null }],
+               },
+               {
+                  [Op.or]: [
+                     { visivel_licenca: "S" },
+                     { daysleft_register_licenca: { [Op.gte]: daysAfterCompanyCreated } },
+                     coupon ? { cupom_licenca: coupon } : {},
+                  ],
+               },
             ],
          },
          raw: true,

@@ -64,6 +64,11 @@ module.exports = {
             type: Sequelize.DataTypes.STRING,
             defaultValue: null,
          },
+         due_licenca: {
+            allowNull: true,
+            type: Sequelize.DataTypes.DATE,
+            defaultValue: null,
+         },
          createdAt: {
             allowNull: false,
             type: Sequelize.DataTypes.DATE,

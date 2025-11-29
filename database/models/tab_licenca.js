@@ -59,6 +59,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: null,
          },
+         due_licenca: {
+            type: DataTypes.DATE,
+            allowNull: true,
+            defaultValue: null,
+         },
          deletedAt: {
             type: DataTypes.DATE,
             allowNull: true,
