@@ -16,7 +16,12 @@ const PORT = port;
 // server.use(cors({ origin: "*", credentials: true }));
 server.use(
    cors({
-      origin: ["http://localhost:5173", "https://apptest.fitcpx.com", "https://app.fitcpx.com"],
+      origin: [
+         "http://localhost:5173",
+         "https://apptest.fitcpx.com",
+         "https://app.fitcpx.com",
+         "https://box.fitcpx.com",
+      ],
       credentials: true,
    })
 );
