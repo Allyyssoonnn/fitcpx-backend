@@ -20,8 +20,8 @@ export class AdminService {
       private readonly contractsRepository: ContractsRepository
    ) {}
 
-   async getNewClientsDashboard() {
-      return this.companiesRepository.getNewClientsDashboardByMonth();
+   async getNewClientsDashboard(year?: number) {
+      return this.adminRepository.getNewClientsDashboardByMonth(year);
    }
 
    async getFinanceDashboard() {
@@ -29,7 +29,7 @@ export class AdminService {
    }
 
    async getClients() {
-      return this.companiesRepository.findAll();
+      return this.adminRepository.getClients();
    }
 
    async getClientInfo(companyId: string) {

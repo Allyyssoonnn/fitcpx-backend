@@ -22,8 +22,8 @@ export class AdminController {
    }
 
    @Get("getNewClientsDashboard")
-   async getNewClientsDashboard() {
-      return this.adminService.getNewClientsDashboard();
+   async getNewClientsDashboard(@Query("year") year: string) {
+      return this.adminService.getNewClientsDashboard(year ? Number(year) : undefined);
    }
 
    @Get("getLicensesClients")

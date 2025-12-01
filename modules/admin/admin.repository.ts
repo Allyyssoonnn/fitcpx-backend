@@ -4,6 +4,14 @@ import db from "../../database/models";
 
 @Injectable()
 export class AdminRepository {
+   async getClients() {
+      return await db.tab_empresa.findAll({
+         include: [
+            { model: db.tab_empresa_licenca, as: "licenses", include: [{ model: db.tab_licenca, as: "licenca" }] },
+         ],
+      });
+   }
+
    async findLicensePayments(companyId: string, startDate: string, endDate: string) {
       return db.tab_aluno_contrato_pagamento.findAll({
          include: [
@@ -26,5 +34,75 @@ export class AdminRepository {
             },
          },
       });
+   }
+
+   async getNewClientsDashboardByMonth(year?: number) {
+      const monthsArr: string[] = [];
+      console.log(year);
+
+      const yearQuery = year ?? 2025;
+
+      // Criar array dos últimos 12 meses (abreviação Jan, Feb...)
+      for (let i = 0; i < 12; i++) {
+         const d = new Date(yearQuery, i, 1);
+         const month = d.toLocaleString("en-US", { month: "short" }).toLowerCase();
+         monthsArr.push(month);
+      }
+
+      // Inicializar objeto com 0
+      const newsClients: Record<string, { trials: number; payments: number; noPayments: number }> = {};
+      monthsArr.forEach((m) => {
+         newsClients[m] = { trials: 0, payments: 0, noPayments: 0 };
+      });
+
+      // Buscar todas empresas com licenças e pagamentos
+      const companies = (await db.tab_empresa.findAll({
+         attributes: ["createdAt"],
+         include: [
+            {
+               model: db.tab_empresa_licenca,
+               as: "licenses",
+               attributes: ["createdAt"],
+               include: [
+                  {
+                     model: db.tab_empresa_licenca_pagamento,
+                     as: "payments",
+                     attributes: ["status_empresa_licenca_pagamento", "createdAt"],
+                  },
+               ],
+            },
+         ],
+      })) as any[];
+
+      companies.forEach((company) => {
+         const createdAt = new Date(company.createdAt);
+         const companyMonth = createdAt.toLocaleString("en-US", { month: "short" }).toLowerCase();
+         const companyYear = createdAt.getFullYear();
+
+         if (companyYear !== yearQuery) return; // ignorar se não for do ano selecionado
+
+         const licenses = company.licenses || [];
+
+         // 1️⃣ TRIAL → sem licença
+         if (licenses.length === 0) {
+            newsClients[companyMonth].trials++;
+            return;
+         }
+
+         // 2️⃣ PAYMENTS → pelo menos um pagamento succeeded
+         const hasSucceededPayment = licenses.some(
+            (l: any) => l.payments && l.payments.some((p: any) => p.status_empresa_licenca_pagamento === "succeeded")
+         );
+
+         if (hasSucceededPayment) {
+            newsClients[companyMonth].payments++;
+            return;
+         }
+
+         // 3️⃣ NO PAYMENTS → tem licença, mas nenhum succeeded
+         newsClients[companyMonth].noPayments++;
+      });
+
+      return newsClients;
    }
 }
