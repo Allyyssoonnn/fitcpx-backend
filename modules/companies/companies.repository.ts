@@ -27,6 +27,10 @@ export class CompaniesRepository {
       return await db.tab_empresa.update({ asaas_id: apiId }, { where: { cod_empresa: companyId } });
    }
 
+   async updateCRMId(companyId: string, crmID: string | null) {
+      return await db.tab_empresa.update({ crm_id: crmID }, { where: { cod_empresa: companyId } });
+   }
+
    async applyCoupon(companyId: string, coupon: string | null, dueDate?: string) {
       var dueDateInsert = dueDate ? dueDate : null;
       return await db.tab_empresa.update(
