@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, Headers, Param, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import multer from "multer";
 import { CompanyId } from "../../shared/decorators/companyId.decorator";
@@ -31,9 +31,9 @@ export class UsersController {
    }
 
    @Post("refreshToken")
-   async refreshToken(@Body() body: { refreshToken: string }) {
+   async refreshToken(@Body() body: { refreshToken: string }, @Headers("user-agent") userAgent?: string) {
       const { refreshToken } = body;
-      return this.usersService.refreshToken(refreshToken);
+      return this.usersService.refreshToken(refreshToken, userAgent);
    }
 
    @Post("register")

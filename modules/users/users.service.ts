@@ -43,7 +43,7 @@ export class UsersService {
       return { token, refreshToken, usuario: user, empresa: empresa, license };
    };
 
-   async refreshToken(refreshTokenReq: string) {
+   async refreshToken(refreshTokenReq: string, userAgent?: string) {
       //if development mode
       if (dev && refreshTokenReq === process.env.DEV_TOKEN) {
          const userOne = (await this.usersRepository.findById("1")) as any;

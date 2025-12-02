@@ -5,7 +5,7 @@ const crypto = require("crypto");
 // * Generate JWT and Refresh Token when user logs in
 // * Token expiration in 7 hours
 // * Refresh Token expiration in 7 days
-export async function genTokenUserAuth(cod_usuario: string, cod_empresa: string, req: any = null) {
+export async function genTokenUserAuth(cod_usuario: string, cod_empresa: string, userAgent?: string | null) {
    // * Fetch latest license and payment for the company
    const company = await tab_empresa.findByPk(cod_empresa, {
       include: [
@@ -57,8 +57,8 @@ export async function genTokenUserAuth(cod_usuario: string, cod_empresa: string,
    tab_refreshtoken_usuario.create({
       cod_usuario: cod_usuario,
       refreshtoken_usuario: refreshToken,
-      useragent_usuario: req?.headers["user-agent"] ?? null,
-      ip_usuario: req?.connection?.remoteAddress ?? null,
+      useragent_usuario: userAgent,
+      ip_usuario: null,
       expiresAt: expiresAt,
    });
 
