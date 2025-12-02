@@ -84,4 +84,8 @@ export class AdminService {
 
       return formatedPayments;
    }
+
+   async getRefreshTokens(date: string) {
+      return this.adminRepository.getRefreshTokens(date);
+   }
 }

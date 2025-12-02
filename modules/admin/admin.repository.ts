@@ -15,7 +15,6 @@ export class AdminRepository {
          company.studentCount = await db.tab_aluno.count({ where: { cod_empresa: company.cod_empresa } });
          company.workoutCount = await db.tab_treino.count({ where: { cod_empresa: company.cod_empresa } });
       }
-      console.log(companies[2]);
 
       return companies;
    }
@@ -44,9 +43,26 @@ export class AdminRepository {
       });
    }
 
+   async getRefreshTokens(date: string) {
+      const start = `${date} 00:00:00`;
+      const end = `${date} 23:59:59`;
+      return db.tab_refreshtoken_usuario.findAll({
+         where: {
+            createdAt: {
+               [Op.between]: [start, end],
+            },
+         },
+         include: [
+            {
+               model: db.tab_usuario,
+               as: "usuario",
+            },
+         ],
+      });
+   }
+
    async getNewClientsDashboardByMonth(year?: number) {
       const monthsArr: string[] = [];
-      console.log(year);
 
       const yearQuery = year ?? 2025;
 

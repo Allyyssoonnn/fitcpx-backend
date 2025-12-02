@@ -6,6 +6,11 @@ import { AdminService } from "./admin.service";
 export class AdminController {
    constructor(private readonly adminService: AdminService) {}
 
+   @Get("getRefreshTokens")
+   async getRefreshTokens(@Query("date") date: string) {
+      return this.adminService.getRefreshTokens(date);
+   }
+
    @Get("getClientInfo")
    async getClientInfo(@Query("companyId") companyId: string) {
       return this.adminService.getClientInfo(companyId);
