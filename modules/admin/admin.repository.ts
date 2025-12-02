@@ -5,11 +5,19 @@ import db from "../../database/models";
 @Injectable()
 export class AdminRepository {
    async getClients() {
-      return await db.tab_empresa.findAll({
+      const companiesRaw = await db.tab_empresa.findAll({
          include: [
             { model: db.tab_empresa_licenca, as: "licenses", include: [{ model: db.tab_licenca, as: "licenca" }] },
          ],
       });
+      const companies = companiesRaw.map((c) => c.get({ plain: true }));
+      for (const company of companies as any) {
+         company.studentCount = await db.tab_aluno.count({ where: { cod_empresa: company.cod_empresa } });
+         company.workoutCount = await db.tab_treino.count({ where: { cod_empresa: company.cod_empresa } });
+      }
+      console.log(companies[2]);
+
+      return companies;
    }
 
    async findLicensePayments(companyId: string, startDate: string, endDate: string) {
