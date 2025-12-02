@@ -36,6 +36,11 @@ export class AdminController {
       return this.adminService.getLicensesClients(companyId);
    }
 
+   @Get("getClient")
+   async getClient(@Query("companyId") companyId: string) {
+      return this.adminService.getClient(companyId);
+   }
+
    @SkipThrottle()
    @Get("clients")
    async getClients() {

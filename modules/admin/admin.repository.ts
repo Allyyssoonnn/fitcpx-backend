@@ -4,10 +4,50 @@ import db from "../../database/models";
 
 @Injectable()
 export class AdminRepository {
+   async getClient(companyId: string) {
+      const companyRaw = await db.tab_empresa.findOne({
+         where: { cod_empresa: companyId },
+         include: [
+            {
+               model: db.tab_empresa_licenca,
+               as: "licenses",
+               include: [
+                  { model: db.tab_licenca, as: "licenca" },
+                  { model: db.tab_empresa_licenca_pagamento, as: "payments" },
+               ],
+            },
+         ],
+      });
+      const company = companyRaw?.get({ plain: true });
+
+      company.studentCount = await db.tab_aluno.count({ where: { cod_empresa: company.cod_empresa } });
+      company.workoutCount = await db.tab_treino.count({ where: { cod_empresa: company.cod_empresa } });
+      company.accessHistory = await db.tab_refreshtoken_usuario.findAll({
+         limit: 20,
+         include: [
+            {
+               model: db.tab_usuario,
+               as: "usuario",
+               where: { cod_empresa: company.cod_empresa },
+            },
+         ],
+         order: [["cod_refreshtoken_usuario", "DESC"]],
+      });
+
+      return company;
+   }
+
    async getClients() {
       const companiesRaw = await db.tab_empresa.findAll({
          include: [
-            { model: db.tab_empresa_licenca, as: "licenses", include: [{ model: db.tab_licenca, as: "licenca" }] },
+            {
+               model: db.tab_empresa_licenca,
+               as: "licenses",
+               include: [
+                  { model: db.tab_licenca, as: "licenca" },
+                  { model: db.tab_empresa_licenca_pagamento, as: "payments" },
+               ],
+            },
          ],
       });
       const companies = companiesRaw.map((c) => c.get({ plain: true }));

@@ -32,6 +32,10 @@ export class AdminService {
       return this.adminRepository.getClients();
    }
 
+   async getClient(companyId: string) {
+      return this.adminRepository.getClient(companyId);
+   }
+
    async getClientInfo(companyId: string) {
       const qtdStudents = await this.studentsRepository.count(companyId);
       const qtdPhysicalAssessments = await this.physicalAssessmentsRepository.count(companyId);
