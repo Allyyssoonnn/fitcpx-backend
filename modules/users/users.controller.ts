@@ -25,9 +25,9 @@ export class UsersController {
    }
 
    @Post("login")
-   async login(@Body() body: { email: string; password: string }) {
+   async login(@Body() body: { email: string; password: string }, @Headers("user-agent") userAgent?: string) {
       const { email, password } = body;
-      return this.usersService.login(email, password);
+      return this.usersService.login(email, password, userAgent);
    }
 
    @Post("refreshToken")

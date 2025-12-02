@@ -30,7 +30,7 @@ export class UsersService {
       return await this.usersRepository.createOrUpdate(data);
    };
 
-   login = async (email: string, password: string) => {
+   login = async (email: string, password: string, userAgent?: string) => {
       const user = (await this.usersRepository.findByEmail(email)) as any;
       const empresa = await new CompaniesRepository().findById(user?.cod_empresa);
 
@@ -38,7 +38,7 @@ export class UsersService {
          throw new HttpException("Credenciais inválidas.", 401);
       }
 
-      const { token, refreshToken, license } = await genTokenUserAuth(user.cod_usuario, user.cod_empresa);
+      const { token, refreshToken, license } = await genTokenUserAuth(user.cod_usuario, user.cod_empresa, userAgent);
 
       return { token, refreshToken, usuario: user, empresa: empresa, license };
    };
@@ -64,7 +64,7 @@ export class UsersService {
       const user = (await this.usersRepository.findById(refreshTokenDB?.cod_usuario)) as any;
       const company = (await this.companiesRepository.findById(user?.cod_empresa)) as any;
 
-      const { token, refreshToken, license } = await genTokenUserAuth(user.cod_usuario, user.cod_empresa);
+      const { token, refreshToken, license } = await genTokenUserAuth(user.cod_usuario, user.cod_empresa, userAgent);
       await this.usersRepository.deleteRefreshToken(refreshTokenReq);
 
       return { license, token, refreshToken, usuario: user, empresa: company };
@@ -95,12 +95,12 @@ export class UsersService {
       })) as any;
 
       // *** CRM - Create Contact
-      if (newCompany?.cod_empresa) {
-         const crmResponse = await this.crmAPI.createContact(newCompany.cod_empresa, phone, name);
-         if (crmResponse?.id) {
-            await companiesRepository.updateCRMId(newCompany.cod_empresa, crmResponse.id);
-         }
-      }
+      // if (newCompany?.cod_empresa) {
+      //    const crmResponse = await this.crmAPI.createContact(newCompany.cod_empresa, phone, name);
+      //    if (crmResponse?.id) {
+      //       await companiesRepository.updateCRMId(newCompany.cod_empresa, crmResponse.id);
+      //    }
+      // }
       // *** CRM - Create Contact
 
       const newUser = (await this.usersRepository.createOrUpdate({
