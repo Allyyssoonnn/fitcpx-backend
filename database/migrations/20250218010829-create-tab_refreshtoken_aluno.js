@@ -30,6 +30,11 @@ module.exports = {
             type: Sequelize.DataTypes.STRING,
             allowNull: true,
          },
+         expiresAt: {
+            allowNull: true,
+            type: Sequelize.DataTypes.DATE,
+            defaultValue: null,
+         },
          createdAt: {
             allowNull: false,
             type: Sequelize.DataTypes.DATE,
@@ -39,11 +44,6 @@ module.exports = {
             type: Sequelize.DataTypes.DATE,
          },
          deletedAt: {
-            allowNull: true,
-            type: Sequelize.DataTypes.DATE,
-            defaultValue: null,
-         },
-         expiresAt: {
             allowNull: true,
             type: Sequelize.DataTypes.DATE,
             defaultValue: null,

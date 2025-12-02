@@ -63,6 +63,7 @@ export class UsersService {
       const company = (await this.companiesRepository.findById(user?.cod_empresa)) as any;
 
       const { token, refreshToken, license } = await genTokenUserAuth(user.cod_usuario, user.cod_empresa);
+      await this.usersRepository.deleteRefreshToken(refreshTokenReq);
 
       return { license, token, refreshToken, usuario: user, empresa: company };
    }
