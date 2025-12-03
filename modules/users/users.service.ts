@@ -70,7 +70,7 @@ export class UsersService {
       return { license, token, refreshToken, usuario: user, empresa: company };
    }
 
-   register = async (name: string, email: string, password: string, phone: string) => {
+   register = async (name: string, email: string, password: string, phone: string, userAgent?: string) => {
       const companiesRepository = new CompaniesRepository();
 
       const company = await companiesRepository.findByEmail(email);
@@ -112,7 +112,11 @@ export class UsersService {
          admin_usuario: "S",
       })) as any;
 
-      const { token, refreshToken, license } = await genTokenUserAuth(newUser?.cod_usuario, newCompany.cod_empresa);
+      const { token, refreshToken, license } = await genTokenUserAuth(
+         newUser?.cod_usuario,
+         newCompany.cod_empresa,
+         userAgent
+      );
 
       return { token, refreshToken, usuario: newUser, empresa: newCompany, license };
    };

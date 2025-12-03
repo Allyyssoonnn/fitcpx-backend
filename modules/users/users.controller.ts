@@ -37,9 +37,12 @@ export class UsersController {
    }
 
    @Post("register")
-   async register(@Body() body: { name: string; email: string; password: string; phone: string }) {
+   async register(
+      @Body() body: { name: string; email: string; password: string; phone: string },
+      @Headers("user-agent") userAgent?: string
+   ) {
       const { name, email, password, phone } = body;
-      return this.usersService.register(name, email, password, phone);
+      return this.usersService.register(name, email, password, phone, userAgent);
    }
 
    @Post("recoveryAccount")
