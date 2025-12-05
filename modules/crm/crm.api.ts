@@ -1,9 +1,12 @@
-const tokenAPI = "[REDACTED_CREDENTIAL]";
+const instanceTokenRaw = "[REDACTED_CREDENTIAL]";
+const instanceNameRaw = "FitCpx";
 
 export class CRMAPI {
-   token: string | undefined;
+   instanceToken: string | undefined;
+   instanceName: string | undefined;
    constructor() {
-      this.token = tokenAPI;
+      this.instanceToken = instanceTokenRaw;
+      this.instanceName = instanceNameRaw;
    }
 
    async fetchJson(url: string, options: any) {
@@ -21,23 +24,46 @@ export class CRMAPI {
       }
    }
 
-   async createContact(companyId: number, number: string, name: string) {
-      const body = {
-         companyId,
-         number,
-         name,
-         orders: {
-            pipeline: "Comercial",
-            step: "Entrada",
+   async sendMessage(number: string, message: string, delay: number = 3000) {
+      const url = `https://evo.fitcpx.com/message/sendText/${this.instanceName}`;
+      const options = {
+         method: "POST",
+         headers: {
+            apikey: this.instanceToken,
+            "Content-Type": "application/json",
          },
+         body: JSON.stringify({
+            number: number,
+            text: message,
+            delay: delay,
+            linkPreview: true,
+            // mentionsEveryOne: true,
+            // mentioned: ["{{remoteJID}}"],
+            // quoted: { key: { id: "<string>" }, message: { conversation: "<string>" } },
+         }),
       };
+
+      return await this.fetchJson(url, options);
+
+      // fetch("https://evo.fitcpx.com/message/sendText/Alyson", options)
+      //    .then((res) => res.json())
+      //    .then((res) => console.log(res))
+      //    .catch((err) => console.error(err));
+   }
+
+   async checkIsWhatsapp(numberRaw: string) {
+      const number = numberRaw.replace(/\D+/g, "");
+      const url = `https://evo.fitcpx.com/chat/whatsappNumbers/${this.instanceName}`;
 
       const options = {
          method: "POST",
-         headers: { accept: "application/json", "content-type": "application/json", "api-key": this.token },
-         body: JSON.stringify(body),
+         headers: { apikey: "123", "Content-Type": "application/json" },
+         body: JSON.stringify({ numbers: [number] }),
       };
 
-      return await this.fetchJson("https://api.genecrm.com.br/api/contact", options);
+      const response = await this.fetchJson(url, options);
+
+      if (response && response[0] && response[0].exists) return response[0].exists;
+      return false;
    }
 }

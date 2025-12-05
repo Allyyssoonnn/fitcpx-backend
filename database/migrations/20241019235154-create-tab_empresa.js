@@ -130,6 +130,11 @@ module.exports = {
             type: Sequelize.DataTypes.STRING,
             defaultValue: null,
          },
+         crmStepId: {
+            allowNull: true,
+            type: Sequelize.DataTypes.STRING,
+            defaultValue: 1,
+         },
          dev_walletid_empresa: {
             allowNull: true,
             type: Sequelize.DataTypes.STRING,

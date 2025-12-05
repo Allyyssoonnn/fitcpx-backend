@@ -11,6 +11,12 @@ const getMessageError = require("../utils/errors-message");
 const allowedRoutes = [
    "/companies/cancelCompanyLicense",
    "/admin/getClientInfo",
+   "/crm/createOrEditAutomation",
+   "/crm/deleteAutomation",
+   "/crm/getAutomations",
+   "/crm/getStages",
+   "/crm/getPipelines",
+   "/crm/onChangeStep",
    "/admin/getClient",
    "/admin/clients",
    "/admin/test",

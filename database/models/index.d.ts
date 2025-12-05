@@ -44,6 +44,9 @@ interface Db {
    tab_exercicios_empresa: ModelStatic<Model>;
    errors: ModelStatic<Model>;
    chat: ModelStatic<Model>;
+   crm_automations: ModelStatic<Model>;
+   crm_pipelines: ModelStatic<Model>;
+   crm_pipeline_stages: ModelStatic<Model>;
 }
 
 declare const db: Db;

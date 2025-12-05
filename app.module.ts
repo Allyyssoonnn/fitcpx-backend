@@ -7,6 +7,7 @@ import { ChatModule } from "./modules/chat/chat.module";
 import { CompaniesModule } from "./modules/companies/companies.module";
 import { ContractsModule } from "./modules/contracts/contracts.module";
 import { ContractsTemplatesModule } from "./modules/contractsTemplates/contractsTemplates.module";
+import { CRMModule } from "./modules/crm/crm.module";
 import { EventsModule } from "./modules/events/events.module";
 import { ExercisesModule } from "./modules/exercises/exercises.module";
 import { GoogleModule } from "./modules/google/google.module";
@@ -57,6 +58,7 @@ import { WorkoutsModule } from "./modules/workouts/workouts.module";
       EventsModule,
       AdminModule,
       ChatModule,
+      CRMModule,
    ],
 })
 export class AppModule {}
