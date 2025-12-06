@@ -92,4 +92,8 @@ export class AdminService {
    async getRefreshTokens(date: string) {
       return this.adminRepository.getRefreshTokens(date);
    }
+
+   async getClientsCount() {
+      return this.adminRepository.getClientsCount();
+   }
 }

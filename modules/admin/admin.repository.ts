@@ -169,4 +169,52 @@ export class AdminRepository {
 
       return newsClients;
    }
+
+   async getClientsCount() {
+      const count = { trials: 0, payers: 0, noPayers: 0 };
+
+      // Buscar todas empresas com licenças e pagamentos
+      const companies = (await db.tab_empresa.findAll({
+         attributes: ["createdAt"],
+         include: [
+            {
+               model: db.tab_empresa_licenca,
+               as: "licenses",
+               attributes: ["createdAt"],
+               include: [
+                  {
+                     model: db.tab_empresa_licenca_pagamento,
+                     as: "payments",
+                     attributes: ["status_empresa_licenca_pagamento", "createdAt"],
+                  },
+               ],
+            },
+         ],
+      })) as any[];
+
+      companies.forEach((company) => {
+         const licenses = company.licenses || [];
+
+         // 1️⃣ TRIAL → sem licença
+         if (licenses.length === 0) {
+            count.trials++;
+            return;
+         }
+
+         // 2️⃣ PAYMENTS → pelo menos um pagamento succeeded
+         const hasSucceededPayment = licenses.some(
+            (l: any) => l.payments && l.payments.some((p: any) => p.status_empresa_licenca_pagamento === "succeeded")
+         );
+
+         if (hasSucceededPayment) {
+            count.payers++;
+            return;
+         }
+
+         // 3️⃣ NO PAYMENTS → tem licença, mas nenhum succeeded
+         count.noPayers++;
+      });
+
+      return count;
+   }
 }

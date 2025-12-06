@@ -26,6 +26,11 @@ export class AdminController {
       return this.adminService.getFinanceDashboard();
    }
 
+   @Get("getClientsCount")
+   async getClientsCount() {
+      return this.adminService.getClientsCount();
+   }
+
    @Get("getNewClientsDashboard")
    async getNewClientsDashboard(@Query("year") year: string) {
       return this.adminService.getNewClientsDashboard(year ? Number(year) : undefined);
