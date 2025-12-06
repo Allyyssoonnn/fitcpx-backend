@@ -198,14 +198,16 @@ export class AdminRepository {
 
          // 1️⃣ TRIAL → sem licença
          if (licenses.length === 0) {
-            if (!company.feedback) {
-               const diff = moment().diff(moment(company.createdAt), "days");
-               const isStale = diff > 7;
+            const diff = moment().diff(moment(company.createdAt), "days");
+            const isStale = diff > 7;
 
+            if (!company.feedback) {
                if (isStale) count.noFeedback++;
             }
 
-            count.trials++;
+            if (!isStale) {
+               count.trials++;
+            } else count.noPayers++;
             return;
          }
 
