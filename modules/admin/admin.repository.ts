@@ -195,16 +195,11 @@ export class AdminRepository {
 
       companies.forEach((company) => {
          const licenses = company.licenses || [];
+         const diff = moment().diff(moment(company.createdAt), "days");
+         const isStale = diff > 7;
 
          // 1️⃣ TRIAL → sem licença
          if (licenses.length === 0) {
-            const diff = moment().diff(moment(company.createdAt), "days");
-            const isStale = diff > 7;
-
-            if (!company.feedback) {
-               if (isStale) count.noFeedback++;
-            }
-
             if (!isStale) {
                count.trials++;
             } else count.noPayers++;
@@ -219,6 +214,10 @@ export class AdminRepository {
          if (hasSucceededPayment) {
             count.payers++;
             return;
+         }
+
+         if (!company.feedback) {
+            if (isStale) count.noFeedback++;
          }
 
          // 3️⃣ NO PAYMENTS → tem licença, mas nenhum succeeded
