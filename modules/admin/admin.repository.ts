@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import moment from "moment-timezone";
 import { Op } from "sequelize";
 import db from "../../database/models";
 
@@ -198,7 +199,10 @@ export class AdminRepository {
          // 1️⃣ TRIAL → sem licença
          if (licenses.length === 0) {
             if (!company.feedback) {
-               count.noFeedback++;
+               const diff = moment().diff(moment(company.createdAt), "days");
+               const isStale = diff > 7;
+
+               if (isStale) count.noFeedback++;
             }
 
             count.trials++;
