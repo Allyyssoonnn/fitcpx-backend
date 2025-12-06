@@ -29,4 +29,8 @@ export class CRMRepository {
    async onChangeStep(companyId: string, stageId: string) {
       return db.tab_empresa.update({ crmStepId: stageId }, { where: { cod_empresa: companyId } });
    }
+
+   async onSendFeedback(companyId: string, message: string) {
+      return db.tab_empresa.update({ feedback: message }, { where: { cod_empresa: companyId } });
+   }
 }

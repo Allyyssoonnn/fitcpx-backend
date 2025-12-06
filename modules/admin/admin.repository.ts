@@ -171,7 +171,7 @@ export class AdminRepository {
    }
 
    async getClientsCount() {
-      const count = { trials: 0, payers: 0, noPayers: 0 };
+      const count = { trials: 0, payers: 0, noPayers: 0, noFeedback: 0 };
 
       // Buscar todas empresas com licenças e pagamentos
       const companies = (await db.tab_empresa.findAll({
@@ -211,6 +211,9 @@ export class AdminRepository {
             return;
          }
 
+         if (!company.feedback) {
+            count.noFeedback++;
+         }
          // 3️⃣ NO PAYMENTS → tem licença, mas nenhum succeeded
          count.noPayers++;
       });

@@ -30,6 +30,11 @@ export class CRMController {
       return this.crmService.createOrEditAutomation(automation);
    }
 
+   @Post("onSendFeedback")
+   async onSendFeedback(@Query("companyId") companyId: string, @Body("message") message: string) {
+      return this.crmService.onSendFeedback(companyId, message);
+   }
+
    @Get("deleteAutomation")
    async deleteAutomation(@Query("automationId") automationId: string) {
       return this.crmService.deleteAutomation(automationId);

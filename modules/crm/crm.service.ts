@@ -48,6 +48,10 @@ export class CRMService {
       return this.crmRepository.getPipelines();
    }
 
+   async onSendFeedback(companyId: string, message: string) {
+      return this.crmRepository.onSendFeedback(companyId, message);
+   }
+
    async getStages(pipelineId: string) {
       return this.crmRepository.getStages(pipelineId);
    }

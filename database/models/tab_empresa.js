@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
          asaas_id: DataTypes.STRING,
          crm_id: DataTypes.STRING,
          crmStepId: DataTypes.STRING,
+         feedback: DataTypes.STRING,
          dev_walletid_empresa: DataTypes.STRING,
          dev_asaas_apikey: DataTypes.STRING,
          titular_banco_conta: DataTypes.STRING,
