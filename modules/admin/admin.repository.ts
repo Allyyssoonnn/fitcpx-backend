@@ -200,6 +200,10 @@ export class AdminRepository {
 
          // 1️⃣ TRIAL → sem licença
          if (licenses.length === 0) {
+            if (!company.feedback) {
+               if (isStale) count.noFeedback++;
+            }
+
             if (!isStale) {
                count.trials++;
             } else count.noPayers++;
