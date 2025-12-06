@@ -197,6 +197,10 @@ export class AdminRepository {
 
          // 1️⃣ TRIAL → sem licença
          if (licenses.length === 0) {
+            if (!company.feedback) {
+               count.noFeedback++;
+            }
+
             count.trials++;
             return;
          }
@@ -211,9 +215,6 @@ export class AdminRepository {
             return;
          }
 
-         if (!company.feedback) {
-            count.noFeedback++;
-         }
          // 3️⃣ NO PAYMENTS → tem licença, mas nenhum succeeded
          count.noPayers++;
       });
