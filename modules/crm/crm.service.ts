@@ -19,7 +19,7 @@ export class CRMService {
                const company = (await this.companiesRepository.findById(companyId)) as any;
                if (company.telefone_empresa && automation.message) {
                   var phone = company.telefone_empresa.replace(/\D/g, "");
-                  if (!phone.includes("+55")) phone = "+55" + phone;
+                  if (!phone.includes("55")) phone = "55" + phone;
                   this.crmApi.sendMessage(phone, automation.message, automation.delay);
                }
             }
