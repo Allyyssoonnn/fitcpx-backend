@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { genTokenUserAuth, genTokenUserRecoveryPassword, validateToken } from "../../shared/utils/token";
 import { CompaniesRepository } from "../companies/companies.repository";
-import { CRMAPI } from "../crm/crm.api";
+import { CRMService } from "../crm/crm.service";
 import { EventsService } from "../events/events.service";
 import { StorageService } from "../storage/storage.service";
 import { UsersRepository } from "./users.repository";
@@ -15,7 +15,7 @@ export class UsersService {
       private readonly companiesRepository: CompaniesRepository,
       private readonly eventsService: EventsService,
       private readonly storageService: StorageService,
-      private readonly crmAPI: CRMAPI
+      private readonly crmService: CRMService
    ) {}
 
    async getAll(companyId: string) {
@@ -94,14 +94,9 @@ export class UsersService {
          email_codigo: dev ? "1234" : emailCode,
       })) as any;
 
-      // *** CRM - Create Contact
-      // if (newCompany?.cod_empresa) {
-      //    const crmResponse = await this.crmAPI.createContact(newCompany.cod_empresa, phone, name);
-      //    if (crmResponse?.id) {
-      //       await companiesRepository.updateCRMId(newCompany.cod_empresa, crmResponse.id);
-      //    }
-      // }
-      // *** CRM - Create Contact
+      // *** CRM
+      this.crmService.onChangeStep(newCompany.cod_empresa, "1");
+      // *** CRM
 
       const newUser = (await this.usersRepository.createOrUpdate({
          nome_usuario: name,
