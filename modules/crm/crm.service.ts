@@ -41,8 +41,16 @@ export class CRMService {
       return await this.crmRepository.createOrEditAutomation(automation);
    }
 
+   async createOrEditStage(stage: any) {
+      return await this.crmRepository.createOrEditStage(stage);
+   }
+
    async deleteAutomation(automationId: string) {
       return await this.crmRepository.deleteAutomation(automationId);
+   }
+
+   async deleteStage(stageId: string) {
+      return await this.crmRepository.deleteStage(stageId);
    }
 
    async getPipelines() {
@@ -55,5 +63,12 @@ export class CRMService {
 
    async getStages(pipelineId: string) {
       return this.crmRepository.getStages(pipelineId);
+   }
+
+   async reorderStages(stages: any[]) {
+      for (let i = 0; i < stages.length; i++) {
+         await this.crmRepository.updateSequence(stages[i].id, (i + 1).toString());
+      }
+      return true;
    }
 }

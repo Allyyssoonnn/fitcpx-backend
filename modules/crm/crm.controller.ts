@@ -39,4 +39,19 @@ export class CRMController {
    async deleteAutomation(@Query("automationId") automationId: string) {
       return this.crmService.deleteAutomation(automationId);
    }
+
+   @Post("reorderStages")
+   async reorderStages(@Body("stages") stages: any[]) {
+      return this.crmService.reorderStages(stages);
+   }
+
+   @Post("createOrEditStage")
+   async createOrEditStage(@Body("stage") stage: any) {
+      return this.crmService.createOrEditStage(stage);
+   }
+
+   @Get("deleteStage")
+   async deleteStage(@Query("stageId") stageId: string) {
+      return this.crmService.deleteStage(stageId);
+   }
 }

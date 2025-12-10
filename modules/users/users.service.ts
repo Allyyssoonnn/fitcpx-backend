@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { genTokenUserAuth, genTokenUserRecoveryPassword, validateToken } from "../../shared/utils/token";
 import { CompaniesRepository } from "../companies/companies.repository";
+import { CRMRepository } from "../crm/crm.repository";
 import { CRMService } from "../crm/crm.service";
 import { EventsService } from "../events/events.service";
 import { StorageService } from "../storage/storage.service";
@@ -15,7 +16,8 @@ export class UsersService {
       private readonly companiesRepository: CompaniesRepository,
       private readonly eventsService: EventsService,
       private readonly storageService: StorageService,
-      private readonly crmService: CRMService
+      private readonly crmService: CRMService,
+      private readonly crmRepository: CRMRepository
    ) {}
 
    async getAll(companyId: string) {
@@ -89,12 +91,15 @@ export class UsersService {
 
       // this.mailsService.confirmationCode(name, email, emailCode);
 
+      const stages = (await this.crmRepository.getStages("1")) as any;
+
       const newCompany = (await companiesRepository.createOrUpdate({
          nome_empresa: name,
          telefone_empresa: phoneFormatted,
          status_empresa: "Active",
          email_empresa: email,
          email_codigo: dev ? "1234" : emailCode,
+         crmStepId: stages[0].id ?? "1",
       })) as any;
 
       // *** CRM
