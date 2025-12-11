@@ -54,36 +54,30 @@ export class AdminService {
       return this.companiesRepository.findAllCompaniesLicenses(companyId);
    }
 
-   async printPayout(companyId: string) {
-      function getPayoutDay(day: number) {
-         if (day < 10) return 30;
-         if (day < 20) return 10;
-         if (day < 30) return 20;
-         return 30;
-      }
-      const today = moment();
-
-      const payoutDay = getPayoutDay(today.date());
-      const month = today.month();
-
-      const initialDate = moment({
-         day: payoutDay - 9,
-         month,
-         year: today.year(),
-      }).format("YYYY-MM-DD");
-
-      const endDate = moment({
-         day: payoutDay,
-         month,
-         year: today.year(),
-      }).format("YYYY-MM-DD");
+   async printPayout(companyId: string, startDate: string, endDate: string) {
+      const initialDateRaw = moment(startDate);
+      const initialDate = startDate;
+      const endDateRaw = moment(endDate);
 
       const payments = await this.adminRepository.findLicensePayments(companyId, initialDate, endDate);
 
-      const formatedPayments = payments.map((v: any) => ({
-         name: v.contract.aluno.nome_aluno,
-         date: moment(JSON.parse(v.jsonwebhook_aluno_contrato_pagamento).paymentDate).format("DD/MM/YYYY"),
-         amount: `R$ ${String(v.liquido_aluno_contrato_pagamento).replace(".", ",")}`,
+      const paymentsFiltered = payments.filter(
+         (p: any) =>
+            !!p.jsonwebhook_aluno_contrato_pagamento &&
+            !!JSON.parse(p.jsonwebhook_aluno_contrato_pagamento)?.estimatedCreditDate &&
+            moment(JSON.parse(p.jsonwebhook_aluno_contrato_pagamento).estimatedCreditDate) > initialDateRaw &&
+            moment(JSON.parse(p.jsonwebhook_aluno_contrato_pagamento).estimatedCreditDate) <= endDateRaw
+      );
+
+      const formatedPayments = paymentsFiltered.map((v: any) => ({
+         name: v.contract?.aluno?.nome_aluno,
+         date: moment(JSON.parse(v.jsonwebhook_aluno_contrato_pagamento).estimatedCreditDate).format("DD/MM/YYYY"),
+         amount: v.liquido_aluno_contrato_pagamento,
+         value: JSON.parse(v.jsonwebhook_aluno_contrato_pagamento).value,
+         netValue: JSON.parse(v.jsonwebhook_aluno_contrato_pagamento).netValue,
+         status: v.status_aluno_contrato_pagamento,
+         url: v.asaas_url,
+         paymentId: v.asaas_id,
       }));
 
       return formatedPayments;

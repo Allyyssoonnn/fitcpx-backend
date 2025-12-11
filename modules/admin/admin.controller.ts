@@ -17,8 +17,13 @@ export class AdminController {
    }
 
    @Get("printPayout")
-   async printPayout(@Query("companyId") companyId: string) {
-      return this.adminService.printPayout(companyId);
+   async printPayout(
+      @Query("companyId") companyId: string,
+      @Query("startDate") startDate: string,
+      @Query("endDate") endDate: string,
+      @Query() query: any
+   ) {
+      return this.adminService.printPayout(companyId, startDate, endDate);
    }
 
    @Get("getFinanceDashboard")

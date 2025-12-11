@@ -77,9 +77,9 @@ export class AdminRepository {
             },
          ],
          where: {
-            repasse_aluno_contrato_pagamento: {
-               [Op.between]: [startDate, endDate],
-            },
+            // data_aluno_contrato_pagamento: {
+            //    [Op.between]: [startDate, endDate],
+            // },
          },
       });
    }
