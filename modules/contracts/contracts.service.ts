@@ -93,7 +93,7 @@ export class ContractsService {
             cod_aluno: cod_aluno,
             cod_usuario: userId,
             cod_empresa: companyId,
-            nome_aluno_contrato: nome_plano ?? description ?? `Contrato ${moment().format("DD/MM/YYYY")}`,
+            nome_aluno_contrato: nome_plano ? nome_plano : description,
             iniciopagamento_aluno_contrato: pagamentoInicial,
             adesao_aluno_contrato: valor_adesao,
             parcela_aluno_contrato: parcela_plano,
