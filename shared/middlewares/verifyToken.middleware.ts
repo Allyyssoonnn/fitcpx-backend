@@ -14,6 +14,7 @@ const allowedRoutes = [
    "/admin/getClientsCount",
    "/crm/createOrEditAutomation",
    "/crm/createOrEditStage",
+   "/crm/onSendFeedback",
    "/crm/deleteStage",
    "/crm/reorderStages",
    "/crm/deleteAutomation",
