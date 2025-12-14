@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import moment from "moment-timezone";
+import { getNextPayoutDate, getStartDateFromPayout } from "../../utils/global";
 import { CompaniesRepository } from "../companies/companies.repository";
 import { ContractsRepository } from "../contracts/contracts.repository";
 import { EventsService } from "../events/events.service";
@@ -30,6 +31,51 @@ export class PaymentService {
       private readonly contractsRepository: ContractsRepository,
       private readonly eventsService: EventsService
    ) {}
+
+   async getNextPayout(companyId: string) {
+      // 1. Calcular as datas de referência apenas UMA vez
+      // Se não passar endDate, calculamos o próximo payout
+      const defaultNextPayout = getNextPayoutDate();
+
+      // BUG FIX: Se startDate existir, usamos moment(startDate), senão calculamos baseado no payout
+      const startMoment = moment(getStartDateFromPayout(defaultNextPayout));
+
+      const endMoment = moment(defaultNextPayout);
+
+      // Ajuste fino: para garantir que pegue o dia todo, costuma-se usar startOf e endOf
+      // startMoment.startOf('day');
+      // endMoment.endOf('day');
+
+      const response = {
+         value: 0,
+         date: defaultNextPayout.toLocaleDateString("pt-BR"), // Mantemos a data calculada originalmente
+      };
+
+      const payments = await this.paymentsRepository.findPayments(companyId);
+
+      // 3. Iteração Otimizada com for...of (mais legível e performático que map mal usado)
+      for (const p of payments as any) {
+         // Validação básica se existe o JSON
+         if (!p.jsonwebhook_aluno_contrato_pagamento) continue;
+
+         try {
+            const metaData = JSON.parse(p.jsonwebhook_aluno_contrato_pagamento);
+            if (!metaData?.estimatedCreditDate) continue;
+
+            const creditDate = moment(metaData.estimatedCreditDate);
+            // Comparação de datas com Moment
+            // Logica: data > inicial E data <= final
+            if (creditDate.isAfter(startMoment) && creditDate.isSameOrBefore(endMoment)) {
+               // Converte para Number para evitar concatenação de strings acidental
+               response.value += Number(p.liquido_aluno_contrato_pagamento || 0);
+            }
+         } catch (error) {
+            console.error("Erro ao processar JSON do pagamento", p.id, error);
+         }
+      }
+
+      return response;
+   }
 
    async createPayment(
       customer: CustomerPaymentService,

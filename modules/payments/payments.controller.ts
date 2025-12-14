@@ -1,4 +1,5 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post } from "@nestjs/common";
+import { CompanyId } from "../../shared/decorators/companyId.decorator";
 import { PaymentService } from "./payment.service";
 
 @Controller("payments")
@@ -9,5 +10,10 @@ export class PaymentsController {
    async markPaymentReceived(@Body() body: any) {
       const { paymentId } = body;
       return this.paymentsService.markPaymentReceived(paymentId);
+   }
+
+   @Get("getNextPayout")
+   async getNextPayout(@CompanyId() companyId: string) {
+      return this.paymentsService.getNextPayout(companyId);
    }
 }

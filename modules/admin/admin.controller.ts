@@ -20,8 +20,7 @@ export class AdminController {
    async printPayout(
       @Query("companyId") companyId: string,
       @Query("startDate") startDate: string,
-      @Query("endDate") endDate: string,
-      @Query() query: any
+      @Query("endDate") endDate: string
    ) {
       return this.adminService.printPayout(companyId, startDate, endDate);
    }
