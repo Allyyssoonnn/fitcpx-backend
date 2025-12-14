@@ -71,4 +71,23 @@ export class PaymentsRepository {
    async findByPaymentId(id: string) {
       return db.tab_aluno_contrato_pagamento.findOne({ where: { asaas_id: id } });
    }
+
+   async findPayments(companyId: string) {
+      return db.tab_aluno_contrato_pagamento.findAll({
+         include: [
+            {
+               paranoid: false,
+               model: db.tab_aluno_contrato,
+               as: "contract",
+               where: { cod_empresa: companyId },
+               include: [
+                  {
+                     model: db.tab_aluno,
+                     as: "aluno",
+                  },
+               ],
+            },
+         ],
+      });
+   }
 }
