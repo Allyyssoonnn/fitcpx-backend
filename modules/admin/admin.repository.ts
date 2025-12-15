@@ -212,7 +212,13 @@ export class AdminRepository {
 
          // 2️⃣ PAYMENTS → pelo menos um pagamento succeeded
          const hasSucceededPayment = licenses.some(
-            (l: any) => l.payments && l.payments.some((p: any) => p.status_empresa_licenca_pagamento === "succeeded")
+            (l: any) =>
+               l.payments &&
+               l.payments.some(
+                  (p: any) =>
+                     p.status_empresa_licenca_pagamento === "succeeded" ||
+                     p.status_empresa_licenca_pagamento === "confirmed"
+               )
          );
 
          if (hasSucceededPayment) {
