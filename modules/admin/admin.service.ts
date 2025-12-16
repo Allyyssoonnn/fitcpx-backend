@@ -78,6 +78,7 @@ export class AdminService {
          status: v.status_aluno_contrato_pagamento,
          url: v.asaas_url,
          paymentId: v.asaas_id,
+         id: v.cod_aluno_contrato_pagamento,
       }));
 
       return formatedPayments;
