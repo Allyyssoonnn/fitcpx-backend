@@ -32,6 +32,10 @@ export class PaymentService {
       private readonly eventsService: EventsService
    ) {}
 
+   async getPayouts(companyId: string, date: string) {
+      return this.paymentsRepository.findPayouts(companyId, date);
+   }
+
    async getNextPayout(companyId: string) {
       // 1. Calcular as datas de referência apenas UMA vez
       // Se não passar endDate, calculamos o próximo payout

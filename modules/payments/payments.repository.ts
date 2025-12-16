@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { Op } from "sequelize";
 import db from "../../database/models";
 
 @Injectable()
@@ -89,5 +90,27 @@ export class PaymentsRepository {
             },
          ],
       });
+   }
+
+   async findPayouts(companyId: string, date: string) {
+      const inputDate = new Date(date);
+      const startOfMonth = new Date(inputDate.getFullYear(), inputDate.getMonth(), 1);
+      const startOfNextMonth = new Date(inputDate.getFullYear(), inputDate.getMonth() + 1, 1);
+      const test = await db.payouts.findAll({
+         include: [
+            {
+               model: db.payout_payments,
+               as: "payments",
+            },
+         ],
+         where: {
+            companyId,
+            date: {
+               [Op.gte]: startOfMonth,
+               [Op.lt]: startOfNextMonth,
+            },
+         },
+      });
+      return test;
    }
 }

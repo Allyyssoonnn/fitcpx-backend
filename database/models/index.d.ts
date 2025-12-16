@@ -47,6 +47,8 @@ interface Db {
    crm_automations: ModelStatic<Model>;
    crm_pipelines: ModelStatic<Model>;
    crm_pipeline_stages: ModelStatic<Model>;
+   payouts: ModelStatic<Model>;
+   payout_payments: ModelStatic<Model>;
 }
 
 declare const db: Db;
