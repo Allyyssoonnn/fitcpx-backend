@@ -101,6 +101,24 @@ export class PaymentsRepository {
             {
                model: db.payout_payments,
                as: "payments",
+               include: [
+                  {
+                     model: db.tab_aluno_contrato_pagamento,
+                     as: "payment",
+                     include: [
+                        {
+                           model: db.tab_aluno_contrato,
+                           as: "contract",
+                           include: [
+                              {
+                                 model: db.tab_aluno,
+                                 as: "aluno",
+                              },
+                           ],
+                        },
+                     ],
+                  },
+               ],
             },
          ],
          where: {

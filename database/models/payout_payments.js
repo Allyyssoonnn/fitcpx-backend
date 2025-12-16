@@ -45,6 +45,10 @@ module.exports = (sequelize, DataTypes) => {
          foreignKey: "payoutId",
          as: "payout",
       });
+      payout_payments.belongsTo(models.tab_aluno_contrato_pagamento, {
+         foreignKey: "contractPaymentId",
+         as: "payment",
+      });
    };
 
    return payout_payments;
