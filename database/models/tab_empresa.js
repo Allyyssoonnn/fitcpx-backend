@@ -36,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
          numero_banco_conta: DataTypes.STRING,
          presets_treino_inteligente: DataTypes.TEXT,
          cupom_empresa_licenca: DataTypes.STRING,
+         notifications_config: DataTypes.STRING,
          expiracaocupom_empresa_licenca: DataTypes.DATEONLY,
       },
       {

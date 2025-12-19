@@ -133,4 +133,12 @@ export class CompaniesService {
 
       return [];
    }
+
+   async saveNotificationsConfig(companyId: string, notifications: string) {
+      return await this.companiesRepository.saveNotificationsConfig(companyId, notifications);
+   }
+
+   async getNotificationsConfig(companyId?: string, studentId?: string) {
+      return await this.companiesRepository.getNotificationsConfig(companyId, studentId);
+   }
 }

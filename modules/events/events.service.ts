@@ -31,83 +31,128 @@ export class EventsService {
    }
 
    async newWorkout(studentId: string) {
-      return await this.notificationsService.sendPushNotification(
-         "Novo Treino Disponível",
-         "Seu treinador acabou de liberar um novo treino para você. Vamos lá?",
-         "workout",
-         studentId
-      );
+      if (await this.companiesRepository.verifyStudentNotificationConfig("workoutCreated", "app", studentId)) {
+         return await this.notificationsService.sendPushNotification(
+            "Novo Treino Disponível",
+            "Seu treinador acabou de liberar um novo treino para você. Vamos lá?",
+            "workout",
+            studentId
+         );
+      }
    }
 
    async newEvent(studentId: string) {
-      return await this.notificationsService.sendPushNotification(
-         "Novo Evento Agendado",
-         "Seu treinador acabou de agendar um evento para você",
-         "calendar",
-         studentId
-      );
+      if (await this.companiesRepository.verifyStudentNotificationConfig("eventCreated", "app", studentId)) {
+         return await this.notificationsService.sendPushNotification(
+            "Novo Evento Agendado",
+            "Seu treinador acabou de agendar um evento para você",
+            "calendar",
+            studentId
+         );
+      }
    }
 
    async newPhysicalAssessment(studentId: string) {
-      await this.notificationsService.sendPushNotification(
-         "Nova Avaliação Física",
-         "Uma nova avaliação física foi adicionada",
-         "physicalAssessment",
-         studentId
-      );
+      if (
+         await this.companiesRepository.verifyStudentNotificationConfig("physicalAssessmentCreated", "app", studentId)
+      ) {
+         await this.notificationsService.sendPushNotification(
+            "Nova Avaliação Física",
+            "Uma nova avaliação física foi adicionada",
+            "physicalAssessment",
+            studentId
+         );
+      }
    }
 
    async newContract(studentId: string) {
-      await this.notificationsService.sendPushNotification(
-         "Novo plano contratado",
-         "Seu novo plano foi contratado com sucesso e já está ativo",
-         "contract",
-         studentId
-      );
+      if (await this.companiesRepository.verifyStudentNotificationConfig("contractCreated", "app", studentId)) {
+         await this.notificationsService.sendPushNotification(
+            "Novo plano contratado",
+            "Seu novo plano foi contratado com sucesso e já está ativo",
+            "contract",
+            studentId
+         );
+      }
    }
 
    async overduePayment(paymentId: string) {
       const response = (await this.paymentsRepository.findById(paymentId)) as any;
       if (response?.contract?.cod_aluno) {
-         return await this.notificationsService.sendPushNotification(
-            "Pagamento pendente",
-            "Identificamos um pagamento vencido referente ao seu plano",
-            "contract",
-            response.contract.cod_aluno
-         );
+         if (
+            await this.companiesRepository.verifyStudentNotificationConfig(
+               "invoiceOverdue",
+               "app",
+               response?.contract?.cod_aluno
+            )
+         ) {
+            return await this.notificationsService.sendPushNotification(
+               "Pagamento pendente",
+               "Identificamos um pagamento vencido referente ao seu plano",
+               "contract",
+               response.contract.cod_aluno
+            );
+         }
+         if (
+            await this.companiesRepository.verifyStudentNotificationConfig(
+               "invoiceOverdue",
+               "whatsapp",
+               response?.contract?.cod_aluno
+            )
+         ) {
+            //
+         }
       }
    }
 
    async createdPayment(paymentId: string) {
       const response = (await this.paymentsRepository.findById(paymentId)) as any;
       if (response?.contract?.cod_aluno) {
-         return await this.notificationsService.sendPushNotification(
-            "Fatura disponível",
-            "Sua fatura já está disponível para pagamento",
-            "contract",
-            response.contract.cod_aluno
-         );
+         if (
+            await this.companiesRepository.verifyStudentNotificationConfig(
+               "invoiceCreated",
+               "app",
+               response?.contract?.cod_aluno
+            )
+         ) {
+            return await this.notificationsService.sendPushNotification(
+               "Fatura disponível",
+               "Sua fatura já está disponível para pagamento",
+               "contract",
+               response.contract.cod_aluno
+            );
+         }
       }
    }
 
    async confirmedPayment(studentId: string | null, paymentId?: string) {
       if (studentId) {
-         return await this.notificationsService.sendPushNotification(
-            "Pagamento recebido",
-            "Seu pagamento foi confirmado com sucesso",
-            "payment",
-            studentId
-         );
+         if (await this.companiesRepository.verifyStudentNotificationConfig("paymentConfirmed", "app", studentId)) {
+            return await this.notificationsService.sendPushNotification(
+               "Pagamento recebido",
+               "Seu pagamento foi confirmado com sucesso",
+               "payment",
+               studentId
+            );
+         }
       } else {
          if (paymentId) {
             const response = (await this.paymentsRepository.findById(paymentId)) as any;
             if (response?.contract?.cod_aluno) {
-               return await this.notificationsService.sendPushNotification(
-                  "Pagamento recebido",
-                  "Seu pagamento foi confirmado com sucesso",
-                  "payment",
-                  response.contract.cod_aluno
-               );
+               if (
+                  await this.companiesRepository.verifyStudentNotificationConfig(
+                     "paymentConfirmed",
+                     "app",
+                     response?.contract?.cod_aluno
+                  )
+               ) {
+                  return await this.notificationsService.sendPushNotification(
+                     "Pagamento recebido",
+                     "Seu pagamento foi confirmado com sucesso",
+                     "payment",
+                     response.contract.cod_aluno
+                  );
+               }
             }
          }
       }

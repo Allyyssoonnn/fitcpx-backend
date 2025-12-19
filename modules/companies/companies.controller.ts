@@ -72,4 +72,14 @@ export class CompaniesController {
    async getNotifications(@CompanyId() companyId: string) {
       return this.companiesService.getNotifications(companyId);
    }
+
+   @Post("saveNotificationsConfig")
+   async saveNotificationsConfig(@CompanyId() companyId: string, @Body("notifications") notifications: string) {
+      return this.companiesService.saveNotificationsConfig(companyId, notifications);
+   }
+
+   @Get("getNotificationsConfig")
+   async getNotificationsConfig(@CompanyId() companyId: string) {
+      return this.companiesService.getNotificationsConfig(companyId);
+   }
 }

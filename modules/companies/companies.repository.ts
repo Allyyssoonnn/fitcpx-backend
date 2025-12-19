@@ -162,4 +162,45 @@ export class CompaniesRepository {
          message,
       });
    }
+
+   async saveNotificationsConfig(companyId: string, notifications: string) {
+      return db.tab_empresa.update({ notifications_config: notifications }, { where: { cod_empresa: companyId } });
+   }
+
+   async getNotificationsConfig(companyId?: string, studentId?: string) {
+      var where = {} as any;
+      if (companyId) where.cod_empresa = companyId;
+      if (!companyId && studentId) {
+         const student = (await db.tab_aluno.findOne({ where: { cod_aluno: studentId } })) as any;
+         if (student?.cod_empresa) where.cod_empresa = student.cod_empresa;
+      }
+      const notifications = (await db.tab_empresa.findOne({
+         where: where,
+         attributes: ["notifications_config"],
+      })) as any;
+      return JSON.parse(notifications.notifications_config);
+   }
+
+   async verifyNotificationConfig(
+      keyConfig: string,
+      type: "email" | "app" | "whatsapp",
+      companyId?: string,
+      studentId?: string
+   ) {
+      const config = await this.getNotificationsConfig(companyId, studentId);
+      if (typeof config?.[keyConfig]?.[type] === "boolean") {
+         return config[keyConfig][type];
+      } else {
+         return true;
+      }
+   }
+
+   async verifyStudentNotificationConfig(keyConfig: string, type: "email" | "app" | "whatsapp", studentId?: string) {
+      const config = await this.getNotificationsConfig(undefined, studentId);
+      if (typeof config?.[keyConfig]?.[type] === "boolean") {
+         return config[keyConfig][type];
+      } else {
+         return true;
+      }
+   }
 }
