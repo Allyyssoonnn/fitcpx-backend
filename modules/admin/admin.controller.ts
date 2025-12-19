@@ -1,10 +1,11 @@
 import { Controller, Get, Query } from "@nestjs/common";
 import { SkipThrottle } from "@nestjs/throttler";
+import { LicensesService } from "../licenses/licenses.service";
 import { AdminService } from "./admin.service";
 
 @Controller("admin")
 export class AdminController {
-   constructor(private readonly adminService: AdminService) {}
+   constructor(private readonly adminService: AdminService, private readonly licensesService: LicensesService) {}
 
    @Get("getRefreshTokens")
    async getRefreshTokens(@Query("date") date: string) {
@@ -48,6 +49,11 @@ export class AdminController {
    @Get("getClient")
    async getClient(@Query("companyId") companyId: string) {
       return this.adminService.getClient(companyId);
+   }
+
+   @Get("sendCoupon")
+   async sendCoupon(@Query("companyId") companyId: string, @Query("coupon") coupon: string) {
+      return this.licensesService.sendCoupon(companyId, coupon);
    }
 
    @SkipThrottle()

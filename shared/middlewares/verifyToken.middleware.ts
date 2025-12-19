@@ -26,6 +26,7 @@ const allowedRoutes = [
    "/admin/clients",
    "/admin/test",
    "/metrics",
+   "/admin/sendCoupon",
    "/admin/getRefreshTokens",
    "/admin/getNewClientsDashboard",
    "/admin/getFinanceDashboard",
