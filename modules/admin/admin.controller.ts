@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { SkipThrottle } from "@nestjs/throttler";
 import { LicensesService } from "../licenses/licenses.service";
 import { AdminService } from "./admin.service";
@@ -6,6 +6,16 @@ import { AdminService } from "./admin.service";
 @Controller("admin")
 export class AdminController {
    constructor(private readonly adminService: AdminService, private readonly licensesService: LicensesService) {}
+
+   @Post("createOrEditLicenses")
+   async createOrEditLicenses(@Body("license") license: any) {
+      return this.adminService.createOrEditLicenses(license);
+   }
+
+   @Get("getLicenses")
+   async getLicenses() {
+      return this.adminService.getLicenses();
+   }
 
    @Get("getRefreshTokens")
    async getRefreshTokens(@Query("date") date: string) {

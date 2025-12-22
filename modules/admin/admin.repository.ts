@@ -236,4 +236,12 @@ export class AdminRepository {
 
       return count;
    }
+
+   async getLicenses() {
+      return db.tab_licenca.findAll();
+   }
+
+   async createOrEditLicenses(license: any) {
+      return db.tab_licenca.upsert(license);
+   }
 }

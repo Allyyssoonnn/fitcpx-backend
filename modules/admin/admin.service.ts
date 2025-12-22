@@ -91,4 +91,12 @@ export class AdminService {
    async getClientsCount() {
       return this.adminRepository.getClientsCount();
    }
+
+   async getLicenses() {
+      return this.adminRepository.getLicenses();
+   }
+
+   async createOrEditLicenses(license: any) {
+      return this.adminRepository.createOrEditLicenses(license);
+   }
 }
