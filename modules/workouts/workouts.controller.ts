@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Query, Response } from "@nestjs/common";
 import { CompanyId } from "../../shared/decorators/companyId.decorator";
 import { UserId } from "../../shared/decorators/userId.decorator";
 import { WorkoutsService } from "./workouts.service";
@@ -6,6 +6,11 @@ import { WorkoutsService } from "./workouts.service";
 @Controller("workouts")
 export class WorkoutsController {
    constructor(private readonly workoutsService: WorkoutsService) {}
+
+   @Get("workoutpdf")
+   async getTemplatePrint(@Response() res: any) {
+      return res.sendFile(__dirname + "/templates/workoutpdf.html");
+   }
 
    @Post()
    async create(@UserId() userId: string, @CompanyId() companyId: string, @Body() body: any) {
