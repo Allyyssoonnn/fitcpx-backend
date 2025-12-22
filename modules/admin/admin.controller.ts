@@ -7,6 +7,11 @@ import { AdminService } from "./admin.service";
 export class AdminController {
    constructor(private readonly adminService: AdminService, private readonly licensesService: LicensesService) {}
 
+   @Get("resetTrial")
+   async resetTrial(@Query("companyId") companyId: string) {
+      return this.adminService.resetTrial(companyId);
+   }
+
    @Post("createOrEditLicenses")
    async createOrEditLicenses(@Body("license") license: any) {
       return this.adminService.createOrEditLicenses(license);

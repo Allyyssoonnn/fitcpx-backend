@@ -20,6 +20,10 @@ export class AdminService {
       private readonly contractsRepository: ContractsRepository
    ) {}
 
+   async resetTrial(companyId: string) {
+      return this.adminRepository.resetTrial(companyId);
+   }
+
    async getNewClientsDashboard(year?: number) {
       return this.adminRepository.getNewClientsDashboardByMonth(year);
    }

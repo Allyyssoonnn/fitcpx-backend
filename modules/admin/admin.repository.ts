@@ -244,4 +244,8 @@ export class AdminRepository {
    async createOrEditLicenses(license: any) {
       return db.tab_licenca.upsert(license);
    }
+
+   async resetTrial(companyId: string) {
+      return db.tab_empresa.update({ createdAt: new Date() }, { where: { cod_empresa: companyId } });
+   }
 }
