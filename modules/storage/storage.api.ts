@@ -34,6 +34,24 @@ export class StorageAPI {
       return imageUrl;
    }
 
+   async uploadFileBuffer(file: Buffer, key: string) {
+      await this.s3Client.send(
+         new PutObjectCommand({
+            Bucket: "media.fitcpx.com",
+            Key: key,
+            Body: file,
+            ACL: "public-read",
+            ContentType: "application/pdf",
+            // 2. Garante que o PDF abra no navegador (em vez de baixar automaticamente)
+            ContentDisposition: "inline",
+         })
+      );
+
+      const imageUrl = `https://media.fitcpx.com/${key}`;
+
+      return imageUrl;
+   }
+
    //Not used
    async deleteFile(folder: string, id: string) {
       const params = {

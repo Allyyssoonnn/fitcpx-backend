@@ -2,11 +2,16 @@ import { Injectable } from "@nestjs/common";
 import moment from "moment-timezone";
 import { CompaniesRepository } from "../companies/companies.repository";
 import { ContractsRepository } from "../contracts/contracts.repository";
+import { MailsService } from "../mails/mails.service";
 import { PaymentsRepository } from "../payments/payments.repository";
 import { PhysicalAssessmentsRepository } from "../physicalAssessments/physicalAssessments.repository";
+import { StorageService } from "../storage/storage.service";
 import { StudentsRepository } from "../students/students.repository";
 import { WorkoutsRepository } from "../workouts/workouts.repository";
+import { WPAPI } from "../wp/wp.api";
+import { WPService } from "../wp/wp.service";
 import { AdminRepository } from "./admin.repository";
+const dev = process.env.NODE_ENV !== "production";
 
 @Injectable()
 export class AdminService {
@@ -17,7 +22,11 @@ export class AdminService {
       private readonly studentsRepository: StudentsRepository,
       private readonly physicalAssessmentsRepository: PhysicalAssessmentsRepository,
       private readonly workoutsRepository: WorkoutsRepository,
-      private readonly contractsRepository: ContractsRepository
+      private readonly contractsRepository: ContractsRepository,
+      private readonly mailsService: MailsService,
+      private readonly wpAPI: WPAPI,
+      private readonly wpService: WPService,
+      private readonly storageService: StorageService
    ) {}
 
    async resetTrial(companyId: string) {
@@ -102,5 +111,46 @@ export class AdminService {
 
    async createOrEditLicenses(license: any) {
       return this.adminRepository.createOrEditLicenses(license);
+   }
+
+   async sendPayoutNotify(companyId: string, proof: Buffer, clients: string, startDate: string, endDate: string) {
+      const company = (await this.companiesRepository.findById(companyId)) as any;
+      const name = company.nome_empresa;
+      const email = company.email_empresa;
+      const phone = company.telefone_empresa;
+
+      var amount = 0;
+      var clientsArray = [];
+      if (JSON.parse(clients).length > 0) {
+         clientsArray = JSON.parse(clients);
+         JSON.parse(clients).forEach((element: any) => {
+            amount += element.amount;
+         });
+      }
+
+      const uuid = crypto.randomUUID();
+      const key = `${dev ? "developer/" : ""}proofs/${companyId}/${uuid}`;
+      const url = await this.storageService.uploadFileBuffer(proof, key);
+
+      this.adminRepository.registerPayout(companyId, amount, url, clientsArray);
+
+      this.mailsService.payout(
+         name,
+         email,
+         clients,
+         new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(amount || 0),
+         proof,
+         moment(startDate).format("DD/MM/YYYY"),
+         moment(endDate).format("DD/MM/YYYY")
+      );
+      return await this.wpService.sendPayout(
+         phone,
+         proof,
+         name,
+         moment(startDate).format("DD/MM/YYYY"),
+         moment(endDate).format("DD/MM/YYYY"),
+         new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(amount || 0),
+         url
+      );
    }
 }

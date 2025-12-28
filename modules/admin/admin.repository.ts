@@ -248,4 +248,14 @@ export class AdminRepository {
    async resetTrial(companyId: string) {
       return db.tab_empresa.update({ createdAt: new Date() }, { where: { cod_empresa: companyId } });
    }
+
+   async registerPayout(companyId: string, value: number, proofURL: string, payments: any[]) {
+      const response = (await db.payouts.create({ companyId, date: new Date(), value, proofURL })) as any;
+
+      if (payments.length > 0) {
+         for (const payment of payments) {
+            await db.payout_payments.create({ payoutId: response.id, contractPaymentId: payment.id });
+         }
+      }
+   }
 }

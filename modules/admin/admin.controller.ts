@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import { SkipThrottle } from "@nestjs/throttler";
 import { LicensesService } from "../licenses/licenses.service";
 import { AdminService } from "./admin.service";
@@ -69,6 +70,19 @@ export class AdminController {
    @Get("sendCoupon")
    async sendCoupon(@Query("companyId") companyId: string, @Query("coupon") coupon: string) {
       return this.licensesService.sendCoupon(companyId, coupon);
+   }
+
+   @Post("sendNotify")
+   @UseInterceptors(FileInterceptor("proof"))
+   async sendNotify(
+      @UploadedFile() fileBuffer: Express.Multer.File,
+      @Query("companyId") companyId: string,
+      @Body("clients") clients: any,
+      @Body("startDate") startDate: string,
+      @Body("endDate") endDate: string
+   ) {
+      if (!fileBuffer) throw new Error("Arquivo obrigatório");
+      return this.adminService.sendPayoutNotify(companyId, fileBuffer.buffer, clients, startDate, endDate);
    }
 
    @SkipThrottle()

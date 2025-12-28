@@ -22,6 +22,7 @@ import { ServicesModule } from "./modules/services/services.module";
 import { StudentsModule } from "./modules/students/students.module";
 import { UsersModule } from "./modules/users/users.module";
 import { WorkoutsModule } from "./modules/workouts/workouts.module";
+import { WPModule } from "./modules/wp/wp.module";
 
 @Module({
    providers: [
@@ -59,6 +60,7 @@ import { WorkoutsModule } from "./modules/workouts/workouts.module";
       AdminModule,
       ChatModule,
       CRMModule,
+      WPModule,
    ],
 })
 export class AppModule {}

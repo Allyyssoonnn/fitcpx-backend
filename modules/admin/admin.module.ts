@@ -19,6 +19,9 @@ import { StorageAPI } from "../storage/storage.api";
 import { StorageService } from "../storage/storage.service";
 import { StudentsRepository } from "../students/students.repository";
 import { WorkoutsRepository } from "../workouts/workouts.repository";
+import { WPAPI } from "../wp/wp.api";
+import { WPRepository } from "../wp/wp.repository";
+import { WPService } from "../wp/wp.service";
 import { AdminController } from "./admin.controller";
 import { AdminRepository } from "./admin.repository";
 import { AdminService } from "./admin.service";
@@ -48,6 +51,9 @@ import { AdminService } from "./admin.service";
       NotificationsService,
       NotificationsAPI,
       NotificationsRepository,
+      WPAPI,
+      WPService,
+      WPRepository,
    ],
 })
 export class AdminModule {}

@@ -10,6 +10,8 @@ const getMessageError = require("../utils/errors-message");
 
 const allowedRoutes = [
    "/companies/cancelCompanyLicense",
+   "/wp/test",
+   "/admin/sendNotify",
    "/admin/resetTrial",
    "/admin/createOrEditLicenses",
    "/admin/getLicenses",

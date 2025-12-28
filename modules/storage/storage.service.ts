@@ -8,4 +8,8 @@ export class StorageService {
    async uploadFile(fileBuffer: Express.Multer.File, key: string) {
       return this.storageAPI.uploadFile(fileBuffer, key);
    }
+
+   async uploadFileBuffer(fileBuffer: Buffer, key: string) {
+      return this.storageAPI.uploadFileBuffer(fileBuffer, key);
+   }
 }

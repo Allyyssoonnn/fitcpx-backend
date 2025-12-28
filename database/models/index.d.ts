@@ -49,6 +49,7 @@ interface Db {
    crm_pipeline_stages: ModelStatic<Model>;
    payouts: ModelStatic<Model>;
    payout_payments: ModelStatic<Model>;
+   wp_messages: ModelStatic<Model>;
 }
 
 declare const db: Db;
