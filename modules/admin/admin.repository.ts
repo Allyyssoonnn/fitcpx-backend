@@ -255,6 +255,10 @@ export class AdminRepository {
       if (payments.length > 0) {
          for (const payment of payments) {
             await db.payout_payments.create({ payoutId: response.id, contractPaymentId: payment.id });
+            await db.tab_aluno_contrato_pagamento.update(
+               { status_aluno_contrato_pagamento: "paid" },
+               { where: { cod_aluno_contrato_pagamento: payment.id } }
+            );
          }
       }
    }
