@@ -44,7 +44,13 @@ export async function generateWorkoutTemplate(data: any) {
 
       const exercicios = await tab_exercicio.findAll({
          where: whereClause,
-         attributes: ["cod_exercicio", "nome_exercicio", "cod_grupo_exercicio_1", "cod_tipo_exercicio"],
+         attributes: [
+            "cod_exercicio",
+            "nome_exercicio",
+            "cod_grupo_exercicio_1",
+            "cod_tipo_exercicio",
+            "url_exercicio",
+         ],
       });
       // Transformando em um array normal
       const exerciciosArray = exercicios.map((exercicio: any) => exercicio.toJSON());
