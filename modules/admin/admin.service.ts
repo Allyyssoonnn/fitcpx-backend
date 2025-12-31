@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { randomUUID } from "crypto";
 import moment from "moment-timezone";
 import { CompaniesRepository } from "../companies/companies.repository";
 import { ContractsRepository } from "../contracts/contracts.repository";
@@ -128,7 +129,7 @@ export class AdminService {
          });
       }
 
-      const uuid = crypto.randomUUID();
+      const uuid = randomUUID();
       const key = `${dev ? "developer/" : ""}proofs/${companyId}/${uuid}`;
       const url = await this.storageService.uploadFileBuffer(proof, key);
 
