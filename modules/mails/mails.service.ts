@@ -82,12 +82,28 @@ export class MailsService {
          .join("");
       const htmlBody = this.renderTemplate(htmlTemplate, { name, amount, startDate, endDate, clients: htmlClients });
 
-      return this.mailsAPI.sendMail(email, htmlBody, "Repasse enviado", [
-         {
-            filename: "Comprovante.pdf",
-            content: proof,
-         },
-      ]);
+      try {
+         const resp = await this.mailsAPI.sendMail(email, htmlBody, "Repasse enviado", [
+            {
+               filename: "Comprovante.pdf",
+               content: proof,
+            },
+         ]);
+         return this.mailsRepository.createOrUpdate({
+            content: htmlBody,
+            subject: "Repasse enviado",
+            status: resp.success ? "sent" : null,
+            email,
+         });
+      } catch (e: any) {
+         return this.mailsRepository.createOrUpdate({
+            content: htmlBody,
+            subject: "Repasse enviado",
+            errorMessage: e.message,
+            status: "failed",
+            email,
+         });
+      }
    }
 
    async dueInvoice(
