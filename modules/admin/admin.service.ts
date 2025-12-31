@@ -78,7 +78,7 @@ export class AdminService {
          (p: any) =>
             !!p.jsonwebhook_aluno_contrato_pagamento &&
             !!JSON.parse(p.jsonwebhook_aluno_contrato_pagamento)?.estimatedCreditDate &&
-            moment(JSON.parse(p.jsonwebhook_aluno_contrato_pagamento).estimatedCreditDate) > initialDateRaw &&
+            moment(JSON.parse(p.jsonwebhook_aluno_contrato_pagamento).estimatedCreditDate) >= initialDateRaw &&
             moment(JSON.parse(p.jsonwebhook_aluno_contrato_pagamento).estimatedCreditDate) <= endDateRaw
       );
 
