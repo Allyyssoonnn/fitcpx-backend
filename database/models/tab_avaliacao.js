@@ -73,6 +73,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DECIMAL(5, 2),
             allowNull: true,
          },
+         crista_iliaca: {
+            type: DataTypes.DECIMAL(5, 2),
+            allowNull: true,
+         },
          pescoco: {
             type: DataTypes.DECIMAL(5, 2),
             allowNull: true,
