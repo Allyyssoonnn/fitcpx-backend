@@ -1,4 +1,5 @@
 import { HttpException, Injectable } from "@nestjs/common";
+import { getLicenseOnly } from "../../shared/utils/token";
 import { PaymentService } from "../payments/payment.service";
 import { StorageService } from "../storage/storage.service";
 import { WorkoutsRepository } from "../workouts/workouts.repository";
@@ -66,7 +67,8 @@ export class CompaniesService {
    }
 
    async getCompanyLicense(companyId: string) {
-      return await this.companiesRepository.findCompanyLicenseActive(companyId);
+      const license = await this.companiesRepository.findCompanyLicenseActive(companyId);
+      return license ? license : getLicenseOnly(companyId);
    }
 
    async getDashboardInfo(companyId: string) {

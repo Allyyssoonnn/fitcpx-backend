@@ -6,6 +6,30 @@ const crypto = require("crypto");
 // * Token expiration in 7 hours
 // * Refresh Token expiration in 7 days
 export async function genTokenUserAuth(cod_usuario: string, cod_empresa: string, userAgent?: string | null) {
+   const { status, trialDaysLeft } = await getLicenseOnly(cod_empresa);
+
+   const token = jwt.sign({ cod_usuario, status, cod_empresa }, process.env.SECRET, {
+      expiresIn: "7h",
+   });
+
+   const refreshToken = crypto.randomBytes(64).toString("hex");
+
+   // * Save refreshToken in database
+   const expirationTime = 7 * 24 * 60 * 60 * 1000; // * 7 days
+   const expiresAt = new Date(Date.now() + expirationTime);
+
+   tab_refreshtoken_usuario.create({
+      cod_usuario: cod_usuario,
+      refreshtoken_usuario: refreshToken,
+      useragent_usuario: userAgent,
+      ip_usuario: null,
+      expiresAt: expiresAt,
+   });
+
+   return { token, refreshToken, license: { status, trialDaysLeft } };
+}
+
+export async function getLicenseOnly(cod_empresa: string) {
    // * Fetch latest license and payment for the company
    const company = await tab_empresa.findByPk(cod_empresa, {
       include: [
@@ -44,25 +68,7 @@ export async function genTokenUserAuth(cod_usuario: string, cod_empresa: string,
       }
    }
 
-   const token = jwt.sign({ cod_usuario, status: authorizedStatus, cod_empresa }, process.env.SECRET, {
-      expiresIn: "7h",
-   });
-
-   const refreshToken = crypto.randomBytes(64).toString("hex");
-
-   // * Save refreshToken in database
-   const expirationTime = 7 * 24 * 60 * 60 * 1000; // * 7 days
-   const expiresAt = new Date(Date.now() + expirationTime);
-
-   tab_refreshtoken_usuario.create({
-      cod_usuario: cod_usuario,
-      refreshtoken_usuario: refreshToken,
-      useragent_usuario: userAgent,
-      ip_usuario: null,
-      expiresAt: expiresAt,
-   });
-
-   return { token, refreshToken, license: { status: authorizedStatus, trialDaysLeft } };
+   return { status: authorizedStatus, trialDaysLeft };
 }
 
 // * Generate Token for Password Recovery url
