@@ -45,6 +45,7 @@ interface IAvaliacao {
 
    // Perimêtros
    antebraco_direito?: number;
+   crista_iliaca?: number;
 
    // Dobras
    supra_iliaca?: number;
@@ -222,15 +223,16 @@ function protocoloGordura_RechSantosSilva_3(avaliacao: IAvaliacao, idade: number
  * Protocolo 5: 60-81 anos - Tran e Weltman - (1988)
  */
 function protocoloGordura_TranWeltman_5(avaliacao: IAvaliacao): number {
-   function calculaIliaco(avaliacao: IAvaliacao) {
-      return (Number(avaliacao.abdomen) + Number(avaliacao.quadril)) / 2;
-   }
+   // function calculaIliaco(avaliacao: IAvaliacao) {
+   //    return (Number(avaliacao.abdomen) + Number(avaliacao.quadril)) / 2;
+   // }
 
    const resultado =
       -47.371817 +
       0.57914807 * Number(avaliacao.abdomen) +
       0.25189114 * Number(avaliacao.quadril) +
-      0.21366088 * Number(calculaIliaco(avaliacao)) -
+      // 0.21366088 * Number(calculaIliaco(avaliacao)) -
+      0.21366088 * Number(avaliacao.crista_iliaca) -
       0.35595404 * Number(avaliacao.peso);
 
    return resultado;
@@ -268,7 +270,6 @@ export function calculaPorcentagemGordura(aluno: IAluno, avaliacao: IAvaliacao):
          break;
 
       // Protocolo 5 (Tran)
-      // * DESATIVADO *
       case 5:
          resultado = protocoloGordura_TranWeltman_5(avaliacao);
          break;
