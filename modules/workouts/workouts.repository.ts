@@ -4,15 +4,16 @@ import db from "../../database/models";
 
 @Injectable()
 export class WorkoutsRepository {
-   async findAll(companyId: string, onlyDeleted: boolean = false, studentId?: string) {
+   async findAll(companyId: string, onlyDeleted: boolean = false, studentId?: string, onlyActives?: boolean) {
       const where: any = onlyDeleted ? { deletedAt: { [Op.ne]: null } } : {};
       where.cod_empresa = {
          [Op.or]: [companyId, null],
       };
       if (studentId) {
          where.cod_aluno = studentId;
-         where.status_treino = "A";
       } else where.cod_aluno = null;
+
+      if (onlyActives == true) where.status_treino = "A";
 
       const workouts = await db.tab_treino.findAll({
          paranoid: !onlyDeleted,

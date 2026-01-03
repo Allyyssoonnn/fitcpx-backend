@@ -27,9 +27,10 @@ export class WorkoutsController {
    async getAll(
       @CompanyId() companyId: string,
       @Query("deleted") deleted: string,
-      @Query("studentId") studentId: string
+      @Query("studentId") studentId: string,
+      @Query("onlyActives") onlyActives: boolean
    ) {
-      return this.workoutsService.getAllWorkouts(companyId, deleted == "true", studentId);
+      return this.workoutsService.getAllWorkouts(companyId, deleted == "true", studentId, onlyActives);
    }
 
    @Delete(":id")
