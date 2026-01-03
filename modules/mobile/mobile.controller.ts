@@ -43,6 +43,11 @@ export class MobileController {
       return this.mobileService.getPhysicalAssessmentById(studentId, physicalAssessmentId);
    }
 
+   @Get("getWorkoutHistory")
+   async getWorkoutHistory(@CompanyId() companyId: string, @StudentId() studentId: string) {
+      return this.mobileService.getWorkoutHistory(companyId, studentId);
+   }
+
    @Get("getWorkouts")
    async getWorkouts(@CompanyId() companyId: string, @StudentId() studentId: string) {
       return this.mobileService.getWorkouts(companyId, studentId);

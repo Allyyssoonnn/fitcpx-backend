@@ -1,72 +1,83 @@
-'use strict';
+"use strict";
 
 module.exports = (sequelize, DataTypes) => {
-    const tab_treino_execucao_exercicio = sequelize.define('tab_treino_execucao_exercicio', {
-        cod_treino_execucao_exercicio: {
+   const tab_treino_execucao_exercicio = sequelize.define(
+      "tab_treino_execucao_exercicio",
+      {
+         cod_treino_execucao_exercicio: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
             allowNull: false,
-        },
-        cod_treino_execucao: {
+         },
+         cod_treino_execucao: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'tab_treino_execucao',
-                key: 'cod_treino_execucao',
+               model: "tab_treino_execucao",
+               key: "cod_treino_execucao",
             },
-        },
-        cod_exercicio: {
+         },
+         cod_exercicio: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'tab_exercicio',
-                key: 'cod_exercicio',
+               model: "tab_exercicio",
+               key: "cod_exercicio",
             },
-        },
-        treino_exercicio_executado: {
-            type: DataTypes.ENUM('S', 'N'),
+         },
+         treino_exercicio_executado: {
+            type: DataTypes.ENUM("S", "N"),
             allowNull: false,
-            defaultValue: 'N',
-        },
-        sequencia_treino_execucao_exercicio: {
+            defaultValue: "N",
+         },
+         sequencia_treino_execucao_exercicio: {
             type: DataTypes.INTEGER,
             allowNull: false,
-        },
-        serie_treino_execucao_exercicio: {
+         },
+         serie_treino_execucao_exercicio: {
             type: DataTypes.STRING,
             allowNull: false,
-        },
-        repeticao_treino_execucao_exercicio: {
+         },
+         repeticao_treino_execucao_exercicio: {
             type: DataTypes.STRING,
             allowNull: false,
-        },
-        carga_treino_execucao_exercicio: {
+         },
+         carga_treino_execucao_exercicio: {
             type: DataTypes.STRING,
             allowNull: false,
-        },
-        intervalo_treino_execucao_exercicio: {
+         },
+         intervalo_treino_execucao_exercicio: {
             type: DataTypes.STRING,
             allowNull: false,
-        },
-        execucao_treino_execucao_exercicio: {
+         },
+         execucao_treino_execucao_exercicio: {
             allowNull: true,
             type: DataTypes.TEXT,
             defaultValue: null,
-        },
-        observacao_treino_execucao_exercicio: {
+         },
+         observacao_treino_execucao_exercicio: {
             type: DataTypes.STRING,
             allowNull: true,
-        },
-        deletedAt: {
+         },
+         deletedAt: {
             type: DataTypes.DATE,
             allowNull: true,
-        },
-    }, {
-        paranoid: true,
-        freezeTableName: true,
-        timestamps: true, // Adicionado para garantir createdAt e updatedAt
-    });
-    
-    return tab_treino_execucao_exercicio;
+         },
+      },
+      {
+         paranoid: true,
+         freezeTableName: true,
+         timestamps: true, // Adicionado para garantir createdAt e updatedAt
+      }
+   );
+
+   tab_treino_execucao_exercicio.associate = (models) => {
+      tab_treino_execucao_exercicio.belongsTo(models.tab_exercicio, {
+         foreignKey: "cod_exercicio",
+         as: "exercicio",
+      });
+   };
+
+   return tab_treino_execucao_exercicio;
 };

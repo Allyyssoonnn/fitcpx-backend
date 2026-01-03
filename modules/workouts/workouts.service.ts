@@ -10,6 +10,10 @@ export class WorkoutsService {
       private readonly eventsService: EventsService
    ) {}
 
+   async getWorkoutHistory(companyId: string, studentId?: string) {
+      return this.workoutsRepository.getWorkoutHistory(companyId, studentId);
+   }
+
    async getAllWorkouts(companyId: string, deleted: boolean, studentId?: string, onlyActives: boolean = true) {
       return this.workoutsRepository.findAll(companyId, deleted, studentId, onlyActives);
    }

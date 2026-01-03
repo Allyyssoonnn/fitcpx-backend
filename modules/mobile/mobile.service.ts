@@ -102,6 +102,10 @@ export class MobileService {
       return this.physicalAssessmentsService.getById(studentId, physicalAssessmentId);
    }
 
+   async getWorkoutHistory(companyId: string, studentId: string) {
+      return this.workoutsService.getWorkoutHistory(companyId, studentId);
+   }
+
    async getWorkouts(companyId: string, studentId: string) {
       return this.workoutsService.getAllWorkouts(companyId, false, studentId);
    }

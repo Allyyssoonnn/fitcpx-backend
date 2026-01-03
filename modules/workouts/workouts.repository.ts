@@ -399,7 +399,7 @@ export class WorkoutsRepository {
          await db.tab_sessao_exercicio.update(
             {
                // serie_sessao_exercicio: exercicio?.serie_sessao_exercicio,
-               repeticao_sessao_exercicio: exec[exec.length - 1]?.repetition ?? exercicio?.repeticao_sessao_exercicio,
+               // repeticao_sessao_exercicio: exec[exec.length - 1]?.repetition ?? exercicio?.repeticao_sessao_exercicio,
                carga_sessao_exercicio: exec[exec.length - 1]?.weight ?? exercicio?.carga_sessao_exercicio,
                // intervalo_sessao_exercicio: exercicio?.intervalo_sessao_exercicio,
             },
@@ -409,13 +409,36 @@ export class WorkoutsRepository {
          );
 
          for (const set of exercicio.sets) {
+            await db.tab_treino_execucao_exercicio.create({
+               cod_treino_execucao: treino_execucao.cod_treino_execucao,
+               cod_exercicio: set?.cod_exercicio,
+               treino_exercicio_executado:
+                  set.feito != undefined
+                     ? set.feito
+                        ? "S"
+                        : "N"
+                     : set?.setsInfo?.every((set: any) => set.checked)
+                     ? "S"
+                     : "N",
+               execucao_treino_execucao_exercicio: set?.execucoes
+                  ? JSON.stringify(set?.execucoes)
+                  : JSON.stringify(set.setsInfo),
+
+               sequencia_treino_execucao_exercicio: set?.sequencia_sessao_exercicio,
+               serie_treino_execucao_exercicio: set?.serie_sessao_exercicio,
+               repeticao_treino_execucao_exercicio: set?.repeticao_sessao_exercicio,
+               carga_treino_execucao_exercicio: set?.carga_sessao_exercicio,
+               observacao_treino_execucao_exercicio: set?.observacao_sessao_exercicio ?? "",
+               intervalo_treino_execucao_exercicio: set?.intervalo_sessao_exercicio,
+            });
+
             const execSet = set?.execucoes ?? set.setsInfo;
 
             await db.tab_sessao_exercicio.update(
                {
                   // serie_sessao_exercicio: exercicio?.serie_sessao_exercicio,
-                  repeticao_sessao_exercicio:
-                     execSet[execSet.length - 1]?.repetition ?? set?.repeticao_sessao_exercicio,
+                  // repeticao_sessao_exercicio:
+                  //    execSet[execSet.length - 1]?.repetition ?? set?.repeticao_sessao_exercicio,
                   carga_sessao_exercicio: execSet[execSet.length - 1]?.weight ?? set?.carga_sessao_exercicio,
                   // intervalo_sessao_exercicio: exercicio?.intervalo_sessao_exercicio,
                },
@@ -427,5 +450,98 @@ export class WorkoutsRepository {
       }
 
       return;
+   }
+
+   async getWorkoutHistory(companyId: string, studentId?: string) {
+      const workouts = (await db.tab_treino_execucao.findAll({
+         order: [["cod_treino_execucao", "DESC"]],
+         where: {
+            cod_aluno: studentId,
+         },
+         include: [
+            {
+               model: db.tab_treino_execucao_exercicio,
+               as: "exercicios",
+               include: [
+                  {
+                     model: db.tab_exercicio,
+                     as: "exercicio",
+                     paranoid: false,
+                     include: [
+                        {
+                           model: db.tab_exercicios_empresa,
+                           as: "exercicio_empresa",
+                           required: false,
+                           where: { cod_empresa: companyId },
+                           attributes: [],
+                        },
+                        {
+                           model: db.tab_grupo_exercicio,
+                           as: "grupo_exercicio_1",
+                        },
+                     ],
+                     attributes: {
+                        include: [
+                           [
+                              Sequelize.literal(
+                                 `COALESCE(\`exercicios->exercicio->exercicio_empresa\`.\`url_exercicio_empresa\`, \`exercicios->exercicio\`.\`url_exercicio\`)`
+                              ),
+                              "url_exercicio",
+                           ],
+                        ],
+                     },
+                  },
+               ],
+            },
+         ],
+      })) as any;
+
+      return workouts.map((workout: any) => {
+         const workoutFlat = workout.toJSON();
+
+         const exercisesSorted = [...workoutFlat.exercicios].sort(
+            (a, b) => a.sequencia_treino_execucao_exercicio - b.sequencia_treino_execucao_exercicio
+         );
+
+         const grouped = {} as any;
+
+         exercisesSorted.forEach((exercise: any) => {
+            const sequencia = exercise.sequencia_treino_execucao_exercicio as any;
+
+            if (!grouped[sequencia]) {
+               grouped[sequencia] = {
+                  // ...exercise.exercicio,
+                  ...exercise,
+                  superSets: [],
+                  sets:
+                     exercise.execucao_treino_execucao_exercicio &&
+                     JSON.parse(exercise.execucao_treino_execucao_exercicio)
+                        ? JSON.parse(exercise.execucao_treino_execucao_exercicio)
+                        : [],
+               };
+            } else {
+               grouped[sequencia].superSets.push({
+                  // ...exercise.exercicio,
+                  ...exercise,
+                  sets:
+                     exercise.execucao_treino_execucao_exercicio &&
+                     JSON.parse(exercise.execucao_treino_execucao_exercicio)
+                        ? JSON.parse(exercise.execucao_treino_execucao_exercicio)
+                        : [],
+               });
+            }
+         });
+
+         const exercisesFilteredAndOrderned = Object.values(grouped).map((exercise: any) => ({
+            ...exercise.exercicio,
+            ...exercise,
+            superSets: exercise.superSets || [],
+         }));
+
+         return {
+            ...workoutFlat,
+            exercicios: exercisesFilteredAndOrderned,
+         };
+      });
    }
 }
