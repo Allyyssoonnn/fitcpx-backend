@@ -15,12 +15,14 @@ export class WorkoutsRepository {
 
       if (onlyActives == true) where.status_treino = "A";
 
-      const lastWorkout = (await db.tab_treino_execucao.findOne({
-         where: {
-            cod_aluno: studentId,
-         },
-         order: [["cod_treino_execucao", "DESC"]],
-      })) as any;
+      const lastWorkout = studentId
+         ? ((await db.tab_treino_execucao.findOne({
+              where: {
+                 cod_aluno: studentId,
+              },
+              order: [["cod_treino_execucao", "DESC"]],
+           })) as any)
+         : null;
 
       const workouts = await db.tab_treino.findAll({
          paranoid: !onlyDeleted,
