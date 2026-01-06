@@ -411,6 +411,7 @@ export class WorkoutsRepository {
                // serie_sessao_exercicio: exercicio?.serie_sessao_exercicio,
                // repeticao_sessao_exercicio: exec[exec.length - 1]?.repetition ?? exercicio?.repeticao_sessao_exercicio,
                carga_sessao_exercicio: exec[exec.length - 1]?.weight ?? exercicio?.carga_sessao_exercicio,
+               observacao_sessao_exercicio_aluno: exercicio.observation,
                // intervalo_sessao_exercicio: exercicio?.intervalo_sessao_exercicio,
             },
             {
@@ -450,6 +451,7 @@ export class WorkoutsRepository {
                   // repeticao_sessao_exercicio:
                   //    execSet[execSet.length - 1]?.repetition ?? set?.repeticao_sessao_exercicio,
                   carga_sessao_exercicio: execSet[execSet.length - 1]?.weight ?? set?.carga_sessao_exercicio,
+                  observacao_sessao_exercicio_aluno: set.observation,
                   // intervalo_sessao_exercicio: exercicio?.intervalo_sessao_exercicio,
                },
                {
