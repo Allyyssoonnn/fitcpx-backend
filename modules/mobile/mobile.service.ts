@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { genTokenStudentRecoveryPassword } from "../../shared/utils/token";
 import { genTokenStudentAuth } from "../../shared/utils/token.mobile";
+import { CalendarRepository } from "../calendar/calendar.repository";
 import { ChatRepository } from "../chat/chat.repository";
 import { CompaniesService } from "../companies/companies.service";
 import { ContractsService } from "../contracts/contracts.service";
@@ -20,7 +21,8 @@ export class MobileService {
       private readonly workoutsService: WorkoutsService,
       private readonly contractsService: ContractsService,
       private readonly eventsService: EventsService,
-      private readonly chatRepository: ChatRepository
+      private readonly chatRepository: ChatRepository,
+      private readonly calendarRepository: CalendarRepository
    ) {}
 
    async recoveryPassword(login: string) {
@@ -129,5 +131,17 @@ export class MobileService {
 
    async getUnreadMessages(studentId: string) {
       return this.chatRepository.countUnreadMessages(studentId);
+   }
+
+   async findEvents(studentId: string) {
+      return this.calendarRepository.findEvents(studentId);
+   }
+
+   async scheduleEvent(studentId: string, eventId: string) {
+      //Verify if already schedule
+      const event = (await this.calendarRepository.findById(eventId)) as any;
+      if (event.cod_aluno) throw new HttpException("Evento já agendado por outro aluno", 403);
+
+      return this.calendarRepository.scheduleEvent(studentId, eventId);
    }
 }

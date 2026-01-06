@@ -88,4 +88,14 @@ export class MobileController {
    async getUnreadMessages(@StudentId() studentId: string) {
       return this.mobileService.getUnreadMessages(studentId);
    }
+
+   @Get("findEvents")
+   async findEvents(@StudentId() studentId: string) {
+      return this.mobileService.findEvents(studentId);
+   }
+
+   @Get("scheduleEvent")
+   async scheduleEvent(@StudentId() studentId: string, @Query("eventId") eventId: string) {
+      return this.mobileService.scheduleEvent(studentId, eventId);
+   }
 }

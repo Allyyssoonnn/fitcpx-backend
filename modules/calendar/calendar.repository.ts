@@ -27,4 +27,29 @@ export class CalendarRepository {
    async createEvent(data: any) {
       return (await db.tab_agenda.upsert(data))[0];
    }
+
+   async findById(id: string) {
+      return await db.tab_agenda.findByPk(id);
+   }
+
+   async findEvents(studentId: string) {
+      const currentDate = new Date();
+
+      return db.tab_agenda.findAll({
+         where: {
+            cod_aluno: { [Op.or]: [studentId, null] },
+            data_fim: { [Op.gte]: currentDate },
+         },
+         include: [
+            { model: db.tab_modalidade, as: "modalidade" },
+            { model: db.tab_usuario, as: "usuario" },
+         ],
+         order: [["data_inicio", "ASC"]],
+         logging: console.log,
+      });
+   }
+
+   async scheduleEvent(studentId: string, eventId: string) {
+      return db.tab_agenda.update({ cod_aluno: studentId }, { where: { cod_agenda: eventId } });
+   }
 }
