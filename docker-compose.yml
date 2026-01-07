@@ -9,7 +9,10 @@ services:
          - .env
       ports:
          - "8070:8070" # contêiner 1
-
+      deploy:
+         resources:
+            limits:
+               memory: 800M
 
    # fitcpx2:
    #    build: .

@@ -9,3 +9,7 @@ services:
          - .env
       ports:
          - "8071:8071"
+      deploy:
+         resources:
+            limits:
+               memory: 800M
