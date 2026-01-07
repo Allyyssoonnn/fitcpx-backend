@@ -4,7 +4,12 @@ services:
    fitcpxtest:
       build: .
       image: fitcpxtest
+      restart: always
       env_file:
          - .env
       ports:
          - "8071:8071"
+      deploy:
+         resources:
+            limits:
+               memory: 800M
