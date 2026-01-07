@@ -41,7 +41,9 @@ RUN npm install -g pm2
 COPY . .
 
 # Compila TypeScript (se aplicável)
-RUN npm run build
+# RUN npm run build
+# Substitua o antigo RUN npm run build por:
+RUN NODE_OPTIONS="--max-old-space-size=1024" npm run build
 
 # Copia o arquivo de configuração do PM2 (se existir)
 COPY ecosystem.config.js ./

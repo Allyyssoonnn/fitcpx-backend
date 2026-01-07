@@ -1,0 +1,14 @@
+# 1. Cria o arquivo de swap de 2GB
+sudo fallocate -l 2G /swapfile
+
+# 2. Ajusta as permissões de segurança
+sudo chmod 600 /swapfile
+
+# 3. Formata como área de swap
+sudo mkswap /swapfile
+
+# 4. Ativa o swap imediatamente
+sudo swapon /swapfile
+
+# 5. Garante que o swap continue ativo após o reboot (importante para o seu caso!)
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
