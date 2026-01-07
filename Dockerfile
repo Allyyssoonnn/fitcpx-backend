@@ -1,8 +1,13 @@
 # Usa a imagem base do Node.js
-FROM node:18
+# FROM node:18
+FROM node:18-slim
+
+# 1. Mudamos para node:18-slim (muito mais leve que a 'node:18' padrão)
+# 2. Adicionamos o 'rsync' na lista de instalação
 
 # Instala bibliotecas necessárias pro Chrome headless (Puppeteer)
 RUN apt-get update && apt-get install -y \
+    rsync \
     libnss3 \
     libatk1.0-0 \
     libatk-bridge2.0-0 \
@@ -32,7 +37,9 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instala as dependências
-RUN npm install
+# RUN npm install
+# Instala dependências e limpa cache imediatamente para liberar RAM
+RUN npm install && npm cache clean --force
 
 # Instala o PM2 globalmente apenas no container
 RUN npm install -g pm2
@@ -41,7 +48,9 @@ RUN npm install -g pm2
 COPY . .
 
 # Compila TypeScript (se aplicável)
-RUN npm run build
+# RUN npm run build
+# Substitua o antigo RUN npm run build por:
+RUN NODE_OPTIONS="--max-old-space-size=1524" npm run build
 
 # Copia o arquivo de configuração do PM2 (se existir)
 COPY ecosystem.config.js ./
