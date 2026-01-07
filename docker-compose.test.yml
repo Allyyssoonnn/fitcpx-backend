@@ -4,6 +4,7 @@ services:
    fitcpxtest:
       build: .
       image: fitcpxtest
+      restart: always
       env_file:
          - .env
       ports:

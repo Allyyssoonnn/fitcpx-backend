@@ -4,6 +4,7 @@ services:
    fitcpx1:
       build: .
       image: fitcpx
+      restart: always
       env_file:
          - .env
       ports:
@@ -38,6 +39,7 @@ services:
 
    grafana:
       image: grafana/grafana:latest
+      restart: always
       container_name: grafana
       ports:
          - "3000:3000"
@@ -58,6 +60,7 @@ services:
 
    prometheus:
       image: prom/prometheus:latest
+      restart: always
       command:
          - --config.file=/etc/prometheus.yaml
          - --web.enable-remote-write-receiver
