@@ -7,6 +7,10 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true, // Adicionado para auto incremento
          },
+         cod_usuario: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+         },
          data_avaliacao: {
             type: DataTypes.DATEONLY,
             allowNull: false,

@@ -98,4 +98,17 @@ export class MobileController {
    async scheduleEvent(@StudentId() studentId: string, @Query("eventId") eventId: string) {
       return this.mobileService.scheduleEvent(studentId, eventId);
    }
+
+   @Get("sendFitnessAssessment")
+   async sendFitnessAssessment(
+      @CompanyId() companyId: string,
+      @StudentId() studentId: string,
+      @Query("arm") arm: Number,
+      @Query("abdomen") abdomen: Number,
+      @Query("calf") calf: Number,
+      @Query("weight") weight: Number,
+      @Query("height") height: Number
+   ) {
+      return this.mobileService.sendFitnessAssessment(companyId, studentId, arm, abdomen, calf, weight, height);
+   }
 }

@@ -195,11 +195,38 @@ function calculaDensidade(aluno: IAluno, avaliacao: IAvaliacao): number {
       case 4:
          densidade = calculaDensidade_JacksonPollock_4(avaliacao, idade);
          break;
+
+      // --- NOVO CÓDIGO AQUI ---
+      case 6: // Substitua '6' pelo ID correto do protocolo Katch & McArdle no seu banco de dados
+         densidade = calculaDensidade_KatchMcArdle(avaliacao);
+         break;
+      // ------------------------
+
       default:
          // Protocolos 3, 5 e Default não usam densidade,
          // mas retornamos 0 para evitar erros (embora não deva ser chamado)
          densidade = 0;
    }
+
+   return densidade;
+}
+
+/**
+ * Protocolo: Katch & McArdle (1973)
+ * Público: Jovens (Masculino e Feminino)
+ * Tipo: Circunferências
+ */
+function calculaDensidade_KatchMcArdle(avaliacao: IAvaliacao): number {
+   // Mapeamento dos campos de Perímetro/Circunferência
+   // Nota: Usamos 'braco_relaxado_direito' e 'panturrilha_direita' pois são as circunferências,
+   // e 'abdomen' seguindo o padrão usado no protocolo Tran & Weltman (Protocolo 5).
+
+   const pBraco = Number(avaliacao.braco_relaxado_direito);
+   const pAbdomen = Number(avaliacao.abdomen);
+   const pPanturrilha = Number(avaliacao.panturrilha_direita);
+
+   // Fórmula: D = 1,12691 – 0,00357 * P. BRAÇO – 0,00127 * P. ABDOMEN + 0,00524 * P. PANTURRILHA
+   const densidade = 1.12691 - 0.00357 * pBraco - 0.00127 * pAbdomen + 0.00524 * pPanturrilha;
 
    return densidade;
 }
@@ -260,6 +287,7 @@ export function calculaPorcentagemGordura(aluno: IAluno, avaliacao: IAvaliacao):
       // Protocolos 2 e 4 usam Densidade (Siri)
       case 2:
       case 4:
+      case 6:
          const densidade = calculaDensidade(aluno, avaliacao); // Já é formatado .toFixed(3)
          resultado = formulaGordura_Siri(Number(densidade));
          break;
@@ -532,7 +560,7 @@ export async function getResultPhysicalAssesment(req: Request) {
 
       const avaliacaoDb = await tab_avaliacao.findOne({
          include: [
-            { model: tab_usuario, as: "usuario", required: true },
+            { model: tab_usuario, as: "usuario", required: false },
             { model: tab_aluno, as: "aluno", required: true, attributes: ["nome_aluno"] },
             { model: tab_avaliacao_imagem, as: "imagem" },
          ],

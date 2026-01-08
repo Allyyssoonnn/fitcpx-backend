@@ -144,4 +144,26 @@ export class MobileService {
 
       return this.calendarRepository.scheduleEvent(studentId, eventId);
    }
+
+   async sendFitnessAssessment(
+      companyId: string,
+      studentId: string,
+      arm: Number,
+      abdomen: Number,
+      calf: Number,
+      weight: Number,
+      height: Number
+   ) {
+      return this.physicalAssessmentsService.createOrUpdate({
+         cod_empresa: companyId,
+         cod_aluno: studentId,
+         braco_relaxado_direito: arm,
+         abdomen: abdomen,
+         panturrilha_direita: calf,
+         cod_protocolo: 6,
+         data_avaliacao: new Date(),
+         peso: weight,
+         altura: String(height).replace(",", "").replace(".", ""),
+      });
+   }
 }
