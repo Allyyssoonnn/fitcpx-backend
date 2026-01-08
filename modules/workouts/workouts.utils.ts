@@ -48,6 +48,15 @@ export async function generateWorkoutTemplate(data: any) {
       });
       // Transformando em um array normal
       const exerciciosArray = exercicios.map((exercicio: any) => exercicio.toJSON());
+
+      // --- START FIX ---
+      // If no exercises are found in the DB for this group, skip to prevent crash
+      if (!exerciciosArray || exerciciosArray.length === 0) {
+         console.warn(`No exercises found for group ID: ${cod_grupo_exercicio} with type 5`);
+         continue;
+      }
+      // --- END FIX ---
+
       grupo.exercicios = exerciciosArray;
 
       const shuffled = exerciciosArray.sort(() => 0.5 - Math.random());
