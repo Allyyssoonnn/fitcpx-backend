@@ -36,6 +36,11 @@ interface IAluno {
 }
 
 interface IAvaliacao {
+   gordura_viceral?: number;
+   bioimpedancia_gordura?: number;
+   bioimpedancia_muscular?: number;
+   bioimpedancia_idade?: number;
+
    cod_avaliacao: number;
    cod_aluno: number;
    cod_protocolo: number;
@@ -284,6 +289,10 @@ export function calculaPorcentagemGordura(aluno: IAluno, avaliacao: IAvaliacao):
    let resultado: number;
 
    switch (avaliacao.cod_protocolo) {
+      case 7: // Bioimpedância
+         resultado = Number(avaliacao.bioimpedancia_gordura) || 0;
+         break;
+
       // Protocolos 2 e 4 usam Densidade (Siri)
       case 2:
       case 4:
@@ -503,10 +512,21 @@ export async function getResultPhysicalFunc(aluno: IAluno, avaliacao: IAvaliacao
    const kgMassaMagra = calculaKGMassaMagra(avaliacao.peso, kgGordura);
    const pctMassaMagra = calculaPorcentagemMassaMagra(avaliacao.peso, kgMassaMagra);
 
-   const kgMusculo = calculaKGMusculo(aluno, avaliacao);
-   const pctMusculo = calculaPorcentagemMusculo(avaliacao.peso, kgMusculo);
+   // 3. Massa Muscular (Lógica condicional)
+   let kgMusculo: number;
+   let pctMusculo: number;
 
-   const kgOsseo = calculaKGOsseo(avaliacao);
+   if (avaliacao.cod_protocolo === 7) {
+      // Se for Bioimpedância, usa o valor informado
+      pctMusculo = Number(avaliacao.bioimpedancia_muscular) || 0;
+      kgMusculo = round((avaliacao.peso * pctMusculo) / 100, 1);
+   } else {
+      // Se for dobras, usa a fórmula antropométrica existente
+      kgMusculo = calculaKGMusculo(aluno, avaliacao);
+      pctMusculo = calculaPorcentagemMusculo(avaliacao.peso, kgMusculo);
+   }
+
+   const kgOsseo = avaliacao.biestiloide_punho && avaliacao.biepicondilo_femoral ? calculaKGOsseo(avaliacao) : 0;
    const pctOsseo = calculaPorcentagemOsseo(avaliacao.peso, kgOsseo);
 
    const kgResidual = calculaKGResidual(avaliacao.peso, kgGordura, kgMusculo, kgOsseo);
