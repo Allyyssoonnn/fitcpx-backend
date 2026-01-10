@@ -12,8 +12,6 @@ const port = process.env.NODE_ENV == "test" ? 8071 : 8070;
 const server = express();
 const PORT = port;
 
-//cors precisa ser declarado antes das rotas para não ocorrer erro no client
-// server.use(cors({ origin: "*", credentials: true }));
 server.use(
    cors({
       origin: [
@@ -28,14 +26,20 @@ server.use(
 server.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 server.use(bodyParser.json({ limit: "50mb" }));
 
-//Remove after update
-server.get("/fitnessassessmentpdf", (req, res) => {
-   res.sendFile(__dirname + "/api/utils/templates/fitnessassessmentpdf.html");
+server.get("/changelog", (req, res) => {
+   const changelogJSON = require("./changelog.json");
+   const requestedVersion = req.query.v;
+
+   if (requestedVersion && changelogJSON[requestedVersion]) {
+      return res.json({
+         [requestedVersion]: changelogJSON[requestedVersion],
+      });
+   }
+
+   return res.json({
+      [requestedVersion]: changelogJSON[requestedVersion],
+   });
 });
-server.use("/appaluno", require("./api/routes/routeAppAluno"));
-server.use("/treino", require("./api/routes/routeTreino"));
-server.use("/aluno", require("./api/routes/routeAluno"));
-server.use("/avaliacao", require("./api/routes/routeAvaliacao"));
 
 // ================ Servidor
 

@@ -1,0 +1,28 @@
+{
+   "3.3.x": {
+      "Destaques": [
+         "🎉 Agora os alunos podem criar Stories com dados do treino para compartilhar no Instagram!",
+         "📅 Nova área de Eventos: alunos podem visualizar e se inscrever nas aulas disponíveis."
+      ],
+      "Avaliação Física": [
+         "Novos protocolos de dobras cutâneas: Kach e McArdle (Jovens) e Tran & Weltman (Idosos).",
+         "Suporte para avaliação via Bioimpedância.",
+         "Gráficos de evolução: Agora inclui Perimetria.",
+         "Lista de avaliações: Agora inclui Protcolo usado e % Muscular."
+      ],
+      "Gestão de Treinos": [
+         "Histórico de Treinos: Nova aba para consultar tudo o que já foi realizado.",
+         "Gráficos de Carga: Acompanhe a evolução de força e repetições por exercício.",
+         "Arquivo Morto: Visualize e reative treinos antigos facilmente."
+      ],
+      "App do Aluno": [
+         "Feedback do Aluno: Agora é possível inserir observações pessoais em cada exercício.",
+         "Visualização aprimorada para Super Sets.",
+         "Autoavaliação física liberada para consultorias remotas."
+      ],
+      "Melhorias Gerais": [
+         "Correções de bugs menores e otimização de performance.",
+         "Ajustes de layout para melhor leitura em dispositivos móveis."
+      ]
+   }
+}
