@@ -78,6 +78,11 @@ export class WorkoutsController {
       return this.workoutsService.getWorkoutHistory(companyId, studentId);
    }
 
+   @Get("getWorkoutHistoryReport")
+   async getWorkoutHistoryReport(@CompanyId() companyId: string, @Query("workoutId") workoutId: string) {
+      return this.workoutsService.getWorkoutHistoryReport(companyId, workoutId);
+   }
+
    @Get(":id")
    async getOne(@Param("id") id: string) {
       return this.workoutsService.getWorkout(id);
