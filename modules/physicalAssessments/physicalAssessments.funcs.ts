@@ -52,12 +52,15 @@ interface IAvaliacao {
    antebraco_direito?: number;
    crista_iliaca?: number;
 
+   pescoco?: number;
+   cintura?: number;
+   quadril?: number;
+
    // Dobras
    supra_iliaca?: number;
    peitoral?: number;
    coxa?: number;
    abdomen?: number;
-   quadril?: number;
    subescapular?: number;
    triciptal?: number;
    axilar_media?: number;
@@ -201,12 +204,6 @@ function calculaDensidade(aluno: IAluno, avaliacao: IAvaliacao): number {
          densidade = calculaDensidade_JacksonPollock_4(avaliacao, idade);
          break;
 
-      // --- NOVO CÓDIGO AQUI ---
-      case 6: // Substitua '6' pelo ID correto do protocolo Katch & McArdle no seu banco de dados
-         densidade = calculaDensidade_KatchMcArdle(avaliacao);
-         break;
-      // ------------------------
-
       default:
          // Protocolos 3, 5 e Default não usam densidade,
          // mas retornamos 0 para evitar erros (embora não deva ser chamado)
@@ -216,24 +213,65 @@ function calculaDensidade(aluno: IAluno, avaliacao: IAvaliacao): number {
    return densidade;
 }
 
+// ===================================================================
+// 4. CÁLCULO DE % GORDURA (Protocolo-Específico)
+// ===================================================================
+
 /**
- * Protocolo: Katch & McArdle (1973)
- * Público: Jovens (Masculino e Feminino)
- * Tipo: Circunferências
+ * Helper seguro para garantir que a medida esteja em CENTÍMETROS.
+ * Se o valor for menor que 3.0 (ex: 0.90m), multiplica por 100.
+ * Se for maior (ex: 90cm), mantém.
  */
-function calculaDensidade_KatchMcArdle(avaliacao: IAvaliacao): number {
-   // Mapeamento dos campos de Perímetro/Circunferência
-   // Nota: Usamos 'braco_relaxado_direito' e 'panturrilha_direita' pois são as circunferências,
-   // e 'abdomen' seguindo o padrão usado no protocolo Tran & Weltman (Protocolo 5).
+function toCm(value: number | undefined | string): number {
+   let val = Number(value);
 
-   const pBraco = Number(avaliacao.braco_relaxado_direito);
-   const pAbdomen = Number(avaliacao.abdomen);
-   const pPanturrilha = Number(avaliacao.panturrilha_direita);
+   if (isNaN(val)) return 0; // Proteção contra NaN
 
-   // Fórmula: D = 1,12691 – 0,00357 * P. BRAÇO – 0,00127 * P. ABDOMEN + 0,00524 * P. PANTURRILHA
-   const densidade = 1.12691 - 0.00357 * pBraco - 0.00127 * pAbdomen + 0.00524 * pPanturrilha;
+   // Lógica de heurística:
+   // Ninguém tem altura ou cintura menor que 3cm (se for 1.80 é metros)
+   // Ninguém tem altura ou cintura de 300 metros.
+   if (val > 0 && val < 3.0) {
+      return val * 100;
+   }
+   return val;
+}
+/**
+ * Protocolo 6: Marinha Americana (US Navy)
+ * Baseado em circunferências (Pescoço, Cintura, Quadril e Altura)
+ */
+function protocoloGordura_Marinha_6(aluno: IAluno, avaliacao: IAvaliacao): number {
+   // A fórmula da Marinha exige altura em CM.
+   // Como no seu sistema 'altura' é metros (vide getIMC), multiplicamos por 100.
+   const alturaCm = toCm(avaliacao.altura);
+   const pescoco = toCm(avaliacao.pescoco);
+   const cintura = toCm(avaliacao.cintura);
+   const quadril = toCm(avaliacao.quadril);
 
-   return densidade;
+   // Validação básica para evitar erros matemáticos (log de 0 ou negativo)
+   if (!alturaCm || !pescoco || !cintura) return 0;
+
+   let resultado = 0;
+
+   if (aluno.sexo_aluno === "M") {
+      // Masculino: %G = 86.010 * log10(Cintura - Pescoço) - 70.041 * log10(Altura) + 36.76
+      const diferencaCinturaPescoco = cintura - pescoco;
+
+      if (diferencaCinturaPescoco <= 0) return 0; // Proteção contra log de número <= 0
+
+      resultado = 86.01 * Math.log10(diferencaCinturaPescoco) - 70.041 * Math.log10(alturaCm) + 36.76;
+   } else {
+      // Feminino: %G = 163.205 * log10(Cintura + Quadril - Pescoço) - 97.684 * log10(Altura) - 78.387
+      // Para mulheres, o quadril é obrigatório
+      if (!quadril) return 0;
+
+      const somaCircunferencias = cintura + quadril - pescoco;
+
+      if (somaCircunferencias <= 0) return 0; // Proteção
+
+      resultado = 163.205 * Math.log10(somaCircunferencias) - 97.684 * Math.log10(alturaCm) - 78.387;
+   }
+
+   return resultado;
 }
 
 // ===================================================================
@@ -296,7 +334,6 @@ export function calculaPorcentagemGordura(aluno: IAluno, avaliacao: IAvaliacao):
       // Protocolos 2 e 4 usam Densidade (Siri)
       case 2:
       case 4:
-      case 6:
          const densidade = calculaDensidade(aluno, avaliacao); // Já é formatado .toFixed(3)
          resultado = formulaGordura_Siri(Number(densidade));
          break;
@@ -309,6 +346,10 @@ export function calculaPorcentagemGordura(aluno: IAluno, avaliacao: IAvaliacao):
       // Protocolo 5 (Tran)
       case 5:
          resultado = protocoloGordura_TranWeltman_5(avaliacao);
+         break;
+
+      case 6: // Marinha Americana
+         resultado = protocoloGordura_Marinha_6(aluno, avaliacao);
          break;
 
       // Protocolo Padrão (Dezenberg)

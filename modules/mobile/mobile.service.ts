@@ -148,18 +148,18 @@ export class MobileService {
    async sendFitnessAssessment(
       companyId: string,
       studentId: string,
-      arm: Number,
-      abdomen: Number,
-      calf: Number,
+      neck: Number,
+      waist: Number,
+      hip: Number,
       weight: Number,
       height: Number
    ) {
       return this.physicalAssessmentsService.createOrUpdate({
          cod_empresa: companyId,
          cod_aluno: studentId,
-         braco_relaxado_direito: arm,
-         abdomen: abdomen,
-         panturrilha_direita: calf,
+         pescoco: neck,
+         cintura: waist,
+         quadril: hip,
          cod_protocolo: 6,
          data_avaliacao: new Date(),
          peso: weight,

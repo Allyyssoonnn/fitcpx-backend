@@ -103,12 +103,12 @@ export class MobileController {
    async sendFitnessAssessment(
       @CompanyId() companyId: string,
       @StudentId() studentId: string,
-      @Query("arm") arm: Number,
-      @Query("abdomen") abdomen: Number,
-      @Query("calf") calf: Number,
+      @Query("neck") neck: Number,
+      @Query("waist") waist: Number,
+      @Query("hip") hip: Number,
       @Query("weight") weight: Number,
       @Query("height") height: Number
    ) {
-      return this.mobileService.sendFitnessAssessment(companyId, studentId, arm, abdomen, calf, weight, height);
+      return this.mobileService.sendFitnessAssessment(companyId, studentId, neck, waist, hip, weight, height);
    }
 }
