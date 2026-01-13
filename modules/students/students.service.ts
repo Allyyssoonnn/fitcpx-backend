@@ -41,7 +41,10 @@ export class StudentsService {
             throw new HttpException("Já existe um aluno com esse E-mail ou CPF", 403);
          }
       }
-      const response = await this.studentsRepository.createOrUpdate(data);
+      const response = await this.studentsRepository.createOrUpdate({
+         ...data,
+         email_aluno: data.email_aluno?.toLowerCase(),
+      });
       if (!data.cod_aluno && response.cod_aluno) {
          const company = (await this.comapniesService.getById(companyId)) as any;
          if (!company) throw new HttpException("Empresa não encontrada.", 404);
