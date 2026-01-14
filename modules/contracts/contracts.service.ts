@@ -64,12 +64,11 @@ export class ContractsService {
       const installmentsCount = formaPagamento === "UNICA" || formaPagamento === "PARCELADO" ? installments : null;
 
       const description = modalidades
-         .map(
-            (m: any) =>
-               `${m.modalidade?.nome_modalidade}${
-                  m.variacao?.nome_modalidade_variacao ? ` - ${m.variacao?.nome_modalidade_variacao}` : ""
-               }`
-         )
+         .map((m: any) => {
+            const nome = m?.nome_modalidade || ""; // Garante string vazia se falhar
+            return nome;
+         })
+         .filter((desc: any) => desc !== "") // Remove strings vazias geradas por dados ruins
          .join(", ");
 
       // *** REUNE INFORMACOES DO ALUNO
