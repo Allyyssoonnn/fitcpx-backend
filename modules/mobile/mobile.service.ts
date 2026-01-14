@@ -163,7 +163,7 @@ export class MobileService {
          cod_protocolo: 6,
          data_avaliacao: new Date(),
          peso: weight,
-         altura: String(height).replace(",", "").replace(".", ""),
+         altura: String(height).replace(/[,.]/g, "").padEnd(3, "0"),
       });
    }
 }
