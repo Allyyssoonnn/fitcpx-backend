@@ -4,15 +4,25 @@ import db from "../../database/models";
 
 @Injectable()
 export class WorkoutsRepository {
-   async findAll(companyId: string, onlyDeleted: boolean = false, studentId?: string) {
+   async findAll(companyId: string, onlyDeleted: boolean = false, studentId?: string, onlyActives?: boolean) {
       const where: any = onlyDeleted ? { deletedAt: { [Op.ne]: null } } : {};
       where.cod_empresa = {
          [Op.or]: [companyId, null],
       };
       if (studentId) {
          where.cod_aluno = studentId;
-         where.status_treino = "A";
       } else where.cod_aluno = null;
+
+      if (onlyActives == true) where.status_treino = "A";
+
+      const lastWorkout = studentId
+         ? ((await db.tab_treino_execucao.findOne({
+              where: {
+                 cod_aluno: studentId,
+              },
+              order: [["cod_treino_execucao", "DESC"]],
+           })) as any)
+         : null;
 
       const workouts = await db.tab_treino.findAll({
          paranoid: !onlyDeleted,
@@ -105,6 +115,7 @@ export class WorkoutsRepository {
                      ...exercise,
                      sets: exercise.sets || [],
                   })),
+                  lastWorkout: session.cod_sessao == lastWorkout?.cod_sessao,
                };
             }),
          };
@@ -398,8 +409,9 @@ export class WorkoutsRepository {
          await db.tab_sessao_exercicio.update(
             {
                // serie_sessao_exercicio: exercicio?.serie_sessao_exercicio,
-               repeticao_sessao_exercicio: exec[exec.length - 1]?.repetition ?? exercicio?.repeticao_sessao_exercicio,
+               // repeticao_sessao_exercicio: exec[exec.length - 1]?.repetition ?? exercicio?.repeticao_sessao_exercicio,
                carga_sessao_exercicio: exec[exec.length - 1]?.weight ?? exercicio?.carga_sessao_exercicio,
+               observacao_sessao_exercicio_aluno: exercicio.observation,
                // intervalo_sessao_exercicio: exercicio?.intervalo_sessao_exercicio,
             },
             {
@@ -408,14 +420,38 @@ export class WorkoutsRepository {
          );
 
          for (const set of exercicio.sets) {
+            await db.tab_treino_execucao_exercicio.create({
+               cod_treino_execucao: treino_execucao.cod_treino_execucao,
+               cod_exercicio: set?.cod_exercicio,
+               treino_exercicio_executado:
+                  set.feito != undefined
+                     ? set.feito
+                        ? "S"
+                        : "N"
+                     : set?.setsInfo?.every((set: any) => set.checked)
+                     ? "S"
+                     : "N",
+               execucao_treino_execucao_exercicio: set?.execucoes
+                  ? JSON.stringify(set?.execucoes)
+                  : JSON.stringify(set.setsInfo),
+
+               sequencia_treino_execucao_exercicio: set?.sequencia_sessao_exercicio,
+               serie_treino_execucao_exercicio: set?.serie_sessao_exercicio,
+               repeticao_treino_execucao_exercicio: set?.repeticao_sessao_exercicio,
+               carga_treino_execucao_exercicio: set?.carga_sessao_exercicio,
+               observacao_treino_execucao_exercicio: set?.observacao_sessao_exercicio ?? "",
+               intervalo_treino_execucao_exercicio: set?.intervalo_sessao_exercicio,
+            });
+
             const execSet = set?.execucoes ?? set.setsInfo;
 
             await db.tab_sessao_exercicio.update(
                {
                   // serie_sessao_exercicio: exercicio?.serie_sessao_exercicio,
-                  repeticao_sessao_exercicio:
-                     execSet[execSet.length - 1]?.repetition ?? set?.repeticao_sessao_exercicio,
+                  // repeticao_sessao_exercicio:
+                  //    execSet[execSet.length - 1]?.repetition ?? set?.repeticao_sessao_exercicio,
                   carga_sessao_exercicio: execSet[execSet.length - 1]?.weight ?? set?.carga_sessao_exercicio,
+                  observacao_sessao_exercicio_aluno: set.observation,
                   // intervalo_sessao_exercicio: exercicio?.intervalo_sessao_exercicio,
                },
                {
@@ -426,5 +462,213 @@ export class WorkoutsRepository {
       }
 
       return;
+   }
+
+   async getWorkoutHistory(companyId: string, studentId?: string) {
+      const workouts = (await db.tab_treino_execucao.findAll({
+         order: [["cod_treino_execucao", "DESC"]],
+         where: {
+            cod_aluno: studentId,
+         },
+         include: [
+            {
+               model: db.tab_sessao,
+               as: "sessao",
+            },
+            {
+               model: db.tab_treino_execucao_exercicio,
+               as: "exercicios",
+               include: [
+                  {
+                     model: db.tab_exercicio,
+                     as: "exercicio",
+                     paranoid: false,
+                     include: [
+                        {
+                           model: db.tab_exercicios_empresa,
+                           as: "exercicio_empresa",
+                           required: false,
+                           where: { cod_empresa: companyId },
+                           attributes: [],
+                        },
+                        {
+                           model: db.tab_grupo_exercicio,
+                           as: "grupo_exercicio_1",
+                        },
+                     ],
+                     attributes: {
+                        include: [
+                           [
+                              Sequelize.literal(
+                                 `COALESCE(\`exercicios->exercicio->exercicio_empresa\`.\`url_exercicio_empresa\`, \`exercicios->exercicio\`.\`url_exercicio\`)`
+                              ),
+                              "url_exercicio",
+                           ],
+                        ],
+                     },
+                  },
+               ],
+            },
+         ],
+      })) as any;
+
+      return workouts.map((workout: any) => {
+         const workoutFlat = workout.toJSON();
+
+         const exercisesSorted = [...workoutFlat.exercicios].sort(
+            (a, b) => a.sequencia_treino_execucao_exercicio - b.sequencia_treino_execucao_exercicio
+         );
+
+         const grouped = {} as any;
+
+         exercisesSorted.forEach((exercise: any) => {
+            const sequencia = exercise.sequencia_treino_execucao_exercicio as any;
+
+            if (!grouped[sequencia]) {
+               grouped[sequencia] = {
+                  // ...exercise.exercicio,
+                  ...exercise,
+                  superSets: [],
+                  sets:
+                     exercise.execucao_treino_execucao_exercicio &&
+                     JSON.parse(exercise.execucao_treino_execucao_exercicio)
+                        ? JSON.parse(exercise.execucao_treino_execucao_exercicio)
+                        : [],
+               };
+            } else {
+               grouped[sequencia].superSets.push({
+                  // ...exercise.exercicio,
+                  ...exercise,
+                  sets:
+                     exercise.execucao_treino_execucao_exercicio &&
+                     JSON.parse(exercise.execucao_treino_execucao_exercicio)
+                        ? JSON.parse(exercise.execucao_treino_execucao_exercicio)
+                        : [],
+               });
+            }
+         });
+
+         const exercisesFilteredAndOrderned = Object.values(grouped).map((exercise: any) => ({
+            ...exercise.exercicio,
+            ...exercise,
+            superSets: exercise.superSets || [],
+         }));
+
+         return {
+            ...workoutFlat,
+            exercicios: exercisesFilteredAndOrderned,
+         };
+      });
+   }
+
+   async getWorkoutHistoryReport(companyId: string, workoutId: string) {
+      const workout = (await db.tab_treino.findOne({
+         where: { cod_treino: workoutId },
+         include: [
+            {
+               model: db.tab_usuario,
+               as: "usuario",
+            },
+            {
+               model: db.tab_aluno,
+               as: "aluno",
+            },
+            {
+               model: db.tab_sessao,
+               as: "sessoes",
+               include: [
+                  {
+                     model: db.tab_treino_execucao,
+                     as: "execucoes",
+                     include: [
+                        {
+                           model: db.tab_treino_execucao_exercicio,
+                           as: "exercicios",
+                        },
+                     ],
+                  },
+                  {
+                     model: db.tab_sessao_exercicio,
+                     as: "exercicios",
+                     include: [
+                        {
+                           model: db.tab_exercicio,
+                           as: "exercicio",
+                           include: [
+                              {
+                                 model: db.tab_exercicios_empresa,
+                                 as: "exercicio_empresa",
+                                 required: false,
+                                 where: { cod_empresa: companyId },
+                                 attributes: [],
+                              },
+                              {
+                                 model: db.tab_grupo_exercicio,
+                                 as: "grupo_exercicio_1",
+                              },
+                           ],
+                           attributes: {
+                              include: [
+                                 [
+                                    Sequelize.literal(
+                                       `COALESCE(\`sessoes->exercicios->exercicio->exercicio_empresa\`.\`url_exercicio_empresa\`, \`sessoes->exercicios->exercicio\`.\`url_exercicio\`)`
+                                    ),
+                                    "url_exercicio",
+                                 ],
+                              ],
+                           },
+                        },
+                     ],
+                     order: [["sequencia_sessao_exercicio", "ASC"]],
+                  },
+               ],
+               order: [["sequencia_sessao", "ASC"]],
+            },
+         ],
+      })) as any;
+
+      if (!workout) return;
+
+      let workoutFlat = workout.toJSON();
+
+      let sessionSorted = [...workoutFlat.sessoes].sort((a, b) => a.sequencia_sessao - b.sequencia_sessao);
+
+      return {
+         ...workoutFlat,
+         qtd_sessoes: sessionSorted?.length ?? 0,
+         sessoes: sessionSorted.map((session) => {
+            const exercisesSorted = [...session.exercicios].sort(
+               (a, b) => a.sequencia_sessao_exercicios - b.sequencia_sessao_exercicios
+            );
+
+            const grouped = {} as any;
+
+            exercisesSorted.forEach((exercise: any) => {
+               const sequencia = exercise.sequencia_sessao_exercicio as any;
+
+               if (!grouped[sequencia]) {
+                  grouped[sequencia] = {
+                     ...exercise.exercicio,
+                     ...exercise,
+                     sets: [],
+                  };
+               } else {
+                  grouped[sequencia].sets.push({
+                     ...exercise.exercicio,
+                     ...exercise,
+                  });
+               }
+            });
+
+            return {
+               ...session,
+               exercicios: Object.values(grouped).map((exercise: any) => ({
+                  ...exercise.exercicio,
+                  ...exercise,
+                  sets: exercise.sets || [],
+               })),
+            };
+         }),
+      };
    }
 }

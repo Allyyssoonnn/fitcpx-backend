@@ -43,6 +43,11 @@ export class MobileController {
       return this.mobileService.getPhysicalAssessmentById(studentId, physicalAssessmentId);
    }
 
+   @Get("getWorkoutHistory")
+   async getWorkoutHistory(@CompanyId() companyId: string, @StudentId() studentId: string) {
+      return this.mobileService.getWorkoutHistory(companyId, studentId);
+   }
+
    @Get("getWorkouts")
    async getWorkouts(@CompanyId() companyId: string, @StudentId() studentId: string) {
       return this.mobileService.getWorkouts(companyId, studentId);
@@ -82,5 +87,28 @@ export class MobileController {
    @Get("getUnreadMessages")
    async getUnreadMessages(@StudentId() studentId: string) {
       return this.mobileService.getUnreadMessages(studentId);
+   }
+
+   @Get("findEvents")
+   async findEvents(@StudentId() studentId: string) {
+      return this.mobileService.findEvents(studentId);
+   }
+
+   @Get("scheduleEvent")
+   async scheduleEvent(@StudentId() studentId: string, @Query("eventId") eventId: string) {
+      return this.mobileService.scheduleEvent(studentId, eventId);
+   }
+
+   @Get("sendFitnessAssessment")
+   async sendFitnessAssessment(
+      @CompanyId() companyId: string,
+      @StudentId() studentId: string,
+      @Query("neck") neck: Number,
+      @Query("waist") waist: Number,
+      @Query("hip") hip: Number,
+      @Query("weight") weight: Number,
+      @Query("height") height: Number
+   ) {
+      return this.mobileService.sendFitnessAssessment(companyId, studentId, neck, waist, hip, weight, height);
    }
 }

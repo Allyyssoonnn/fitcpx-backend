@@ -36,6 +36,11 @@ interface IAluno {
 }
 
 interface IAvaliacao {
+   gordura_viceral?: number;
+   bioimpedancia_gordura?: number;
+   bioimpedancia_muscular?: number;
+   bioimpedancia_idade?: number;
+
    cod_avaliacao: number;
    cod_aluno: number;
    cod_protocolo: number;
@@ -45,13 +50,17 @@ interface IAvaliacao {
 
    // Perimêtros
    antebraco_direito?: number;
+   crista_iliaca?: number;
+
+   pescoco?: number;
+   cintura?: number;
+   quadril?: number;
 
    // Dobras
    supra_iliaca?: number;
    peitoral?: number;
    coxa?: number;
    abdomen?: number;
-   quadril?: number;
    subescapular?: number;
    triciptal?: number;
    axilar_media?: number;
@@ -194,6 +203,7 @@ function calculaDensidade(aluno: IAluno, avaliacao: IAvaliacao): number {
       case 4:
          densidade = calculaDensidade_JacksonPollock_4(avaliacao, idade);
          break;
+
       default:
          // Protocolos 3, 5 e Default não usam densidade,
          // mas retornamos 0 para evitar erros (embora não deva ser chamado)
@@ -201,6 +211,67 @@ function calculaDensidade(aluno: IAluno, avaliacao: IAvaliacao): number {
    }
 
    return densidade;
+}
+
+// ===================================================================
+// 4. CÁLCULO DE % GORDURA (Protocolo-Específico)
+// ===================================================================
+
+/**
+ * Helper seguro para garantir que a medida esteja em CENTÍMETROS.
+ * Se o valor for menor que 3.0 (ex: 0.90m), multiplica por 100.
+ * Se for maior (ex: 90cm), mantém.
+ */
+function toCm(value: number | undefined | string): number {
+   let val = Number(value);
+
+   if (isNaN(val)) return 0; // Proteção contra NaN
+
+   // Lógica de heurística:
+   // Ninguém tem altura ou cintura menor que 3cm (se for 1.80 é metros)
+   // Ninguém tem altura ou cintura de 300 metros.
+   if (val > 0 && val < 3.0) {
+      return val * 100;
+   }
+   return val;
+}
+/**
+ * Protocolo 6: Marinha Americana (US Navy)
+ * Baseado em circunferências (Pescoço, Cintura, Quadril e Altura)
+ */
+function protocoloGordura_Marinha_6(aluno: IAluno, avaliacao: IAvaliacao): number {
+   // A fórmula da Marinha exige altura em CM.
+   // Como no seu sistema 'altura' é metros (vide getIMC), multiplicamos por 100.
+   const alturaCm = toCm(avaliacao.altura);
+   const pescoco = toCm(avaliacao.pescoco);
+   const cintura = toCm(avaliacao.cintura);
+   const quadril = toCm(avaliacao.quadril);
+
+   // Validação básica para evitar erros matemáticos (log de 0 ou negativo)
+   if (!alturaCm || !pescoco || !cintura) return 0;
+
+   let resultado = 0;
+
+   if (aluno.sexo_aluno === "M") {
+      // Masculino: %G = 86.010 * log10(Cintura - Pescoço) - 70.041 * log10(Altura) + 36.76
+      const diferencaCinturaPescoco = cintura - pescoco;
+
+      if (diferencaCinturaPescoco <= 0) return 0; // Proteção contra log de número <= 0
+
+      resultado = 86.01 * Math.log10(diferencaCinturaPescoco) - 70.041 * Math.log10(alturaCm) + 36.76;
+   } else {
+      // Feminino: %G = 163.205 * log10(Cintura + Quadril - Pescoço) - 97.684 * log10(Altura) - 78.387
+      // Para mulheres, o quadril é obrigatório
+      if (!quadril) return 0;
+
+      const somaCircunferencias = cintura + quadril - pescoco;
+
+      if (somaCircunferencias <= 0) return 0; // Proteção
+
+      resultado = 163.205 * Math.log10(somaCircunferencias) - 97.684 * Math.log10(alturaCm) - 78.387;
+   }
+
+   return resultado;
 }
 
 // ===================================================================
@@ -222,15 +293,16 @@ function protocoloGordura_RechSantosSilva_3(avaliacao: IAvaliacao, idade: number
  * Protocolo 5: 60-81 anos - Tran e Weltman - (1988)
  */
 function protocoloGordura_TranWeltman_5(avaliacao: IAvaliacao): number {
-   function calculaIliaco(avaliacao: IAvaliacao) {
-      return (Number(avaliacao.abdomen) + Number(avaliacao.quadril)) / 2;
-   }
+   // function calculaIliaco(avaliacao: IAvaliacao) {
+   //    return (Number(avaliacao.abdomen) + Number(avaliacao.quadril)) / 2;
+   // }
 
    const resultado =
       -47.371817 +
       0.57914807 * Number(avaliacao.abdomen) +
       0.25189114 * Number(avaliacao.quadril) +
-      0.21366088 * Number(calculaIliaco(avaliacao)) -
+      // 0.21366088 * Number(calculaIliaco(avaliacao)) -
+      0.21366088 * Number(avaliacao.crista_iliaca) -
       0.35595404 * Number(avaliacao.peso);
 
    return resultado;
@@ -255,6 +327,10 @@ export function calculaPorcentagemGordura(aluno: IAluno, avaliacao: IAvaliacao):
    let resultado: number;
 
    switch (avaliacao.cod_protocolo) {
+      case 7: // Bioimpedância
+         resultado = Number(avaliacao.bioimpedancia_gordura) || 0;
+         break;
+
       // Protocolos 2 e 4 usam Densidade (Siri)
       case 2:
       case 4:
@@ -268,9 +344,12 @@ export function calculaPorcentagemGordura(aluno: IAluno, avaliacao: IAvaliacao):
          break;
 
       // Protocolo 5 (Tran)
-      // * DESATIVADO *
       case 5:
          resultado = protocoloGordura_TranWeltman_5(avaliacao);
+         break;
+
+      case 6: // Marinha Americana
+         resultado = protocoloGordura_Marinha_6(aluno, avaliacao);
          break;
 
       // Protocolo Padrão (Dezenberg)
@@ -305,6 +384,16 @@ export function calculaPorcentagemMassaMagra(peso: number, kgMassaMagra: number)
 // --- Massa Muscular ---
 export function calculaKGMusculo(aluno: IAluno, avaliacao: IAvaliacao): number {
    const idade = getAgeFromPhysicalAssessmentDate(aluno.data_nascimento_aluno, avaliacao.data_avaliacao);
+
+   if (
+      !avaliacao.braco_relaxado_direito ||
+      !avaliacao.triciptal ||
+      avaliacao.coxa_direita ||
+      avaliacao.coxa ||
+      avaliacao.panturrilha_direita ||
+      avaliacao.panturrilha
+   )
+      return 0;
 
    const p_braco = Number(avaliacao.braco_relaxado_direito) - Math.PI * (Number(avaliacao.triciptal) / 10);
    const p_coxa = Number(avaliacao.coxa_direita) - Math.PI * (Number(avaliacao.coxa) / 10);
@@ -474,10 +563,21 @@ export async function getResultPhysicalFunc(aluno: IAluno, avaliacao: IAvaliacao
    const kgMassaMagra = calculaKGMassaMagra(avaliacao.peso, kgGordura);
    const pctMassaMagra = calculaPorcentagemMassaMagra(avaliacao.peso, kgMassaMagra);
 
-   const kgMusculo = calculaKGMusculo(aluno, avaliacao);
-   const pctMusculo = calculaPorcentagemMusculo(avaliacao.peso, kgMusculo);
+   // 3. Massa Muscular (Lógica condicional)
+   let kgMusculo: number;
+   let pctMusculo: number;
 
-   const kgOsseo = calculaKGOsseo(avaliacao);
+   if (avaliacao.cod_protocolo === 7) {
+      // Se for Bioimpedância, usa o valor informado
+      pctMusculo = Number(avaliacao.bioimpedancia_muscular) || 0;
+      kgMusculo = round((avaliacao.peso * pctMusculo) / 100, 1);
+   } else {
+      // Se for dobras, usa a fórmula antropométrica existente
+      kgMusculo = calculaKGMusculo(aluno, avaliacao);
+      pctMusculo = calculaPorcentagemMusculo(avaliacao.peso, kgMusculo);
+   }
+
+   const kgOsseo = avaliacao.biestiloide_punho && avaliacao.biepicondilo_femoral ? calculaKGOsseo(avaliacao) : 0;
    const pctOsseo = calculaPorcentagemOsseo(avaliacao.peso, kgOsseo);
 
    const kgResidual = calculaKGResidual(avaliacao.peso, kgGordura, kgMusculo, kgOsseo);
@@ -531,7 +631,7 @@ export async function getResultPhysicalAssesment(req: Request) {
 
       const avaliacaoDb = await tab_avaliacao.findOne({
          include: [
-            { model: tab_usuario, as: "usuario", required: true },
+            { model: tab_usuario, as: "usuario", required: false },
             { model: tab_aluno, as: "aluno", required: true, attributes: ["nome_aluno"] },
             { model: tab_avaliacao_imagem, as: "imagem" },
          ],

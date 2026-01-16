@@ -27,9 +27,10 @@ export class WorkoutsController {
    async getAll(
       @CompanyId() companyId: string,
       @Query("deleted") deleted: string,
-      @Query("studentId") studentId: string
+      @Query("studentId") studentId: string,
+      @Query("onlyActives") onlyActives: boolean
    ) {
-      return this.workoutsService.getAllWorkouts(companyId, deleted == "true", studentId);
+      return this.workoutsService.getAllWorkouts(companyId, deleted == "true", studentId, onlyActives);
    }
 
    @Delete(":id")
@@ -70,6 +71,16 @@ export class WorkoutsController {
    @Get("getMovementPatterns")
    async getMovementPatterns(@Query("lang") lang: string) {
       return this.workoutsService.getMovementPatterns(lang);
+   }
+
+   @Get("getWorkoutHistory")
+   async getWorkoutHistory(@CompanyId() companyId: string, @Query("studentId") studentId: string) {
+      return this.workoutsService.getWorkoutHistory(companyId, studentId);
+   }
+
+   @Get("getWorkoutHistoryReport")
+   async getWorkoutHistoryReport(@CompanyId() companyId: string, @Query("workoutId") workoutId: string) {
+      return this.workoutsService.getWorkoutHistoryReport(companyId, workoutId);
    }
 
    @Get(":id")

@@ -20,7 +20,7 @@ export class PhysicalAssessmentsRepository {
             {
                model: db.tab_usuario,
                as: "usuario",
-               required: true,
+               required: false,
                where: companyId ? { cod_empresa: companyId } : {},
             },
             {
@@ -58,7 +58,7 @@ export class PhysicalAssessmentsRepository {
             {
                model: db.tab_usuario,
                as: "usuario",
-               required: true,
+               required: false,
             },
             {
                model: db.tab_avaliacao_imagem,

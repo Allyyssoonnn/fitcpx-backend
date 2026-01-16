@@ -17,6 +17,10 @@ sequelize = new Sequelize(config.database, config.username, config.password, {
       acquire: 30000, // Tempo máximo em ms que Sequelize espera para pegar uma conexão antes de dar erro
       idle: 10000, // Tempo que uma conexão ociosa fica no pool antes de ser liberada
    },
+   dialectOptions: {
+      dateStrings: true, // Traz a data como string exata do banco
+      typeCast: true, // Força essa conversão
+   },
 });
 
 fs.readdirSync(__dirname)

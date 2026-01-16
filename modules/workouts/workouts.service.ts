@@ -10,8 +10,16 @@ export class WorkoutsService {
       private readonly eventsService: EventsService
    ) {}
 
-   async getAllWorkouts(companyId: string, deleted: boolean, studentId?: string) {
-      return this.workoutsRepository.findAll(companyId, deleted, studentId);
+   async getWorkoutHistory(companyId: string, studentId?: string) {
+      return this.workoutsRepository.getWorkoutHistory(companyId, studentId);
+   }
+
+   async getWorkoutHistoryReport(companyId: string, workoutId: string) {
+      return this.workoutsRepository.getWorkoutHistoryReport(companyId, workoutId);
+   }
+
+   async getAllWorkouts(companyId: string, deleted: boolean, studentId?: string, onlyActives: boolean = true) {
+      return this.workoutsRepository.findAll(companyId, deleted, studentId, onlyActives);
    }
 
    async getWorkout(workoutId: string) {
