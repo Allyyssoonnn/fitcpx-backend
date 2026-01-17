@@ -43,6 +43,7 @@ export async function getLicenseOnly(cod_empresa: string) {
       ],
    });
    const license = company?.licenses[0];
+   const companyStatus = company?.status_empresa;
 
    const { status_empresa_licenca: status } = license || {};
    // * Status can be "Active", "Expired", "Canceled", null (no license)
@@ -66,6 +67,10 @@ export async function getLicenseOnly(cod_empresa: string) {
          authorizedStatus = "Trial Active";
          trialDaysLeft = 7 - diffDays;
       }
+   }
+
+   if (status === "Active" && companyStatus == "Blocked") {
+      authorizedStatus = "Blocked";
    }
 
    return { status: authorizedStatus, trialDaysLeft };

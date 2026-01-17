@@ -137,6 +137,8 @@ export class VerifyTokenMiddleware implements NestMiddleware {
                return res.status(403).send({ status: false, message: "Teste gratuito expirado." });
          } else if (!status) {
             return res.status(401).send({ status: false, message: "Licença inválida." });
+         } else if (status == "Blocked") {
+            if (req.method === "POST") return res.status(403).send({ status: false, message: "Licença bloqueada." });
          }
 
          next();
