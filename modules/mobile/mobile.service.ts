@@ -22,7 +22,7 @@ export class MobileService {
       private readonly contractsService: ContractsService,
       private readonly eventsService: EventsService,
       private readonly chatRepository: ChatRepository,
-      private readonly calendarRepository: CalendarRepository
+      private readonly calendarRepository: CalendarRepository,
    ) {}
 
    async recoveryPassword(login: string) {
@@ -54,6 +54,8 @@ export class MobileService {
       if (!student) student = (await this.studentsService.getByCPF(login)) as any;
 
       if (!student) throw new HttpException("Usuário não encontrado!", 401);
+
+      if (student?.status_aluno !== "A") throw new HttpException("Usuário inativo!", 401);
 
       if (firstAccess) {
          if (password.length < 5) throw new HttpException("Senha muito curta", 401);
@@ -152,7 +154,7 @@ export class MobileService {
       waist: Number,
       hip: Number,
       weight: Number,
-      height: Number
+      height: Number,
    ) {
       return this.physicalAssessmentsService.createOrUpdate({
          cod_empresa: companyId,

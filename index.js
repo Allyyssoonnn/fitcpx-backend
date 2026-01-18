@@ -18,7 +18,7 @@ server.use(
          ? "*"
          : ["http://localhost:5173", "https://apptest.fitcpx.com", "https://app.fitcpx.com", "https://box.fitcpx.com"],
       credentials: true,
-   })
+   }),
 );
 server.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 server.use(bodyParser.json({ limit: "50mb" }));
