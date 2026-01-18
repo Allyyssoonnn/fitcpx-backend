@@ -53,9 +53,9 @@ export class MobileService {
       let student = (await this.studentsService.getByEmail(login.toLowerCase())) as any;
       if (!student) student = (await this.studentsService.getByCPF(login)) as any;
 
-      if (!student) throw new HttpException("Usuário não encontrado!", 401);
+      if (!student) throw new HttpException("Aluno não encontrado!", 401);
 
-      if (student?.status_aluno !== "A") throw new HttpException("Usuário inativo!", 401);
+      if (student?.status_aluno !== "A") throw new HttpException("Aluno inativo!", 401);
 
       if (firstAccess) {
          if (password.length < 5) throw new HttpException("Senha muito curta", 401);
