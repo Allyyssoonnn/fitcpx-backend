@@ -27,7 +27,7 @@ export class AdminService {
       private readonly mailsService: MailsService,
       private readonly wpAPI: WPAPI,
       private readonly wpService: WPService,
-      private readonly storageService: StorageService
+      private readonly storageService: StorageService,
    ) {}
 
    async resetTrial(companyId: string) {
@@ -80,7 +80,7 @@ export class AdminService {
             !!p.jsonwebhook_aluno_contrato_pagamento &&
             !!JSON.parse(p.jsonwebhook_aluno_contrato_pagamento)?.estimatedCreditDate &&
             moment(JSON.parse(p.jsonwebhook_aluno_contrato_pagamento).estimatedCreditDate) > initialDateRaw &&
-            moment(JSON.parse(p.jsonwebhook_aluno_contrato_pagamento).estimatedCreditDate) <= endDateRaw
+            moment(JSON.parse(p.jsonwebhook_aluno_contrato_pagamento).estimatedCreditDate) <= endDateRaw,
       );
 
       const formatedPayments = paymentsFiltered.map((v: any) => ({
@@ -135,23 +135,14 @@ export class AdminService {
 
       this.adminRepository.registerPayout(companyId, amount, url, clientsArray);
 
-      this.mailsService.payout(
+      return this.mailsService.payout(
          name,
          email,
          clients,
          new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(amount || 0),
          proof,
          moment(startDate).format("DD/MM/YYYY"),
-         moment(endDate).format("DD/MM/YYYY")
-      );
-      return await this.wpService.sendPayout(
-         phone,
-         proof,
-         name,
-         moment(startDate).format("DD/MM/YYYY"),
          moment(endDate).format("DD/MM/YYYY"),
-         new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(amount || 0),
-         url
       );
    }
 }
