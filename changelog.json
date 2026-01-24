@@ -1,4 +1,10 @@
 {
+   "3.4.x": {
+      "Melhorias Gerais": [
+         "Correção de bugs menores para melhorar a estabilidade do sistema.",
+         "Otimizações de performance para uma experiência mais fluida."
+      ]
+   },
    "3.3.x": {
       "Destaques": [
          "🎉 Agora os alunos podem criar Stories com dados do treino para compartilhar no Instagram!",
