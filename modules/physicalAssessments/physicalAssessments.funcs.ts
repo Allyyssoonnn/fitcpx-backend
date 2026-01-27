@@ -385,16 +385,6 @@ export function calculaPorcentagemMassaMagra(peso: number, kgMassaMagra: number)
 export function calculaKGMusculo(aluno: IAluno, avaliacao: IAvaliacao): number {
    const idade = getAgeFromPhysicalAssessmentDate(aluno.data_nascimento_aluno, avaliacao.data_avaliacao);
 
-   if (
-      !avaliacao.braco_relaxado_direito ||
-      !avaliacao.triciptal ||
-      avaliacao.coxa_direita ||
-      avaliacao.coxa ||
-      avaliacao.panturrilha_direita ||
-      avaliacao.panturrilha
-   )
-      return 0;
-
    const p_braco = Number(avaliacao.braco_relaxado_direito) - Math.PI * (Number(avaliacao.triciptal) / 10);
    const p_coxa = Number(avaliacao.coxa_direita) - Math.PI * (Number(avaliacao.coxa) / 10);
    const p_panturrilha = Number(avaliacao.panturrilha_direita) - Math.PI * (Number(avaliacao.panturrilha) / 10);
@@ -405,10 +395,10 @@ export function calculaKGMusculo(aluno: IAluno, avaliacao: IAvaliacao): number {
       aluno.etnia_aluno === "Negro"
          ? 1.1
          : aluno.etnia_aluno === "Caucasiano"
-         ? 0
-         : aluno.etnia_aluno === "Asiático"
-         ? -2
-         : 0;
+           ? 0
+           : aluno.etnia_aluno === "Asiático"
+             ? -2
+             : 0;
 
    const result =
       avaliacao.altura * // O (altura * 100) / 100 original é apenas altura
