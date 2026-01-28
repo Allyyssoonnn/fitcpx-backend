@@ -12,7 +12,7 @@ export class CompaniesService {
       private readonly companiesRepository: CompaniesRepository,
       private readonly workoutsRepository: WorkoutsRepository,
       private readonly storageService: StorageService,
-      private readonly paymentService: PaymentService
+      private readonly paymentService: PaymentService,
    ) {}
 
    async getAll() {
@@ -142,5 +142,9 @@ export class CompaniesService {
 
    async getNotificationsConfig(companyId?: string, studentId?: string) {
       return await this.companiesRepository.getNotificationsConfig(companyId, studentId);
+   }
+
+   async getCompanyAndPlans(companyId: string) {
+      return await this.companiesRepository.getCompanyAndPlans(companyId);
    }
 }

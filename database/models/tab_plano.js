@@ -27,6 +27,19 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: "N",
          },
+         vende_online: {
+            type: DataTypes.ENUM("S", "N"),
+            defaultValue: "N",
+         },
+         vende_recorrencia: {
+            type: DataTypes.ENUM("S", "N"),
+            defaultValue: "N",
+         },
+         maximo_parcelas: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 12,
+         },
          duracao_plano: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -56,7 +69,7 @@ module.exports = (sequelize, DataTypes) => {
          paranoid: true,
          freezeTableName: true,
          timestamps: true,
-      }
+      },
    );
 
    tab_plano.associate = (models) => {

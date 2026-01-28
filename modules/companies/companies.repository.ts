@@ -35,7 +35,7 @@ export class CompaniesRepository {
       var dueDateInsert = dueDate ? dueDate : null;
       return await db.tab_empresa.update(
          { cupom_empresa_licenca: coupon, expiracaocupom_empresa_licenca: dueDateInsert },
-         { where: { cod_empresa: companyId } }
+         { where: { cod_empresa: companyId } },
       );
    }
 
@@ -46,7 +46,7 @@ export class CompaniesRepository {
    async cancelAllCompanyLicenses(companyId: string) {
       return await db.tab_empresa_licenca.update(
          { status_empresa_licenca: "Canceled" },
-         { where: { cod_empresa: companyId } }
+         { where: { cod_empresa: companyId } },
       );
    }
 
@@ -185,7 +185,7 @@ export class CompaniesRepository {
       keyConfig: string,
       type: "email" | "app" | "whatsapp",
       companyId?: string,
-      studentId?: string
+      studentId?: string,
    ) {
       const config = await this.getNotificationsConfig(companyId, studentId);
       if (typeof config?.[keyConfig]?.[type] === "boolean") {
@@ -202,5 +202,35 @@ export class CompaniesRepository {
       } else {
          return true;
       }
+   }
+
+   async getCompanyAndPlans(companyId: string) {
+      const plans = (await db.tab_plano.findAll({
+         where: { cod_empresa: companyId, vende_online: "S" },
+      })) as any;
+
+      const company = (await db.tab_empresa.findOne({
+         where: { cod_empresa: companyId },
+      })) as any;
+
+      return {
+         company: {
+            name: company?.nome_empresa,
+            address: company?.endereco_empresa,
+            phone: company?.telefone_empresa,
+            email: company?.email_empresa,
+            img: company?.imagem_empresa,
+         },
+         plans:
+            plans?.map((plan: any) => ({
+               value: plan.cod_plano,
+               label: plan.nome_plano,
+               price: plan.valor_plano + (plan.valor_adesao || 0),
+               joiningFee: plan.valor_adesao,
+               duration: plan.duracao_plano,
+               max_installments: plan.maximo_parcelas,
+               allowMonthly: plan.vende_recorrencia === "S",
+            })) ?? [],
+      };
    }
 }

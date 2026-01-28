@@ -62,6 +62,7 @@ const allowedRoutes = [
    "/licenses/buyLicense",
    "/licenses/sendCoupon",
    "/companies",
+   "/companies/getCompanyAndPlans",
 ];
 
 @Injectable()
@@ -70,7 +71,7 @@ export class VerifyTokenMiddleware implements NestMiddleware {
       // Extract token from "Authorization" header
       const params = req.headers.authorization?.split(" ");
       //Remove Bearer if exist
-      const token = params ? params[1] ?? (params[0] as string) : null;
+      const token = params ? (params[1] ?? (params[0] as string)) : null;
 
       // Allow access to certain routes without token
       if (allowedRoutes.includes(req.path) && !token) {

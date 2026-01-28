@@ -43,12 +43,12 @@ export class StudentsController {
    @UseInterceptors(
       FileInterceptor("image", {
          storage: multer.memoryStorage(),
-      })
+      }),
    )
    async updateImageUser(
       @Headers() header: any,
       @UploadedFile() fileBuffer: Express.Multer.File,
-      @Query("studentId") studentId: string
+      @Query("studentId") studentId: string,
    ) {
       return this.studentsService.updateImageUser(studentId, fileBuffer);
    }
@@ -57,5 +57,10 @@ export class StudentsController {
    async updatePassword(@Body() body: { token: string; password: string }) {
       const { token, password } = body;
       return this.studentsService.updatePassword(token, password);
+   }
+
+   @Post("preRegisterStudent")
+   async preRegisterStudent(@Query("companyId") companyId: string, @Body() body: any) {
+      // return this.studentsService.preRegisterStudent(body);
    }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import multer from "multer";
 import { CompanyId } from "../../shared/decorators/companyId.decorator";
@@ -24,7 +24,7 @@ export class CompaniesController {
    @UseInterceptors(
       FileInterceptor("image", {
          storage: multer.memoryStorage(),
-      })
+      }),
    )
    async updateImageCompany(@CompanyId() companyId: string, @UploadedFile() fileBuffer: Express.Multer.File) {
       return this.companiesService.updateImageCompany(companyId, fileBuffer);
@@ -81,5 +81,10 @@ export class CompaniesController {
    @Get("getNotificationsConfig")
    async getNotificationsConfig(@CompanyId() companyId: string) {
       return this.companiesService.getNotificationsConfig(companyId);
+   }
+
+   @Get("getCompanyAndPlans")
+   async getCompanyAndPlans(@Query("companyId") companyId: string) {
+      return this.companiesService.getCompanyAndPlans(companyId);
    }
 }
