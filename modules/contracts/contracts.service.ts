@@ -237,7 +237,7 @@ export class ContractsService {
          installments: "PARCELADO",
       };
 
-      if (!company?.cod_empresa) throw new HttpException("Erro ao econtrar empresa", 403);
+      if (!company?.cod_empresa) throw new HttpException("Erro ao encontrar empresa", 403);
 
       if (
          (student?.email_aluno && (await this.studentsRepository.findByEmail(student.email_aluno))) ||
