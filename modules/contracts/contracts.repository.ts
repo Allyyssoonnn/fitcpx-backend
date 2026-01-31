@@ -11,6 +11,12 @@ export class ContractsRepository {
       return contract;
    }
 
+   async updateContractData(id: number, data: any) {
+      return await db.tab_aluno_contrato.update(data, {
+         where: { cod_aluno_contrato: id },
+      });
+   }
+
    async findAll(companyId: string, studentId?: string) {
       let where = { cod_empresa: companyId } as any;
       if (studentId) where.cod_aluno = Number(studentId);
@@ -84,7 +90,7 @@ export class ContractsRepository {
    async updateContractApi(contractId: string, apiId: string | null) {
       return await db.tab_aluno_contrato.update(
          { autentique_aluno_contrato: apiId },
-         { where: { cod_aluno_contrato: contractId } }
+         { where: { cod_aluno_contrato: contractId } },
       );
    }
 
@@ -95,7 +101,7 @@ export class ContractsRepository {
    async cancelById(id: string) {
       return await db.tab_aluno_contrato.update(
          { status_aluno_contrato: "Canceled" },
-         { where: { cod_aluno_contrato: id } }
+         { where: { cod_aluno_contrato: id } },
       );
    }
 }

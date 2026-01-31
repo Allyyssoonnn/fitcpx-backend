@@ -35,6 +35,11 @@ export class StudentsRepository {
       return ((await db.tab_aluno.upsert(data)) as any)[0];
    }
 
+   async update(data: any) {
+      (await db.tab_aluno.update(data, { where: { cod_aluno: data.cod_aluno } })) as any;
+      return await db.tab_aluno.findByPk(data.cod_aluno);
+   }
+
    async deleteById(id: string) {
       return await db.tab_aluno.destroy({ where: { cod_aluno: id } });
    }

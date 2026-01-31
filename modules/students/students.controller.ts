@@ -59,8 +59,9 @@ export class StudentsController {
       return this.studentsService.updatePassword(token, password);
    }
 
-   @Post("preRegisterStudent")
-   async preRegisterStudent(@Query("companyId") companyId: string, @Body() body: any) {
-      // return this.studentsService.preRegisterStudent(body);
+   @Post("verifyExists")
+   async verifyExists(@Body() body: any) {
+      const { email, cpf } = body;
+      return this.studentsService.verifyExists(email, cpf);
    }
 }

@@ -215,6 +215,7 @@ export class CompaniesRepository {
 
       return {
          company: {
+            companyId: company?.cod_empresa,
             name: company?.nome_empresa,
             address: company?.endereco_empresa,
             phone: company?.telefone_empresa,
@@ -230,6 +231,7 @@ export class CompaniesRepository {
                duration: plan.duracao_plano,
                max_installments: plan.maximo_parcelas,
                allowMonthly: plan.vende_recorrencia === "S",
+               contractId: plan.cod_contrato,
             })) ?? [],
       };
    }

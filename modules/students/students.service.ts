@@ -12,7 +12,7 @@ export class StudentsService {
       private readonly studentsRepository: StudentsRepository,
       private readonly storageService: StorageService,
       private readonly eventsService: EventsService,
-      private readonly comapniesService: CompaniesService
+      private readonly comapniesService: CompaniesService,
    ) {}
 
    async getAll(companyId: string, onlyDeleted: boolean) {
@@ -48,9 +48,14 @@ export class StudentsService {
       if (!data.cod_aluno && response.cod_aluno) {
          const company = (await this.comapniesService.getById(companyId)) as any;
          if (!company) throw new HttpException("Empresa não encontrada.", 404);
-         return this.eventsService.welcomeStudent(response.nome_aluno, response.email_aluno, company.nome_empresa);
+         await this.eventsService.welcomeStudent(response.nome_aluno, response.email_aluno, company.nome_empresa);
+         return response;
       } else return response;
    };
+
+   async update(data: any) {
+      return this.studentsRepository.update(data);
+   }
 
    async delete(id: string) {
       return await this.studentsRepository.deleteById(id);
@@ -89,5 +94,13 @@ export class StudentsService {
       } catch (error) {
          throw new HttpException("Token inválido", 401);
       }
+   }
+
+   async verifyExists(email: string, cpf: string) {
+      var student = null;
+      student = await this.studentsRepository.findByCPF(cpf);
+      if (student) return student;
+      student = await this.studentsRepository.findByEmail(email.toLocaleLowerCase());
+      return student;
    }
 }

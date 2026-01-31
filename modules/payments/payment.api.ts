@@ -38,8 +38,8 @@ export class PaymentAPI {
       installments: number | null,
       billingType: string,
       name: string,
-      interestPercentage?: string,
-      finePercentage?: string
+      interestPercentage?: string | null,
+      finePercentage?: string | null,
    ) {
       const url = `${this.coreURL}/v3/payments/`;
       const body = {
@@ -51,8 +51,8 @@ export class PaymentAPI {
          externalReference: cod,
          postalService: false,
          discount: { type: "PERCENTAGE", value: 0 },
-         interest: { value: interestPercentage },
-         fine: { value: finePercentage, type: "PERCENTAGE" },
+         interest: { value: interestPercentage ?? 0 },
+         fine: { value: finePercentage ?? 0, type: "PERCENTAGE" },
       } as any;
 
       if (billingType === "CREDIT_CARD") {
@@ -96,9 +96,9 @@ export class PaymentAPI {
       installments: number | null,
       billingType: string,
       name: string,
-      interestPercentage?: string,
-      finePercentage?: string,
-      cycle?: 1 | 6 | 12 | null
+      interestPercentage?: string | null,
+      finePercentage?: string | null,
+      cycle?: 1 | 6 | 12 | null,
    ) {
       const cycleMap = {
          1: "MONTHLY",
@@ -144,7 +144,7 @@ export class PaymentAPI {
       estado: string,
       cep: string,
       cod: string,
-      nome_empresa: string = ""
+      nome_empresa: string = "",
    ) {
       const url = `${this.coreURL}/v3/customers`;
       const options = {

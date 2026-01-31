@@ -20,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
          },
          cod_usuario: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
+            defaultValue: null,
             references: {
                model: "tab_usuario",
                key: "cod_usuario",
@@ -145,7 +146,7 @@ module.exports = (sequelize, DataTypes) => {
          paranoid: true,
          freezeTableName: true,
          timestamps: true,
-      }
+      },
    );
 
    tab_aluno_contrato.associate = (models) => {

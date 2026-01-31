@@ -44,6 +44,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
          },
+         cod_contrato: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+               model: "tab_contrato",
+               key: "cod_contrato",
+            },
+         },
          tipo_duracao_plano: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -76,6 +84,11 @@ module.exports = (sequelize, DataTypes) => {
       tab_plano.belongsTo(models.tab_empresa, {
          foreignKey: "cod_empresa",
          as: "empresa",
+      });
+
+      tab_plano.belongsTo(models.tab_contrato, {
+         foreignKey: "cod_contrato",
+         as: "contrato",
       });
 
       tab_plano.hasMany(models.tab_plano_modalidade, {

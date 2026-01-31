@@ -22,6 +22,12 @@ export class ContractsController {
       return this.contractsService.getContract(id);
    }
 
+   @Post("onlineContract")
+   async onlineContract(@Query("companyId") companyId: string, @Body() body: any) {
+      const { student, plan } = body;
+      return this.contractsService.onlineContract(companyId, student, plan);
+   }
+
    @Post("newContract")
    async newContract(@CompanyId() companyId: string, @UserId() userId: string, @Body() body: any) {
       return this.contractsService.newContract(companyId, userId, body);

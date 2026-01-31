@@ -29,7 +29,7 @@ export class PaymentService {
       private readonly studentsRepository: StudentsRepository,
       private readonly companiesRepository: CompaniesRepository,
       private readonly contractsRepository: ContractsRepository,
-      private readonly eventsService: EventsService
+      private readonly eventsService: EventsService,
    ) {}
 
    async getPayouts(companyId: string, date: string) {
@@ -93,10 +93,14 @@ export class PaymentService {
       description: string,
       initialPayment: number | null,
       companyName: string,
-      interestPercentage?: string,
-      finePercentage?: string,
-      cycle?: 1 | 6 | 12 | null
+      interestPercentage?: string | null,
+      finePercentage?: string | null,
+      cycle?: 1 | 6 | 12 | null,
+      initiationFeeWithFirstInvoice?: boolean,
    ) {
+      var invoice = null;
+      var additionalInvoice = null;
+
       // * MANUAL
       if (paymentMethod === "MANUAL") {
          let payments = JSON.parse(installments)
@@ -117,8 +121,6 @@ export class PaymentService {
 
          return this.paymentsRepository.createPaymentsStudents(payments);
       }
-      let asaasId = null;
-
       let apiId = customer.customerId;
 
       if (!apiId) {
@@ -132,7 +134,7 @@ export class PaymentService {
             customer.state,
             customer.cep,
             customer.externalId,
-            companyName
+            companyName,
          )) as any;
 
          if (clientAsaas.id) {
@@ -147,11 +149,11 @@ export class PaymentService {
          }
       }
 
-      if (initialPayment && initialPayment > 0) {
+      if (initialPayment && initialPayment > 0 && !initiationFeeWithFirstInvoice) {
          // * CRIA A COBRANCA DE ADESAO
 
          const dueDateHiring = moment(dueDate);
-         await this.paymentAPI.createPayment(
+         additionalInvoice = await this.paymentAPI.createPayment(
             apiId ?? null,
             externalId,
             initialPayment,
@@ -160,7 +162,7 @@ export class PaymentService {
             billingType,
             `Adesão - ${description}`,
             interestPercentage,
-            finePercentage
+            finePercentage,
          );
       }
 
@@ -176,7 +178,7 @@ export class PaymentService {
                billingType,
                description,
                interestPercentage,
-               finePercentage
+               finePercentage,
             );
          } else {
             return await this.paymentAPI.createSignature(
@@ -189,33 +191,37 @@ export class PaymentService {
                description,
                interestPercentage,
                finePercentage,
-               cycle
+               cycle,
             );
          }
       }
 
       if (paymentMethod === "RECORRENTE" && billingType === "CREDIT_CARD") {
+         var amount =
+            initiationFeeWithFirstInvoice && initialPayment && initialPayment > 0 ? value + initialPayment : value;
          // * RECORRÊNCIA - CARTÃO DE CRÉDITO / ASSINATURA
-         const respAsaas = await this.paymentAPI.createSignature(
+         invoice = await this.paymentAPI.createSignature(
             apiId ?? null,
             externalId,
-            value,
+            amount,
             String(moment(dueDate).format("YYYY-MM-DD")),
             Number(JSON.parse(installments).lenght) ?? null,
             billingType,
             description,
             interestPercentage,
-            finePercentage
+            finePercentage,
          );
-         if (respAsaas.id) asaasId = respAsaas.id;
       } else {
+         const parcelasParsed = JSON.parse(installments);
          // * OUTROS FORMAS DE PAGAMENTO
-         JSON.parse(installments).map(async (parcela: number, i: number) => {
-            if (i > 0 && (paymentMethod === "UNICA" || paymentMethod === "PARCELADO")) return;
+         for (const [i, parcela] of parcelasParsed.entries()) {
+            if (i > 0 && (paymentMethod === "UNICA" || paymentMethod === "PARCELADO")) continue;
             var valueInstallment: number = paymentMethod === "UNICA" || paymentMethod === "PARCELADO" ? value : parcela;
+            if (initiationFeeWithFirstInvoice && initialPayment && initialPayment > 0 && i == 0)
+               valueInstallment += initialPayment;
 
             const dueDateInstallment = moment(dueDate).add(i, "months").format("YYYY-MM-DD");
-            const respAsaas = await this.paymentAPI.createPayment(
+            let invoiceTemp = await this.paymentAPI.createPayment(
                apiId ?? null,
                externalId,
                valueInstallment,
@@ -224,13 +230,13 @@ export class PaymentService {
                billingType,
                description,
                interestPercentage,
-               finePercentage
+               finePercentage,
             );
-            if (respAsaas.id) asaasId = respAsaas.id;
-         });
+            if (i == 0) invoice = invoiceTemp;
+         }
       }
 
-      return asaasId;
+      return { ...invoice, additionalInvoice };
    }
 
    async markPaymentReceived(paymentId: string) {

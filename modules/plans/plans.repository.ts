@@ -71,7 +71,44 @@ export class PlansRepository {
    }
 
    async findById(planId: string) {
-      return db.tab_plano.findByPk(planId);
+      const plan = (await db.tab_plano.findByPk(planId, {
+         include: [
+            {
+               model: db.tab_plano_modalidade,
+               as: "modalidades",
+               include: [
+                  {
+                     model: db.tab_modalidade,
+                     as: "modalidade",
+                     include: [
+                        {
+                           model: db.tab_modalidade_variacao,
+                           as: "variacoes",
+                           include: [
+                              {
+                                 model: db.tab_modalidade_variacao_valor,
+                                 as: "valores",
+                              },
+                           ],
+                        },
+                     ],
+                  },
+               ],
+            },
+            {
+               model: db.tab_contrato,
+               as: "contrato",
+               required: false,
+            },
+         ],
+      })) as any;
+
+      const plainPlan = plan.get({ plain: true }); // remove referências do Sequelize
+      plainPlan.modalidades = plainPlan.modalidades.map((mod: any) => ({
+         ...mod.modalidade,
+         ...mod,
+      }));
+      return plainPlan;
    }
 
    async deleteById(planId: string) {

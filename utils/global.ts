@@ -61,3 +61,55 @@ export function getStartDateFromPayout(payoutDate: Date) {
    // Fallback de segurança se a data passada não for 10, 20 ou 30
    return moment(payoutDate).subtract(10, "days").toDate();
 }
+
+export const formatarCPF = (cpf: string) => {
+   if (!cpf) return "-";
+   cpf = cpf.replace(/\D/g, ""); // Remove tudo que não for dígito
+   if (cpf.length !== 11) return cpf; // Se não tiver 11 dígitos, retorna como está
+   return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+};
+
+export const formatarCNPJ = (cnpj: string) => {
+   if (!cnpj) return "-";
+   cnpj = cnpj.replace(/\D/g, ""); // Remove tudo que não for dígito
+   if (cnpj.length !== 14) return cnpj; // Se não tiver 14 dígitos, retorna como está
+   return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+};
+
+export const formatarCEP = (cep: string) => {
+   if (!cep) return "-";
+   const digits = cep.replace(/\D/g, ""); // Remove tudo que não for dígito
+   if (digits.length !== 8) return digits; // CEP tem sempre 8 dígitos
+   return digits.replace(/^(\d{5})(\d{3})$/, "$1-$2");
+};
+
+export const adicionarMesData = (data: any, mesesAdicionais = 0) => {
+   if (!data) return "";
+
+   let date;
+
+   if (typeof data === "string") {
+      // Caso seja uma string no formato YYYY-MM-DD
+      const [year, month, day] = data.split("-");
+      date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+   } else if (data instanceof Date) {
+      // Caso já seja um objeto Date
+      date = new Date(data);
+   } else if (typeof data === "number") {
+      // Caso seja um timestamp
+      date = new Date(data);
+   } else {
+      return "";
+   }
+
+   // Adiciona os meses, se houver
+   if (mesesAdicionais !== 0) {
+      date.setMonth(date.getMonth() + mesesAdicionais);
+   }
+
+   return date.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+   });
+};

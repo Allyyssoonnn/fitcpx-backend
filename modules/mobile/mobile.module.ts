@@ -20,6 +20,7 @@ import { PaymentService } from "../payments/payment.service";
 import { PaymentsRepository } from "../payments/payments.repository";
 import { PhysicalAssessmentsRepository } from "../physicalAssessments/physicalAssessments.repository";
 import { PhysicalAssessmentsService } from "../physicalAssessments/physicalAssessments.service";
+import { PlansRepository } from "../plans/plans.repository";
 import { StorageAPI } from "../storage/storage.api";
 import { StorageService } from "../storage/storage.service";
 import { StudentsRepository } from "../students/students.repository";
@@ -61,6 +62,7 @@ import { MobileService } from "./mobile.service";
       NotificationsRepository,
       ChatRepository,
       CalendarRepository,
+      PlansRepository,
    ],
 })
 export class MobileModule {}
