@@ -38,6 +38,8 @@ server.get("/changelog", (req, res) => {
    });
 });
 
+server.use("/treino", require("./api/routes/routeTreino"));
+
 // ================ Servidor
 
 const serverHttp = http.createServer(server);

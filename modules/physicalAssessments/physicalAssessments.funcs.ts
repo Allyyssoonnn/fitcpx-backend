@@ -238,40 +238,45 @@ function toCm(value: number | undefined | string): number {
 /**
  * Protocolo 6: Marinha Americana (US Navy)
  * Baseado em circunferências (Pescoço, Cintura, Quadril e Altura)
+ * Inputs devem estar em CENTÍMETROS.
  */
 function protocoloGordura_Marinha_6(aluno: IAluno, avaliacao: IAvaliacao): number {
-   // A fórmula da Marinha exige altura em CM.
-   // Como no seu sistema 'altura' é metros (vide getIMC), multiplicamos por 100.
+   // Garante que todas as medidas estejam em CM
    const alturaCm = toCm(avaliacao.altura);
    const pescoco = toCm(avaliacao.pescoco);
    const cintura = toCm(avaliacao.cintura);
    const quadril = toCm(avaliacao.quadril);
 
-   // Validação básica para evitar erros matemáticos (log de 0 ou negativo)
+   // Validação básica
    if (!alturaCm || !pescoco || !cintura) return 0;
 
-   let resultado = 0;
+   let densidade = 0;
 
    if (aluno.sexo_aluno === "M") {
-      // Masculino: %G = 86.010 * log10(Cintura - Pescoço) - 70.041 * log10(Altura) + 36.76
-      const diferencaCinturaPescoco = cintura - pescoco;
+      // HOMENS 🚹
+      // Densidade = 1.0324 - 0.19077 * log10(Cintura - Pescoço) + 0.15456 * log10(Altura)
 
-      if (diferencaCinturaPescoco <= 0) return 0; // Proteção contra log de número <= 0
+      const diferenca = cintura - pescoco;
+      if (diferenca <= 0) return 0; // Evita log de número negativo/zero
 
-      resultado = 86.01 * Math.log10(diferencaCinturaPescoco) - 70.041 * Math.log10(alturaCm) + 36.76;
+      densidade = 1.0324 - 0.19077 * Math.log10(diferenca) + 0.15456 * Math.log10(alturaCm);
    } else {
-      // Feminino: %G = 163.205 * log10(Cintura + Quadril - Pescoço) - 97.684 * log10(Altura) - 78.387
-      // Para mulheres, o quadril é obrigatório
-      if (!quadril) return 0;
+      // MULHERES 🚺
+      // Densidade = 1.29579 - 0.35004 * log10(Cintura + Quadril - Pescoço) + 0.22100 * log10(Altura)
 
-      const somaCircunferencias = cintura + quadril - pescoco;
+      if (!quadril) return 0; // Quadril é obrigatório para mulheres
 
-      if (somaCircunferencias <= 0) return 0; // Proteção
+      const soma = cintura + quadril - pescoco;
+      if (soma <= 0) return 0;
 
-      resultado = 163.205 * Math.log10(somaCircunferencias) - 97.684 * Math.log10(alturaCm) - 78.387;
+      densidade = 1.29579 - 0.35004 * Math.log10(soma) + 0.221 * Math.log10(alturaCm);
    }
 
-   return resultado;
+   // Aplica a Equação de Siri para converter Densidade em % Gordura
+   // %G = (495 / Densidade) - 450
+   if (densidade === 0) return 0;
+
+   return 495 / densidade - 450;
 }
 
 // ===================================================================
