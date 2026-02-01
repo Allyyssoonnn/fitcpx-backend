@@ -1,4 +1,8 @@
 {
+   "3.5.x": {
+      "Destaques": ["🚀 Mais agilidade: Envie o link compartilhável e deixe o aluno contratar o plano sozinho."],
+      "Melhorias Gerais": ["Correção de bugs menores para melhorar a estabilidade do sistema."]
+   },
    "3.4.x": {
       "Melhorias Gerais": [
          "Correção de bugs menores para melhorar a estabilidade do sistema.",
