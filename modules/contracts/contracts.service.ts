@@ -313,7 +313,7 @@ export class ContractsService {
                .format("YYYY-MM-DD"),
             modalidades_aluno_contrato: JSON.stringify(planReady.modalidades),
             ambiente_aluno_contrato: process.env.NODE_ENV,
-            multa_compensatoria: modContrato.multa_compensatoria,
+            multa_compensatoria: modContrato?.multa_compensatoria ?? 0,
          },
          planReady.modalidades,
       );
