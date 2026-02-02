@@ -330,8 +330,8 @@ export class ContractsService {
          description,
          planReady.valor_adesao,
          `${companyId}_${company.nome_empresa}`,
-         modContrato.juros_atraso,
-         modContrato.multa_moratoria,
+         modContrato?.juros_atraso ?? 0,
+         modContrato?.multa_moratoria ?? 0,
          null,
          true,
       );
