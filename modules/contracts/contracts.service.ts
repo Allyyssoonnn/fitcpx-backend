@@ -141,11 +141,8 @@ export class ContractsService {
       }
 
       // *** ATUALIZA EXTERNALREFERENCE PARA O WORKER UTILIZAR
-      if (contractDB.cod_aluno_contrato && response) {
-         await this.contractsRepository.createOrUpdateContract(
-            { asaas_id: response, cod_aluno_contrato: contractDB.cod_aluno_contrato },
-            [],
-         );
+      if (contractDB.cod_aluno_contrato && response?.id) {
+         await this.contractsRepository.updateContractData(contractDB.cod_aluno_contrato, { asaas_id: response.id });
       }
 
       const contract = (await this.contractsRepository.findById(contractDB.cod_aluno_contrato)) as any;

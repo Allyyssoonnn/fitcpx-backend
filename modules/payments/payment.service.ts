@@ -138,7 +138,7 @@ export class PaymentService {
          )) as any;
 
          if (clientAsaas.id) {
-            apiId = clientAsaas.id;
+            apiId = clientAsaas?.id;
             if (description == "Use License") {
                this.companiesRepository.updateApiId(customer.externalId, apiId ?? null);
             } else {
