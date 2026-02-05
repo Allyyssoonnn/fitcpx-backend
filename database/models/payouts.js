@@ -41,7 +41,8 @@ module.exports = (sequelize, DataTypes) => {
       {
          freezeTableName: true,
          timestamps: true,
-      }
+         paranoid: true,
+      },
    );
 
    payouts.associate = (models) => {
