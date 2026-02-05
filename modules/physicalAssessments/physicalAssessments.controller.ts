@@ -24,7 +24,7 @@ const dev = process.env.NODE_ENV !== "production";
 export class PhysicalAssessmentsController {
    constructor(
       private readonly physicalAssessmentsService: PhysicalAssessmentsService,
-      private readonly storageApi: StorageAPI
+      private readonly storageApi: StorageAPI,
    ) {}
 
    @Get("fitnessassessmentpdf")
@@ -36,7 +36,7 @@ export class PhysicalAssessmentsController {
    async getAll(
       @CompanyId() companyId: string,
       @Query("studentId") studentId?: string,
-      @Query("deleted") deleted?: string
+      @Query("deleted") deleted?: string,
    ) {
       return this.physicalAssessmentsService.getAll(companyId, deleted == "true", studentId);
    }
@@ -77,7 +77,7 @@ export class PhysicalAssessmentsController {
                const baseKey = `aluno/avaliacao/${Date.now()}_${file.originalname}`;
 
                // Construção do novo KEY no S3
-               const s3Key = `${devPrefix}${req.query.physicalId}/${baseKey}`;
+               const s3Key = `${devPrefix}/${baseKey}`;
 
                cb(null, s3Key);
             },
@@ -85,12 +85,12 @@ export class PhysicalAssessmentsController {
          limits: {
             fileSize: 50 * 1024 * 1024, // 50 MB em bytes
          },
-      })
+      }),
    )
    async updateImageUser(
       @Headers() headers: any,
       @UploadedFiles() files: Express.Multer.File[],
-      @Query("physicalId") physicalId: string
+      @Query("physicalId") physicalId: string,
    ) {
       const { deletedimages } = headers;
       if (!physicalId) {
