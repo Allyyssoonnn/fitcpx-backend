@@ -19,12 +19,14 @@ export class StudentsRepository {
       return await db.tab_aluno.findOne({ where: { cod_aluno: id, ...where } });
    }
 
-   async findByEmail(email: string) {
-      return await db.tab_aluno.findOne({ where: { email_aluno: email } });
+   async findByEmail(email: string, companyId?: string) {
+      let where = companyId ? { cod_empresa: companyId } : {};
+      return await db.tab_aluno.findOne({ where: { email_aluno: email, ...where } });
    }
 
-   async findByCPF(cpf: string) {
-      return await db.tab_aluno.findOne({ where: { cpf_aluno: cpf } });
+   async findByCPF(cpf: string, companyId?: string) {
+      let where = companyId ? { cod_empresa: companyId } : {};
+      return await db.tab_aluno.findOne({ where: { cpf_aluno: cpf, ...where } });
    }
 
    async count(companyId: string) {

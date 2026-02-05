@@ -237,11 +237,15 @@ export class ContractsService {
       if (!company?.cod_empresa) throw new HttpException("Erro ao encontrar empresa", 403);
 
       if (
-         (student?.email_aluno && (await this.studentsRepository.findByEmail(student.email_aluno))) ||
-         (student?.cpf_aluno && (await this.studentsRepository.findByCPF(student.cpf_aluno))) ||
+         (student?.email_aluno && (await this.studentsRepository.findByEmail(student.email_aluno, companyId))) ||
+         (student?.cpf_aluno && (await this.studentsRepository.findByCPF(student.cpf_aluno, companyId))) ||
          student.cod_aluno
       ) {
-         studentDB = (await this.studentsService.verifyExists(student.email_aluno, student.cpf_aluno)) as any;
+         studentDB = (await this.studentsService.verifyExists(
+            student.email_aluno,
+            student.cpf_aluno,
+            companyId,
+         )) as any;
          studentDB = await this.studentsService.update({
             ...student,
             cod_aluno: studentDB.cod_aluno,

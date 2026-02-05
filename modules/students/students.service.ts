@@ -35,8 +35,8 @@ export class StudentsService {
       if (!data.cod_aluno) {
          //Verify student exist
          if (
-            (data?.email_aluno && (await this.studentsRepository.findByEmail(data.email_aluno))) ||
-            (data?.cpf_aluno && (await this.studentsRepository.findByCPF(data.cpf_aluno)))
+            (data?.email_aluno && (await this.studentsRepository.findByEmail(data.email_aluno, companyId))) ||
+            (data?.cpf_aluno && (await this.studentsRepository.findByCPF(data.cpf_aluno, companyId)))
          ) {
             throw new HttpException("Já existe um aluno com esse E-mail ou CPF", 403);
          }
@@ -100,11 +100,11 @@ export class StudentsService {
       }
    }
 
-   async verifyExists(email: string, cpf: string) {
+   async verifyExists(email: string, cpf: string, companyId: string) {
       var student = null;
-      student = await this.studentsRepository.findByCPF(cpf);
+      student = await this.studentsRepository.findByCPF(cpf, companyId);
       if (student) return student;
-      student = await this.studentsRepository.findByEmail(email.toLocaleLowerCase());
+      student = await this.studentsRepository.findByEmail(email.toLocaleLowerCase(), companyId);
       return student;
    }
 

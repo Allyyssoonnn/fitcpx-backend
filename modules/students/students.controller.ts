@@ -136,7 +136,7 @@ export class StudentsController {
 
    @Post("verifyExists")
    async verifyExists(@Body() body: any) {
-      const { email, cpf } = body;
-      return this.studentsService.verifyExists(email, cpf);
+      const { email, cpf, companyId } = body;
+      return this.studentsService.verifyExists(email, cpf, companyId);
    }
 }
