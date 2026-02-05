@@ -59,7 +59,8 @@ module.exports = (sequelize, DataTypes) => {
       {
          freezeTableName: true,
          timestamps: true,
-      }
+         paranoid: true,
+      },
    );
 
    chat.associate = (models) => {
