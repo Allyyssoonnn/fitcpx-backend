@@ -84,8 +84,9 @@ export class StudentsController {
       const attachmentsData = files.map((f) => ({
          // key: f.key,
          // bucket: 'media.fitcpx.com',
+         // url: f.location,
          studentId,
-         url: f.location,
+         url: `https://media.fitcpx.com/${f.key}`,
          type: path.extname(f.originalname),
          name: f.originalname,
       }));
