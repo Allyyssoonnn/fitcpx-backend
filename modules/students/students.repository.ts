@@ -44,8 +44,20 @@ export class StudentsRepository {
       return await db.tab_aluno.destroy({ where: { cod_aluno: id } });
    }
 
+   async deleteAttenchmentById(id: string) {
+      return await db.student_attachments.destroy({ where: { id } });
+   }
+
+   async findAttenchmentById(id: string) {
+      return await db.student_attachments.findByPk(id);
+   }
+
    async updateImageStudent(studentId: string, imageUrl: string) {
       return await db.tab_aluno.update({ imagem_aluno: imageUrl }, { where: { cod_aluno: studentId } });
+   }
+
+   async sendAttachments(data: any[]) {
+      return await db.student_attachments.bulkCreate(data);
    }
 
    async updateApiId(studentId: string, apiId: string | null) {
@@ -72,5 +84,12 @@ export class StudentsRepository {
 
    async updatePassword(password: string, userId: string) {
       return await db.tab_aluno.update({ senha_aluno: password }, { where: { cod_aluno: userId } });
+   }
+
+   async findAllAttachments(studentId: string) {
+      return db.student_attachments.findAll({
+         where: { studentId },
+         order: [["createdAt", "ASC"]],
+      });
    }
 }

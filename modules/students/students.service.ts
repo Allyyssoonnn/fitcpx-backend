@@ -71,6 +71,10 @@ export class StudentsService {
       return url;
    }
 
+   async sendAttachments(data: any[]) {
+      return this.studentsRepository.sendAttachments(data);
+   }
+
    async findRefreshToken(refreshToken: string) {
       return this.studentsRepository.findRefreshToken(refreshToken);
    }
@@ -102,5 +106,19 @@ export class StudentsService {
       if (student) return student;
       student = await this.studentsRepository.findByEmail(email.toLocaleLowerCase());
       return student;
+   }
+
+   async getAllAttachments(studentId: string) {
+      return this.studentsRepository.findAllAttachments(studentId);
+   }
+
+   async deleteAttachment(id: string) {
+      const attachment = await this.studentsRepository.findAttenchmentById(id);
+
+      if (attachment) {
+         //Apagar da aws
+      }
+
+      return this.studentsRepository.deleteAttenchmentById(id);
    }
 }
