@@ -65,6 +65,8 @@ const allowedRoutes = [
    "/companies/getCompanyAndPlans",
    "/companies/getCheckoutLink",
    "/companies/getCheckoutInfo",
+   "/students/verifyExists",
+   "/contracts/onlineContract",
 ];
 
 @Injectable()
