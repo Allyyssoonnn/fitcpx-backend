@@ -37,11 +37,12 @@ module.exports = (sequelize, DataTypes) => {
          presets_treino_inteligente: DataTypes.TEXT,
          cupom_empresa_licenca: DataTypes.STRING,
          notifications_config: DataTypes.STRING,
+         token: DataTypes.STRING,
          expiracaocupom_empresa_licenca: DataTypes.DATEONLY,
       },
       {
          freezeTableName: true,
-      }
+      },
    );
 
    tab_empresa.associate = (models) => {

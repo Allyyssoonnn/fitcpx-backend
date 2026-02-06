@@ -51,6 +51,7 @@ interface Db {
    payout_payments: ModelStatic<Model>;
    wp_messages: ModelStatic<Model>;
    student_attachments: ModelStatic<Model>;
+   checkout_sessions: ModelStatic<Model>;
 }
 
 declare const db: Db;

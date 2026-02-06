@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { randomUUID } from "crypto";
 import db from "../../database/models";
 
 @Injectable()
@@ -13,6 +14,10 @@ export class CompaniesRepository {
 
    async findByEmail(email: string) {
       return await db.tab_empresa.findOne({ where: { email_empresa: email.trim() } });
+   }
+
+   async findByToken(token: string) {
+      return await db.tab_empresa.findOne({ where: { token } });
    }
 
    async createOrUpdate(data: any) {
@@ -234,5 +239,31 @@ export class CompaniesRepository {
                contractId: plan.cod_contrato,
             })) ?? [],
       };
+   }
+
+   async getToken(companyId: string) {
+      const company = (await db.tab_empresa.findByPk(companyId)) as any;
+      return company?.token;
+   }
+
+   async createCheckoutSession(companyId: string, planId: string | null, studentId: string | null, userId: string) {
+      return await db.checkout_sessions.create({ companyId, planId, studentId, userId, token: randomUUID() });
+   }
+
+   async getCheckoutSession(companyId: string, planId: string | null, studentId: string | null, userId: string) {
+      return await db.checkout_sessions.findOne({ where: { companyId, planId, studentId, userId } });
+   }
+
+   async getCheckoutSessionByToken(token: string) {
+      return await db.checkout_sessions.findOne({
+         where: { token },
+         include: [
+            {
+               model: db.tab_aluno,
+               as: "student",
+               required: false,
+            },
+         ],
+      });
    }
 }

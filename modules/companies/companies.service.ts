@@ -147,4 +147,48 @@ export class CompaniesService {
    async getCompanyAndPlans(companyId: string) {
       return await this.companiesRepository.getCompanyAndPlans(companyId);
    }
+
+   async getCheckoutLink(
+      companyId: string,
+      userId: string,
+      planId: string | null = null,
+      studentId: string | null = null,
+   ) {
+      if (!planId && !studentId) return await this.companiesRepository.getToken(companyId);
+
+      var checkoutSession = (await this.companiesRepository.getCheckoutSession(
+         companyId,
+         planId,
+         studentId,
+         userId,
+      )) as any;
+      if (!checkoutSession) {
+         checkoutSession = (await this.companiesRepository.createCheckoutSession(
+            companyId,
+            planId,
+            studentId,
+            userId,
+         )) as any;
+      }
+
+      return checkoutSession.token;
+   }
+
+   async getCheckoutInfo(token: string) {
+      const checkoutSession = (await this.companiesRepository.getCheckoutSessionByToken(token)) as any;
+
+      if (!checkoutSession) {
+         const company = (await this.companiesRepository.findByToken(token)) as any;
+         return {
+            companyId: company.cod_empresa,
+         };
+      }
+
+      return {
+         student: checkoutSession.student,
+         setStudentId: checkoutSession.setStudentId,
+         companyId: checkoutSession.companyId,
+         planId: checkoutSession.planId,
+      };
+   }
 }

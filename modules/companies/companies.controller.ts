@@ -87,4 +87,19 @@ export class CompaniesController {
    async getCompanyAndPlans(@Query("companyId") companyId: string) {
       return this.companiesService.getCompanyAndPlans(companyId);
    }
+
+   @Get("getCheckoutLink")
+   async getCheckoutLink(
+      @CompanyId() companyId: string,
+      @UserId() userId: string,
+      @Query("planId") planId: string,
+      @Query("studentId") studentId: string,
+   ) {
+      return this.companiesService.getCheckoutLink(companyId, userId, planId, studentId);
+   }
+
+   @Get("getCheckoutInfo")
+   async getCheckoutInfo(@Query("token") token: string) {
+      return this.companiesService.getCheckoutInfo(token);
+   }
 }
