@@ -63,6 +63,8 @@ const allowedRoutes = [
    "/licenses/sendCoupon",
    "/companies",
    "/companies/getCompanyAndPlans",
+   "/companies/getCheckoutLink",
+   "/companies/getCheckoutInfo",
 ];
 
 @Injectable()
