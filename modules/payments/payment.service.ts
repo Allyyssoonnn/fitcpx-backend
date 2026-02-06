@@ -88,6 +88,7 @@ export class PaymentService {
       externalId: string,
       value: number,
       installmentsCount: number | null,
+      maxPayments: number | null,
       installments: string,
       dueDate: string,
       description: string,
@@ -97,6 +98,7 @@ export class PaymentService {
       finePercentage?: string | null,
       cycle?: 1 | 6 | 12 | null,
       initiationFeeWithFirstInvoice?: boolean,
+      onlineSell?: boolean,
    ) {
       var invoice = null;
       var additionalInvoice = null;
@@ -167,7 +169,7 @@ export class PaymentService {
       }
 
       // *** SOMENTE LICENCA
-      if (billingType === "UNDEFINED") {
+      if (billingType === "UNDEFINED" && !onlineSell) {
          if (cycle && cycle > 1) {
             return await this.paymentAPI.createPayment(
                apiId ?? null,
@@ -205,7 +207,7 @@ export class PaymentService {
             externalId,
             amount,
             String(moment(dueDate).format("YYYY-MM-DD")),
-            Number(JSON.parse(installments).lenght) ?? null,
+            maxPayments ?? null,
             billingType,
             description,
             interestPercentage,

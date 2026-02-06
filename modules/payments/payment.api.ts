@@ -93,7 +93,7 @@ export class PaymentAPI {
       cod: string,
       value: number,
       dueDate: string | null,
-      installments: number | null,
+      maxPayments: number | null,
       billingType: string,
       name: string,
       interestPercentage?: string | null,
@@ -119,7 +119,7 @@ export class PaymentAPI {
             customer: customerId,
             value: value,
             nextDueDate: dueDate,
-            maxPayments: installments,
+            maxPayments: maxPayments,
             interest: {
                value: interestPercentage || 0,
             },

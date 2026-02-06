@@ -122,6 +122,7 @@ export class ContractsService {
          contractDB.cod_aluno_contrato,
          value,
          installmentsCount != null ? Number(installmentsCount) : null,
+         installmentsCount != null ? Number(installmentsCount) : null,
          parcela_plano,
          String(initialDate),
          description,
@@ -226,6 +227,7 @@ export class ContractsService {
          // ["monthly", "cash", "installments"]
          metodo_pagamento,
          parcelas: numParcelas,
+         metodo_recorrencia,
       } = plan;
 
       const pattern: { [key: string]: string } = {
@@ -322,10 +324,13 @@ export class ContractsService {
       const response = await this.paymentsService.createPayment(
          customer,
          pattern[metodo_pagamento] as "RECORRENTE" | "UNICA" | "PARCELADO" | "MANUAL" | null,
-         metodo_pagamento == "installments" ? "CREDIT_CARD" : "PIX",
+         metodo_pagamento == "installments" || (metodo_pagamento == "monthly" && metodo_recorrencia == "monthly_card")
+            ? "CREDIT_CARD"
+            : "UNDEFINED",
          contractDB.cod_aluno_contrato,
          value,
          numParcelas != null ? Number(numParcelas) : null,
+         planReady.duracao_plano != null ? Number(planReady.duracao_plano) : null,
          planReady.parcela_plano,
          String(initialDate),
          description,
@@ -334,6 +339,7 @@ export class ContractsService {
          modContrato?.juros_atraso ?? 0,
          modContrato?.multa_moratoria ?? 0,
          null,
+         true,
          true,
       );
 
@@ -417,8 +423,16 @@ export class ContractsService {
 
       const { invoiceUrl } = response;
 
+      var url = invoiceUrl;
+
+      if (response?.object === "subscription") {
+         const payments = await this.paymentsService.findInovicesSignature(response?.id);
+         const data = payments.data;
+         if (data[0] && data[0]?.invoiceUrl) url = data[0]?.invoiceUrl;
+      }
+
       return {
-         url: invoiceUrl,
+         url,
          contractURL,
       };
    }

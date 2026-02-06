@@ -12,7 +12,7 @@ export class LicensesService {
       private readonly licensesRepository: LicensesRepository,
       private readonly companiesService: CompaniesService,
       private readonly companiesRepository: CompaniesRepository,
-      private readonly paymentService: PaymentService
+      private readonly paymentService: PaymentService,
    ) {}
 
    async getLicensesAvaliables(companyId: string) {
@@ -86,6 +86,7 @@ export class LicensesService {
          companyLicense.cod_empresa_licenca,
          license.valor_licenca,
          null,
+         null,
          "",
          String(new Date()),
          "Use License",
@@ -93,7 +94,7 @@ export class LicensesService {
          "Lab Complex Dev LTDA",
          undefined,
          undefined,
-         license.cycle_licenca
+         license.cycle_licenca,
       );
 
       if (!paymentId?.id) {
