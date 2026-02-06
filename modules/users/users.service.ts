@@ -1,4 +1,5 @@
 import { HttpException, Injectable } from "@nestjs/common";
+import { randomUUID } from "crypto";
 import { genTokenUserAuth, genTokenUserRecoveryPassword, validateToken } from "../../shared/utils/token";
 import { CompaniesRepository } from "../companies/companies.repository";
 import { CRMRepository } from "../crm/crm.repository";
@@ -17,7 +18,7 @@ export class UsersService {
       private readonly eventsService: EventsService,
       private readonly storageService: StorageService,
       private readonly crmService: CRMService,
-      private readonly crmRepository: CRMRepository
+      private readonly crmRepository: CRMRepository,
    ) {}
 
    async getAll(companyId: string) {
@@ -99,7 +100,8 @@ export class UsersService {
          status_empresa: "Active",
          email_empresa: email,
          email_codigo: dev ? "1234" : emailCode,
-         crmStepId: stages[0].id ?? "1",
+         crmStepId: stages[0]?.id ?? "1",
+         token: randomUUID(),
       })) as any;
 
       // *** CRM
@@ -118,7 +120,7 @@ export class UsersService {
       const { token, refreshToken, license } = await genTokenUserAuth(
          newUser?.cod_usuario,
          newCompany.cod_empresa,
-         userAgent
+         userAgent,
       );
 
       return { token, refreshToken, usuario: newUser, empresa: newCompany, license };
