@@ -49,13 +49,25 @@ export class ContractsService {
          cod_aluno,
          parcela_plano,
          pagamentoInicial = new Date(),
-         formaPagamento,
-         typePayment,
-         installments,
          multa_compensatoria,
          multa_moratoria,
          juros_atraso,
       } = plano;
+
+      const {
+         // ["monthly", "cash", "installments"]
+         metodo_pagamento,
+         parcelas: numParcelas,
+         metodo_recorrencia,
+      } = plano;
+
+      const pattern: { [key: string]: string } = {
+         monthly: "RECORRENTE",
+         cash: "UNICA",
+         installments: "PARCELADO",
+         none: "MANUAL",
+      };
+
       let company = (await this.companiesRepository.findById(companyId)) as any;
 
       // *** INICIALIZA AS VARIAVEIS
@@ -65,8 +77,9 @@ export class ContractsService {
          : moment.tz(new Date(), "America/Sao_Paulo");
       const resumoParcelas = JSON.parse(parcela_plano);
       const duration = resumoParcelas.length;
-      const value = formaPagamento === "RECORRENTE" && duration > 0 ? resumoParcelas[0] : valor_plano;
-      const installmentsCount = formaPagamento === "UNICA" || formaPagamento === "PARCELADO" ? installments : null;
+      const value = pattern[metodo_pagamento] === "RECORRENTE" && duration > 0 ? resumoParcelas[0] : valor_plano;
+      const installmentsCount =
+         pattern[metodo_pagamento] === "UNICA" || pattern[metodo_pagamento] === "PARCELADO" ? numParcelas : null;
 
       const description = modalidades
          .map((m: any) => {
@@ -117,8 +130,10 @@ export class ContractsService {
 
       const response = await this.paymentsService.createPayment(
          customer,
-         formaPagamento,
-         typePayment == "CREDIT" ? "CREDIT_CARD" : typePayment,
+         pattern[metodo_pagamento] as "RECORRENTE" | "UNICA" | "PARCELADO" | "MANUAL" | null,
+         metodo_pagamento == "installments" || (metodo_pagamento == "monthly" && metodo_recorrencia == "monthly_card")
+            ? "CREDIT_CARD"
+            : "UNDEFINED",
          contractDB.cod_aluno_contrato,
          value,
          installmentsCount != null ? Number(installmentsCount) : null,
@@ -130,6 +145,9 @@ export class ContractsService {
          `${companyId}_${company.nome_empresa}`,
          juros_atraso,
          multa_moratoria,
+         null,
+         true,
+         true,
       );
 
       if (response?.errors) {
@@ -153,8 +171,13 @@ export class ContractsService {
             ...contract.dataValues,
             cod_aluno_contrato: contractDB.cod_aluno_contrato,
             status_aluno_contrato: "Ativo",
-            formapagamento_aluno_contrato: formaPagamento,
-            tipopagamento_aluno_contrato: typePayment == "CREDIT" ? "CREDIT_CARD" : typePayment,
+            formapagamento_aluno_contrato: pattern[metodo_pagamento] as
+               | "RECORRENTE"
+               | "UNICA"
+               | "PARCELADO"
+               | "MANUAL"
+               | null,
+            tipopagamento_aluno_contrato: metodo_pagamento == "installments" ? "CREDIT_CARD" : "PIX",
             descricao_aluno_contrato: description,
          },
          [],
