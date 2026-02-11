@@ -25,17 +25,8 @@ server.use(bodyParser.json({ limit: "50mb" }));
 
 server.get("/changelog", (req, res) => {
    const changelogJSON = require("./changelog.json");
-   const requestedVersion = req.query.v;
-
-   if (requestedVersion && changelogJSON[requestedVersion]) {
-      return res.json({
-         [requestedVersion]: changelogJSON[requestedVersion],
-      });
-   }
-
-   return res.json({
-      [requestedVersion]: changelogJSON[requestedVersion],
-   });
+   // const requestedVersion = req.query.v;
+   return res.json(changelogJSON);
 });
 
 server.use("/treino", require("./api/routes/routeTreino"));

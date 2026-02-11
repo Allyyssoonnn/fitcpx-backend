@@ -1,4 +1,8 @@
 {
+   "3.7.x": {
+      "Destaques": ["🚀 Agora a tela de fechamento de contrato está mais intuitiva e fácil de usar."],
+      "Melhorias Gerais": ["Correção de bugs menores para melhorar a estabilidade do sistema."]
+   },
    "3.6.x": {
       "Destaques": [
          "📎 Centralize tudo: Agora você pode anexar exames, atestados e documentos importantes diretamente no perfil dos seus alunos."
