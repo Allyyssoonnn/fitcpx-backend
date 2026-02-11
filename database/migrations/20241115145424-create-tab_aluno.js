@@ -82,8 +82,9 @@ module.exports = {
             defaultValue: null,
          },
          cod_usuario: {
-            allowNull: false,
+            allowNull: true,
             type: Sequelize.DataTypes.INTEGER,
+            defaultValue: null,
             references: {
                model: "tab_usuario",
                key: "cod_usuario",

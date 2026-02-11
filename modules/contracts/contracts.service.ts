@@ -117,7 +117,7 @@ export class ContractsService {
             total_aluno_contrato: valor_plano,
             arquivo_aluno_contrato: contrato,
             duracao_aluno_contrato: duracao_plano,
-            expiracao_aluno_contrato: moment()
+            expiracao_aluno_contrato: moment(pagamentoInicial)
                .tz("America/Sao_Paulo")
                .add(duracao_plano, "months")
                .format("YYYY-MM-DD"),

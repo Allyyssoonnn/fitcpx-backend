@@ -43,12 +43,12 @@ export class ChatRepository {
                   `(SELECT MAX(\`id\`) 
                   FROM \`${chatTable}\` 
                   WHERE \`companyId\` = :companyId 
-                  GROUP BY \`studentId\`)`
+                  GROUP BY \`studentId\`)`,
                ),
             },
          },
          replacements: { companyId },
-         include: [{ model: db.tab_aluno, as: "student", attributes: ["nome_aluno"] }],
+         include: [{ model: db.tab_aluno, as: "student", attributes: ["nome_aluno"], paranoid: false }],
          attributes: {
             include: [
                [db.Sequelize.col("student.nome_aluno"), "studentName"],
