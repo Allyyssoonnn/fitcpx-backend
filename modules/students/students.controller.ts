@@ -88,7 +88,8 @@ export class StudentsController {
          studentId,
          url: `https://media.fitcpx.com/${f.key}`,
          type: path.extname(f.originalname),
-         name: f.originalname,
+         // name: f.originalname,
+         name: Buffer.from(f.originalname, "latin1").toString("utf8"),
       }));
 
       return this.studentsService.sendAttachments(attachmentsData);
