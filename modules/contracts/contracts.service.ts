@@ -239,10 +239,10 @@ export class ContractsService {
    }
 
    //Única diferença do outro metodo é que não tem dataInicial e não tem cod_usuario
-   async onlineContract(companyId: string, student: any, plan: any) {
+   async onlineContract(companyId: string, student: any, plan: any, registerOnly: boolean = false) {
       const company = (await this.companiesRepository.findById(companyId)) as any;
-      const planDB = (await this.plansRepository.findById(plan.cod_plano)) as any;
-      const modContrato = planDB.contrato || null;
+      const planDB = plan.cod_plano ? ((await this.plansRepository.findById(plan.cod_plano)) as any) : null;
+      const modContrato = planDB?.contrato || null;
       var studentDB;
       var contractURL;
 
@@ -266,6 +266,8 @@ export class ContractsService {
          (student?.cpf_aluno && (await this.studentsRepository.findByCPF(student.cpf_aluno, companyId))) ||
          student.cod_aluno
       ) {
+         if (registerOnly) throw new HttpException("E-mail ou CPF já cadastrado", 403);
+
          studentDB = (await this.studentsService.verifyExists(
             student.email_aluno,
             student.cpf_aluno,
@@ -277,6 +279,8 @@ export class ContractsService {
          });
       } else {
          studentDB = await this.studentsService.createOrUpdate(student, companyId);
+
+         if (registerOnly) return;
       }
 
       if (!studentDB?.cod_aluno) throw new HttpException("Erro ao cadastrar novo aluno", 403);

@@ -24,8 +24,8 @@ export class ContractsController {
 
    @Post("onlineContract")
    async onlineContract(@Query("companyId") companyId: string, @Body() body: any) {
-      const { student, plan } = body;
-      return this.contractsService.onlineContract(companyId, student, plan);
+      const { student, plan, registerOnly = false } = body;
+      return this.contractsService.onlineContract(companyId, student, plan, registerOnly);
    }
 
    @Post("newContract")
