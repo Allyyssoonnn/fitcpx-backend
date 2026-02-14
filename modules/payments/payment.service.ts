@@ -71,7 +71,9 @@ export class PaymentService {
             // Logica: data > inicial E data <= final
             if (creditDate.isAfter(startMoment) && creditDate.isSameOrBefore(endMoment)) {
                // Converte para Number para evitar concatenação de strings acidental
-               response.value += Number(p.liquido_aluno_contrato_pagamento || 0);
+               if (metaData.status === "RECEIVED" || metaData.status === "CONFIRMED") {
+                  response.value += Number(p.liquido_aluno_contrato_pagamento || 0);
+               }
             }
          } catch (error) {
             console.error("Erro ao processar JSON do pagamento", p.id, error);
