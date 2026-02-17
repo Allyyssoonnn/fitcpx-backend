@@ -38,7 +38,7 @@ export class MobileController {
    @Get("getPhysicalAssessment")
    async getPhysicalAssessment(
       @StudentId() studentId: string,
-      @Query("physicalAssessmentId") physicalAssessmentId: string
+      @Query("physicalAssessmentId") physicalAssessmentId: string,
    ) {
       return this.mobileService.getPhysicalAssessmentById(studentId, physicalAssessmentId);
    }
@@ -74,7 +74,7 @@ export class MobileController {
    async sendStudentMessage(
       @CompanyId() companyId: string,
       @StudentId() studentId: string,
-      @Body("message") message: string
+      @Body("message") message: string,
    ) {
       return this.mobileService.registerStudentMessage(studentId, companyId, message);
    }
@@ -90,8 +90,8 @@ export class MobileController {
    }
 
    @Get("findEvents")
-   async findEvents(@StudentId() studentId: string) {
-      return this.mobileService.findEvents(studentId);
+   async findEvents(@StudentId() studentId: string, @CompanyId() companyId: string) {
+      return this.mobileService.findEvents(studentId, companyId);
    }
 
    @Get("scheduleEvent")
@@ -107,7 +107,7 @@ export class MobileController {
       @Query("waist") waist: Number,
       @Query("hip") hip: Number,
       @Query("weight") weight: Number,
-      @Query("height") height: Number
+      @Query("height") height: Number,
    ) {
       return this.mobileService.sendFitnessAssessment(companyId, studentId, neck, waist, hip, weight, height);
    }

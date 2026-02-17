@@ -135,8 +135,8 @@ export class MobileService {
       return this.chatRepository.countUnreadMessages(studentId);
    }
 
-   async findEvents(studentId: string) {
-      return this.calendarRepository.findEvents(studentId);
+   async findEvents(studentId: string, companyId: string) {
+      return this.calendarRepository.findEvents(studentId, companyId);
    }
 
    async scheduleEvent(studentId: string, eventId: string) {

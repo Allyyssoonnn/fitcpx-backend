@@ -32,10 +32,12 @@ export class CalendarRepository {
       return await db.tab_agenda.findByPk(id);
    }
 
-   async findEvents(studentId: string) {
+   async findEvents(studentId: string, companyId: string) {
+      const company = (await db.tab_empresa.findByPk(companyId)) as any;
+      const phone = company ? company.telefone_empresa : null;
       const currentDate = new Date();
 
-      return db.tab_agenda.findAll({
+      const events = (await db.tab_agenda.findAll({
          where: {
             cod_aluno: { [Op.or]: [studentId, null] },
             data_fim: { [Op.gte]: currentDate },
@@ -45,7 +47,14 @@ export class CalendarRepository {
             { model: db.tab_usuario, as: "usuario" },
          ],
          order: [["data_inicio", "ASC"]],
-         logging: console.log,
+      })) as any[];
+
+      return events.map((event) => {
+         const text = encodeURIComponent("Olá, gostaria de ajustar o agendamento.");
+         const url = `https://wa.me/${phone}?text=${text}`;
+         event.url = url;
+
+         return { ...event.toJSON(), url: event.url };
       });
    }
 
