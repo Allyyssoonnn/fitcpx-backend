@@ -1,4 +1,12 @@
 {
+   "3.8.x": {
+      "Destaques": ["🚀 Os alunos agora podem realizar autoavaliações anexando fotos."],
+      "Melhorias Gerais": [
+         "Correção de bugs menores para melhorar a estabilidade do sistema.",
+         "Otimizações de performance do aplicativo do aluno para uma experiência mais fluida.",
+         "Otimizações e melhorias de layout do aplicativo do aluno para uma experiência mais fluida."
+      ]
+   },
    "3.7.x": {
       "Destaques": [
          "🚀 Agora a tela de fechamento de contrato está mais intuitiva e fácil de usar.",
