@@ -80,7 +80,8 @@ export class AdminService {
             !!p.jsonwebhook_aluno_contrato_pagamento &&
             !!JSON.parse(p.jsonwebhook_aluno_contrato_pagamento)?.estimatedCreditDate &&
             moment(JSON.parse(p.jsonwebhook_aluno_contrato_pagamento).estimatedCreditDate) > initialDateRaw &&
-            moment(JSON.parse(p.jsonwebhook_aluno_contrato_pagamento).estimatedCreditDate) <= endDateRaw,
+            moment(JSON.parse(p.jsonwebhook_aluno_contrato_pagamento).estimatedCreditDate) <= endDateRaw &&
+            p.status_aluno_contrato_pagamento.includes("succeeded"),
       );
 
       const formatedPayments = paymentsFiltered.map((v: any) => ({
