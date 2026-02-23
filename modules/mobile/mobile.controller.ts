@@ -1,7 +1,11 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { S3Client } from "@aws-sdk/client-s3";
+import { Body, Controller, Get, Post, Query, UploadedFiles, UseInterceptors } from "@nestjs/common";
+import { FilesInterceptor } from "@nestjs/platform-express";
+import multerS3 from "multer-s3";
 import { CompanyId } from "../../shared/decorators/companyId.decorator";
 import { StudentId } from "../../shared/decorators/studentId.decorator";
 import { MobileService } from "./mobile.service";
+const dev = process.env.NODE_ENV !== "production";
 
 @Controller("mobile")
 export class MobileController {
@@ -99,16 +103,45 @@ export class MobileController {
       return this.mobileService.scheduleEvent(studentId, eventId);
    }
 
-   @Get("sendFitnessAssessment")
+   @Post("sendFitnessAssessment")
+   @UseInterceptors(
+      FilesInterceptor("images", 30, {
+         storage: multerS3({
+            s3: new S3Client({
+               region: "sa-east-1",
+               credentials: {
+                  accessKeyId: "[REDACTED_CREDENTIAL]",
+                  secretAccessKey: "[REDACTED_CREDENTIAL]",
+               },
+               requestHandler: {
+                  metadata: { timeout: 300000 },
+               },
+            }),
+            bucket: "media.fitcpx.com",
+            acl: "public-read",
+            contentType: multerS3.AUTO_CONTENT_TYPE,
+            key: function (req: any, file: any, cb: any) {
+               const devPrefix = dev ? "developer/" : "";
+               const baseKey = `aluno/avaliacao/${Date.now()}_${file.originalname}`;
+               const s3Key = `${devPrefix}/${baseKey}`;
+               cb(null, s3Key);
+            },
+         }),
+         limits: {
+            fileSize: 50 * 1024 * 1024,
+         },
+      }),
+   )
    async sendFitnessAssessment(
       @CompanyId() companyId: string,
       @StudentId() studentId: string,
-      @Query("neck") neck: Number,
-      @Query("waist") waist: Number,
-      @Query("hip") hip: Number,
-      @Query("weight") weight: Number,
-      @Query("height") height: Number,
+      @Body("neck") neck: Number,
+      @Body("waist") waist: Number,
+      @Body("hip") hip: Number,
+      @Body("weight") weight: Number,
+      @Body("height") height: Number,
+      @UploadedFiles() files: Express.MulterS3.File[],
    ) {
-      return this.mobileService.sendFitnessAssessment(companyId, studentId, neck, waist, hip, weight, height);
+      return this.mobileService.sendFitnessAssessment(companyId, studentId, neck, waist, hip, weight, height, files);
    }
 }

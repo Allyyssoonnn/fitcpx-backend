@@ -7,6 +7,7 @@ import { CompaniesService } from "../companies/companies.service";
 import { ContractsService } from "../contracts/contracts.service";
 import { EventsService } from "../events/events.service";
 import { ExercisesService } from "../exercises/exercises.service";
+import { PhysicalAssessmentsRepository } from "../physicalAssessments/physicalAssessments.repository";
 import { PhysicalAssessmentsService } from "../physicalAssessments/physicalAssessments.service";
 import { StudentsService } from "../students/students.service";
 import { WorkoutsService } from "../workouts/workouts.service";
@@ -18,6 +19,7 @@ export class MobileService {
       private readonly companiesService: CompaniesService,
       private readonly exercisesService: ExercisesService,
       private readonly physicalAssessmentsService: PhysicalAssessmentsService,
+      private readonly physicalAssessmentsRepository: PhysicalAssessmentsRepository,
       private readonly workoutsService: WorkoutsService,
       private readonly contractsService: ContractsService,
       private readonly eventsService: EventsService,
@@ -155,8 +157,9 @@ export class MobileService {
       hip: Number,
       weight: Number,
       height: Number,
+      filesBuffer: Express.MulterS3.File[],
    ) {
-      return this.physicalAssessmentsService.createOrUpdate({
+      const response = (await this.physicalAssessmentsService.createOrUpdate({
          cod_empresa: companyId,
          cod_aluno: studentId,
          pescoco: neck,
@@ -166,6 +169,25 @@ export class MobileService {
          data_avaliacao: new Date(),
          peso: weight,
          altura: height,
-      });
+      })) as any;
+
+      const images = [];
+
+      for (const file of filesBuffer as Express.MulterS3.File[]) {
+         const imageUrl = `https://media.fitcpx.com/${file.key}`;
+
+         if (imageUrl) {
+            images.push({
+               url_imagem: imageUrl,
+               descricao_imagem: file.originalname,
+               tamanho_imagem: file.size,
+               cod_avaliacao: response.cod_avaliacao,
+            });
+         }
+      }
+
+      await this.physicalAssessmentsRepository.addImages(images);
+
+      return response;
    }
 }
