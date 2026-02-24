@@ -9,8 +9,6 @@ import { PhysicalAssessmentsRepository } from "../physicalAssessments/physicalAs
 import { StorageService } from "../storage/storage.service";
 import { StudentsRepository } from "../students/students.repository";
 import { WorkoutsRepository } from "../workouts/workouts.repository";
-import { WPAPI } from "../wp/wp.api";
-import { WPService } from "../wp/wp.service";
 import { AdminRepository } from "./admin.repository";
 const dev = process.env.NODE_ENV !== "production";
 
@@ -25,8 +23,6 @@ export class AdminService {
       private readonly workoutsRepository: WorkoutsRepository,
       private readonly contractsRepository: ContractsRepository,
       private readonly mailsService: MailsService,
-      private readonly wpAPI: WPAPI,
-      private readonly wpService: WPService,
       private readonly storageService: StorageService,
    ) {}
 
