@@ -6,5 +6,6 @@ import { ContractsTemplatesService } from "./contractsTemplates.service";
 @Module({
    controllers: [ContractsTemplatesController],
    providers: [ContractsTemplatesRepository, ContractsTemplatesService],
+   exports: [ContractsTemplatesService, ContractsTemplatesRepository],
 })
 export class ContractsTemplatesModule {}

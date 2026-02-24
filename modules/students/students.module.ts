@@ -1,11 +1,8 @@
 import { Module } from "@nestjs/common";
-import { CompaniesRepository } from "../companies/companies.repository";
-import { CompaniesService } from "../companies/companies.service";
+import { CompaniesModule } from "../companies/companies.module";
 import { ContractsRepository } from "../contracts/contracts.repository";
 import { EventsService } from "../events/events.service";
-import { MailsAPI } from "../mails/mails.api";
-import { MailsRepository } from "../mails/mails.repository";
-import { MailsService } from "../mails/mails.service";
+import { MailsModule } from "../mails/mails.module";
 import { NotificationsAPI } from "../notifications/notifications.api";
 import { NotificationsRepository } from "../notifications/notifications.repository";
 import { NotificationsService } from "../notifications/notifications.service";
@@ -20,6 +17,7 @@ import { StudentsRepository } from "./students.repository";
 import { StudentsService } from "./students.service";
 
 @Module({
+   imports: [MailsModule, CompaniesModule],
    controllers: [StudentsController],
    providers: [
       StudentsRepository,
@@ -27,11 +25,6 @@ import { StudentsService } from "./students.service";
       StorageService,
       StorageAPI,
       EventsService,
-      MailsService,
-      MailsAPI,
-      MailsRepository,
-      CompaniesService,
-      CompaniesRepository,
       PaymentService,
       PaymentAPI,
       PaymentsRepository,
@@ -41,5 +34,6 @@ import { StudentsService } from "./students.service";
       NotificationsService,
       NotificationsAPI,
    ],
+   exports: [StudentsService, StudentsRepository],
 })
 export class StudentsModule {}

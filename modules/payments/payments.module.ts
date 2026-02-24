@@ -31,5 +31,6 @@ import { PaymentsRepository } from "./payments.repository";
       MailsAPI,
       CompaniesRepository,
    ],
+   exports: [PaymentService, PaymentsRepository, PaymentAPI],
 })
 export class PaymentsModule {}

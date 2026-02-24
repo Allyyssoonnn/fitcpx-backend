@@ -31,5 +31,6 @@ import { PhysicalAssessmentsService } from "./physicalAssessments.service";
       CompaniesRepository,
       PaymentsRepository,
    ],
+   exports: [PhysicalAssessmentsService, PhysicalAssessmentsRepository],
 })
 export class PhysicalAssessmentsModule {}

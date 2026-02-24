@@ -1,27 +1,15 @@
 import { Module } from "@nestjs/common";
 import { CompaniesRepository } from "../companies/companies.repository";
-import { MailsAPI } from "../mails/mails.api";
-import { MailsRepository } from "../mails/mails.repository";
-import { MailsService } from "../mails/mails.service";
-import { NotificationsAPI } from "../notifications/notifications.api";
-import { NotificationsRepository } from "../notifications/notifications.repository";
-import { NotificationsService } from "../notifications/notifications.service";
-import { PaymentsRepository } from "../payments/payments.repository";
+import { MailsModule } from "../mails/mails.module";
+import { NotificationsModule } from "../notifications/notifications.module";
+import { PaymentsModule } from "../payments/payments.module";
 import { EventsController } from "./events.controller";
 import { EventsService } from "./events.service";
 
 @Module({
+   imports: [MailsModule, NotificationsModule, PaymentsModule],
    controllers: [EventsController],
-   providers: [
-      EventsService,
-      MailsService,
-      MailsAPI,
-      MailsRepository,
-      NotificationsService,
-      NotificationsAPI,
-      NotificationsRepository,
-      CompaniesRepository,
-      PaymentsRepository,
-   ],
+   providers: [EventsService, CompaniesRepository],
+   exports: [EventsService],
 })
 export class EventsModule {}

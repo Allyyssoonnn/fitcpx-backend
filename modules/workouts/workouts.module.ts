@@ -27,5 +27,6 @@ import { WorkoutsService } from "./workouts.service";
       CompaniesRepository,
       PaymentsRepository,
    ],
+   exports: [WorkoutsService, WorkoutsRepository],
 })
 export class WorkoutsModule {}

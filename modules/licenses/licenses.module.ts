@@ -43,5 +43,6 @@ import { LicensesService } from "./licenses.service";
       MailsService,
       EventsService,
    ],
+   exports: [LicensesService, LicensesRepository],
 })
 export class LicensesModules {}
