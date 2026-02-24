@@ -11,7 +11,7 @@ export class EventsService {
       private readonly mailsService: MailsService,
       private readonly notificationsService: NotificationsService,
       private readonly companiesRepository: CompaniesRepository,
-      private readonly paymentsRepository: PaymentsRepository
+      private readonly paymentsRepository: PaymentsRepository,
    ) {}
 
    async recoveryPasswordStudent(name: string, email: string, url: string) {
@@ -36,7 +36,7 @@ export class EventsService {
             "Novo Treino Disponível",
             "Seu treinador acabou de liberar um novo treino para você. Vamos lá?",
             "workout",
-            studentId
+            studentId,
          );
       }
    }
@@ -47,7 +47,7 @@ export class EventsService {
             "Novo Evento Agendado",
             "Seu treinador acabou de agendar um evento para você",
             "calendar",
-            studentId
+            studentId,
          );
       }
    }
@@ -60,7 +60,7 @@ export class EventsService {
             "Nova Avaliação Física",
             "Uma nova avaliação física foi adicionada",
             "physicalAssessment",
-            studentId
+            studentId,
          );
       }
    }
@@ -71,7 +71,7 @@ export class EventsService {
             "Novo plano contratado",
             "Seu novo plano foi contratado com sucesso e já está ativo",
             "contract",
-            studentId
+            studentId,
          );
       }
    }
@@ -83,24 +83,15 @@ export class EventsService {
             await this.companiesRepository.verifyStudentNotificationConfig(
                "invoiceOverdue",
                "app",
-               response?.contract?.cod_aluno
+               response?.contract?.cod_aluno,
             )
          ) {
             return await this.notificationsService.sendPushNotification(
                "Pagamento pendente",
                "Identificamos um pagamento vencido referente ao seu plano",
                "contract",
-               response.contract.cod_aluno
+               response.contract.cod_aluno,
             );
-         }
-         if (
-            await this.companiesRepository.verifyStudentNotificationConfig(
-               "invoiceOverdue",
-               "whatsapp",
-               response?.contract?.cod_aluno
-            )
-         ) {
-            //
          }
       }
    }
@@ -112,14 +103,14 @@ export class EventsService {
             await this.companiesRepository.verifyStudentNotificationConfig(
                "invoiceCreated",
                "app",
-               response?.contract?.cod_aluno
+               response?.contract?.cod_aluno,
             )
          ) {
             return await this.notificationsService.sendPushNotification(
                "Fatura disponível",
                "Sua fatura já está disponível para pagamento",
                "contract",
-               response.contract.cod_aluno
+               response.contract.cod_aluno,
             );
          }
       }
@@ -132,7 +123,7 @@ export class EventsService {
                "Pagamento recebido",
                "Seu pagamento foi confirmado com sucesso",
                "payment",
-               studentId
+               studentId,
             );
          }
       } else {
@@ -143,14 +134,14 @@ export class EventsService {
                   await this.companiesRepository.verifyStudentNotificationConfig(
                      "paymentConfirmed",
                      "app",
-                     response?.contract?.cod_aluno
+                     response?.contract?.cod_aluno,
                   )
                ) {
                   return await this.notificationsService.sendPushNotification(
                      "Pagamento recebido",
                      "Seu pagamento foi confirmado com sucesso",
                      "payment",
-                     response.contract.cod_aluno
+                     response.contract.cod_aluno,
                   );
                }
             }
