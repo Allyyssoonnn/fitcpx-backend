@@ -7,7 +7,6 @@ import { ChatModule } from "./modules/chat/chat.module";
 import { CompaniesModule } from "./modules/companies/companies.module";
 import { ContractsModule } from "./modules/contracts/contracts.module";
 import { ContractsTemplatesModule } from "./modules/contractsTemplates/contractsTemplates.module";
-import { CRMModule } from "./modules/crm/crm.module";
 import { EventsModule } from "./modules/events/events.module";
 import { ExercisesModule } from "./modules/exercises/exercises.module";
 import { GoogleModule } from "./modules/google/google.module";
@@ -59,7 +58,6 @@ import { WPModule } from "./modules/wp/wp.module";
       EventsModule,
       AdminModule,
       ChatModule,
-      CRMModule,
       WPModule,
    ],
 })

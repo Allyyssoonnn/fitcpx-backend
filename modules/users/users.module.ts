@@ -1,8 +1,5 @@
 import { Module } from "@nestjs/common";
 import { CompaniesRepository } from "../companies/companies.repository";
-import { CRMAPI } from "../crm/crm.api";
-import { CRMRepository } from "../crm/crm.repository";
-import { CRMService } from "../crm/crm.service";
 import { EventsService } from "../events/events.service";
 import { MailsAPI } from "../mails/mails.api";
 import { MailsRepository } from "../mails/mails.repository";
@@ -33,9 +30,6 @@ import { UsersService } from "./users.service";
       NotificationsService,
       NotificationsRepository,
       PaymentsRepository,
-      CRMAPI,
-      CRMService,
-      CRMRepository,
    ],
 })
 export class UsersModule {}
