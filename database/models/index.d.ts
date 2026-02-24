@@ -44,12 +44,8 @@ interface Db {
    tab_exercicios_empresa: ModelStatic<Model>;
    errors: ModelStatic<Model>;
    chat: ModelStatic<Model>;
-   crm_automations: ModelStatic<Model>;
-   crm_pipelines: ModelStatic<Model>;
-   crm_pipeline_stages: ModelStatic<Model>;
    payouts: ModelStatic<Model>;
    payout_payments: ModelStatic<Model>;
-   wp_messages: ModelStatic<Model>;
    student_attachments: ModelStatic<Model>;
    checkout_sessions: ModelStatic<Model>;
 }
