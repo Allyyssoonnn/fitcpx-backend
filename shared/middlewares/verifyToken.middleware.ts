@@ -45,8 +45,6 @@ const allowedRoutes = [
    "/users/updatePassword",
    "/students/updatePassword",
    "/users/recoveryAccount",
-   "/google/getGoogleUrlLogin",
-   "/google/loggedGoogle",
    "/physicalAssessments/fitnessassessmentpdf",
    "/licenses/buyLicense",
    "/licenses/sendCoupon",
