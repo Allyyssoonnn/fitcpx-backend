@@ -16,16 +16,12 @@ import {
 import { FilesInterceptor } from "@nestjs/platform-express";
 import multerS3 from "multer-s3";
 import { CompanyId } from "../../shared/decorators/companyId.decorator";
-import { StorageAPI } from "../storage/storage.api";
 import { PhysicalAssessmentsService } from "./physicalAssessments.service";
 const dev = process.env.NODE_ENV !== "production";
 
 @Controller("physicalAssessments")
 export class PhysicalAssessmentsController {
-   constructor(
-      private readonly physicalAssessmentsService: PhysicalAssessmentsService,
-      private readonly storageApi: StorageAPI,
-   ) {}
+   constructor(private readonly physicalAssessmentsService: PhysicalAssessmentsService) {}
 
    @Get("fitnessassessmentpdf")
    async getTemplatePrint(@Response() res: any) {

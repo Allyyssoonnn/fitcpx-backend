@@ -1,14 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { EventsService } from "../events/events.service";
-import { StorageService } from "../storage/storage.service";
 import { PhysicalAssessmentsRepository } from "./physicalAssessments.repository";
 
 @Injectable()
 export class PhysicalAssessmentsService {
    constructor(
       private readonly physicalAssessmentsRepository: PhysicalAssessmentsRepository,
-      private readonly storageService: StorageService,
-      private readonly eventsService: EventsService
+      private readonly eventsService: EventsService,
    ) {}
 
    async getAll(companyId: string, deleted: boolean, studentId?: string) {
@@ -36,7 +34,7 @@ export class PhysicalAssessmentsService {
    async updateImagePhysicalAssessment(
       physicalAssessmentId: string,
       filesBuffer: Express.Multer.File[],
-      deletedImages?: string
+      deletedImages?: string,
    ) {
       if (deletedImages) {
          const array = JSON.parse(deletedImages);

@@ -13,6 +13,6 @@ import { CalendarService } from "./calendar.service";
    imports: [MailsModule, NotificationsModule, CompaniesModule, PaymentsModule, EventsModule, ServicesModule],
    controllers: [CalendarController],
    providers: [CalendarRepository, CalendarService],
-   exports: [CalendarService],
+   exports: [CalendarService, CalendarRepository],
 })
 export class CalendarModule {}
