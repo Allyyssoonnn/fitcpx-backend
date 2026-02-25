@@ -1,8 +1,8 @@
 import { HttpException, Injectable } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { randomUUID } from "crypto";
 import { genTokenUserAuth, genTokenUserRecoveryPassword, validateToken } from "../../shared/utils/token";
 import { CompaniesRepository } from "../companies/companies.repository";
-import { EventsService } from "../events/events.service";
 import { StorageService } from "../storage/storage.service";
 import { UsersRepository } from "./users.repository";
 const dev = process.env.NODE_ENV !== "production";
@@ -13,8 +13,8 @@ export class UsersService {
    constructor(
       private readonly usersRepository: UsersRepository,
       private readonly companiesRepository: CompaniesRepository,
-      private readonly eventsService: EventsService,
       private readonly storageService: StorageService,
+      private readonly eventEmitter: EventEmitter2,
    ) {}
 
    async getAll(companyId: string) {
@@ -125,7 +125,8 @@ export class UsersService {
 
       const token = genTokenUserRecoveryPassword(user.cod_usuario);
       const url = `https://app.fitcpx.com/recoveryPassword?token=${token}`;
-      return this.eventsService.recoveryPasswordUser(user.nome_usuario, email, url);
+
+      return this.eventEmitter.emitAsync("recovery.password.user", user.nome_usuario, email, url);
    }
 
    async updatePassword(token: string, password: string) {

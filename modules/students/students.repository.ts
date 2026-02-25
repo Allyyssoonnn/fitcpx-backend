@@ -14,6 +14,20 @@ export class StudentsRepository {
       });
    }
 
+   async getDueStudentPayments(studentId: string) {
+      return db.tab_aluno_contrato_pagamento.findAll({
+         where: { status_aluno_contrato_pagamento: "overdue" },
+         include: [
+            {
+               model: db.tab_aluno_contrato,
+               as: "contract",
+               where: { cod_aluno: studentId },
+               include: [{ model: db.tab_aluno, as: "aluno" }],
+            },
+         ],
+      });
+   }
+
    async findById(id: string, companyId?: string) {
       let where = companyId ? { cod_empresa: companyId } : {};
       return await db.tab_aluno.findOne({ where: { cod_aluno: id, ...where } });
@@ -40,6 +54,14 @@ export class StudentsRepository {
    async update(data: any) {
       (await db.tab_aluno.update(data, { where: { cod_aluno: data.cod_aluno } })) as any;
       return await db.tab_aluno.findByPk(data.cod_aluno);
+   }
+
+   async updateStatus(id: string, status: string, description: string | null = null) {
+      await db.tab_aluno.update(
+         { status_aluno: status, status_description: description },
+         { where: { cod_aluno: id } },
+      );
+      return await db.tab_aluno.findByPk(id);
    }
 
    async deleteById(id: string) {

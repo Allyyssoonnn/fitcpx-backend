@@ -1,9 +1,22 @@
 import { Injectable } from "@nestjs/common";
+import { OnEvent } from "@nestjs/event-emitter";
 import moment from "moment-timezone";
 import { CompaniesRepository } from "../companies/companies.repository";
 import { MailsService } from "../mails/mails.service";
 import { NotificationsService } from "../notifications/notifications.service";
+import { PaymentService } from "../payments/payment.service";
 import { PaymentsRepository } from "../payments/payments.repository";
+
+const Events = {
+   PAYMENT_CONFIRMED: "payment.confirmed",
+   WELCOME_STUDENT: "welcome.student",
+   RECOVERY_PASSWORD_USER: "recovery.password.user",
+   RECOVERY_PASSWORD_STUDENT: "recovery.password.student",
+   NEW_CONTRACT: "new.contract",
+   NEW_WORKOUT: "new.workout",
+   NEW_PHYSICAL_ASSESSMENT: "new.physicalAssessment",
+   NEW_SCHEDULE: "new.schedule",
+};
 
 @Injectable()
 export class EventsService {
@@ -12,8 +25,10 @@ export class EventsService {
       private readonly notificationsService: NotificationsService,
       private readonly companiesRepository: CompaniesRepository,
       private readonly paymentsRepository: PaymentsRepository,
+      private readonly paymentService: PaymentService,
    ) {}
 
+   @OnEvent(Events.RECOVERY_PASSWORD_STUDENT)
    async recoveryPasswordStudent(name: string, email: string, url: string) {
       return this.mailsService.sendMail(email, "recoveryPassword.html", "Recuperação de senha", {
          name,
@@ -22,6 +37,7 @@ export class EventsService {
       });
    }
 
+   @OnEvent(Events.RECOVERY_PASSWORD_USER)
    async recoveryPasswordUser(name: string, email: string, url: string) {
       return this.mailsService.sendMail(email, "recoveryPassword.html", "Recuperação de senha", {
          name,
@@ -30,6 +46,7 @@ export class EventsService {
       });
    }
 
+   @OnEvent(Events.NEW_WORKOUT)
    async newWorkout(studentId: string) {
       if (await this.companiesRepository.verifyStudentNotificationConfig("workoutCreated", "app", studentId)) {
          return await this.notificationsService.sendPushNotification(
@@ -41,6 +58,7 @@ export class EventsService {
       }
    }
 
+   @OnEvent(Events.NEW_SCHEDULE)
    async newEvent(studentId: string) {
       if (await this.companiesRepository.verifyStudentNotificationConfig("eventCreated", "app", studentId)) {
          return await this.notificationsService.sendPushNotification(
@@ -52,6 +70,7 @@ export class EventsService {
       }
    }
 
+   @OnEvent(Events.NEW_PHYSICAL_ASSESSMENT)
    async newPhysicalAssessment(studentId: string) {
       if (
          await this.companiesRepository.verifyStudentNotificationConfig("physicalAssessmentCreated", "app", studentId)
@@ -65,6 +84,7 @@ export class EventsService {
       }
    }
 
+   @OnEvent(Events.NEW_CONTRACT)
    async newContract(studentId: string) {
       if (await this.companiesRepository.verifyStudentNotificationConfig("contractCreated", "app", studentId)) {
          await this.notificationsService.sendPushNotification(
@@ -79,6 +99,8 @@ export class EventsService {
    async overduePayment(paymentId: string) {
       const response = (await this.paymentsRepository.findById(paymentId)) as any;
       if (response?.contract?.cod_aluno) {
+         await this.paymentService.verifyStudentPendency(response?.contract?.cod_aluno);
+
          if (
             await this.companiesRepository.verifyStudentNotificationConfig(
                "invoiceOverdue",
@@ -99,6 +121,8 @@ export class EventsService {
    async createdPayment(paymentId: string) {
       const response = (await this.paymentsRepository.findById(paymentId)) as any;
       if (response?.contract?.cod_aluno) {
+         await this.paymentService.verifyStudentPendency(response?.contract?.cod_aluno);
+
          if (
             await this.companiesRepository.verifyStudentNotificationConfig(
                "invoiceCreated",
@@ -116,6 +140,7 @@ export class EventsService {
       }
    }
 
+   @OnEvent(Events.PAYMENT_CONFIRMED)
    async confirmedPayment(studentId: string | null, paymentId?: string) {
       if (studentId) {
          if (await this.companiesRepository.verifyStudentNotificationConfig("paymentConfirmed", "app", studentId)) {
@@ -130,6 +155,8 @@ export class EventsService {
          if (paymentId) {
             const response = (await this.paymentsRepository.findById(paymentId)) as any;
             if (response?.contract?.cod_aluno) {
+               await this.paymentService.verifyStudentPendency(response?.contract?.cod_aluno);
+
                if (
                   await this.companiesRepository.verifyStudentNotificationConfig(
                      "paymentConfirmed",
@@ -193,6 +220,7 @@ export class EventsService {
       });
    }
 
+   @OnEvent(Events.WELCOME_STUDENT)
    async welcomeStudent(name: string, email: string, owner: string) {
       return this.mailsService.sendMail(email, "welcomeStudent.html", "Bem-vindo", {
          name,

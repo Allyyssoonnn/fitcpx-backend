@@ -1,11 +1,11 @@
 import { HttpException, Injectable } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { genTokenStudentRecoveryPassword } from "../../shared/utils/token";
 import { genTokenStudentAuth } from "../../shared/utils/token.mobile";
 import { CalendarRepository } from "../calendar/calendar.repository";
 import { ChatRepository } from "../chat/chat.repository";
 import { CompaniesService } from "../companies/companies.service";
 import { ContractsService } from "../contracts/contracts.service";
-import { EventsService } from "../events/events.service";
 import { ExercisesService } from "../exercises/exercises.service";
 import { PhysicalAssessmentsRepository } from "../physicalAssessments/physicalAssessments.repository";
 import { PhysicalAssessmentsService } from "../physicalAssessments/physicalAssessments.service";
@@ -22,7 +22,7 @@ export class MobileService {
       private readonly physicalAssessmentsRepository: PhysicalAssessmentsRepository,
       private readonly workoutsService: WorkoutsService,
       private readonly contractsService: ContractsService,
-      private readonly eventsService: EventsService,
+      private readonly eventEmitter: EventEmitter2,
       private readonly chatRepository: ChatRepository,
       private readonly calendarRepository: CalendarRepository,
    ) {}
@@ -36,7 +36,7 @@ export class MobileService {
       if (student.email_aluno) {
          const token = genTokenStudentRecoveryPassword(student.cod_aluno);
          const url = `https://app.fitcpx.com/recoveryPassword?student=true&token=${token}`;
-         return this.eventsService.recoveryPasswordStudent(student.nome_aluno, student.email_aluno, url);
+         return this.eventEmitter.emitAsync("recovery.password.student", student.nome_aluno, student.email_aluno, url);
       }
    }
 

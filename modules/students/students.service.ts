@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { validateToken } from "../../shared/utils/token";
 import { CompaniesService } from "../companies/companies.service";
-import { EventsService } from "../events/events.service";
 import { StorageService } from "../storage/storage.service";
 import { StudentsRepository } from "./students.repository";
 const dev = process.env.NODE_ENV !== "production";
@@ -11,8 +11,8 @@ export class StudentsService {
    constructor(
       private readonly studentsRepository: StudentsRepository,
       private readonly storageService: StorageService,
-      private readonly eventsService: EventsService,
       private readonly comapniesService: CompaniesService,
+      private readonly eventEmitter: EventEmitter2,
    ) {}
 
    async getAll(companyId: string, onlyDeleted: boolean) {
@@ -48,7 +48,11 @@ export class StudentsService {
       if (!data.cod_aluno && response.cod_aluno) {
          const company = (await this.comapniesService.getById(companyId)) as any;
          if (!company) throw new HttpException("Empresa não encontrada.", 404);
-         await this.eventsService.welcomeStudent(response.nome_aluno, response.email_aluno, company.nome_empresa);
+         this.eventEmitter.emit("welcome.student", {
+            name: response.nome_aluno,
+            email: response.email_aluno,
+            owner: company.nome_empresa,
+         });
          return response;
       } else return response;
    };

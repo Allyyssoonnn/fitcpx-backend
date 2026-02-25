@@ -1,9 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, Injectable } from "@nestjs/common";
 import moment from "moment-timezone";
 import { getNextPayoutDate, getStartDateFromPayout } from "../../utils/global";
 import { CompaniesRepository } from "../companies/companies.repository";
-import { ContractsRepository } from "../contracts/contracts.repository";
-import { EventsService } from "../events/events.service";
 import { StudentsRepository } from "../students/students.repository";
 import { PaymentAPI } from "./payment.api";
 import { PaymentsRepository } from "./payments.repository";
@@ -28,8 +26,6 @@ export class PaymentService {
       private readonly paymentsRepository: PaymentsRepository,
       private readonly studentsRepository: StudentsRepository,
       private readonly companiesRepository: CompaniesRepository,
-      private readonly contractsRepository: ContractsRepository,
-      private readonly eventsService: EventsService,
    ) {}
 
    async getPayouts(companyId: string, date: string) {
@@ -245,12 +241,6 @@ export class PaymentService {
 
    async markPaymentReceived(paymentId: string) {
       const response = await this.paymentAPI.markPaymentReceived(paymentId);
-      if (response) {
-         let payment = (await this.paymentsRepository.findByPaymentId(paymentId)) as any;
-         let contract = (await this.contractsRepository.findById(payment.cod_aluno_contrato)) as any;
-
-         if (contract?.cod_aluno) await this.eventsService.confirmedPayment(contract?.cod_aluno);
-      }
       return response;
    }
 
@@ -264,5 +254,20 @@ export class PaymentService {
 
    async findInovicesSignature(subscriptionId: string) {
       return this.paymentAPI.findInovicesSignature(subscriptionId);
+   }
+
+   //Verify if student has any pendency, like pending payments, pending documents, etc
+   // and update the student status to "blocked" if has any pendency or "active" if not has any pendency
+   async verifyStudentPendency(studentId: string) {
+      const student = (await this.studentsRepository.findById(studentId)) as any;
+      if (!student) throw new HttpException("Aluno não encontrado.", 404);
+
+      const duePayments = await this.studentsRepository.getDueStudentPayments(studentId);
+
+      if (student.status_aluno === "A" && duePayments.length > 0) {
+         await this.studentsRepository.updateStatus(studentId, "B", "Pagamento pendente");
+      } else if (student.status_aluno === "B" && duePayments.length === 0) {
+         await this.studentsRepository.updateStatus(studentId, "A");
+      }
    }
 }

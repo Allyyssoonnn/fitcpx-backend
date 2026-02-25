@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.ENUM("A", "I", "B"),
             defaultValue: "A",
          },
+         status_description: DataTypes.STRING,
          cpf_aluno: DataTypes.STRING,
          rg_aluno: DataTypes.STRING,
          telefone_aluno: DataTypes.STRING,
@@ -35,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       {
          freezeTableName: true,
          paranoid: true,
-      }
+      },
    );
 
    tab_aluno.associate = (models) => {

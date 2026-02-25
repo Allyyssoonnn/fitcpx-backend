@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { EventsService } from "../events/events.service";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { PhysicalAssessmentsRepository } from "./physicalAssessments.repository";
 
 @Injectable()
 export class PhysicalAssessmentsService {
    constructor(
       private readonly physicalAssessmentsRepository: PhysicalAssessmentsRepository,
-      private readonly eventsService: EventsService,
+      private readonly eventEmitter: EventEmitter2,
    ) {}
 
    async getAll(companyId: string, deleted: boolean, studentId?: string) {
@@ -22,7 +22,7 @@ export class PhysicalAssessmentsService {
       // const dataCleaned = Object.fromEntries(Object.entries(data).filter(([_, v]) => v != null && v !== "")) as any;
       const response = (await this.physicalAssessmentsRepository.createOrUpdate(data)) as any;
       if (!data?.cod_avaliacao && data?.cod_aluno && response?.cod_avaliacao) {
-         await this.eventsService.newPhysicalAssessment(data.cod_aluno);
+         this.eventEmitter.emit("new.physicalAssessment", data.cod_aluno);
       }
       return response;
    };

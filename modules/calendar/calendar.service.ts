@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { EventsService } from "../events/events.service";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { ServicesRepository } from "../services/services.repository";
 import { CalendarRepository } from "./calendar.repository";
 
@@ -8,7 +8,7 @@ export class CalendarService {
    constructor(
       private readonly calendarRepository: CalendarRepository,
       private readonly servicesRepostory: ServicesRepository,
-      private readonly eventsService: EventsService
+      private readonly eventEmitter: EventEmitter2,
    ) {}
 
    async getCalendar(companyId: string, studentId?: string) {
@@ -27,7 +27,7 @@ export class CalendarService {
       }
       const response = (await this.calendarRepository.createEvent(eventDB)) as any;
       if (response?.cod_aluno && !data?.cod_evento && response?.cod_aluno) {
-         await this.eventsService.newEvent(response.cod_aluno);
+         await this.eventEmitter.emitAsync("new.schedule", response.cod_aluno);
       }
       return response;
    }

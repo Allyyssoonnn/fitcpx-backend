@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { EventsService } from "../events/events.service";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { WorkoutsRepository } from "./workouts.repository";
 import { generateWorkoutTemplate } from "./workouts.utils";
 
@@ -7,7 +7,7 @@ import { generateWorkoutTemplate } from "./workouts.utils";
 export class WorkoutsService {
    constructor(
       private readonly workoutsRepository: WorkoutsRepository,
-      private readonly eventsService: EventsService
+      private readonly eventEmitter: EventEmitter2,
    ) {}
 
    async getWorkoutHistory(companyId: string, studentId?: string) {
@@ -37,7 +37,7 @@ export class WorkoutsService {
    async createOrUpdate(userId: string, companyId: string, workout: any, sessions: any[]) {
       const response = await this.workoutsRepository.createOrUpdate(userId, companyId, workout, sessions);
       if (workout?.cod_aluno && !workout?.cod_treino && response?.cod_aluno) {
-         await this.eventsService.newWorkout(workout.cod_aluno);
+         this.eventEmitter.emit("new.workout", workout.cod_aluno);
       }
       return response;
    }

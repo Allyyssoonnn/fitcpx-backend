@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
+import { EventEmitterModule } from "@nestjs/event-emitter";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { AdminModule } from "./modules/admin/admin.module";
 import { CalendarModule } from "./modules/calendar/calendar.module";
@@ -29,6 +30,7 @@ import { WorkoutsModule } from "./modules/workouts/workouts.module";
       },
    ],
    imports: [
+      EventEmitterModule.forRoot(),
       ThrottlerModule.forRoot([
          {
             ttl: 60 * 1000, // tempo em milissegundos

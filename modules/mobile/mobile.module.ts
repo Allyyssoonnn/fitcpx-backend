@@ -3,7 +3,6 @@ import { CalendarModule } from "../calendar/calendar.module";
 import { ChatModule } from "../chat/chat.module";
 import { CompaniesModule } from "../companies/companies.module";
 import { ContractsModule } from "../contracts/contracts.module";
-import { EventsModule } from "../events/events.module";
 import { ExercisesModule } from "../exercises/exercises.module";
 import { MailsModule } from "../mails/mails.module";
 import { NotificationsModule } from "../notifications/notifications.module";
@@ -25,7 +24,6 @@ import { MobileService } from "./mobile.service";
       NotificationsModule,
       ExercisesModule,
       WorkoutsModule,
-      EventsModule,
       CalendarModule,
       PlansModule,
       CompaniesModule,

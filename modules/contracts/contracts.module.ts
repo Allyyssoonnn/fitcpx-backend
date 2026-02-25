@@ -1,7 +1,6 @@
 import { Module } from "@nestjs/common";
 import { CompaniesRepository } from "../companies/companies.repository";
 import { CompaniesService } from "../companies/companies.service";
-import { EventsModule } from "../events/events.module";
 import { MailsModule } from "../mails/mails.module";
 import { NotificationsModule } from "../notifications/notifications.module";
 import { PaymentsModule } from "../payments/payments.module";
@@ -16,15 +15,7 @@ import { ContractsRepository } from "./contracts.repository";
 import { ContractsService } from "./contracts.service";
 
 @Module({
-   imports: [
-      PaymentsModule,
-      NotificationsModule,
-      MailsModule,
-      StorageModule,
-      EventsModule,
-      WorkoutsModule,
-      PlansModule,
-   ],
+   imports: [PaymentsModule, NotificationsModule, MailsModule, StorageModule, WorkoutsModule, PlansModule],
    controllers: [ContractsController],
    providers: [
       ContractsService,

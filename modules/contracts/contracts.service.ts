@@ -1,8 +1,8 @@
 import { HttpException, Injectable } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import moment from "moment-timezone";
 import puppeteer from "puppeteer";
 import { CompaniesRepository } from "../companies/companies.repository";
-import { EventsService } from "../events/events.service";
 import { CustomerPaymentService, PaymentService } from "../payments/payment.service";
 import { PaymentsRepository } from "../payments/payments.repository";
 import { PlansRepository } from "../plans/plans.repository";
@@ -22,8 +22,8 @@ export class ContractsService {
       private readonly studentsRepository: StudentsRepository,
       private readonly studentsService: StudentsService,
       private readonly companiesRepository: CompaniesRepository,
-      private readonly eventsService: EventsService,
       private readonly plansRepository: PlansRepository,
+      private readonly eventEmitter: EventEmitter2,
    ) {}
 
    async getDuePayments(companyId: string) {
@@ -213,7 +213,7 @@ export class ContractsService {
       }
 
       if (student?.cod_aluno) {
-         await this.eventsService.newContract(student.cod_aluno);
+         await this.eventEmitter.emitAsync("new.contract", student.cod_aluno);
       }
 
       return response;
@@ -445,7 +445,7 @@ export class ContractsService {
       }
 
       if (student?.cod_aluno) {
-         await this.eventsService.newContract(student.cod_aluno);
+         await this.eventEmitter.emitAsync("new.contract", student.cod_aluno);
       }
 
       const { invoiceUrl } = response;
