@@ -57,7 +57,7 @@ export class MobileService {
 
       if (!student) throw new HttpException("Aluno não encontrado!", 401);
 
-      if (student?.status_aluno !== "A") throw new HttpException("Aluno inativo!", 401);
+      if (student?.status_aluno === "I") throw new HttpException("Aluno inativo!", 401);
 
       if (firstAccess) {
          if (password.length < 5) throw new HttpException("Senha muito curta", 401);
@@ -69,11 +69,11 @@ export class MobileService {
 
       let company = (await this.companiesService.getById(student.cod_empresa)) as any;
 
-      const { token, refreshToken } = await genTokenStudentAuth(student.cod_aluno, company.cod_empresa);
+      const { token, refreshToken, license } = await genTokenStudentAuth(student.cod_aluno, company.cod_empresa);
 
       if (deviceToken && platform) this.studentsService.saveDeviceTokenId(student.cod_aluno, deviceToken, platform);
 
-      return { student, company, token, refreshToken };
+      return { student, company, token, refreshToken, license };
    }
 
    async refreshToken(refreshTokenReq: string, deviceToken: string, platform: string) {
@@ -89,11 +89,11 @@ export class MobileService {
       const student = (await this.studentsService.getById(refreshTokenDB?.cod_aluno)) as any;
       const company = (await this.companiesService.getById(student?.cod_empresa)) as any;
 
-      const { token, refreshToken } = await genTokenStudentAuth(student.cod_aluno, company.cod_empresa);
+      const { token, refreshToken, license } = await genTokenStudentAuth(student.cod_aluno, company.cod_empresa);
 
       if (deviceToken && platform) this.studentsService.saveDeviceTokenId(student.cod_aluno, deviceToken, platform);
 
-      return { student, company, token, refreshToken };
+      return { student, company, token, refreshToken, license };
    }
 
    async getExercises(lang: string) {
