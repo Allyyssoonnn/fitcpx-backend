@@ -1,4 +1,4 @@
-const { tab_refreshtoken_aluno } = require("../../database/models");
+const { tab_refreshtoken_aluno, tab_aluno } = require("../../database/models");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
@@ -6,6 +6,9 @@ const crypto = require("crypto");
 // * Token expiration in 7 hours
 // * Refresh Token expiration in 7 days
 export async function genTokenStudentAuth(cod_aluno: string, cod_empresa: string) {
+   const student = await tab_aluno.findByPk(cod_aluno);
+   const { status_aluno: status, status_description } = student;
+
    const token = jwt.sign({ cod_aluno, cod_empresa }, process.env.SECRET, { expiresIn: "7h" });
 
    const refreshToken = crypto.randomBytes(64).toString("hex");
@@ -20,7 +23,7 @@ export async function genTokenStudentAuth(cod_aluno: string, cod_empresa: string
       expiresAt: expiresAt,
    });
 
-   return { token, refreshToken };
+   return { token, refreshToken, license: { status, status_description } };
 }
 
 // * Validate Token
