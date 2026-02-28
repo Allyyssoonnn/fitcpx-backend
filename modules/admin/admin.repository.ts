@@ -159,7 +159,7 @@ export class AdminRepository {
             (l: any) => l.payments && l.payments.some((p: any) => p.status_empresa_licenca_pagamento === "succeeded"),
          );
 
-         if (hasSucceededPayment && company?.status_empresa === "Active") {
+         if (hasSucceededPayment) {
             newsClients[companyMonth].payments++;
             return;
          }
@@ -176,7 +176,7 @@ export class AdminRepository {
 
       // Buscar todas empresas com licenças e pagamentos
       const companies = (await db.tab_empresa.findAll({
-         attributes: ["createdAt"],
+         attributes: ["createdAt", "status_empresa"],
          include: [
             {
                model: db.tab_empresa_licenca,
@@ -221,7 +221,7 @@ export class AdminRepository {
                ),
          );
 
-         if (hasSucceededPayment) {
+         if (hasSucceededPayment && company?.status_empresa === "Active") {
             count.payers++;
             return;
          }
