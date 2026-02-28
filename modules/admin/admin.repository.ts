@@ -156,7 +156,7 @@ export class AdminRepository {
 
          // 2️⃣ PAYMENTS → pelo menos um pagamento succeeded
          const hasSucceededPayment = licenses.some(
-            (l: any) => l.payments && l.payments.some((p: any) => p.status_empresa_licenca_pagamento === "succeeded")
+            (l: any) => l.payments && l.payments.some((p: any) => p.status_empresa_licenca_pagamento === "succeeded"),
          );
 
          if (hasSucceededPayment) {
@@ -176,7 +176,7 @@ export class AdminRepository {
 
       // Buscar todas empresas com licenças e pagamentos
       const companies = (await db.tab_empresa.findAll({
-         attributes: ["createdAt"],
+         attributes: ["createdAt", "status_empresa"],
          include: [
             {
                model: db.tab_empresa_licenca,
@@ -217,11 +217,11 @@ export class AdminRepository {
                l.payments.some(
                   (p: any) =>
                      p.status_empresa_licenca_pagamento === "succeeded" ||
-                     p.status_empresa_licenca_pagamento === "confirmed"
-               )
+                     p.status_empresa_licenca_pagamento === "confirmed",
+               ),
          );
 
-         if (hasSucceededPayment) {
+         if (hasSucceededPayment && company?.status_empresa === "Active") {
             count.payers++;
             return;
          }
@@ -257,7 +257,7 @@ export class AdminRepository {
             await db.payout_payments.create({ payoutId: response.id, contractPaymentId: payment.id });
             await db.tab_aluno_contrato_pagamento.update(
                { status_aluno_contrato_pagamento: "paid" },
-               { where: { cod_aluno_contrato_pagamento: payment.id } }
+               { where: { cod_aluno_contrato_pagamento: payment.id } },
             );
          }
       }
