@@ -190,4 +190,8 @@ export class MobileService {
 
       return response;
    }
+
+   async downloadContract(documentId: string, signed: boolean) {
+      return this.contractsService.downloadContract(documentId, signed);
+   }
 }

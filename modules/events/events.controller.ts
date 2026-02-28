@@ -34,4 +34,9 @@ export class EventsController {
    async overduePaymentLicense(@Query("paymentId") id: string) {
       return this.eventsService.overduePaymentLicense(id);
    }
+
+   @Get("contract/contractSigned")
+   async contractSigned(@Query("documentId") id: string) {
+      return this.eventsService.contractSigned(id);
+   }
 }

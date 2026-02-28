@@ -210,6 +210,10 @@ export class ContractsService {
 
          const contractApi = await this.contractsAPI.createContract(pdfBuffer, customer.email);
          await this.contractsRepository.updateContractApi(contractDB.cod_aluno_contrato, contractApi);
+
+         if (student?.cod_aluno) {
+            this.studentsRepository.updateStatus(student.cod_aluno, "B", "Aguardando assinatura de contrato");
+         }
       }
 
       if (student?.cod_aluno) {
@@ -220,7 +224,13 @@ export class ContractsService {
    }
 
    async downloadContract(documentId: string, signed: boolean) {
-      return this.contractsAPI.downloadContract(documentId, signed);
+      const contract = (await this.contractsRepository.findByAutentiqueID(documentId)) as any;
+
+      if (contract && contract.statusautentique_aluno_contrato === "O aluno assinou o contrato.") {
+         return this.contractsAPI.downloadContract(documentId, true);
+      }
+
+      return this.contractsAPI.downloadContract(documentId, false);
    }
 
    async cancelContract(contractId: string) {
@@ -462,5 +472,15 @@ export class ContractsService {
          url,
          contractURL,
       };
+   }
+
+   async contractSigned(documentId: string) {
+      const document = (await this.contractsRepository.findByAutentiqueID(documentId)) as any;
+
+      if (document?.cod_aluno) {
+         return this.studentsRepository.updateStatus(document.cod_aluno, "A");
+      }
+
+      return;
    }
 }

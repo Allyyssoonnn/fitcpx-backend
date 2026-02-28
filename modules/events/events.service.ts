@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
 import moment from "moment-timezone";
 import { CompaniesRepository } from "../companies/companies.repository";
+import { ContractsService } from "../contracts/contracts.service";
 import { MailsService } from "../mails/mails.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { PaymentService } from "../payments/payment.service";
@@ -16,6 +17,7 @@ const Events = {
    NEW_WORKOUT: "new.workout",
    NEW_PHYSICAL_ASSESSMENT: "new.physicalAssessment",
    NEW_SCHEDULE: "new.schedule",
+   CONTRACT_SIGNED: "contract.signed",
 };
 
 @Injectable()
@@ -26,6 +28,7 @@ export class EventsService {
       private readonly companiesRepository: CompaniesRepository,
       private readonly paymentsRepository: PaymentsRepository,
       private readonly paymentService: PaymentService,
+      private readonly contractsService: ContractsService,
    ) {}
 
    @OnEvent(Events.RECOVERY_PASSWORD_STUDENT)
@@ -227,5 +230,9 @@ export class EventsService {
          email,
          owner,
       });
+   }
+
+   async contractSigned(documentId: string) {
+      return this.contractsService.contractSigned(documentId);
    }
 }

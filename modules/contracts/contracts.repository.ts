@@ -83,13 +83,17 @@ export class ContractsRepository {
       });
    }
 
+   async findByAutentiqueID(autentiqueId: string) {
+      return db.tab_aluno_contrato.findOne({ where: { autentique_aluno_contrato: autentiqueId } });
+   }
+
    async updateApiId(contractId: string, apiId: string | null) {
       return await db.tab_aluno_contrato.update({ asaas_id: apiId }, { where: { cod_aluno: contractId } });
    }
 
    async updateContractApi(contractId: string, apiId: string | null) {
       return await db.tab_aluno_contrato.update(
-         { autentique_aluno_contrato: apiId },
+         { autentique_aluno_contrato: apiId, statusautentique_aluno_contrato: "Aguardando assinatura" },
          { where: { cod_aluno_contrato: contractId } },
       );
    }

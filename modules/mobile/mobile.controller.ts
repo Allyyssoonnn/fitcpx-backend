@@ -144,4 +144,10 @@ export class MobileController {
    ) {
       return this.mobileService.sendFitnessAssessment(companyId, studentId, neck, waist, hip, weight, height, files);
    }
+
+   @Post("downloadContract")
+   async downloadContract(@Body() body: any) {
+      const { documentId, signed } = body;
+      return this.mobileService.downloadContract(documentId, signed);
+   }
 }

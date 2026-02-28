@@ -32,6 +32,7 @@ const allowedRoutes = [
    "/events/license/confirmedPayment",
    "/events/license/createdPayment",
    "/events/license/overduePayment",
+   "/events/contract/contractSigned",
    "/notifications",
    "/mails",
    "/mails/payout",
