@@ -53,7 +53,7 @@ export class PhysicalAssessmentsService {
       //Apenas salva pois o controller envia direto para o S3
       for (const file of filesBuffer as any[]) {
          const url = file.location;
-         const imageUrl = `https://media.fitcpx.com/${file.key}`;
+         const imageUrl = `https://store.fitcpx.com/${file.key}`;
 
          if (imageUrl) {
             images.push({

@@ -49,7 +49,7 @@ export class StudentsController {
                   metadata: { timeout: 300000 },
                },
             }),
-            bucket: "media.fitcpx.com",
+            bucket: "store.fitcpx.com",
             acl: "public-read",
             contentType: multerS3.AUTO_CONTENT_TYPE,
             //Para debugs futuro no console aws
@@ -83,10 +83,10 @@ export class StudentsController {
    ) {
       const attachmentsData = files.map((f) => ({
          // key: f.key,
-         // bucket: 'media.fitcpx.com',
+         // bucket: 'store.fitcpx.com',
          // url: f.location,
          studentId,
-         url: `https://media.fitcpx.com/${f.key}`,
+         url: `https://store.fitcpx.com/${f.key}`,
          type: path.extname(f.originalname),
          // name: f.originalname,
          name: Buffer.from(f.originalname, "latin1").toString("utf8"),

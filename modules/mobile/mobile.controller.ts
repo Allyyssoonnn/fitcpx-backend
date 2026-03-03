@@ -117,7 +117,7 @@ export class MobileController {
                   metadata: { timeout: 300000 },
                },
             }),
-            bucket: "media.fitcpx.com",
+            bucket: "store.fitcpx.com",
             acl: "public-read",
             contentType: multerS3.AUTO_CONTENT_TYPE,
             key: function (req: any, file: any, cb: any) {

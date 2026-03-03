@@ -63,7 +63,7 @@ export class PhysicalAssessmentsController {
                   metadata: { timeout: 300000 },
                },
             }),
-            bucket: "media.fitcpx.com",
+            bucket: "store.fitcpx.com",
             acl: "public-read", // ou private
             contentType: multerS3.AUTO_CONTENT_TYPE,
             key: function (req: any, file: any, cb: any) {
