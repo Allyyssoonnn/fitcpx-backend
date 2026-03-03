@@ -174,7 +174,7 @@ export class MobileService {
       const images = [];
 
       for (const file of filesBuffer as Express.MulterS3.File[]) {
-         const imageUrl = `https://media.fitcpx.com/${file.key}`;
+         const imageUrl = `https://store.fitcpx.com/${file.key}`;
 
          if (imageUrl) {
             images.push({

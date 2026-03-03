@@ -21,15 +21,15 @@ export class StorageAPI {
    async uploadFile(file: Express.Multer.File, key: string) {
       await this.s3Client.send(
          new PutObjectCommand({
-            Bucket: "media.fitcpx.com",
+            Bucket: "store.fitcpx.com",
             Key: key,
             Body: file.buffer,
             ACL: "public-read",
             ContentType: file.mimetype,
-         })
+         }),
       );
 
-      const imageUrl = `https://media.fitcpx.com/${key}`;
+      const imageUrl = `https://store.fitcpx.com/${key}`;
 
       return imageUrl;
    }
@@ -37,17 +37,17 @@ export class StorageAPI {
    async uploadFileBuffer(file: Buffer, key: string) {
       await this.s3Client.send(
          new PutObjectCommand({
-            Bucket: "media.fitcpx.com",
+            Bucket: "store.fitcpx.com",
             Key: key,
             Body: file,
             ACL: "public-read",
             ContentType: "application/pdf",
             // 2. Garante que o PDF abra no navegador (em vez de baixar automaticamente)
             ContentDisposition: "inline",
-         })
+         }),
       );
 
-      const imageUrl = `https://media.fitcpx.com/${key}`;
+      const imageUrl = `https://store.fitcpx.com/${key}`;
 
       return imageUrl;
    }
@@ -55,7 +55,7 @@ export class StorageAPI {
    //Not used
    async deleteFile(folder: string, id: string) {
       const params = {
-         Bucket: "media.fitcpx.com",
+         Bucket: "store.fitcpx.com",
          Key: `${folder}/${id}`,
       };
 

@@ -8,7 +8,7 @@ export class PhysicalAssessmentsService {
    constructor(
       private readonly physicalAssessmentsRepository: PhysicalAssessmentsRepository,
       private readonly storageService: StorageService,
-      private readonly eventsService: EventsService
+      private readonly eventsService: EventsService,
    ) {}
 
    async getAll(companyId: string, deleted: boolean, studentId?: string) {
@@ -36,7 +36,7 @@ export class PhysicalAssessmentsService {
    async updateImagePhysicalAssessment(
       physicalAssessmentId: string,
       filesBuffer: Express.Multer.File[],
-      deletedImages?: string
+      deletedImages?: string,
    ) {
       if (deletedImages) {
          const array = JSON.parse(deletedImages);
@@ -55,7 +55,7 @@ export class PhysicalAssessmentsService {
       //Apenas salva pois o controller envia direto para o S3
       for (const file of filesBuffer as any[]) {
          const url = file.location;
-         const imageUrl = `https://media.fitcpx.com/${file.key}`;
+         const imageUrl = `https://store.fitcpx.com/${file.key}`;
 
          if (imageUrl) {
             images.push({
