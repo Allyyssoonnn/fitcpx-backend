@@ -22,4 +22,5 @@ jobs:
                  git fetch origin main
                  git reset --hard origin/main
                  sudo docker compose -p fitcpx_prod -f docker-compose.yml pull
+                 sudo docker compose -p fitcpx_prod -f docker-compose.yml down
                  sudo docker compose -p fitcpx_prod -f docker-compose.yml up -d --remove-orphans --build
