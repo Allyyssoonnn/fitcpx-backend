@@ -19,7 +19,7 @@ export class PaymentsRepository {
                include: [{ model: db.tab_aluno, as: "aluno" }],
             },
          ],
-         limit: 5,
+         // limit: 5,
       });
    }
 

@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { randomUUID } from "crypto";
+import moment from "moment-timezone";
 import db from "../../database/models";
 
 @Injectable()
@@ -144,18 +145,48 @@ export class CompaniesRepository {
 
    async getDashboardInfo(companyId: string) {
       const clientsLength = await db.tab_aluno.count({ where: { cod_empresa: companyId, status_aluno: "A" } });
-      const usersLength = await db.tab_usuario.count({ where: { cod_empresa: companyId } });
+      const last5Clients = await db.tab_aluno.findAll({
+         where: { cod_empresa: companyId, status_aluno: "A" },
+         order: [["createdAt", "DESC"]],
+         limit: 5,
+      });
       const physicalAssessmentsLength = await db.tab_avaliacao.count({
          include: [{ model: db.tab_usuario, as: "usuario", where: { cod_empresa: companyId } }],
       });
+      const physicalAssessmentsLasts = await db.tab_avaliacao.findAll({
+         include: [{ model: db.tab_aluno, as: "aluno", where: { cod_empresa: companyId } }],
+         order: [["createdAt", "DESC"]],
+         limit: 5,
+      });
       const workoutLength = await db.tab_treino.count({ where: { cod_empresa: companyId } });
+      const workouts = await db.tab_treino.findAll({
+         include: [{ model: db.tab_aluno, as: "aluno", where: { cod_empresa: companyId } }],
+         order: [["createdAt", "DESC"]],
+         limit: 5,
+      });
 
       return {
          lengths: {
             clients: clientsLength,
-            users: usersLength,
             physicalAssessments: physicalAssessmentsLength,
             workouts: workoutLength,
+         },
+         list: {
+            clients: last5Clients.map((client: any) => ({
+               id: client.cod_aluno,
+               label: client.nome_aluno,
+               label2: moment(client.createdAt).format("DD/MM/YYYY"),
+            })),
+            physicalAssessments: physicalAssessmentsLasts.map((assessment: any) => ({
+               id: assessment.cod_avaliacao,
+               label: assessment.aluno.nome_aluno,
+               label2: assessment.data_avaliacao,
+            })),
+            workouts: workouts.map((workout: any) => ({
+               id: workout.cod_treino,
+               label: workout.aluno.nome_aluno,
+               label2: moment(workout.createdAt).format("DD/MM/YYYY"),
+            })),
          },
       };
    }
