@@ -180,7 +180,7 @@ export class CompaniesRepository {
             physicalAssessments: physicalAssessmentsLasts.map((assessment: any) => ({
                id: assessment.cod_avaliacao,
                label: assessment.aluno.nome_aluno,
-               label2: assessment.data_avaliacao,
+               label2: moment(assessment.data_avaliacao).format("DD/MM/YYYY"),
             })),
             workouts: workouts.map((workout: any) => ({
                id: workout.cod_treino,
