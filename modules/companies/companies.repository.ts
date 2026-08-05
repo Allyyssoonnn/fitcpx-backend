@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { randomUUID } from "crypto";
 import moment from "moment-timezone";
+import { Op } from "sequelize";
 import db from "../../database/models";
 
 @Injectable()
@@ -143,6 +144,46 @@ export class CompaniesRepository {
       });
    }
 
+   async getLastActivities(companyId: string) {
+      const lastPhysicalAssessments = await db.tab_avaliacao.findAll({
+         include: [{ model: db.tab_aluno, as: "aluno", where: { cod_empresa: companyId } }],
+         order: [["createdAt", "DESC"]],
+         limit: 5,
+      });
+
+      const lastWorkouts = await db.tab_treino.findAll({
+         include: [{ model: db.tab_aluno, as: "aluno", where: { cod_empresa: companyId } }],
+         order: [["createdAt", "DESC"]],
+         limit: 5,
+      });
+
+      const lastStudents = await db.tab_aluno.findAll({
+         where: { cod_empresa: companyId, status_aluno: "A" },
+         order: [["createdAt", "DESC"]],
+         limit: 5,
+      });
+
+      const activities = [
+         ...lastPhysicalAssessments.map((item: any) => ({
+            date: item.get("data_avaliacao"),
+            name: item.aluno.nome_aluno,
+            type: "assessment",
+         })),
+         ...lastWorkouts.map((item: any) => ({
+            date: item.get("createdAt"),
+            name: item.aluno.nome_aluno,
+            type: "workout",
+         })),
+         ...lastStudents.map((item: any) => ({
+            date: item.get("createdAt"),
+            name: item.nome_aluno,
+            type: "student",
+         })),
+      ];
+
+      return activities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
+   }
+
    async getDashboardInfo(companyId: string) {
       const clientsLength = await db.tab_aluno.count({ where: { cod_empresa: companyId, status_aluno: "A" } });
       const last5Clients = await db.tab_aluno.findAll({
@@ -150,6 +191,17 @@ export class CompaniesRepository {
          order: [["createdAt", "DESC"]],
          limit: 5,
       });
+      const clientsMonthLength = await db.tab_aluno.count({
+         where: {
+            cod_empresa: companyId,
+            status_aluno: "A",
+            createdAt: {
+               [Op.gte]: moment().startOf("month").toDate(),
+               [Op.lte]: moment().endOf("month").toDate(),
+            },
+         },
+      });
+
       const physicalAssessmentsLength = await db.tab_avaliacao.count({
          include: [{ model: db.tab_usuario, as: "usuario", where: { cod_empresa: companyId } }],
       });
@@ -158,14 +210,43 @@ export class CompaniesRepository {
          order: [["createdAt", "DESC"]],
          limit: 5,
       });
+      const physicalAssessmentsMonthLength = await db.tab_avaliacao.count({
+         include: [
+            {
+               model: db.tab_usuario,
+               as: "usuario",
+               where: { cod_empresa: companyId },
+            },
+         ],
+         where: {
+            createdAt: {
+               [Op.gte]: moment().startOf("month").toDate(),
+               [Op.lte]: moment().endOf("month").toDate(),
+            },
+         },
+      });
       const workoutLength = await db.tab_treino.count({ where: { cod_empresa: companyId } });
       const workouts = await db.tab_treino.findAll({
          include: [{ model: db.tab_aluno, as: "aluno", where: { cod_empresa: companyId } }],
          order: [["createdAt", "DESC"]],
          limit: 5,
       });
+      const workoutMonthLength = await db.tab_treino.count({
+         where: {
+            cod_empresa: companyId,
+            createdAt: {
+               [Op.gte]: moment().startOf("month").toDate(),
+               [Op.lte]: moment().endOf("month").toDate(),
+            },
+         },
+      });
 
       return {
+         monthLengths: {
+            clients: clientsMonthLength,
+            physicalAssessments: physicalAssessmentsMonthLength,
+            workouts: workoutMonthLength,
+         },
          lengths: {
             clients: clientsLength,
             physicalAssessments: physicalAssessmentsLength,

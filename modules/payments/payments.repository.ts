@@ -9,8 +9,19 @@ export class PaymentsRepository {
    }
 
    async getDuePayments(companyId: string) {
+      const now = new Date();
+
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
       return db.tab_aluno_contrato_pagamento.findAll({
-         where: { status_aluno_contrato_pagamento: "overdue" },
+         where: {
+            status_aluno_contrato_pagamento: "overdue",
+            expiracao_aluno_contrato_pagamento: {
+               [Op.gte]: startOfMonth,
+               [Op.lt]: startOfNextMonth,
+            },
+         },
          include: [
             {
                model: db.tab_aluno_contrato,

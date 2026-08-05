@@ -57,6 +57,11 @@ export class CompaniesController {
       return this.companiesService.getOlderPhysicalAssessments(companyId);
    }
 
+   @Get("getLastActivities")
+   async getLastActivities(@CompanyId() companyId: string) {
+      return this.companiesService.getLastActivities(companyId);
+   }
+
    @Get("getToursInfo")
    async getToursInfo(@CompanyId() companyId: string) {
       return this.companiesService.getToursInfo(companyId);
