@@ -61,11 +61,11 @@ export async function getLicenseOnly(cod_empresa: string) {
       var diffTime = today.getTime() - created.getTime();
       var diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-      if (diffDays > 7) {
+      if (diffDays > 30) {
          authorizedStatus = "Trial Expired";
       } else {
          authorizedStatus = "Trial Active";
-         trialDaysLeft = 7 - diffDays;
+         trialDaysLeft = 30 - diffDays;
       }
    }
 

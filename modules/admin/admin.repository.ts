@@ -196,7 +196,7 @@ export class AdminRepository {
       companies.forEach((company) => {
          const licenses = company.licenses || [];
          const diff = moment().diff(moment(company.createdAt), "days");
-         const isStale = diff > 7;
+         const isStale = diff > 30; // Considera empresas com mais de 30 dias como "stale"
 
          // 1️⃣ TRIAL → sem licença
          if (licenses.length === 0) {
