@@ -4,7 +4,7 @@ import FormData from "form-data";
 import { Readable } from "stream";
 const dev = process.env.NODE_ENV != "production";
 const urlBase = "https://api.autentique.com.br/v2/graphql";
-const tokenAPI = "[REDACTED_CREDENTIAL]";
+const tokenAPI = process.env.AUTENTIQUE_KEY;
 
 @Injectable()
 export class ContractsAPI {
@@ -28,7 +28,7 @@ export class ContractsAPI {
          "operations",
          `{"query":"mutation CreateDocumentMutation($document: DocumentInput!,$signers: [SignerInput!]!,$file: Upload!) {createDocument(sandbox: ${
             dev ? "true" : "false"
-         },document: $document,signers: $signers,file: $file) {id name refusable sortable created_at signatures { public_id name email created_at action { name } link { short_link } user { id name email }}}}","variables":{"document": {"name": "${name}"},"signers": [{"email": "${email}","action": "SIGN"}],"file":null}}`
+         },document: $document,signers: $signers,file: $file) {id name refusable sortable created_at signatures { public_id name email created_at action { name } link { short_link } user { id name email }}}}","variables":{"document": {"name": "${name}"},"signers": [{"email": "${email}","action": "SIGN"}],"file":null}}`,
       );
       data.append("map", '{"file": ["variables.file"]}');
       data.append("file", bufferToStream(contractPDF), {
@@ -91,7 +91,7 @@ export class ContractsAPI {
          maxBodyLength: Infinity,
          url: "https://api.autentique.com.br/v2/graphql",
          headers: {
-            Authorization: "Bearer [REDACTED_CREDENTIAL]",
+            Authorization: `Bearer ${this.token}`,
             "Content-Type": "application/json",
          },
          data: data,

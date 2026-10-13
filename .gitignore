@@ -129,3 +129,17 @@ out
 .yarn/install-state.gz
 .pnp.*
 dist
+
+# macOS
+.DS_Store
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Database configuration
+/database/config.json
+
+# Firebase service account
+/modules/notifications/keys/*.json

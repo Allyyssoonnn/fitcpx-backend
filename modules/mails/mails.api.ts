@@ -2,8 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { MailtrapClient } from "mailtrap";
 const dev = process.env.NODE_ENV !== "production";
 
-const TOKEN = "[REDACTED_CREDENTIAL]";
-const sandboxTOKEN = "[REDACTED_CREDENTIAL]";
+const TOKEN = process.env.MAILTRAP_TOKEN;
+const sandboxTOKEN = process.env.MAILTRAP_SANDBOX_TOKEN;
 
 const client = new MailtrapClient({
    token: dev ? sandboxTOKEN : TOKEN,

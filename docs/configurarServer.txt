@@ -10,8 +10,6 @@ Observações
 - nvm install v18.15.0
 
 2. Instalar GIT
-Token
-- [REDACTED_CREDENTIAL]
 
 Salvar credencial
 - git config --global credential.helper store
@@ -116,5 +114,3 @@ docker run -d -p 9000:9000 --name portainer \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v portainer_data:/data \
   portainer/portainer-ce
-
-http://212.85.2.135:9000

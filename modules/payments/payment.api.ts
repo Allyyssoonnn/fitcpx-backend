@@ -2,9 +2,7 @@ import { Injectable } from "@nestjs/common";
 import moment from "moment-timezone";
 const dev = process.env.NODE_ENV != "production";
 
-const tokenAPI = dev
-   ? "[REDACTED_CREDENTIAL]"
-   : "[REDACTED_CREDENTIAL]";
+const tokenAPI = dev ? process.env.ASAAS_KEY_DEVELOPMENT : process.env.ASAAS_KEY_PRODUCTION;
 const urlBase = dev ? "https://api-sandbox.asaas.com/" : "https://api.asaas.com/";
 
 @Injectable()

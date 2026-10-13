@@ -9,8 +9,8 @@ export class StorageAPI {
       this.s3Client = new S3Client({
          region: "sa-east-1",
          credentials: {
-            accessKeyId: "[REDACTED_CREDENTIAL]",
-            secretAccessKey: "[REDACTED_CREDENTIAL]",
+            accessKeyId: process.env.ACCESS_KEY_AWS,
+            secretAccessKey: process.env.SECRET_KEY_AWS,
          },
          requestHandler: {
             metadata: { timeout: 300000 },
