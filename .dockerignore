@@ -4,3 +4,11 @@ npm-debug.log
 .env
 Dockerfile
 README.md
+
+# Private files must not enter a Docker build context
+.env.*
+!.env.example
+/database/config.json
+/modules/notifications/keys/*.json
+**/.DS_Store
+__MACOSX/
